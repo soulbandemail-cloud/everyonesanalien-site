@@ -1,5 +1,10 @@
 "use client";
+
+import { useState } from "react";
+
 export default function Home() {
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
   return (
     <main className="min-h-screen bg-black text-green-400 p-8 max-w-xl mx-auto">
 
@@ -27,29 +32,30 @@ export default function Home() {
         <form
   className="flex flex-col gap-3 max-w-md"
   onSubmit={async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  setStatus("loading");
 
-    const form = e.target as HTMLFormElement;
-    const formData = new FormData(form);
+  const form = e.target as HTMLFormElement;
+  const formData = new FormData(form);
 
-    const name = formData.get("name");
-    const email = formData.get("email");
+  const name = formData.get("name");
+  const email = formData.get("email");
 
-    const res = await fetch("/api/subscribe", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name, email }),
-    });
+  const res = await fetch("/api/subscribe", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ name, email }),
+  });
 
-    if (res.ok) {
-      form.reset();
-      alert("WELCOME ABOARD. You're now a Mate.");
-    } else {
-      alert("Something went wrong. Try again.");
-    }
-  }}
+  if (res.ok) {
+    form.reset();
+    setStatus("success");
+  } else {
+    setStatus("error");
+  }
+}}
 >
   <input
     name="name"
@@ -67,10 +73,25 @@ export default function Home() {
     required
   />
 
-  <button className="border border-green-400 p-2">
-    SIGN UP
-  </button>
+ <button
+  className="border border-green-400 p-2"
+  disabled={status === "loading"}
+>
+  {status === "loading" ? "TRANSMITTING..." : "SIGN UP"}
+</button>
 </form>
+{status === "success" && (
+  <div className="mt-4 border border-green-400 p-3">
+    WELCOME ABOARD.<br />
+    You're now a Mate.<br />
+    Watch your inbox for transmissions.
+  </div>
+)}
+{status === "error" && (
+  <div className="mt-4 border border-red-500 p-3 text-red-400">
+    Transmission failed. Try again.
+  </div>
+)}
       </section>
 
       <section className="mb-16">
