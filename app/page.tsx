@@ -115,7 +115,7 @@ if (res.ok) {
 </ul>
       </section>
 </div>
-      <footer className="border-t border-green-400 pt-6 mt-4">
+      <footer className="border-t border-green-400 pt-6 mt-8">
   <div className="flex flex-wrap gap-6">
     <a
       href="https://www.instagram.com/everyonesanalien/"
