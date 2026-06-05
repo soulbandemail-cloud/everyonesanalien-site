@@ -24,20 +24,20 @@ export default function Home() {
 
     <main className="min-h-screen text-white p-8 md:p-12 max-w-6xl mx-auto">
 
-      <div className="mb-6 md:mb-6">
+      <div className="mb-2">
 
        <p className="mt-2 text-sm tracking-widest text-[#6ee7b7]">
     everyonesanalien.com
      <span className="animate-pulse ">_</span>
         </p>
 
-  <h1 className="text-6xl font-bold">
+  <h1 className="text-6xl font-bold mt-2">
     SOUL
   </h1>
  
 </div>
 
- <div className="flex flex-wrap gap-6">
+ <div className="flex flex-wrap gap-6 mb-8 md:mb-12">
 
 <a
     href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
