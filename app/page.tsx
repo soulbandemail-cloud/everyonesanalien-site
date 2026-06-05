@@ -73,7 +73,7 @@ export default function Home() {
   </h1>
 </div>
 
-<div className="grid gap-8 md:gap-16 md:grid-cols-3 mb-4 md:mb-16 md:text-center">
+<div className="grid gap-8 md:gap-16 md:grid-cols-3 mb-4 md:mb-16">
       <section>
         <h2 className="text-2xl mb-4">BECOME A MATE</h2>
      <p className="mb-4">Sign up to SOUL's mailing list to get your HYPER-FIX!</p>
