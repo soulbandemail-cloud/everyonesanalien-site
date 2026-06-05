@@ -24,7 +24,7 @@ export default function Home() {
 
     <main className="min-h-screen text-white p-8 md:p-12 max-w-6xl mx-auto">
 
-      <div className="mb-12 md:mb-16">
+      <div className="mb-12 md:mb-6">
 
        <p className="mt-2 text-sm tracking-widest text-[#6ee7b7]">
     everyonesanalien.com
@@ -37,7 +37,7 @@ export default function Home() {
  
 </div>
 
- <div className="flex flex-wrap gap-6">
+ <div className="flex flex-wrap gap-16">
 
 <a
     href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
