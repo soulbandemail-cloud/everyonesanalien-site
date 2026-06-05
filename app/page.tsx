@@ -27,8 +27,11 @@ export default function Home() {
       <div className="mb-12 md:mb-16">
   <h1 className="text-6xl font-bold">
     SOUL
-    <span className="animate-pulse text-[#6ee7b7]">_</span>
   </h1>
+  <p className="mt-2 text-sm tracking-widest text-[#6ee7b7]">
+    everyonesanalien.com
+     <span className="animate-pulse ">_</span>
+        </p>
 </div>
 <div className="grid gap-8 md:gap-16 md:grid-cols-3 mb-4 md:mb-16">
       <section>
