@@ -21,7 +21,7 @@ export default function Home() {
 <div className="grid gap-16 md:grid-cols-3 mb-16">
       <section className="mb-16">
         <h2 className="text-2xl mb-4">BECOME A MATE</h2>
-     <p className="mb-4">Get you monthly HYPER-FIX!</p>
+     <p className="mb-4">Get your monthly HYPER-FIX!</p>
         <form
   className="flex flex-col gap-3 max-w-md"
   onSubmit={async (e) => {
