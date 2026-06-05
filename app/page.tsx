@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <main className="min-h-screen text-green-400 p-8 md:p-12 max-w-6xl mx-auto">
 
-      <div className="mb-8 md:mb-16">
+      <div className="mb-12 md:mb-16">
   <h1 className="text-6xl font-bold">
     SOUL
   </h1>
@@ -115,7 +115,7 @@ if (res.ok) {
 </ul>
       </section>
 </div>
-      <footer className="border-t border-green-400 pt-6 mt-16">
+      <footer className="border-t border-green-400 pt-6 mt-12">
   <div className="flex flex-wrap gap-6">
     <a
       href="https://www.instagram.com/everyonesanalien/"
