@@ -26,11 +26,7 @@ export default function Home() {
 
       <div className="mb-2">
 
-       <p className="mt-2 text-sm tracking-widest text-[#6ee7b7]">
-    everyonesanalien.com
-     <span className="animate-pulse ">_</span>
-        </p>
-
+      
   <h1 className="text-6xl font-bold mt-2">
     SOUL
   </h1>
