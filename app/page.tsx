@@ -134,23 +134,26 @@ if (res.ok) {
     href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
     target="_blank"
     rel="noopener noreferrer"
+    className="transition-colors hover:text-white"
   >
     <FaSpotify size={28} />
   </a>
 
 
-  <a
-    href="https://www.instagram.com/everyonesanalien/"
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    <FaInstagram size={28} />
-  </a>
+ <a
+  href="https://www.instagram.com/everyonesanalien/"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="transition-colors hover:text-white"
+>
+  <FaInstagram size={28} />
+</a>
 
   <a
     href="https://www.tiktok.com/@everyonesanalien?lang=en-GB"
     target="_blank"
     rel="noopener noreferrer"
+    className="transition-colors hover:text-white"
   >
     <FaTiktok size={28} />
   </a>
@@ -159,6 +162,7 @@ if (res.ok) {
     href="https://www.youtube.com/channel/UCTp_Wb8HBHWMQxXvNzxkksg"
     target="_blank"
     rel="noopener noreferrer"
+    className="transition-colors hover:text-white"
   >
     <FaYoutube size={28} />
   </a>
