@@ -6,7 +6,7 @@ export default function Home() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "already" | "error">("idle");
 
   return (
-    <main className="min-h-screen bg-black text-green-400 p-8 max-w-xl mx-auto">
+    <main className="min-h-screen bg-black text-green-400 p-8 md:px-24 lg:px-40 max-w-xl md:max-w-4xl mx-auto">
 
       <div className="mb-16">
   <h1 className="text-6xl font-bold">
