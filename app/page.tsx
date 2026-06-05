@@ -18,7 +18,7 @@ export default function Home() {
       <span className="animate-pulse">_</span>
   </p>
 </div>
-<div className="grid gap-8 md:gap-16 md:grid-cols-3 mb-8 md:mb-16">
+<div className="grid gap-8 md:gap-16 md:grid-cols-3 mb-4 md:mb-16">
       <section>
         <h2 className="text-2xl mb-4">BECOME A MATE</h2>
      <p className="mb-4">Get your monthly HYPER-FIX!</p>
@@ -98,8 +98,8 @@ if (res.ok) {
 )}
       </section>
 
-      <section className="mb-16">
-        <h2 className="text-2xl mb-4">UPCOMING SHOWS</h2>
+      <section className="mt-4 md:mt-0">
+  <h2 className="text-2xl mb-4">UPCOMING SHOWS</h2>
 
         <ul className="space-y-2">
   <li>
