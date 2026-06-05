@@ -1,3 +1,4 @@
+"use client";
 export default function Home() {
   return (
     <main className="min-h-screen bg-black text-green-400 p-8 max-w-xl mx-auto">
