@@ -67,14 +67,14 @@ export default function Home() {
 
 
 
-<div className="mb-8">  
-  <h1 className="text-6xl font-bold mt-10 text-center">
+<div className="mb-12">  
+  <h1 className="text-6xl font-bold mt-14 text-center">
     SOUL
   </h1>
 </div>
 
 <div className="grid gap-8 md:gap-16 md:grid-cols-3 mb-4 md:mb-16">
-      <section>
+      <section className="md:max-w-sm md:mx-auto">
         <h2 className="text-2xl mb-4">BECOME A MATE</h2>
      <p className="mb-4">Sign up to SOUL's mailing list to get your HYPER-FIX!</p>
         <form
