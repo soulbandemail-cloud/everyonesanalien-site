@@ -29,20 +29,6 @@ body {
   inset: 0;
   pointer-events: none;
   z-index: -1;
-
-  background-image:
-    radial-gradient(1px 1px at 5% 15%, white, transparent),
-    radial-gradient(1px 1px at 15% 65%, white, transparent),
-    radial-gradient(1px 1px at 25% 35%, white, transparent),
-    radial-gradient(1px 1px at 35% 85%, white, transparent),
-    radial-gradient(1px 1px at 45% 20%, white, transparent),
-    radial-gradient(1px 1px at 55% 55%, white, transparent),
-    radial-gradient(1px 1px at 65% 10%, white, transparent),
-    radial-gradient(1px 1px at 75% 75%, white, transparent),
-    radial-gradient(1px 1px at 85% 40%, white, transparent),
-    radial-gradient(1px 1px at 95% 60%, white, transparent);
-
-  opacity: 0.5;
 }
 .stars::before,
 .stars::after {
@@ -52,7 +38,7 @@ body {
   z-index: -1;
   width: 26px;
   height: 26px;
-  background: #ffffff;
+  background: white;
   clip-path: polygon(
     50% 0%,
     58% 42%,
@@ -64,8 +50,10 @@ body {
     42% 42%
   );
   filter: drop-shadow(0 0 6px white);
-  opacity: 0.7;
-}.stars::before {
+  opacity: 0.75;
+}
+
+.stars::before {
   top: 18%;
   left: 78%;
   animation: star-glint 4s infinite ease-in-out;
@@ -90,3 +78,27 @@ body {
     transform: scale(1);
   }
 }
+.star {
+  position: fixed;
+  width: 18px;
+  height: 18px;
+  background: white;
+  clip-path: polygon(
+    50% 0%,
+    58% 42%,
+    100% 50%,
+    58% 58%,
+    50% 100%,
+    42% 58%,
+    0% 50%,
+    42% 42%
+  );
+  filter: drop-shadow(0 0 6px white);
+  animation: star-glint 7s infinite ease-in-out;
+}
+
+.star-1 { top: 12%; left: 12%; width: 14px; height: 14px; animation-delay: 1s; }
+.star-2 { top: 28%; left: 42%; width: 22px; height: 22px; animation-delay: 3s; }
+.star-3 { top: 48%; left: 86%; width: 16px; height: 16px; animation-delay: 5s; }
+.star-4 { top: 66%; left: 58%; width: 28px; height: 28px; animation-delay: 2s; }
+.star-5 { top: 84%; left: 32%; width: 12px; height: 12px; animation-delay: 4s; }

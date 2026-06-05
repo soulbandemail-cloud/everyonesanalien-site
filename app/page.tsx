@@ -7,7 +7,13 @@ export default function Home() {
 
   return (
   <>
-    <div className="stars"></div>
+    <div className="stars">
+  <span className="star star-1"></span>
+  <span className="star star-2"></span>
+  <span className="star star-3"></span>
+  <span className="star star-4"></span>
+  <span className="star star-5"></span>
+</div>
 
     <main className="min-h-screen text-green-400 p-8 md:p-12 max-w-6xl mx-auto">
 
