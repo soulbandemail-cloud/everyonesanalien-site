@@ -109,8 +109,17 @@ if (res.ok) {
         <h2 className="text-2xl mb-4">UPCOMING SHOWS</h2>
 
         <ul className="space-y-2">
-          <li>LONDON 25th June</li>
-        </ul>
+  <li>
+    <a
+      href="https://link.dice.fm/Md31a985f532?dice_id=Md31a985f532"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="hover:text-green-300 transition-colors"
+    >
+      LONDON 25th June
+    </a>
+  </li>
+</ul>
       </section>
 
       <section className="mb-16">
