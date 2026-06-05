@@ -13,7 +13,7 @@ export default function Home() {
     SOUL
   </h1>
 
-  <p className="mt-2 text-sm tracking-widest opacity-80">
+  <p className="mt-2 text-sm tracking-widest">
     EVERYONESANALIEN.COM
     <span className="animate-pulse">_</span>
   </p>
