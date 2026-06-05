@@ -6,6 +6,9 @@ export default function Home() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "already" | "error">("idle");
 
   return (
+  <>
+    <div className="stars"></div>
+
     <main className="min-h-screen text-green-400 p-8 md:p-12 max-w-6xl mx-auto">
 
       <div className="mb-12 md:mb-16">
@@ -151,6 +154,7 @@ if (res.ok) {
   </div>
 </footer>
 
-    </main>
+        </main>
+  </>
   );
 }
