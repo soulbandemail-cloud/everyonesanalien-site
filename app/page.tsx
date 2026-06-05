@@ -6,7 +6,7 @@ export default function Home() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "already" | "error">("idle");
 
   return (
-    <main className="min-h-screen text-green-400 p-8 max-w-xl mx-auto">
+    <main className="min-h-screen text-green-400 p-8 md:p-12 max-w-6xl mx-auto">
 
       <div className="mb-16">
   <h1 className="text-6xl font-bold">
@@ -17,7 +17,7 @@ export default function Home() {
     everyonesanalien.com
   </p>
 </div>
-
+<div className="grid gap-16 md:grid-cols-3 mb-16">
       <section className="mb-16">
         <h2 className="text-2xl mb-4">BECOME A MATE</h2>
 
@@ -130,7 +130,7 @@ if (res.ok) {
   <span className="animate-pulse">_</span>
 </p>
       </section>
-
+</div>
       <footer className="border-t border-green-400 pt-6">
   <div className="flex flex-wrap gap-6">
     <a
