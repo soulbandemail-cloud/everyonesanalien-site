@@ -22,10 +22,10 @@ export default function Home() {
   <span className="star star-5"></span>
 </div>
 
-    <main className="min-h-screen text-[#6ee7b7] p-8 md:p-12 max-w-6xl mx-auto">
+    <main className="min-h-screen text-white p-8 md:p-12 max-w-6xl mx-auto">
 
       <div className="mb-12 md:mb-16">
-  <h1 className="text-6xl font-bold">
+  <h1 className="text-6xl font-bold text-[#6ee7b7]">
     SOUL
     <span className="animate-pulse">_</span>
   </h1>
