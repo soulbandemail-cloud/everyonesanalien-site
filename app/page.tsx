@@ -22,7 +22,7 @@ export default function Home() {
   <span className="star star-5"></span>
 </div>
 
-    <main className="min-h-screen text-green-400 p-8 md:p-12 max-w-6xl mx-auto">
+    <main className="min-h-screen text-white p-8 md:p-12 max-w-6xl mx-auto">
 
       <div className="mb-12 md:mb-16">
   <h1 className="text-6xl font-bold">
@@ -72,7 +72,7 @@ if (res.ok) {
     name="name"
     type="text"
     placeholder="NAME"
-    className="border border-green-400 bg-[#00082d] p-2"
+    className="border border-white bg-[#00082d] p-2"
     required
   />
 
@@ -80,19 +80,19 @@ if (res.ok) {
     name="email"
     type="email"
     placeholder="EMAIL"
-    className="border border-green-400 bg-[#00082d] p-2"
+    className="border border-white bg-[#00082d] p-2"
     required
   />
 
  <button
-  className="border border-green-400 p-2 hover:bg-green-400 hover:text-[#00082d] transition-colors disabled:opacity-50"
+  className="border border-white p-2 hover:bg-white hover:text-[#00082d] transition-colors disabled:opacity-50"
   disabled={status === "loading"}
 >
   {status === "loading" ? "TRANSMITTING..." : "SIGN UP"}
 </button>
 </form>
 {status === "success" && (
-  <div className="mt-4 border border-green-400 p-3">
+  <div className="mt-4 border border-white p-3">
     WELCOME ABOARD.<br />
     You're now a Mate.<br />
     Watch your inbox for transmissions.
@@ -104,7 +104,7 @@ if (res.ok) {
   </div>
 )}
 {status === "already" && (
-  <div className="mt-4 border border-green-400 p-3">
+  <div className="mt-4 border border-white p-3">
     You're already a Mate, mate.
   </div>
 )}
@@ -119,7 +119,7 @@ if (res.ok) {
   href="https://link.dice.fm/Md31a985f532?dice_id=Md31a985f532"
   target="_blank"
   rel="noopener noreferrer"
-  className="inline-block border border-green-400 px-3 py-2 hover:bg-green-400 hover:text-[#00082d] transition-colors"
+  className="inline-block border border-white px-3 py-2 hover:bg-white hover:text-[#00082d] transition-colors"
 >
   LONDON 25th June
 </a>
@@ -127,7 +127,7 @@ if (res.ok) {
 </ul>
       </section>
 </div>
-      <footer className="border-t border-green-400 pt-6 mt-12">
+      <footer className="border-t border-white pt-6 mt-12">
   <div className="flex flex-wrap gap-6">
 
 <a
