@@ -68,7 +68,7 @@ export default function Home() {
 
 
 <div className="mb-8">  
-  <h1 className="text-6xl font-bold mt-8 text-center">
+  <h1 className="text-6xl font-bold mt-10 text-center">
     SOUL
   </h1>
 </div>
