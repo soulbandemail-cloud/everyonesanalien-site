@@ -85,7 +85,7 @@ if (res.ok) {
   />
 
  <button
-  className="border border-white p-2 hover:bg-[#6ee7b7] hover:text-[#00082d] transition-colors disabled:opacity-50"
+  className="border border-white p-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] transition-colors disabled:opacity-50"
   disabled={status === "loading"}
 >
   {status === "loading" ? "TRANSMITTING..." : "SIGN UP"}
@@ -119,7 +119,7 @@ if (res.ok) {
   href="https://link.dice.fm/Md31a985f532?dice_id=Md31a985f532"
   target="_blank"
   rel="noopener noreferrer"
-  className="inline-block border border-white px-3 py-2 hover:bg-[#6ee7b7] hover:text-[#00082d] transition-colors"
+  className="inline-block border border-white px-3 py-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] transition-colors"
 >
   LONDON 25th June
 </a>
