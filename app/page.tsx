@@ -24,7 +24,7 @@ export default function Home() {
 
     <main className="min-h-screen text-white p-8 md:p-12 max-w-6xl mx-auto">
 
- <div className="flex flex-wrap gap-18 mb-4 md:mb-4">
+ <div className="flex flex-wrap gap-18 mb-4 md:mb-4 text-center">
 
 <a
     href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
@@ -68,7 +68,7 @@ export default function Home() {
 
 
 <div className="mb-8">  
-  <h1 className="text-6xl font-bold mt-2">
+  <h1 className="text-6xl font-bold mt-2 text-center">
     SOUL
   </h1>
 </div>
