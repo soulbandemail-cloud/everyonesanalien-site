@@ -27,7 +27,7 @@ export default function Home() {
       <div className="mb-12 md:mb-16">
   <h1 className="text-6xl font-bold">
     SOUL
-    <span className="animate-pulse [#6ee7b7]">_</span>
+    <span className="animate-pulse text-[#6ee7b7]">_</span>
   </h1>
 </div>
 <div className="grid gap-8 md:gap-16 md:grid-cols-3 mb-4 md:mb-16">
