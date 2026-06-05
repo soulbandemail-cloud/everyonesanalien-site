@@ -119,7 +119,7 @@ if (res.ok) {
   href="https://link.dice.fm/Md31a985f532?dice_id=Md31a985f532"
   target="_blank"
   rel="noopener noreferrer"
-  className="inline-block border border-white px-3 py-2 hover:bg-white hover:text-[#00082d] transition-colors"
+  className="inline-block border border-white px-3 py-2 hover:bg-[#6ee7b7] hover:text-[#00082d] transition-colors"
 >
   LONDON 25th June
 </a>
@@ -134,7 +134,7 @@ if (res.ok) {
     href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
     target="_blank"
     rel="noopener noreferrer"
-    className="transition-colors hover:text-white"
+    className="transition-colors hover:text-[#6ee7b7]"
   >
     <FaSpotify size={28} />
   </a>
@@ -144,7 +144,7 @@ if (res.ok) {
   href="https://www.instagram.com/everyonesanalien/"
   target="_blank"
   rel="noopener noreferrer"
-  className="transition-colors hover:text-white"
+  className="transition-colors hover:text-[#6ee7b7]"
 >
   <FaInstagram size={28} />
 </a>
@@ -153,7 +153,7 @@ if (res.ok) {
     href="https://www.tiktok.com/@everyonesanalien?lang=en-GB"
     target="_blank"
     rel="noopener noreferrer"
-    className="transition-colors hover:text-white"
+    className="transition-colors hover:text-[#6ee7b7]"
   >
     <FaTiktok size={28} />
   </a>
@@ -162,7 +162,7 @@ if (res.ok) {
     href="https://www.youtube.com/channel/UCTp_Wb8HBHWMQxXvNzxkksg"
     target="_blank"
     rel="noopener noreferrer"
-    className="transition-colors hover:text-white"
+    className="transition-colors hover:text-[#6ee7b7]"
   >
     <FaYoutube size={28} />
   </a>
