@@ -25,7 +25,7 @@ export default function Home() {
     <main className="min-h-screen text-white p-8 md:p-12 max-w-6xl mx-auto">
 
       <div className="mb-12 md:mb-16">
-  <h1 className="text-6xl font-bold text-[#6ee7b7]">
+  <h1 className="text-6xl font-bold">
     SOUL
     <span className="animate-pulse">_</span>
   </h1>
