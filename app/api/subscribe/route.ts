@@ -36,7 +36,11 @@ export async function POST(request: Request) {
       );
     }
 
-    return Response.json({ success: true });
+    if (response.status === 200) {
+  return Response.json({ success: true, alreadySubscribed: true });
+}
+
+return Response.json({ success: true, alreadySubscribed: false });
   } catch (error) {
     return Response.json(
       { error: "Server error" },

@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 export default function Home() {
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "already" | "error">("idle");
 
   return (
     <main className="min-h-screen bg-black text-green-400 p-8 max-w-xl mx-auto">
@@ -49,12 +49,18 @@ export default function Home() {
     body: JSON.stringify({ name, email }),
   });
 
-  if (res.ok) {
-    form.reset();
-    setStatus("success");
+if (res.ok) {
+  const data = await res.json();
+  form.reset();
+
+  if (data.alreadySubscribed) {
+    setStatus("already");
   } else {
-    setStatus("error");
+    setStatus("success");
   }
+} else {
+  setStatus("error");
+}
 }}
 >
   <input
@@ -90,6 +96,11 @@ export default function Home() {
 {status === "error" && (
   <div className="mt-4 border border-red-500 p-3 text-red-400">
     Transmission failed. Try again.
+  </div>
+)}
+{status === "already" && (
+  <div className="mt-4 border border-green-400 p-3">
+    You're already a Mate, mate.
   </div>
 )}
       </section>
