@@ -55,7 +55,7 @@ export default function Home() {
       <section className="mb-16">
         <h2 className="text-2xl mb-4">MERCH</h2>
 
-        <p>COMING SOON</p>
+        <p>FIRST DROP COMING SOON</p>
       </section>
 
       <footer className="border-t border-green-400 pt-6">
