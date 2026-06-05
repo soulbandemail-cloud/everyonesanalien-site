@@ -24,7 +24,7 @@ export default function Home() {
         <p className="mb-4">GET YOUR HYPER-FIX!</p>
 
         <ul className="mb-6 space-y-2">
-          <li>1. Free entry to Soul shows*</li>
+          <li>1. Free entry to Soul headline shows</li>
           <li>2. Discounts on merch and records</li>
           <li>3. Monthly mailing list</li>
         </ul>
@@ -109,9 +109,7 @@ if (res.ok) {
         <h2 className="text-2xl mb-4">UPCOMING SHOWS</h2>
 
         <ul className="space-y-2">
-          <li>LONDON</li>
-          <li>BRIGHTON</li>
-          <li>MANCHESTER</li>
+          <li>LONDON 25th June</li>
         </ul>
 
         <p className="mt-4">FREE FOR MATES.</p>
