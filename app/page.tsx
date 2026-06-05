@@ -171,10 +171,10 @@ if (res.ok) {
   </li>
 </ul>
       </section>
+      
 </div>
       
-<footer className="border-t border-white pt-2 mt-2”>
-</footer>
+<div className="border-t border-white mt-8"></div>
 
         </main>
   </>
