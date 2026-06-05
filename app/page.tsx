@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <main className="min-h-screen text-green-400 p-8 md:p-12 max-w-6xl mx-auto">
 
-      <div className="mb-16">
+      <div className="mb-8 md:mb-16">
   <h1 className="text-6xl font-bold">
     SOUL
   </h1>
@@ -18,8 +18,8 @@ export default function Home() {
       <span className="animate-pulse">_</span>
   </p>
 </div>
-<div className="grid gap-16 md:grid-cols-3 mb-16">
-      <section className="mb-16">
+<div className="grid gap-8 md:gap-16 md:grid-cols-3 mb-8 md:mb-16">
+      <section>
         <h2 className="text-2xl mb-4">BECOME A MATE</h2>
      <p className="mb-4">Get your monthly HYPER-FIX!</p>
         <form
