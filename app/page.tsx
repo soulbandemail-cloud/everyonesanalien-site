@@ -15,7 +15,6 @@ export default function Home() {
 
   <p className="mt-2 text-sm tracking-widest">
     everyonesanalien.com
-    <span className="animate-pulse">_</span>
   </p>
 </div>
 
