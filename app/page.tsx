@@ -14,7 +14,7 @@ export default function Home() {
   </h1>
 
   <p className="mt-2 text-sm tracking-widest">
-    EVERYONESANALIEN.COM
+    everyonesanalien.com
     <span className="animate-pulse">_</span>
   </p>
 </div>
