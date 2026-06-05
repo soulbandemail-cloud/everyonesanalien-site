@@ -23,28 +23,53 @@ export default function Home() {
           <li>3. Monthly mailing list</li>
         </ul>
 
-        <div className="flex flex-col gap-3 max-w-md">
-          <input
-            type="text"
-            placeholder="NAME"
-            className="border border-green-400 bg-black p-2"
-          />
+        <form
+  className="flex flex-col gap-3 max-w-md"
+  onSubmit={async (e) => {
+    e.preventDefault();
 
-          <input
-            type="email"
-            placeholder="EMAIL"
-            className="border border-green-400 bg-black p-2"
-          />
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
 
-          <a
-  href="https://preview.mailerlite.io/forms/2404208/189432517888050750/share"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="border border-green-400 p-2 text-center"
+    const name = formData.get("name");
+    const email = formData.get("email");
+
+    const res = await fetch("/api/subscribe", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, email }),
+    });
+
+    if (res.ok) {
+      form.reset();
+      alert("WELCOME ABOARD. You're now a Mate.");
+    } else {
+      alert("Something went wrong. Try again.");
+    }
+  }}
 >
-  SIGN UP
-</a>
-        </div>
+  <input
+    name="name"
+    type="text"
+    placeholder="NAME"
+    className="border border-green-400 bg-black p-2"
+    required
+  />
+
+  <input
+    name="email"
+    type="email"
+    placeholder="EMAIL"
+    className="border border-green-400 bg-black p-2"
+    required
+  />
+
+  <button className="border border-green-400 p-2">
+    SIGN UP
+  </button>
+</form>
       </section>
 
       <section className="mb-16">
