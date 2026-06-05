@@ -3,7 +3,9 @@ export default function Home() {
     <main className="min-h-screen bg-black text-green-400 p-8 max-w-xl mx-auto">
 
       <div className="mb-16">
-        <h1 className="text-6xl font-bold">SOUL</h1>
+        <h1 className="text-6xl font-bold">
+  SOUL<span className="animate-pulse">_</span>
+</h1>
 
         <p className="mt-2 text-sm tracking-widest">
           EVERYONESANALIEN.COM
@@ -69,6 +71,7 @@ export default function Home() {
       href="https://www.instagram.com/everyonesanalien/"
       target="_blank"
       rel="noopener noreferrer"
+      className="hover:text-green-300 transition-colors"
     >
       Instagram
     </a>
@@ -77,6 +80,7 @@ export default function Home() {
       href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
       target="_blank"
       rel="noopener noreferrer"
+      className="hover:text-green-300 transition-colors"
     >
       Spotify
     </a>
@@ -85,6 +89,7 @@ export default function Home() {
       href="https://www.tiktok.com/@everyonesanalien?lang=en-GB"
       target="_blank"
       rel="noopener noreferrer"
+      className="hover:text-green-300 transition-colors"
     >
       TikTok
     </a>
@@ -93,6 +98,7 @@ export default function Home() {
       href="https://www.youtube.com/channel/UCTp_Wb8HBHWMQxXvNzxkksg"
       target="_blank"
       rel="noopener noreferrer"
+      className="hover:text-green-300 transition-colors"
     >
       YouTube
     </a>
