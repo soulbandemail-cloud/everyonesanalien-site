@@ -9,14 +9,15 @@ export default function Home() {
     <main className="min-h-screen bg-black text-green-400 p-8 max-w-xl mx-auto">
 
       <div className="mb-16">
-        <h1 className="text-6xl font-bold">
-  SOUL<span className="animate-pulse">_</span>
-</h1>
+  <h1 className="text-6xl font-bold">
+    SOUL
+  </h1>
 
-        <p className="mt-2 text-sm tracking-widest">
-          EVERYONESANALIEN.COM
-        </p>
-      </div>
+  <p className="mt-2 text-sm tracking-widest opacity-80">
+    EVERYONESANALIEN.COM
+    <span className="animate-pulse">_</span>
+  </p>
+</div>
 
       <section className="mb-16">
         <h2 className="text-2xl mb-4">BECOME A MATE</h2>
