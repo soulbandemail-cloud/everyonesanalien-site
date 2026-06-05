@@ -37,7 +37,7 @@ export default function Home() {
  
 </div>
 
- <div className="flex flex-wrap gap-16">
+ <div className="flex flex-wrap gap-6">
 
 <a
     href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
