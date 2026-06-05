@@ -64,13 +64,40 @@ export default function Home() {
       </section>
 
       <footer className="border-t border-green-400 pt-6">
-        <div className="flex flex-wrap gap-6">
-          <a href="#">Instagram</a>
-          <a href="#">Spotify</a>
-          <a href="#">TikTok</a>
-          <a href="#">YouTube</a>
-        </div>
-      </footer>
+  <div className="flex flex-wrap gap-6">
+    <a
+      href="https://www.instagram.com/everyonesanalien/"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Instagram
+    </a>
+
+    <a
+      href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Spotify
+    </a>
+
+    <a
+      href="https://www.tiktok.com/@everyonesanalien?lang=en-GB"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      TikTok
+    </a>
+
+    <a
+      href="https://www.youtube.com/channel/UCTp_Wb8HBHWMQxXvNzxkksg"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      YouTube
+    </a>
+  </div>
+</footer>
 
     </main>
   );
