@@ -129,20 +129,22 @@ if (res.ok) {
 </div>
       <footer className="border-t border-green-400 pt-6 mt-12">
   <div className="flex flex-wrap gap-6">
+
+<a
+    href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <FaSpotify size={28} />
+  </a>
+
+
   <a
     href="https://www.instagram.com/everyonesanalien/"
     target="_blank"
     rel="noopener noreferrer"
   >
     <FaInstagram size={28} />
-  </a>
-
-  <a
-    href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    <FaSpotify size={28} />
   </a>
 
   <a
