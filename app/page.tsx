@@ -2,6 +2,13 @@
 
 import { useState } from "react";
 
+import {
+  FaInstagram,
+  FaSpotify,
+  FaTiktok,
+  FaYoutube
+} from "react-icons/fa";
+
 export default function Home() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "already" | "error">("idle");
 
@@ -122,42 +129,38 @@ if (res.ok) {
 </div>
       <footer className="border-t border-green-400 pt-6 mt-12">
   <div className="flex flex-wrap gap-6">
-    <a
-      href="https://www.instagram.com/everyonesanalien/"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="border border-green-400 px-2 py-1 hover:bg-green-400 hover:text-black transition-colors"
-    >
-      Instagram
-    </a>
+  <a
+    href="https://www.instagram.com/everyonesanalien/"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <FaInstagram size={28} />
+  </a>
 
-    <a
-      href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="border border-green-400 px-2 py-1 hover:bg-green-400 hover:text-black transition-colors"
-    >
-      Spotify
-    </a>
+  <a
+    href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <FaSpotify size={28} />
+  </a>
 
-    <a
-      href="https://www.tiktok.com/@everyonesanalien?lang=en-GB"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="border border-green-400 px-2 py-1 hover:bg-green-400 hover:text-black transition-colors"
-    >
-      TikTok
-    </a>
+  <a
+    href="https://www.tiktok.com/@everyonesanalien?lang=en-GB"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <FaTiktok size={28} />
+  </a>
 
-    <a
-      href="https://www.youtube.com/channel/UCTp_Wb8HBHWMQxXvNzxkksg"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="border border-green-400 px-2 py-1 hover:bg-green-400 hover:text-black transition-colors"
-    >
-      YouTube
-    </a>
-  </div>
+  <a
+    href="https://www.youtube.com/channel/UCTp_Wb8HBHWMQxXvNzxkksg"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <FaYoutube size={28} />
+  </a>
+</div>
 </footer>
 
         </main>
