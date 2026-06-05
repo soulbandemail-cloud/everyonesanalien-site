@@ -56,7 +56,7 @@ body {
 .stars::before {
   top: 18%;
   left: 78%;
-  animation: star-glint 4s infinite ease-in-out;
+  animation: star-glint 2s infinite ease-in-out;
 }
 
 .stars::after {
@@ -64,7 +64,7 @@ body {
   left: 18%;
   width: 18px;
   height: 18px;
-  animation: star-glint 6s infinite ease-in-out 2s;
+  animation: star-glint 3s infinite ease-in-out 2s;
 }
 
 @keyframes star-glint {
@@ -94,7 +94,7 @@ body {
     42% 42%
   );
   filter: drop-shadow(0 0 6px white);
-  animation: star-glint 7s infinite ease-in-out;
+  animation: star-glint 3.5s infinite ease-in-out;
 }
 
 .star-1 { top: 12%; left: 12%; width: 14px; height: 14px; animation-delay: 1s; }
