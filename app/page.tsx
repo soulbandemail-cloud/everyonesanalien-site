@@ -103,13 +103,13 @@ if (res.ok) {
         <ul className="space-y-2">
   <li>
     <a
-      href="https://link.dice.fm/Md31a985f532?dice_id=Md31a985f532"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="hover:text-green-300 transition-colors"
-    >
-      LONDON 25th June
-    </a>
+  href="https://link.dice.fm/Md31a985f532?dice_id=Md31a985f532"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="inline-block border border-green-400 px-3 py-2 hover:bg-green-400 hover:text-black transition-colors"
+>
+  LONDON 25th June
+</a>
   </li>
 </ul>
       </section>
