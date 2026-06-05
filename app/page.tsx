@@ -15,6 +15,7 @@ export default function Home() {
 
   <p className="mt-2 text-sm tracking-widest">
     everyonesanalien.com
+      <span className="animate-pulse">_</span>
   </p>
 </div>
 <div className="grid gap-16 md:grid-cols-3 mb-16">
@@ -112,16 +113,7 @@ if (res.ok) {
 </a>
   </li>
 </ul>
-      </section>
-
-      <section className="mb-16">
-        <h2 className="text-2xl mb-4">MERCH</h2>
-
-        <p>
-  COMING SOON
-  <span className="animate-pulse">_</span>
-</p>
-      </section>
+      
 </div>
       <footer className="border-t border-green-400 pt-6">
   <div className="flex flex-wrap gap-6">
@@ -131,7 +123,7 @@ if (res.ok) {
       rel="noopener noreferrer"
       className="border border-green-400 px-2 py-1 hover:bg-green-400 hover:text-black transition-colors"
     >
-      Instagram
+      Insta
     </a>
 
     <a
