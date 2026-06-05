@@ -154,7 +154,7 @@ if (res.ok) {
 )}
       </section>
 
-      <section className="mt-4 md:mt-0">
+      <section className="mt-4 md:mt-0 md:max-w-sm md:mx-auto">
   <h2 className="text-2xl mb-4">UPCOMING SHOWS</h2>
 
         <ul className="space-y-2">
@@ -172,7 +172,7 @@ if (res.ok) {
 </ul>
       </section>
       
-         <section className="mb-16">
+         <section className="md:max-w-sm md:mx-auto">
         <h2 className="text-2xl mb-4">MERCH</h2>
 
         <p>
