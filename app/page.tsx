@@ -111,8 +111,6 @@ if (res.ok) {
         <ul className="space-y-2">
           <li>LONDON 25th June</li>
         </ul>
-
-        <p className="mt-4">FREE FOR MATES.</p>
       </section>
 
       <section className="mb-16">
