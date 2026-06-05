@@ -24,7 +24,6 @@ export default function Home() {
 
     <main className="min-h-screen text-white p-8 md:p-12 max-w-6xl mx-auto">
 
-<footer className="border-t border-white pt-6 mt-12">
   <div className="flex flex-wrap gap-6">
 
 <a
@@ -64,6 +63,8 @@ export default function Home() {
     <FaYoutube size={28} />
   </a>
 </div>
+
+<footer className="border-t border-white pt-6 mt-12">
 </footer>
 
       <div className="mb-12 md:mb-16">
