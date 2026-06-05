@@ -64,9 +64,6 @@ export default function Home() {
   </a>
 </div>
 
-<footer className="border-t border-white pt-6 mt-6">
-</footer>
-
       <div className="mb-12 md:mb-16">
   <h1 className="text-6xl font-bold">
     SOUL
