@@ -72,7 +72,7 @@ if (res.ok) {
   />
 
  <button
-  className="border border-green-400 p-2"
+  className="border border-green-400 p-2 hover:bg-green-400 hover:text-black transition-colors disabled:opacity-50"
   disabled={status === "loading"}
 >
   {status === "loading" ? "TRANSMITTING..." : "SIGN UP"}
@@ -129,7 +129,7 @@ if (res.ok) {
       href="https://www.instagram.com/everyonesanalien/"
       target="_blank"
       rel="noopener noreferrer"
-      className="hover:text-green-300 transition-colors"
+      className="border border-green-400 px-2 py-1 hover:bg-green-400 hover:text-black transition-colors"
     >
       Instagram
     </a>
@@ -138,7 +138,7 @@ if (res.ok) {
       href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
       target="_blank"
       rel="noopener noreferrer"
-      className="hover:text-green-300 transition-colors"
+      className="border border-green-400 px-2 py-1 hover:bg-green-400 hover:text-black transition-colors"
     >
       Spotify
     </a>
@@ -147,7 +147,7 @@ if (res.ok) {
       href="https://www.tiktok.com/@everyonesanalien?lang=en-GB"
       target="_blank"
       rel="noopener noreferrer"
-      className="hover:text-green-300 transition-colors"
+      className="border border-green-400 px-2 py-1 hover:bg-green-400 hover:text-black transition-colors"
     >
       TikTok
     </a>
@@ -156,7 +156,7 @@ if (res.ok) {
       href="https://www.youtube.com/channel/UCTp_Wb8HBHWMQxXvNzxkksg"
       target="_blank"
       rel="noopener noreferrer"
-      className="hover:text-green-300 transition-colors"
+      className="border border-green-400 px-2 py-1 hover:bg-green-400 hover:text-black transition-colors"
     >
       YouTube
     </a>
