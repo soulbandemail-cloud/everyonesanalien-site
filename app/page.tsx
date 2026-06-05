@@ -24,6 +24,48 @@ export default function Home() {
 
     <main className="min-h-screen text-white p-8 md:p-12 max-w-6xl mx-auto">
 
+<footer className="border-t border-white pt-6 mt-12">
+  <div className="flex flex-wrap gap-6">
+
+<a
+    href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
+  >
+    <FaSpotify size={28} />
+  </a>
+
+
+ <a
+  href="https://www.instagram.com/everyonesanalien/"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
+>
+  <FaInstagram size={28} />
+</a>
+
+  <a
+    href="https://www.tiktok.com/@everyonesanalien?lang=en-GB"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
+  >
+    <FaTiktok size={28} />
+  </a>
+
+  <a
+    href="https://www.youtube.com/channel/UCTp_Wb8HBHWMQxXvNzxkksg"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
+  >
+    <FaYoutube size={28} />
+  </a>
+</div>
+</footer>
+
       <div className="mb-12 md:mb-16">
   <h1 className="text-6xl font-bold">
     SOUL
@@ -132,47 +174,7 @@ if (res.ok) {
 </ul>
       </section>
 </div>
-      <footer className="border-t border-white pt-6 mt-12">
-  <div className="flex flex-wrap gap-6">
-
-<a
-    href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
-  >
-    <FaSpotify size={28} />
-  </a>
-
-
- <a
-  href="https://www.instagram.com/everyonesanalien/"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
->
-  <FaInstagram size={28} />
-</a>
-
-  <a
-    href="https://www.tiktok.com/@everyonesanalien?lang=en-GB"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
-  >
-    <FaTiktok size={28} />
-  </a>
-
-  <a
-    href="https://www.youtube.com/channel/UCTp_Wb8HBHWMQxXvNzxkksg"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
-  >
-    <FaYoutube size={28} />
-  </a>
-</div>
-</footer>
+      
 
         </main>
   </>
