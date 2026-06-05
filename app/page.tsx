@@ -24,15 +24,6 @@ export default function Home() {
 
     <main className="min-h-screen text-white p-8 md:p-12 max-w-6xl mx-auto">
 
-      <div className="mb-2">
-
-      
-  <h1 className="text-6xl font-bold mt-2">
-    SOUL
-  </h1>
- 
-</div>
-
  <div className="flex flex-wrap gap-6 mb-8 md:mb-12">
 
 <a
@@ -71,6 +62,12 @@ export default function Home() {
   >
     <FaYoutube size={28} />
   </a>
+</div>
+
+<div className="mb-2">  
+  <h1 className="text-6xl font-bold mt-2">
+    SOUL
+  </h1>
 </div>
 
 <div className="grid gap-8 md:gap-16 md:grid-cols-3 mb-4 md:mb-16">
