@@ -85,7 +85,8 @@ if (res.ok) {
   />
 
  <button
-  className="border border-white p-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] transition-colors disabled:opacity-50"
+  className="border border-white p-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] 
+  active:bg-[#6ee7b7] active:border-[#6ee7b7] active:text-[#00082d] transition-all duration-200 disabled:opacity-50"
   disabled={status === "loading"}
 >
   {status === "loading" ? "MATING..." : "SIGN UP"}
@@ -135,7 +136,7 @@ if (res.ok) {
     href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
     target="_blank"
     rel="noopener noreferrer"
-    className="transition-colors hover:text-[#6ee7b7]"
+    className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
   >
     <FaSpotify size={28} />
   </a>
@@ -145,7 +146,7 @@ if (res.ok) {
   href="https://www.instagram.com/everyonesanalien/"
   target="_blank"
   rel="noopener noreferrer"
-  className="transition-colors hover:text-[#6ee7b7]"
+  className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
 >
   <FaInstagram size={28} />
 </a>
@@ -154,7 +155,7 @@ if (res.ok) {
     href="https://www.tiktok.com/@everyonesanalien?lang=en-GB"
     target="_blank"
     rel="noopener noreferrer"
-    className="transition-colors hover:text-[#6ee7b7]"
+    className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
   >
     <FaTiktok size={28} />
   </a>
@@ -163,7 +164,7 @@ if (res.ok) {
     href="https://www.youtube.com/channel/UCTp_Wb8HBHWMQxXvNzxkksg"
     target="_blank"
     rel="noopener noreferrer"
-    className="transition-colors hover:text-[#6ee7b7]"
+    className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
   >
     <FaYoutube size={28} />
   </a>
