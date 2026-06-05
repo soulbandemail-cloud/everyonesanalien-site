@@ -113,7 +113,7 @@ if (res.ok) {
 </a>
   </li>
 </ul>
-      
+      </section>
 </div>
       <footer className="border-t border-green-400 pt-6">
   <div className="flex flex-wrap gap-6">
