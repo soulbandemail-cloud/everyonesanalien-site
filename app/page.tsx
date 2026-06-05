@@ -20,15 +20,6 @@ export default function Home() {
 <div className="grid gap-16 md:grid-cols-3 mb-16">
       <section className="mb-16">
         <h2 className="text-2xl mb-4">BECOME A MATE</h2>
-
-        <p className="mb-4">GET YOUR HYPER-FIX!</p>
-
-        <ul className="mb-6 space-y-2">
-          <li>1. Free entry to Soul headline shows</li>
-          <li>2. Discounts on merch and records</li>
-          <li>3. Monthly mailing list</li>
-        </ul>
-
         <form
   className="flex flex-col gap-3 max-w-md"
   onSubmit={async (e) => {
