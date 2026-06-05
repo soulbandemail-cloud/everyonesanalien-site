@@ -34,9 +34,14 @@ export default function Home() {
             className="border border-green-400 bg-black p-2"
           />
 
-          <button className="border border-green-400 p-2">
-            SIGN UP
-          </button>
+          <a
+  href="https://preview.mailerlite.io/forms/2404208/189432517888050750/share"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="border border-green-400 p-2 text-center"
+>
+  SIGN UP
+</a>
         </div>
       </section>
 
