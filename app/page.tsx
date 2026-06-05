@@ -173,6 +173,8 @@ if (res.ok) {
       </section>
 </div>
       
+<footer className="border-t border-white pt-2 mt-2”>
+</footer>
 
         </main>
   </>
