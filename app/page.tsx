@@ -85,7 +85,7 @@ if (res.ok) {
   />
 
  <button
-  className="border border-white p-2 hover:bg-white hover:text-[#00082d] transition-colors disabled:opacity-50"
+  className="border border-white p-2 hover:bg-[#6ee7b7] hover:text-[#00082d] transition-colors disabled:opacity-50"
   disabled={status === "loading"}
 >
   {status === "loading" ? "TRANSMITTING..." : "SIGN UP"}
