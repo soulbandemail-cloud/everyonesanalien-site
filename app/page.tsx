@@ -172,6 +172,15 @@ if (res.ok) {
 </ul>
       </section>
       
+         <section className="mb-16">
+        <h2 className="text-2xl mb-4">MERCH</h2>
+
+        <p>
+  coming soon
+  <span className="animate-pulse">_</span>
+</p>
+      </section>
+
 </div>
 
         </main>
