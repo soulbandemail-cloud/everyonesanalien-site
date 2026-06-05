@@ -73,12 +73,12 @@ export default function Home() {
   </h1>
 </div>
 
-<div className="grid gap-8 md:gap-16 md:grid-cols-3 mb-4 md:mb-16">
+<div className="grid gap-8 md:gap-16 md:grid-cols-3 mb-4 md:mb-16 md:text-center">
       <section>
         <h2 className="text-2xl mb-4">BECOME A MATE</h2>
      <p className="mb-4">Sign up to SOUL's mailing list to get your HYPER-FIX!</p>
         <form
-  className="flex flex-col gap-3 max-w-md"
+  className="flex flex-col gap-3 max-w-md md:mx-auto"
   onSubmit={async (e) => {
   e.preventDefault();
   setStatus("loading");
@@ -176,7 +176,7 @@ if (res.ok) {
         <h2 className="text-2xl mb-4">MERCH</h2>
 
         <p>
-  coming soon
+  Coming soon
   <span className="animate-pulse">_</span>
 </p>
       </section>
