@@ -62,7 +62,10 @@ export default function Home() {
   >
     <FaYoutube size={28} />
   </a>
+
 </div>
+
+<div className="border-t border-white"></div>
 
 <div className="mb-8">  
   <h1 className="text-6xl font-bold mt-2">
