@@ -24,7 +24,20 @@ export default function Home() {
 
     <main className="min-h-screen text-white p-8 md:p-12 max-w-6xl mx-auto">
 
-  <div className="flex flex-wrap gap-6">
+      <div className="mb-12 md:mb-16">
+
+       <p className="mt-2 text-sm tracking-widest text-[#6ee7b7]">
+    everyonesanalien.com
+     <span className="animate-pulse ">_</span>
+        </p>
+
+  <h1 className="text-6xl font-bold">
+    SOUL
+  </h1>
+ 
+</div>
+
+ <div className="flex flex-wrap gap-6">
 
 <a
     href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
@@ -64,18 +77,6 @@ export default function Home() {
   </a>
 </div>
 
-      <div className="mb-12 md:mb-16">
-
-       <p className="mt-2 text-sm tracking-widest text-[#6ee7b7]">
-    everyonesanalien.com
-     <span className="animate-pulse ">_</span>
-        </p>
-        
-  <h1 className="text-6xl font-bold">
-    SOUL
-  </h1>
- 
-</div>
 <div className="grid gap-8 md:gap-16 md:grid-cols-3 mb-4 md:mb-16">
       <section>
         <h2 className="text-2xl mb-4">BECOME A MATE</h2>
