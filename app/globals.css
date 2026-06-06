@@ -95,3 +95,16 @@ body {
 .star-3 { top: 48%; left: 86%; width: 16px; height: 16px; animation-delay: 5s; }
 .star-4 { top: 66%; left: 58%; width: 28px; height: 28px; animation-delay: 2s; }
 .star-5 { top: 84%; left: 32%; width: 12px; height: 12px; animation-delay: 4s; }
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 14s linear infinite;
+}
