@@ -83,7 +83,6 @@ export default function Home() {
       <span className="-mr-2">S</span>
 
       <span className="relative inline-flex items-center justify-center w-32 h-24 mx-0 overflow-hidden">
-        {/* alien head */}
         <svg viewBox="0 0 100 100" className="absolute w-9 h-9 z-10">
           <path
             fill="#7fffd4"
@@ -96,10 +95,8 @@ export default function Home() {
               Z
             "
           />
-
           <ellipse cx="36" cy="48" rx="9" ry="15" fill="black" transform="rotate(-22 36 48)" />
           <ellipse cx="64" cy="48" rx="9" ry="15" fill="black" transform="rotate(22 64 48)" />
-
           <path
             d="M42 68 C47 72 53 72 58 68"
             fill="none"
@@ -109,7 +106,6 @@ export default function Home() {
           />
         </svg>
 
-        {/* orbit */}
         <svg className="absolute inset-0 w-full h-full z-20" viewBox="0 0 120 80">
           <ellipse
             cx="60"
@@ -127,9 +123,6 @@ export default function Home() {
       <span className="-ml-2">UL</span>
     </h1>
 
-    <div className="h-[4px] bg-[#7fffd4] flex-1 ml-2" />
-  </div>
-</div>
     <div className="h-[4px] bg-[#7fffd4] flex-1 ml-2" />
   </div>
 </div>
