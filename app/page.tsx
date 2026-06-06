@@ -75,28 +75,7 @@ export default function Home() {
 </a>
 
 </div>
-
 <div className="relative mt-4 mb-8 w-screen left-1/2 -translate-x-1/2 overflow-hidden">
-  <div className="flex items-center justify-center w-full mt-4">
-    <div className="h-[4px] bg-[#7fffd4] flex-1 mr-2" />
-
-    <h1 className="relative z-10 text-6xl font-bold text-center flex justify-center items-center text-[#7fffd4] shrink-0">
-      <span className="-mr-2">S</span>
-
-      <span
-        className="relative inline-flex items-center justify-center w-32 h-24 mx-0 overflow-hidden"
-        onMouseMove={(e) => {
-          const box = e.currentTarget.getBoundingClientRect()
-          e.currentTarget.style.setProperty("--x", `${e.clientX - box.left}px`)
-          e.currentTarget.style.setProperty("--y", `${e.clientY - box.top}px`)
-        }}
-        onTouchStart={(e) => {
-          const touch = e.touches[0]
-          const box = e.currentTarget.getBoundingClientRect()
-          e.currentTarget.style.setProperty("--x", `${touch.clientX - box.left}px`)
-          e.currentTarget.style.setProperty("--y", `${touch.clientY - box.top}px`)
-        }}
-      ><div className="relative mt-4 mb-8 w-screen left-1/2 -translate-x-1/2 overflow-hidden">
   <div className="flex items-center justify-center w-full mt-4">
     <div className="h-[4px] bg-[#7fffd4] flex-1 mr-2" />
 
@@ -118,23 +97,8 @@ export default function Home() {
             "
           />
 
-          <ellipse
-            cx="36"
-            cy="48"
-            rx="9"
-            ry="15"
-            fill="black"
-            transform="rotate(-22 36 48)"
-          />
-
-          <ellipse
-            cx="64"
-            cy="48"
-            rx="9"
-            ry="15"
-            fill="black"
-            transform="rotate(22 64 48)"
-          />
+          <ellipse cx="36" cy="48" rx="9" ry="15" fill="black" transform="rotate(-22 36 48)" />
+          <ellipse cx="64" cy="48" rx="9" ry="15" fill="black" transform="rotate(22 64 48)" />
 
           <path
             d="M42 68 C47 72 53 72 58 68"
@@ -166,41 +130,6 @@ export default function Home() {
     <div className="h-[4px] bg-[#7fffd4] flex-1 ml-2" />
   </div>
 </div>
-        {/* heart */}
-        <svg viewBox="0 0 100 100" className="absolute w-8 h-8 z-10">
-          <path
-            fill="#7fffd4"
-            d="
-              M50 86
-              C42 76 20 62 14 45
-              C8 28 18 12 35 13
-              C44 14 49 22 50 25
-              C51 22 56 14 65 13
-              C82 12 92 28 86 45
-              C80 62 58 76 50 86
-              Z
-            "
-          />
-        </svg>
-
-        {/* orbit */}
-        <svg className="absolute inset-0 w-full h-full z-20" viewBox="0 0 120 80">
-          <ellipse
-            cx="60"
-            cy="40"
-            rx="50"
-            ry="20"
-            fill="none"
-            stroke="#7fffd4"
-            strokeWidth="5"
-            transform="rotate(-18 60 40)"
-          />
-        </svg>
-      </span>
-
-      <span className="-ml-2">UL</span>
-    </h1>
-
     <div className="h-[4px] bg-[#7fffd4] flex-1 ml-2" />
   </div>
 </div>
