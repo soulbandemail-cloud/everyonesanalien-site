@@ -86,18 +86,34 @@ export default function Home() {
     <span>S</span>
 
     <span className="relative inline-flex items-center justify-center w-27 h-24 mx-0">
-      {/* faint moving beacon rays */}
-<svg
-  className="absolute inset-0 w-full h-full opacity-25 animate-spin-slow"
-  viewBox="0 0 120 80"
->
-  <g transform="rotate(-18 60 40)">
-    <path d="M60 40 L108 33" stroke="#7fffd4" strokeWidth="2" strokeLinecap="round" />
-    <path d="M60 40 L102 47" stroke="#7fffd4" strokeWidth="1.5" strokeLinecap="round" />
-    <path d="M60 40 L18 47" stroke="#7fffd4" strokeWidth="1.5" strokeLinecap="round" />
-    <path d="M60 40 L12 33" stroke="#7fffd4" strokeWidth="2" strokeLinecap="round" />
-  </g>
-</svg>
+     <h1 className="relative z-10 text-6xl font-bold text-center flex justify-center items-center text-[#7fffd4] shrink-0">
+
+  {/* big faint outside orbit */}
+  <svg
+    className="absolute w-[180%] h-[180%] opacity-10 pointer-events-none"
+    viewBox="0 0 400 200"
+  >
+    <ellipse
+      cx="200"
+      cy="100"
+      rx="170"
+      ry="45"
+      fill="none"
+      stroke="#7fffd4"
+      strokeWidth="2"
+      strokeDasharray="8 36"
+      transform="rotate(-18 200 100)"
+    />
+  </svg>
+
+  <span className="-mr-2">S</span>
+
+  <span className="relative inline-flex items-center justify-center w-32 h-24 mx-0">
+    {/* heart + actual O orbit stay here */}
+  </span>
+
+  <span className="-ml-2">UL</span>
+</h1>
       <svg viewBox="0 0 100 100" className="absolute w-8 h-8 z-10">
         <path
           fill="#7fffd4"
