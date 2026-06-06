@@ -22,9 +22,9 @@ export default function Home() {
   <span className="star star-5"></span>
 </div>
 
-    <main className="min-h-screen text-white p-8 md:p-10 max-w-12xl mx-auto">
+    <main className="min-h-screen text-white p-8 md:p-12 max-w-8xl mx-auto">
 
- <div className="flex flex-wrap justify-center gap-18 mb-4 md:mb-4">
+ <div className="flex flex-wrap justify-center gap-16 mb-4 md:mb-4">
 
 <a
     href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
@@ -32,7 +32,7 @@ export default function Home() {
     rel="noopener noreferrer"
     className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
   >
-    <FaSpotify size={28} />
+    <FaSpotify size={36} />
   </a>
 
 
@@ -42,7 +42,7 @@ export default function Home() {
   rel="noopener noreferrer"
   className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
 >
-  <FaInstagram size={28} />
+  <FaInstagram size={36} />
 </a>
 
   <a
@@ -51,7 +51,7 @@ export default function Home() {
     rel="noopener noreferrer"
     className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
   >
-    <FaTiktok size={28} />
+    <FaTiktok size={36} />
   </a>
 
   <a
@@ -60,7 +60,7 @@ export default function Home() {
     rel="noopener noreferrer"
     className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
   >
-    <FaYoutube size={28} />
+    <FaYoutube size={36} />
   </a>
 
 </div>
