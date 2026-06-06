@@ -78,7 +78,7 @@ export default function Home() {
 
 
 
-<div className="relative mt-4 mb-6 w-screen left-1/2 -translate-x-1/2 overflow-hidden">
+<div className="relative mt-4 mb-8 w-screen left-1/2 -translate-x-1/2 overflow-hidden">
 <div className="flex items-center justify-center w-full mt-4">
   <div className="h-[4px] bg-[#7fffd4] flex-1 mr-2" />
 
