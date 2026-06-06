@@ -126,6 +126,32 @@ export default function Home() {
     <div className="h-[4px] bg-[#7fffd4] flex-1 ml-2" />
   </div>
 </div>
+<div className="pointer-events-none absolute left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2">
+  {[0, 1, 2, 3, 4, 5].map((i) => (
+    <svg
+      key={i}
+      viewBox="0 0 100 100"
+      className="heart-signal absolute left-1/2 top-1/2 w-24 h-24 -translate-x-1/2 -translate-y-1/2"
+      style={{ animationDelay: `${i * 0.7}s` }}
+    >
+      <path
+        fill="none"
+        stroke="#7fffd4"
+        strokeWidth="3"
+        d="
+          M50 86
+          C42 76 20 62 14 45
+          C8 28 18 12 35 13
+          C44 14 49 22 50 25
+          C51 22 56 14 65 13
+          C82 12 92 28 86 45
+          C80 62 58 76 50 86
+          Z
+        "
+      />
+    </svg>
+  ))}
+</div>
 <div className="grid gap-8 md:gap-16 md:grid-cols-3 mb-4 md:mb-16">
       <section className="md:max-w-sm md:mx-auto">
         <h2 className="text-2xl mb-4">BECOME A MATE</h2>
