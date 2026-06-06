@@ -96,39 +96,76 @@ export default function Home() {
           e.currentTarget.style.setProperty("--x", `${touch.clientX - box.left}px`)
           e.currentTarget.style.setProperty("--y", `${touch.clientY - box.top}px`)
         }}
-      >
-        {/* cursor / tap beacon */}
-        <svg
-          className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-80"
-          viewBox="0 0 128 96"
-        >
-          <polygon
-            points="64,48 48,96 80,96"
+      ><div className="relative mt-4 mb-8 w-screen left-1/2 -translate-x-1/2 overflow-hidden">
+  <div className="flex items-center justify-center w-full mt-4">
+    <div className="h-[4px] bg-[#7fffd4] flex-1 mr-2" />
+
+    <h1 className="relative z-10 text-6xl font-bold text-center flex justify-center items-center text-[#7fffd4] shrink-0">
+      <span className="-mr-2">S</span>
+
+      <span className="relative inline-flex items-center justify-center w-32 h-24 mx-0 overflow-hidden">
+        {/* alien head */}
+        <svg viewBox="0 0 100 100" className="absolute w-9 h-9 z-10">
+          <path
             fill="#7fffd4"
-            opacity="0.18"
-            style={{
-              transform:
-                "translate(calc(var(--x, 64px) - 64px), calc(var(--y, 48px) - 48px))",
-            }}
+            d="
+              M50 10
+              C27 10 15 30 18 52
+              C21 75 38 90 50 90
+              C62 90 79 75 82 52
+              C85 30 73 10 50 10
+              Z
+            "
           />
 
-          <polyline
-            points="64,48 58,58 72,68 60,80"
+          <ellipse
+            cx="36"
+            cy="48"
+            rx="9"
+            ry="15"
+            fill="black"
+            transform="rotate(-22 36 48)"
+          />
+
+          <ellipse
+            cx="64"
+            cy="48"
+            rx="9"
+            ry="15"
+            fill="black"
+            transform="rotate(22 64 48)"
+          />
+
+          <path
+            d="M42 68 C47 72 53 72 58 68"
             fill="none"
-            stroke="#7fffd4"
-            strokeWidth="1.5"
-            opacity="0.65"
-            style={{
-              transform:
-                "translate(calc(var(--x, 64px) - 64px), calc(var(--y, 48px) - 48px))",
-            }}
+            stroke="black"
+            strokeWidth="3"
+            strokeLinecap="round"
           />
-
-          <circle cx="58" cy="58" r="1.7" fill="#7fffd4" opacity="0.9" />
-          <circle cx="72" cy="68" r="1.3" fill="#7fffd4" opacity="0.75" />
-          <circle cx="60" cy="80" r="2" fill="#7fffd4" opacity="0.9" />
         </svg>
 
+        {/* orbit */}
+        <svg className="absolute inset-0 w-full h-full z-20" viewBox="0 0 120 80">
+          <ellipse
+            cx="60"
+            cy="40"
+            rx="50"
+            ry="20"
+            fill="none"
+            stroke="#7fffd4"
+            strokeWidth="5"
+            transform="rotate(-18 60 40)"
+          />
+        </svg>
+      </span>
+
+      <span className="-ml-2">UL</span>
+    </h1>
+
+    <div className="h-[4px] bg-[#7fffd4] flex-1 ml-2" />
+  </div>
+</div>
         {/* heart */}
         <svg viewBox="0 0 100 100" className="absolute w-8 h-8 z-10">
           <path
