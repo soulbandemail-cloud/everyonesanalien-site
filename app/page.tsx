@@ -79,7 +79,7 @@ export default function Home() {
 
 
 <div className="mb-12">  
-  <h1 className="text-6xl font-bold mt-14 text-center flex justify-center items-center text-white">
+  <h1 className="text-6xl font-bold mt-14 text-center flex justify-center items-center text-[#6ee7b7]">
 
   <span>S</span>
 
