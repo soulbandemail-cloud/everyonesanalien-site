@@ -78,8 +78,8 @@ export default function Home() {
 
 
 
-<div className="relative mt-14 w-screen left-1/2 -translate-x-1/2 overflow-hidden">
-<div className="flex items-center justify-center w-full mt-14">
+<div className="relative mt-4 w-screen left-1/2 -translate-x-1/2 overflow-hidden">
+<div className="flex items-center justify-center w-full mt-4">
   <div className="h-[4px] bg-[#7fffd4] flex-1 mr-2" />
 
   <h1 className="relative z-10 text-6xl font-bold text-center flex justify-center items-center text-[#7fffd4] shrink-0">
@@ -110,7 +110,7 @@ export default function Home() {
           ry="20"
           fill="none"
           stroke="#7fffd4"
-          strokeWidth="8"
+          strokeWidth="5"
           transform="rotate(-18 60 40)"
         />
       </svg>
