@@ -86,16 +86,24 @@ export default function Home() {
   <span className="relative inline-flex items-center justify-center w-24 h-16 mx-1">
 
     {/* Heart */}
-    <span
-      className="
-        absolute
-        text-[#7fffd4]
-        text-3xl
-        z-10
-      "
-    >
-      ♥
-    </span>
+   <svg
+  viewBox="0 0 100 100"
+  className="absolute w-10 h-10 z-10"
+>
+  <path
+    fill="#7fffd4"
+    d="
+      M50 86
+      C42 76 20 62 14 45
+      C8 28 18 12 35 13
+      C44 14 49 22 50 25
+      C51 22 56 14 65 13
+      C82 12 92 28 86 45
+      C80 62 58 76 50 86
+      Z
+    "
+  />
+</svg>
 
     {/* Saturn ring */}
     <svg
