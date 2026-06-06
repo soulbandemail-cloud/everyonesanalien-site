@@ -76,103 +76,97 @@ export default function Home() {
 
 </div>
 
-
-
 <div className="relative mt-4 mb-8 w-screen left-1/2 -translate-x-1/2 overflow-hidden">
-<div className="flex items-center justify-center w-full mt-4">
-  <div className="h-[4px] bg-[#7fffd4] flex-1 mr-2" />
+  <div className="flex items-center justify-center w-full mt-4">
+    <div className="h-[4px] bg-[#7fffd4] flex-1 mr-2" />
 
-  <h1 className="relative z-10 text-6xl font-bold text-center flex justify-center items-center text-[#7fffd4] shrink-0">
-    <span>S</span>
+    <h1 className="relative z-10 text-6xl font-bold text-center flex justify-center items-center text-[#7fffd4] shrink-0">
+      <span className="-mr-2">S</span>
 
-    <span className="relative inline-flex items-center justify-center w-27 h-24 mx-0">
-     {/* cursor / tap constellation beacon */}
-<svg
-  className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-60"
-  viewBox="0 0 128 96"
->
-  <polygon
-    points="64,48 56,96 72,96"
-    fill="#7fffd4"
-    opacity="0.14"
-    style={{
-      transformOrigin: "64px 48px",
-      transform: `
-        rotate(
-          calc(
-            atan2(
-              var(--y, 80px) - 48px,
-              var(--x, 64px) - 64px
-            )
-          )
-        )
-      `,
-    }}
-  />
-
-  <polyline
-    points="64,48 58,60 70,70 61,82"
-    fill="none"
-    stroke="#7fffd4"
-    strokeWidth="1.5"
-    opacity="0.45"
-  />
-
-  <circle cx="58" cy="60" r="1.8" fill="#7fffd4" opacity="0.8" />
-  <circle cx="70" cy="70" r="1.4" fill="#7fffd4" opacity="0.7" />
-  <circle cx="61" cy="82" r="2" fill="#7fffd4" opacity="0.8" />
-</svg>
       <span
-  className="relative inline-flex items-center justify-center w-32 h-24 mx-0 overflow-hidden"
-  onMouseMove={(e) => {
-    const box = e.currentTarget.getBoundingClientRect()
-    e.currentTarget.style.setProperty("--x", `${e.clientX - box.left}px`)
-    e.currentTarget.style.setProperty("--y", `${e.clientY - box.top}px`)
-  }}
-  onTouchStart={(e) => {
-    const touch = e.touches[0]
-    const box = e.currentTarget.getBoundingClientRect()
-    e.currentTarget.style.setProperty("--x", `${touch.clientX - box.left}px`)
-    e.currentTarget.style.setProperty("--y", `${touch.clientY - box.top}px`)
-  }}
-></span>
-      <svg viewBox="0 0 100 100" className="absolute w-8 h-8 z-10">
-        <path
-          fill="#7fffd4"
-          d="
-            M50 86
-            C42 76 20 62 14 45
-            C8 28 18 12 35 13
-            C44 14 49 22 50 25
-            C51 22 56 14 65 13
-            C82 12 92 28 86 45
-            C80 62 58 76 50 86
-            Z
-          "
-        />
-      </svg>
+        className="relative inline-flex items-center justify-center w-32 h-24 mx-0 overflow-hidden"
+        onMouseMove={(e) => {
+          const box = e.currentTarget.getBoundingClientRect()
+          e.currentTarget.style.setProperty("--x", `${e.clientX - box.left}px`)
+          e.currentTarget.style.setProperty("--y", `${e.clientY - box.top}px`)
+        }}
+        onTouchStart={(e) => {
+          const touch = e.touches[0]
+          const box = e.currentTarget.getBoundingClientRect()
+          e.currentTarget.style.setProperty("--x", `${touch.clientX - box.left}px`)
+          e.currentTarget.style.setProperty("--y", `${touch.clientY - box.top}px`)
+        }}
+      >
+        {/* cursor / tap beacon */}
+        <svg
+          className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-80"
+          viewBox="0 0 128 96"
+        >
+          <polygon
+            points="64,48 48,96 80,96"
+            fill="#7fffd4"
+            opacity="0.18"
+            style={{
+              transform:
+                "translate(calc(var(--x, 64px) - 64px), calc(var(--y, 48px) - 48px))",
+            }}
+          />
 
-      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 120 80">
-        <ellipse
-          cx="60"
-          cy="40"
-          rx="50"
-          ry="20"
-          fill="none"
-          stroke="#7fffd4"
-          strokeWidth="5"
-          transform="rotate(-18 60 40)"
-        />
-      </svg>
-    </span>
+          <polyline
+            points="64,48 58,58 72,68 60,80"
+            fill="none"
+            stroke="#7fffd4"
+            strokeWidth="1.5"
+            opacity="0.65"
+            style={{
+              transform:
+                "translate(calc(var(--x, 64px) - 64px), calc(var(--y, 48px) - 48px))",
+            }}
+          />
 
-    <span>UL</span>
-  </h1>
+          <circle cx="58" cy="58" r="1.7" fill="#7fffd4" opacity="0.9" />
+          <circle cx="72" cy="68" r="1.3" fill="#7fffd4" opacity="0.75" />
+          <circle cx="60" cy="80" r="2" fill="#7fffd4" opacity="0.9" />
+        </svg>
 
-  <div className="h-[4px] bg-[#7fffd4] flex-1 ml-2" />
+        {/* heart */}
+        <svg viewBox="0 0 100 100" className="absolute w-8 h-8 z-10">
+          <path
+            fill="#7fffd4"
+            d="
+              M50 86
+              C42 76 20 62 14 45
+              C8 28 18 12 35 13
+              C44 14 49 22 50 25
+              C51 22 56 14 65 13
+              C82 12 92 28 86 45
+              C80 62 58 76 50 86
+              Z
+            "
+          />
+        </svg>
+
+        {/* orbit */}
+        <svg className="absolute inset-0 w-full h-full z-20" viewBox="0 0 120 80">
+          <ellipse
+            cx="60"
+            cy="40"
+            rx="50"
+            ry="20"
+            fill="none"
+            stroke="#7fffd4"
+            strokeWidth="5"
+            transform="rotate(-18 60 40)"
+          />
+        </svg>
+      </span>
+
+      <span className="-ml-2">UL</span>
+    </h1>
+
+    <div className="h-[4px] bg-[#7fffd4] flex-1 ml-2" />
+  </div>
 </div>
-</div>
-
 <div className="grid gap-8 md:gap-16 md:grid-cols-3 mb-4 md:mb-16">
       <section className="md:max-w-sm md:mx-auto">
         <h2 className="text-2xl mb-4">BECOME A MATE</h2>
