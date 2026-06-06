@@ -83,7 +83,7 @@ export default function Home() {
 
   <span>S</span>
 
-  <span className="relative inline-flex items-center justify-center w-36 h-24 mx-1">
+  <span className="relative inline-flex items-center justify-center w-28 h-20 mx-1">
 
     {/* Heart */}
     <span
