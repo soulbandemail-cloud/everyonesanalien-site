@@ -83,14 +83,14 @@ export default function Home() {
 
   <span>S</span>
 
-  <span className="relative inline-flex items-center justify-center w-28 h-20 mx-1">
+  <span className="relative inline-flex items-center justify-center w-36 h-24 mx-1">
 
     {/* Heart */}
     <span
       className="
         absolute
         text-[#7fffd4]
-        text-5xl
+        text-3xl
         z-10
       "
     >
@@ -105,8 +105,8 @@ export default function Home() {
       <ellipse
         cx="60"
         cy="40"
-        rx="45"
-        ry="22"
+        rx="56"
+        ry="26"
         fill="none"
         stroke="#7fffd4"
         strokeWidth="6"
