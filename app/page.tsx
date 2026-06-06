@@ -86,7 +86,56 @@ export default function Home() {
     <span>S</span>
 
     <span className="relative inline-flex items-center justify-center w-27 h-24 mx-0">
-      
+     {/* cursor / tap constellation beacon */}
+<svg
+  className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-60"
+  viewBox="0 0 128 96"
+>
+  <polygon
+    points="64,48 56,96 72,96"
+    fill="#7fffd4"
+    opacity="0.14"
+    style={{
+      transformOrigin: "64px 48px",
+      transform: `
+        rotate(
+          calc(
+            atan2(
+              var(--y, 80px) - 48px,
+              var(--x, 64px) - 64px
+            )
+          )
+        )
+      `,
+    }}
+  />
+
+  <polyline
+    points="64,48 58,60 70,70 61,82"
+    fill="none"
+    stroke="#7fffd4"
+    strokeWidth="1.5"
+    opacity="0.45"
+  />
+
+  <circle cx="58" cy="60" r="1.8" fill="#7fffd4" opacity="0.8" />
+  <circle cx="70" cy="70" r="1.4" fill="#7fffd4" opacity="0.7" />
+  <circle cx="61" cy="82" r="2" fill="#7fffd4" opacity="0.8" />
+</svg>
+      <span
+  className="relative inline-flex items-center justify-center w-32 h-24 mx-0 overflow-hidden"
+  onMouseMove={(e) => {
+    const box = e.currentTarget.getBoundingClientRect()
+    e.currentTarget.style.setProperty("--x", `${e.clientX - box.left}px`)
+    e.currentTarget.style.setProperty("--y", `${e.clientY - box.top}px`)
+  }}
+  onTouchStart={(e) => {
+    const touch = e.touches[0]
+    const box = e.currentTarget.getBoundingClientRect()
+    e.currentTarget.style.setProperty("--x", `${touch.clientX - box.left}px`)
+    e.currentTarget.style.setProperty("--y", `${touch.clientY - box.top}px`)
+  }}
+></span>
       <svg viewBox="0 0 100 100" className="absolute w-8 h-8 z-10">
         <path
           fill="#7fffd4"
