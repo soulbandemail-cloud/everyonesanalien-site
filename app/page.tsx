@@ -85,7 +85,7 @@ export default function Home() {
   <h1 className="relative z-10 text-6xl font-bold text-center flex justify-center items-center text-[#7fffd4] shrink-0">
     <span>S</span>
 
-    <span className="relative inline-flex items-center justify-center w-30 h-24 mx-0">
+    <span className="relative inline-flex items-center justify-center w-27 h-24 mx-0">
       <svg viewBox="0 0 100 100" className="absolute w-8 h-8 z-10">
         <path
           fill="#7fffd4"
