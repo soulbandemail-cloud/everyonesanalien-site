@@ -79,19 +79,29 @@ export default function Home() {
 
 
 <div className="mb-12">  
-  <h1 className="text-6xl font-bold mt-14 text-center flex justify-center items-center gap-2">
-  S
+  <span className="relative inline-flex items-center justify-center w-28 h-20 mx-1">
 
-  <span className="relative inline-flex items-center justify-center mx-1">
-  <span className="text-[#6ee7b7] text-4xl">♥</span>
+  <span className="text-[#6ee7b7] text-5xl z-10">
+    ♥
+  </span>
 
-  <span className="absolute w-16 h-12 border-4 border-[#6ee7b7] rounded-full"></span>
+  <svg
+    className="absolute inset-0"
+    viewBox="0 0 120 80"
+  >
+    <ellipse
+      cx="60"
+      cy="40"
+      rx="45"
+      ry="22"
+      fill="none"
+      stroke="#6ee7b7"
+      strokeWidth="6"
+      transform="rotate(-18 60 40)"
+    />
+  </svg>
 
-  <span className="absolute w-20 h-6 border-4 border-[#6ee7b7] rounded-full rotate-[-20deg]"></span>
 </span>
-
-  UL
-</h1>
 </div>
 
 <div className="grid gap-8 md:gap-16 md:grid-cols-3 mb-4 md:mb-16">
