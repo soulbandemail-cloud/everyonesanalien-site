@@ -11,6 +11,8 @@ import {
 
 import { FaEnvelope } from "react-icons/fa";
 
+import { FaRegHeart } from "react-icons/fa";
+
 export default function Home() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "already" | "error">("idle");
 
@@ -77,9 +79,15 @@ export default function Home() {
 
 
 <div className="mb-12">  
-  <h1 className="text-6xl font-bold mt-14 text-center">
-    SOUL
-  </h1>
+  <h1 className="text-6xl font-bold mt-14 text-center flex justify-center items-center gap-2">
+  S
+
+  <span className="text-[#6ee7b7] border-2 border-[#6ee7b7] rounded-full w-14 h-14 flex items-center justify-center">
+    <FaRegHeart size={20} />
+  </span>
+
+  UL
+</h1>
 </div>
 
 <div className="grid gap-8 md:gap-16 md:grid-cols-3 mb-4 md:mb-16">
