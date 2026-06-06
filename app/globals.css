@@ -108,3 +108,30 @@ body {
 .animate-spin-slow {
   animation: spin-slow 14s linear infinite;
 }
+@keyframes header-heart-pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.7);
+    opacity: 0;
+    filter: drop-shadow(0 0 0px #7fffd4);
+  }
+
+  12% {
+    opacity: 0.9;
+    filter: drop-shadow(0 0 12px #7fffd4);
+  }
+
+  45% {
+    opacity: 0.28;
+    filter: drop-shadow(0 0 26px #7fffd4);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(14);
+    opacity: 0;
+    filter: drop-shadow(0 0 60px #7fffd4);
+  }
+}
+
+.header-heart-pulse {
+  animation: header-heart-pulse 5s linear infinite;
+}
