@@ -88,7 +88,7 @@ export default function Home() {
     {/* Heart */}
    <svg
   viewBox="0 0 100 100"
-  className="absolute w-10 h-10 z-10"
+  className="absolute w-8 h-8 z-10"
 >
   <path
     fill="#7fffd4"
