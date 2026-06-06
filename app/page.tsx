@@ -9,6 +9,8 @@ import {
   FaYoutube
 } from "react-icons/fa";
 
+import { FaEnvelope } from "react-icons/fa";
+
 export default function Home() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "already" | "error">("idle");
 
@@ -24,7 +26,7 @@ export default function Home() {
 
     <main className="min-h-screen text-white p-8 md:p-12 max-w-8xl mx-auto">
 
- <div className="flex flex-wrap justify-center gap-12 mb-4 md:mb-4">
+ <div className="flex flex-wrap justify-center gap-8 mb-4 md:mb-4">
 
 <a
     href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
@@ -62,6 +64,13 @@ export default function Home() {
   >
     <FaYoutube size={36} />
   </a>
+
+  <a
+  href="mailto:soul.band.email@gmail.com"
+  className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
+>
+  <FaEnvelope size={36} />
+</a>
 
 </div>
 
