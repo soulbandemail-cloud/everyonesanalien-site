@@ -79,29 +79,46 @@ export default function Home() {
 
 
 <div className="mb-12">  
+  <h1 className="text-6xl font-bold mt-14 text-center flex justify-center items-center text-white">
+
+  <span>S</span>
+
   <span className="relative inline-flex items-center justify-center w-28 h-20 mx-1">
 
-  <span className="text-[#6ee7b7] text-5xl z-10">
-    ♥
+    {/* Heart */}
+    <span
+      className="
+        absolute
+        text-[#7fffd4]
+        text-5xl
+        z-10
+      "
+    >
+      ♥
+    </span>
+
+    {/* Saturn ring */}
+    <svg
+      className="absolute inset-0 w-full h-full"
+      viewBox="0 0 120 80"
+    >
+      <ellipse
+        cx="60"
+        cy="40"
+        rx="45"
+        ry="22"
+        fill="none"
+        stroke="#7fffd4"
+        strokeWidth="6"
+        transform="rotate(-18 60 40)"
+      />
+    </svg>
+
   </span>
 
-  <svg
-    className="absolute inset-0"
-    viewBox="0 0 120 80"
-  >
-    <ellipse
-      cx="60"
-      cy="40"
-      rx="45"
-      ry="22"
-      fill="none"
-      stroke="#6ee7b7"
-      strokeWidth="6"
-      transform="rotate(-18 60 40)"
-    />
-  </svg>
+  <span>UL</span>
 
-</span>
+</h1>
 </div>
 
 <div className="grid gap-8 md:gap-16 md:grid-cols-3 mb-4 md:mb-16">
