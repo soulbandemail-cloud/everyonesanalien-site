@@ -22,7 +22,7 @@ export default function Home() {
   <span className="star star-5"></span>
 </div>
 
-    <main className="min-h-screen text-white p-8 md:p-12 max-w-8xl mx-auto">
+    <main className="min-h-screen text-white p-8 md:p-10 max-w-12xl mx-auto">
 
  <div className="flex flex-wrap justify-center gap-18 mb-4 md:mb-4">
 
