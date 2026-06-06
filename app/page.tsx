@@ -79,24 +79,14 @@ export default function Home() {
 
 
 <div className="relative mt-14 w-screen left-1/2 -translate-x-1/2 overflow-hidden">
+<div className="flex items-center justify-center w-full mt-14">
+  <div className="h-[4px] bg-[#7fffd4] flex-1 mr-2" />
 
-  {/* left line */}
-  <div className="absolute top-[70%] right-[calc(50%+135px)] h-[4px] w-screen bg-[#7fffd4]" />
-
-  {/* right line */}
-  <div className="absolute top-[70%] left-[calc(50%+135px)] h-[4px] w-screen bg-[#7fffd4]" />
-
-  <h1 className="relative z-10 text-6xl font-bold text-center flex justify-center items-center text-[#7fffd4]">
-
+  <h1 className="relative z-10 text-6xl font-bold text-center flex justify-center items-center text-[#7fffd4] shrink-0">
     <span>S</span>
 
     <span className="relative inline-flex items-center justify-center w-40 h-24 mx-0">
-
-      {/* Plump SVG heart */}
-      <svg
-        viewBox="0 0 100 100"
-        className="absolute w-8 h-8 z-10"
-      >
+      <svg viewBox="0 0 100 100" className="absolute w-8 h-8 z-10">
         <path
           fill="#7fffd4"
           d="
@@ -112,15 +102,11 @@ export default function Home() {
         />
       </svg>
 
-      {/* Saturn oval */}
-      <svg
-        className="absolute inset-0 w-full h-full"
-        viewBox="0 0 120 80"
-      >
+      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 120 80">
         <ellipse
           cx="60"
           cy="40"
-          rx="70"
+          rx="50"
           ry="20"
           fill="none"
           stroke="#7fffd4"
@@ -128,11 +114,13 @@ export default function Home() {
           transform="rotate(-18 60 40)"
         />
       </svg>
-
     </span>
 
     <span>UL</span>
   </h1>
+
+  <div className="h-[4px] bg-[#7fffd4] flex-1 ml-2" />
+</div>
 </div>
 
 <div className="grid gap-8 md:gap-16 md:grid-cols-3 mb-4 md:mb-16">
