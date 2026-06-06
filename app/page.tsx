@@ -78,55 +78,61 @@ export default function Home() {
 
 
 
-<div className="mb-12">  
-  <h1 className="text-6xl font-bold mt-14 text-center flex justify-center items-center text-[#6ee7b7]">
+<div className="relative mt-14 w-screen left-1/2 -translate-x-1/2 overflow-hidden">
 
-  <span>S</span>
+  {/* left line */}
+  <div className="absolute top-[70%] right-[calc(50%+135px)] h-[4px] w-screen bg-[#7fffd4]" />
 
-  <span className="relative inline-flex items-center justify-center w-24 h-16 mx-1">
+  {/* right line */}
+  <div className="absolute top-[70%] left-[calc(50%+135px)] h-[4px] w-screen bg-[#7fffd4]" />
 
-    {/* Heart */}
-   <svg
-  viewBox="0 0 100 100"
-  className="absolute w-8 h-8 z-10"
->
-  <path
-    fill="#7fffd4"
-    d="
-      M50 86
-      C42 76 20 62 14 45
-      C8 28 18 12 35 13
-      C44 14 49 22 50 25
-      C51 22 56 14 65 13
-      C82 12 92 28 86 45
-      C80 62 58 76 50 86
-      Z
-    "
-  />
-</svg>
+  <h1 className="relative z-10 text-6xl font-bold text-center flex justify-center items-center text-[#7fffd4]">
 
-    {/* Saturn ring */}
-    <svg
-      className="absolute inset-0 w-full h-full"
-      viewBox="0 0 120 80"
-    >
-      <ellipse
-        cx="60"
-        cy="40"
-        rx="56"
-        ry="26"
-        fill="none"
-        stroke="#7fffd4"
-        strokeWidth="6"
-        transform="rotate(-18 60 40)"
-      />
-    </svg>
+    <span>S</span>
 
-  </span>
+    <span className="relative inline-flex items-center justify-center w-40 h-24 mx-0">
 
-  <span>UL</span>
+      {/* Plump SVG heart */}
+      <svg
+        viewBox="0 0 100 100"
+        className="absolute w-8 h-8 z-10"
+      >
+        <path
+          fill="#7fffd4"
+          d="
+            M50 86
+            C42 76 20 62 14 45
+            C8 28 18 12 35 13
+            C44 14 49 22 50 25
+            C51 22 56 14 65 13
+            C82 12 92 28 86 45
+            C80 62 58 76 50 86
+            Z
+          "
+        />
+      </svg>
 
-</h1>
+      {/* Saturn oval */}
+      <svg
+        className="absolute inset-0 w-full h-full"
+        viewBox="0 0 120 80"
+      >
+        <ellipse
+          cx="60"
+          cy="40"
+          rx="70"
+          ry="20"
+          fill="none"
+          stroke="#7fffd4"
+          strokeWidth="8"
+          transform="rotate(-18 60 40)"
+        />
+      </svg>
+
+    </span>
+
+    <span>UL</span>
+  </h1>
 </div>
 
 <div className="grid gap-8 md:gap-16 md:grid-cols-3 mb-4 md:mb-16">
