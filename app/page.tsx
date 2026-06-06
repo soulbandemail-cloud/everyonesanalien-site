@@ -82,9 +82,13 @@ export default function Home() {
   <h1 className="text-6xl font-bold mt-14 text-center flex justify-center items-center gap-2">
   S
 
-  <span className="text-[#6ee7b7] border-2 border-[#6ee7b7] rounded-full w-8 h-10 flex items-center justify-center">
-    <FaRegHeart size={26} />
-  </span>
+  <span className="relative inline-flex items-center justify-center mx-1">
+  <span className="text-[#6ee7b7] text-4xl">♥</span>
+
+  <span className="absolute w-16 h-12 border-4 border-[#6ee7b7] rounded-full"></span>
+
+  <span className="absolute w-20 h-6 border-4 border-[#6ee7b7] rounded-full rotate-[-20deg]"></span>
+</span>
 
   UL
 </h1>
