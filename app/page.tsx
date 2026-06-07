@@ -33,8 +33,8 @@ const catchShootingStar = (e: React.PointerEvent<HTMLSpanElement>) => {
 
   setWish("");
   setWishPrompt({
-    x: e.clientX,
-    y: e.clientY,
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2,
     key: Date.now(),
   });
 };
@@ -129,11 +129,7 @@ return (
 {wishPrompt && (
   <form
     key={wishPrompt.key}
-    className="fixed z-[9999] wish-box"
-    style={{
-      left: `${wishPrompt.x}px`,
-      top: `${wishPrompt.y}px`,
-    }}
+    className="fixed left-1/2 top-1/2 z-[10000] wish-box"
     onSubmit={(e) => {
       e.preventDefault();
       setWishPrompt(null);
