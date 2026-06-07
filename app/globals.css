@@ -245,8 +245,8 @@ body {
 .shooting-star-launch {
   top: 24%;
   left: -35%;
-  animation: shooting-star-launch 2.2s ease-out forwards;
-  animation-delay: 5s;
+  opacity: 1;
+  animation: shooting-star-launch 2.2s ease-out 5s forwards;
 }
 
 /* sparse background stars */
@@ -324,6 +324,10 @@ body {
   0% {
     opacity: 1;
     transform: translate(0, 0) rotate(11deg);
+  }
+
+  70% {
+    opacity: 1;
   }
 
   100% {
