@@ -537,7 +537,7 @@ svg {
   }
 
   90% {
-    transform: translateY(0.30rem) scaleY(0.25);
+    transform: translateY(0.30rem) scaleY(0.20);
   }
 }
 
