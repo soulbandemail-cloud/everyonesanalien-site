@@ -12,14 +12,14 @@ export const metadata: Metadata = {
   description: "Soul's official band website",
   icons: {
     icon: [
-      { url: "/favicon-32x32-v17.png", type: "image/png", sizes: "32x32" },
-      { url: "/favicon.svg?v=17", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-32x32.png?v=18", type: "image/png", sizes: "32x32" },
+      { url: "/favicon.svg?v=18", type: "image/svg+xml" },
     ],
-    shortcut: "/favicon-32x32-v17.png",
-    apple: "/apple-touch-icon-v17.png",
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
 };
-
 
 export default function RootLayout({
   children,
