@@ -365,7 +365,7 @@ return (
         </div>
 
         <div className="relative mt-12 mb-0 -mx-8 md:-mx-12 overflow-hidden">
-          <p className="text-center text-white text-xs md:text-xs tracking-[0.2em] uppercase mb-[-0.7rem]">
+          <p className="text-center text-white text-sm md:text-xs tracking-[0.2em] uppercase mb-[-0.7rem]">
             a band called...
           </p>
           
