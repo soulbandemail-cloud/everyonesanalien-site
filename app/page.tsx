@@ -245,7 +245,7 @@ export default function Home() {
     rx="40"
     ry="21"
     fill="none"
-    stroke="#7fffd4"
+    stroke="white"
     strokeWidth="5"
   />
 </svg>

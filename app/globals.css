@@ -527,7 +527,7 @@ svg {
 
 .ufo-on-orbit {
   offset-path: ellipse(40px 21px at 56px 48px);
-  offset-rotate: auto;
+  offset-rotate: 0deg;
   offset-distance: 0%;
-  animation: ufo-orbit-path 3.2s linear infinite;
+  animation: ufo-orbit-path 3s linear infinite;
 }
