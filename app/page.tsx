@@ -16,7 +16,6 @@ export default function Home() {
   >("idle");
 
   const [ufoPos, setUfoPos] = useState({ x: -100, y: -100 });
-  const [hideCursorUfo, setHideCursorUfo] = useState(false);
   const [ringBlinking, setRingBlinking] = useState(false);
 
   const [flyingAliens, setFlyingAliens] = useState<
@@ -102,52 +101,6 @@ const launchAlien = (e: React.PointerEvent<SVGSVGElement>) => {
   };
 }, []);
 useEffect(() => {
-  const blink = () => {
-    setRingBlinking(true);
-
-    if (ufoOrbiting && orbitRef.current) {
-      const rect = orbitRef.current.getBoundingClientRect();
-
-      setHeartPulse({
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2,
-        key: Date.now(),
-      });
-
-      setUfoOrbiting(false);
-      setHideCursorUfo(true);
-    }
-
-    setTimeout(() => {
-      setRingBlinking(false);
-    }, 420);
-  };
-
-  const timeout = window.setTimeout(blink, 8000 + Math.random() * 9000);
-
-  return () => window.clearTimeout(timeout);
-}, [ringBlinking, ufoOrbiting]);
-
-useEffect(() => {
-  const respawnUfo = (e: PointerEvent) => {
-    if (!hideCursorUfo) return;
-
-    setUfoPos({
-      x: e.clientX,
-      y: e.clientY,
-    });
-
-    setHideCursorUfo(false);
-  };
-
-  window.addEventListener("pointerdown", respawnUfo);
-
-  return () => {
-    window.removeEventListener("pointerdown", respawnUfo);
-  };
-}, [hideCursorUfo]);
-
-useEffect(() => {
   const interval = window.setInterval(() => {
     setFlyingAliens((aliens) => {
       if (!orbitRef.current) return aliens;
@@ -167,11 +120,16 @@ useEffect(() => {
           const hitHeart = Math.hypot(next.x - heartX, next.y - heartY) < 42;
 
           if (hitHeart) {
+            setRingBlinking(true);
             setHeartPulse({
               x: heartX,
               y: heartY,
               key: Date.now(),
             });
+
+            window.setTimeout(() => {
+              setRingBlinking(false);
+            }, 420);
 
             return null;
           }
@@ -195,7 +153,7 @@ return (
   <>
     <div
       className={`fixed z-[9999] pointer-events-none ${
-        ufoOrbiting || hideCursorUfo ? "opacity-0" : "opacity-100"
+        ufoOrbiting ? "opacity-0" : "opacity-100"
       } transition-opacity duration-300`}
       style={{
         left: `${ufoPos.x}px`,
