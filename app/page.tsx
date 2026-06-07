@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 
 import {
   FaInstagram,
@@ -367,21 +366,21 @@ return (
 
         <div className="relative mt-4 mb-8 -mx-8 md:-mx-12 overflow-hidden">
           <div className="flex items-center justify-center w-full mt-4">
-            <div className="h-[4px] bg-[#7fffd4] flex-1 mr-2" />
+            <div className="h-[4px] bg-white flex-1 mr-2" />
 
-            <h1 className="relative z-10 text-6xl font-bold text-center flex justify-center items-center text-[#7fffd4] shrink-0">
+            <h1 className="relative z-10 text-6xl font-bold text-center flex justify-center items-center text-white shrink-0">
               <span className="-mr-4">S</span>
 
               <span 
               ref={orbitRef}
-              className="relative inline-flex items-center justify-center w-28 h-24 mx-0 overflow-hidden">
+              className="group relative inline-flex items-center justify-center w-28 h-24 mx-0 overflow-hidden">
                 <svg
   viewBox="0 0 100 100"
   className="absolute -translate-y-0.5 w-8 h-8 z-30 cursor-pointer"
   onClick={toggleUfoOrbit}
 >
                   <path
-                    fill="#7fffd4"
+                    className="fill-[#7fffd4] transition-colors duration-200 group-hover:fill-white"
                     d="
                       M50 86
                       C42 76 20 62 14 45
@@ -407,8 +406,7 @@ return (
     cy="39"
     rx="40"
     ry="21"
-    fill="none"
-    stroke="#7fffd4"
+    className="fill-transparent stroke-[#7fffd4] transition-colors duration-200 group-hover:fill-[#7fffd4]"
     strokeWidth="5"
   />
 </svg>
@@ -442,7 +440,7 @@ return (
               <span className="-ml-3">UL</span>
             </h1>
 
-            <div className="h-[4px] bg-[#7fffd4] flex-1 ml-2" />
+            <div className="h-[4px] bg-white flex-1 ml-2" />
           </div>
         </div>
 
@@ -646,12 +644,13 @@ return (
           </svg>
         ))}
 
-        <Link
-          href="/"
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
           className="shrink-0 mx-2 px-4 py-1 border border-[#6ee7b7] text-[#6ee7b7] text-sm md:text-base font-bold tracking-[0.25em] pointer-events-auto transition-all duration-200 hover:bg-[#6ee7b7] hover:text-[#00082d] active:bg-white active:border-white active:text-[#00082d]"
         >
           everyonesanalien.com
-        </Link>
+        </button>
 
         {[...Array(18)].map((_, i) => (
           <svg
