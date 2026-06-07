@@ -386,7 +386,7 @@ return (
     style={
       {
         "--burst-x": `${x}px`,
-        "--delay": `${Math.abs(i - 4.5) * 18}ms`,
+        "--delay": `${i * 45}ms`,
       } as React.CSSProperties
     }
   />

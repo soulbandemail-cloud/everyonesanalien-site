@@ -589,7 +589,7 @@ svg {
 .wish-burst-star {
   position: fixed;
   left: 50%;
-  top: 35%;
+  top: 32%;
   width: 18px;
   height: 18px;
   background: #7fffd4;
@@ -617,7 +617,7 @@ svg {
     opacity: 0;
   }
 
-  15% {
+  18% {
     opacity: 1;
   }
 
