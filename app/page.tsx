@@ -364,7 +364,7 @@ return (
           </a>
         </div>
 
-      <p className="text-center text-white text-sm md:text-base tracking-[0.2em] uppercase mb-2">
+      <p className="text-center text-white text-m md:text-base tracking-[0.2em] uppercase mb-2">
   a band called...
 </p>
 
