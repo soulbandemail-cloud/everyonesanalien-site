@@ -533,15 +533,15 @@ svg {
 }
 @keyframes orbital-ring-blink {
   0%, 88%, 92%, 100% {
-    transform: translateY(0.625rem) scaleY(1);
+    transform: translateY(0.45rem) scaleY(1);
   }
 
   90% {
-    transform: translateY(0.625rem) scaleY(0.45);
+    transform: translateY(0.45rem) scaleY(0.25);
   }
 }
 
 .orbital-ring-blink {
-  animation: orbital-ring-blink 15s ease-in-out infinite;
+  animation: orbital-ring-blink 12s ease-in-out infinite;
   transform-origin: center;
 }
