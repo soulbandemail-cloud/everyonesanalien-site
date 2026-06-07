@@ -531,3 +531,17 @@ svg {
   offset-distance: 0%;
   animation: ufo-orbit-path 3s linear infinite;
 }
+@keyframes orbital-ring-blink {
+  0%, 88%, 92%, 100% {
+    transform: translateY(0.625rem) scaleY(1);
+  }
+
+  90% {
+    transform: translateY(0.625rem) scaleY(0.45);
+  }
+}
+
+.orbital-ring-blink {
+  animation: orbital-ring-blink 15s ease-in-out infinite;
+  transform-origin: center;
+}

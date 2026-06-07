@@ -235,7 +235,7 @@ export default function Home() {
                 </svg>
 
                 <svg
-  className="absolute inset-0 translate-y-2.5 w-full h-full z-20 cursor-pointer"
+  className="orbital-ring-blink absolute inset-0 translate-y-2.5 w-full h-full z-20 cursor-pointer"
   viewBox="0 0 120 80"
   onClick={() => setUfoOrbiting((orbiting) => !orbiting)}
 >
