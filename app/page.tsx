@@ -113,6 +113,20 @@ useEffect(() => {
   };
 }, [hideCursorUfo]);
 
+useEffect(() => {
+  if (!wishPrompt) return;
+
+  const closeWishPrompt = () => {
+    setWishPrompt(null);
+  };
+
+  window.addEventListener("pointerdown", closeWishPrompt);
+
+  return () => {
+    window.removeEventListener("pointerdown", closeWishPrompt);
+  };
+}, [wishPrompt]);
+
 return (
   <>
     <div
@@ -128,13 +142,14 @@ return (
 
 {wishPrompt && (
   <form
-    key={wishPrompt.key}
-    className="fixed left-1/2 top-1/2 z-[10000] wish-box"
-    onSubmit={(e) => {
-      e.preventDefault();
-      setWishPrompt(null);
-    }}
-  >
+  key={wishPrompt.key}
+  className="fixed left-1/2 top-1/2 z-[10000] wish-box"
+  onPointerDown={(e) => e.stopPropagation()}
+  onSubmit={(e) => {
+    e.preventDefault();
+    setWishPrompt(null);
+  }}
+>
     <input
       value={wish}
       onChange={(e) => setWish(e.target.value)}
