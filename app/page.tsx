@@ -27,6 +27,26 @@ const [wishPrompt, setWishPrompt] = useState<{
 
 const [wish, setWish] = useState("");
 
+const [wishPoof, setWishPoof] = useState<{
+  x: number;
+  y: number;
+  key: number;
+} | null>(null);
+
+const closeWishPrompt = () => {
+  setWishPoof({
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2,
+    key: Date.now(),
+  });
+
+  closeWishPrompt();
+
+  setTimeout(() => {
+    setWishPoof(null);
+  }, 900);
+};
+
 const catchShootingStar = (e: React.PointerEvent<HTMLSpanElement>) => {
   e.preventDefault();
   e.stopPropagation();
@@ -116,14 +136,14 @@ useEffect(() => {
 useEffect(() => {
   if (!wishPrompt) return;
 
-  const closeWishPrompt = () => {
-    setWishPrompt(null);
+  const closeOnOutsideClick = () => {
+    closeWishPrompt();
   };
 
-  window.addEventListener("pointerdown", closeWishPrompt);
+  window.addEventListener("pointerdown", closeOnOutsideClick);
 
   return () => {
-    window.removeEventListener("pointerdown", closeWishPrompt);
+    window.removeEventListener("pointerdown", closeOnOutsideClick);
   };
 }, [wishPrompt]);
 
@@ -147,8 +167,9 @@ return (
   onPointerDown={(e) => e.stopPropagation()}
   onSubmit={(e) => {
     e.preventDefault();
-    setWishPrompt(null);
+    closeWishPrompt();
   }}
+
 >
     <input
       value={wish}
@@ -158,6 +179,44 @@ return (
       className="border border-white bg-[#00082d] px-3 py-2 text-white placeholder:text-white/70 outline-none focus:border-[#7fffd4]"
     />
   </form>
+)}
+
+{wishPoof && (
+  <div
+    key={wishPoof.key}
+    className="fixed left-1/2 top-1/2 z-[9999] pointer-events-none"
+  >
+    {[0, 1, 2].map((i) => (
+      <svg
+        key={i}
+        viewBox="0 0 100 100"
+        className="wish-star-poof absolute left-0 top-0 w-12 h-12"
+        style={{
+          animationDelay: `${i * 90}ms`,
+        }}
+      >
+        <path
+          d="
+            M50 5
+            L61 35
+            L93 35
+            L67 54
+            L78 90
+            L50 68
+            L22 90
+            L33 54
+            L7 35
+            L39 35
+            Z
+          "
+          fill="none"
+          stroke="#7fffd4"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ))}
+  </div>
 )}
 
       <svg viewBox="0 0 120 80" className="w-10 h-10 opacity-95">
