@@ -533,15 +533,7 @@ svg {
   offset-distance: 0%;
   animation: ufo-orbit-path 3s linear infinite;
 }
-@keyframes orbital-ring-blink-now {
-  0%, 100% {
-    transform: translateY(0.6rem) scaleY(1);
-  }
 
-  50% {
-    transform: translateY(0.6rem) scaleY(0.2);
-  }
-}
 .orbital-ring {
   transform: translateY(0.6rem);
   transform-origin: center;
@@ -561,6 +553,7 @@ svg {
   animation: orbital-ring-blink-now 420ms ease-in-out;
   transform-origin: center;
 }
+
 .shooting-star {
   pointer-events: auto;
   cursor: crosshair;
@@ -585,28 +578,29 @@ svg {
     transform: translateY(0) scale(1);
   }
 }
-@keyframes wish-star-poof {
+
+@keyframes wish-mini-star-burst {
   0% {
-    transform: translate(-50%, -50%) scale(0.2) rotate(0deg);
+    transform: translate(-50%, -50%) translate(0, 0) scale(0.3) rotate(0deg);
     opacity: 0;
     filter: drop-shadow(0 0 0px #7fffd4);
   }
 
-  10% {
+  12% {
     opacity: 1;
-    filter: drop-shadow(0 0 16px #7fffd4);
+    filter: drop-shadow(0 0 14px #7fffd4);
   }
 
   100% {
-    transform: translate(-50%, -50%) scale(2.8) rotate(28deg);
+    transform: translate(-50%, -50%) translate(var(--star-x), var(--star-y)) scale(1.8) rotate(160deg);
     opacity: 0;
-    filter: drop-shadow(0 0 28px #7fffd4);
+    filter: drop-shadow(0 0 22px #7fffd4);
   }
 }
 
-.wish-star-poof {
+.wish-mini-star {
   opacity: 0;
-  animation: wish-star-poof 1100ms ease-out forwards;
+  animation: wish-mini-star-burst 1100ms ease-out forwards;
   animation-fill-mode: both;
   transform-origin: center;
 }

@@ -352,8 +352,8 @@ return (
         </div>
 
 
-{wishPrompt && (
-  <div className="relative flex min-h-[72px] mb-8 justify-center">
+<div className="relative flex min-h-[72px] justify-center mb-6">
+  {wishPrompt && (
     <form
       className="wish-box"
       onSubmit={(e) => {
@@ -364,7 +364,6 @@ return (
       <input
         value={wish}
         onChange={(e) => setWish(e.target.value)}
-        
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             e.preventDefault();
@@ -376,32 +375,47 @@ return (
         className="border border-white bg-[#00082d] focus:bg-[#00082d] px-3 py-2 text-white placeholder:text-white/70 outline-none focus:border-[#7fffd4]"
       />
     </form>
-  </div>
-)}
-{wishPoof > 0 && (
-  <div
-    key={wishPoof}
-    className="absolute left-1/2 top-1/2 z-[10001] pointer-events-none"
-  >
-    {[0, 1, 2].map((i) => (
-      <svg
-        key={i}
-        viewBox="0 0 100 100"
-        className="wish-star-poof absolute left-0 top-0 w-12 h-12"
-        style={{ animationDelay: `${i * 90}ms` }}
-      >
-        <path
-          d="M50 5 L61 35 L93 35 L67 54 L78 90 L50 68 L22 90 L33 54 L7 35 L39 35 Z"
-          fill="none"
-          stroke="#7fffd4"
-          strokeWidth="2"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ))}
-  </div>
-)}
+  )}
 
+  {wishPoof > 0 && (
+    <div
+      key={wishPoof}
+      className="absolute left-1/2 top-1/2 z-[10050] pointer-events-none"
+    >
+      {[
+        [-42, -26],
+        [38, -30],
+        [-52, 8],
+        [50, 10],
+        [-24, 38],
+        [24, 36],
+        [0, -48],
+        [0, 48],
+      ].map(([x, y], i) => (
+        <svg
+          key={i}
+          viewBox="0 0 100 100"
+          className="wish-mini-star absolute left-0 top-0 w-5 h-5"
+          style={
+            {
+              "--star-x": `${x}px`,
+              "--star-y": `${y}px`,
+              animationDelay: `${i * 35}ms`,
+            } as React.CSSProperties
+          }
+        >
+          <path
+            d="M50 5 L61 35 L93 35 L67 54 L78 90 L50 68 L22 90 L33 54 L7 35 L39 35 Z"
+            fill="none"
+            stroke="#7fffd4"
+            strokeWidth="7"
+            strokeLinejoin="round"
+          />
+        </svg>
+      ))}
+    </div>
+  )}
+</div>
 
 
         <div className="grid gap-8 md:gap-16 md:grid-cols-3 mt-4 mb-4 md:mb-16">
