@@ -145,6 +145,16 @@ body {
   }
 }
 
-.alien-footer-track {
-  animation: alien-footer-scroll 18s linear infinite;
+@keyframes alien-footer-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.alien-footer-marquee {
+  animation: alien-footer-marquee 22s linear infinite;
 }

@@ -307,71 +307,73 @@ export default function Home() {
             </p>
           </section>
         </div>
-                <div className="fixed bottom-0 left-0 z-40 w-screen overflow-hidden border-t border-[#7fffd4] bg-[#00082d]/80 py-2 pointer-events-none">
-  <div className="flex items-center whitespace-nowrap">
-    <div className="alien-footer-track flex w-max items-center gap-8 pr-8">
-      {[...Array(14)].map((_, i) => (
-        <svg
-          key={`left-${i}`}
-          viewBox="0 0 100 100"
-          className="w-8 h-8 shrink-0 opacity-90"
-        >
-          <path
-            fill="#7fffd4"
-            d="
-              M50 10
-              C27 10 15 30 18 52
-              C21 75 38 90 50 90
-              C62 90 79 75 82 52
-              C85 30 73 10 50 10
-              Z
-            "
-          />
-          <ellipse cx="36" cy="48" rx="9" ry="15" fill="black" transform="rotate(-22 36 48)" />
-          <ellipse cx="64" cy="48" rx="9" ry="15" fill="black" transform="rotate(22 64 48)" />
-          <path
-            d="M42 68 C47 72 53 72 58 68"
-            fill="none"
-            stroke="black"
-            strokeWidth="3"
-            strokeLinecap="round"
-          />
-        </svg>
-      ))}
+               <div className="fixed bottom-0 left-0 z-40 w-screen overflow-hidden border-t border-[#7fffd4] bg-[#00082d]/80 py-2 pointer-events-none">
+  <div className="alien-footer-marquee flex w-max items-center">
+    {[0, 1].map((track) => (
+      <div key={track} className="flex items-center gap-8 px-4 shrink-0">
+        {[...Array(18)].map((_, i) => (
+          <svg
+            key={`${track}-${i}`}
+            viewBox="0 0 100 100"
+            className="w-8 h-8 shrink-0 opacity-90"
+          >
+            <path
+              fill="#7fffd4"
+              d="
+                M50 10
+                C27 10 15 30 18 52
+                C21 75 38 90 50 90
+                C62 90 79 75 82 52
+                C85 30 73 10 50 10
+                Z
+              "
+            />
+            <ellipse cx="36" cy="48" rx="9" ry="15" fill="black" transform="rotate(-22 36 48)" />
+            <ellipse cx="64" cy="48" rx="9" ry="15" fill="black" transform="rotate(22 64 48)" />
+            <path
+              d="M42 68 C47 72 53 72 58 68"
+              fill="none"
+              stroke="black"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+          </svg>
+        ))}
 
-      <span className="shrink-0 px-6 text-[#6ee7b7] text-sm md:text-base font-bold tracking-[0.25em]">
-        everyonesanalien.com
-      </span>
+        <span className="shrink-0 px-6 text-[#6ee7b7] text-sm md:text-base font-bold tracking-[0.25em]">
+          everyonesanalien.com
+        </span>
 
-      {[...Array(14)].map((_, i) => (
-        <svg
-          key={`right-${i}`}
-          viewBox="0 0 100 100"
-          className="w-8 h-8 shrink-0 opacity-90"
-        >
-          <path
-            fill="#7fffd4"
-            d="
-              M50 10
-              C27 10 15 30 18 52
-              C21 75 38 90 50 90
-              C62 90 79 75 82 52
-              C85 30 73 10 50 10
-              Z
-            "
-          />
-          <ellipse cx="36" cy="48" rx="9" ry="15" fill="black" transform="rotate(-22 36 48)" />
-          <ellipse cx="64" cy="48" rx="9" ry="15" fill="black" transform="rotate(22 64 48)" />
-          <path
-            d="M42 68 C47 72 53 72 58 68"
-            fill="none"
-            stroke="black"
-            strokeWidth="3"
-            strokeLinecap="round"
-          />
-        </svg>
-      ))}
-    </div>
+        {[...Array(18)].map((_, i) => (
+          <svg
+            key={`${track}-b-${i}`}
+            viewBox="0 0 100 100"
+            className="w-8 h-8 shrink-0 opacity-90"
+          >
+            <path
+              fill="#7fffd4"
+              d="
+                M50 10
+                C27 10 15 30 18 52
+                C21 75 38 90 50 90
+                C62 90 79 75 82 52
+                C85 30 73 10 50 10
+                Z
+              "
+            />
+            <ellipse cx="36" cy="48" rx="9" ry="15" fill="black" transform="rotate(-22 36 48)" />
+            <ellipse cx="64" cy="48" rx="9" ry="15" fill="black" transform="rotate(22 64 48)" />
+            <path
+              d="M42 68 C47 72 53 72 58 68"
+              fill="none"
+              stroke="black"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+          </svg>
+        ))}
+      </div>
+    ))}
   </div>
 </div>
       </main>
