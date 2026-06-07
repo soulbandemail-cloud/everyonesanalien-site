@@ -10,13 +10,11 @@ const shareTechMono = Share_Tech_Mono({
 export const metadata: Metadata = {
   title: "everyonesanalien.com",
   description: "Soul's official band website",
- icons: {
-  icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
-  shortcut: [{ url: "/favicon.svg", type: "image/svg+xml" }],
-}
+  icons: {
+    icon: [{ url: "/favicon.svg?v=10", type: "image/svg+xml" }],
+    shortcut: [{ url: "/favicon.svg?v=10", type: "image/svg+xml" }],
+  },
 };
-
-
 
 export default function RootLayout({
   children,
