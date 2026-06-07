@@ -19,44 +19,25 @@ export default function Home() {
   const [hideCursorUfo, setHideCursorUfo] = useState(false);
   const [ringBlinking, setRingBlinking] = useState(false);
 
-const [wishPrompt, setWishPrompt] = useState<{
-  x: number;
-  y: number;
-  key: number;
-} | null>(null);
-
+const [wishPrompt, setWishPrompt] = useState(false);
 const [wish, setWish] = useState("");
-
-const [wishPoof, setWishPoof] = useState<{
-  x: number;
-  y: number;
-  key: number;
-} | null>(null);
-
-const closeWishPrompt = () => {
-  setWishPoof({
-    x: window.innerWidth / 2,
-    y: window.innerHeight / 2,
-    key: Date.now(),
-  });
-
-  setWishPrompt(null);
-
-  setTimeout(() => {
-    setWishPoof(null);
-  }, 900);
-};
+const [wishPoof, setWishPoof] = useState(0);
 
 const catchShootingStar = (e: React.PointerEvent<HTMLSpanElement>) => {
   e.preventDefault();
   e.stopPropagation();
 
   setWish("");
-  setWishPrompt({
-    x: window.innerWidth / 2,
-    y: window.innerHeight / 2,
-    key: Date.now(),
-  });
+  setWishPrompt(true);
+};
+
+const closeWishPrompt = () => {
+  setWishPrompt(false);
+  setWishPoof(Date.now());
+
+  setTimeout(() => {
+    setWishPoof(0);
+  }, 900);
 };
 
 
@@ -145,76 +126,6 @@ return (
         transform: "translate(-50%, -50%)",
       }}
     >
-
-{wishPrompt && (
-  <div
-    key={wishPrompt.key}
-    className="fixed inset-0 z-[10000]"
-    onClick={closeWishPrompt}
-  >
-    <form
-      className="fixed left-1/2 top-1/2 wish-box"
-      onSubmit={(e) => {
-        e.preventDefault();
-        closeWishPrompt();
-      }}
-    >
-      <input
-  value={wish}
-  onChange={(e) => setWish(e.target.value)}
-  onClick={closeWishPrompt}
-  onKeyDown={(e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      closeWishPrompt();
-    }
-  }}
-  placeholder="MAKE A WISH"
-  autoFocus
-  className="border border-white bg-[#00082d] focus:bg-[#00082d] px-3 py-2 text-white placeholder:text-white/70 outline-none focus:border-[#7fffd4]"
-/>
-    </form>
-  </div>
-)}
-
-{wishPoof && (
-  <div
-    key={wishPoof.key}
-    className="fixed left-1/2 top-1/2 z-[9999] pointer-events-none"
-  >
-    {[0, 1, 2].map((i) => (
-      <svg
-        key={i}
-        viewBox="0 0 100 100"
-        className="wish-star-poof absolute left-0 top-0 w-12 h-12"
-        style={{
-          animationDelay: `${i * 90}ms`,
-        }}
-      >
-        <path
-          d="
-            M50 5
-            L61 35
-            L93 35
-            L67 54
-            L78 90
-            L50 68
-            L22 90
-            L33 54
-            L7 35
-            L39 35
-            Z
-          "
-          fill="none"
-          stroke="#7fffd4"
-          strokeWidth="2"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ))}
-  </div>
-)}
-
       <svg viewBox="0 0 120 80" className="w-10 h-10 opacity-95">
         <ellipse cx="60" cy="42" rx="42" ry="12" fill="white" />
 
@@ -255,6 +166,58 @@ return (
         />
       </svg>
     </div>
+
+
+{wishPrompt && (
+  <div className="fixed inset-0 z-[10000] flex items-center justify-center" onClick={closeWishPrompt}>
+    <form
+      className="wish-box"
+      onSubmit={(e) => {
+        e.preventDefault();
+        closeWishPrompt();
+      }}
+    >
+      <input
+        value={wish}
+        onChange={(e) => setWish(e.target.value)}
+        
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            closeWishPrompt();
+          }
+        }}
+        placeholder="MAKE A WISH!"
+        autoFocus
+        className="border border-white bg-[#00082d] focus:bg-[#00082d] px-3 py-2 text-white placeholder:text-white/70 outline-none focus:border-[#7fffd4]"
+      />
+    </form>
+  </div>
+)}
+{wishPoof > 0 && (
+  <div
+    key={wishPoof}
+    className="fixed left-1/2 top-1/2 z-[10001] pointer-events-none"
+  >
+    {[0, 1, 2].map((i) => (
+      <svg
+        key={i}
+        viewBox="0 0 100 100"
+        className="wish-star-poof absolute left-0 top-0 w-12 h-12"
+        style={{ animationDelay: `${i * 90}ms` }}
+      >
+        <path
+          d="M50 5 L61 35 L93 35 L67 54 L78 90 L50 68 L22 90 L33 54 L7 35 L39 35 Z"
+          fill="none"
+          stroke="#7fffd4"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ))}
+  </div>
+)}
+
 {heartPulse.key > 0 && (
   <div
     key={heartPulse.key}
