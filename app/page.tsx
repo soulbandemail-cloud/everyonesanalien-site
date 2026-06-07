@@ -72,6 +72,25 @@ useEffect(() => {
     }, 420);
   };
 
+  useEffect(() => {
+  const respawnUfo = (e: PointerEvent) => {
+    if (!hideCursorUfo) return;
+
+    setUfoPos({
+      x: e.clientX,
+      y: e.clientY,
+    });
+
+    setHideCursorUfo(false);
+  };
+
+  window.addEventListener("pointerdown", respawnUfo);
+
+  return () => {
+    window.removeEventListener("pointerdown", respawnUfo);
+  };
+}, [hideCursorUfo]);
+
   const timeout = window.setTimeout(blink, 8000 + Math.random() * 9000);
 
   return () => window.clearTimeout(timeout);
