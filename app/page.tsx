@@ -351,6 +351,59 @@ return (
           </div>
         </div>
 
+
+{wishPrompt && (
+  <div className="relative flex min-h-[72px] justify-center">
+    <form
+      className="wish-box"
+      onSubmit={(e) => {
+        e.preventDefault();
+        closeWishPrompt();
+      }}
+    >
+      <input
+        value={wish}
+        onChange={(e) => setWish(e.target.value)}
+        
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            closeWishPrompt();
+          }
+        }}
+        placeholder="MAKE A WISH!"
+        autoFocus
+        className="border border-white bg-[#00082d] focus:bg-[#00082d] px-3 py-2 text-white placeholder:text-white/70 outline-none focus:border-[#7fffd4]"
+      />
+    </form>
+  </div>
+)}
+{wishPoof > 0 && (
+  <div
+    key={wishPoof}
+    className="absolute left-1/2 top-1/2 z-[10001] pointer-events-none"
+  >
+    {[0, 1, 2].map((i) => (
+      <svg
+        key={i}
+        viewBox="0 0 100 100"
+        className="wish-star-poof absolute left-0 top-0 w-12 h-12"
+        style={{ animationDelay: `${i * 90}ms` }}
+      >
+        <path
+          d="M50 5 L61 35 L93 35 L67 54 L78 90 L50 68 L22 90 L33 54 L7 35 L39 35 Z"
+          fill="none"
+          stroke="#7fffd4"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ))}
+  </div>
+)}
+
+
+
         <div className="grid gap-8 md:gap-16 md:grid-cols-3 mb-4 md:mb-16">
           <section className="md:max-w-sm md:mx-auto">
             <h2 className="text-2xl mb-4">BECOME A MATE</h2>
@@ -466,55 +519,9 @@ return (
           </section>
         </div>
 
-{wishPrompt && (
-  <div className="relative flex min-h-[72px] justify-center">
-    <form
-      className="wish-box"
-      onSubmit={(e) => {
-        e.preventDefault();
-        closeWishPrompt();
-      }}
-    >
-      <input
-        value={wish}
-        onChange={(e) => setWish(e.target.value)}
-        
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            closeWishPrompt();
-          }
-        }}
-        placeholder="MAKE A WISH!"
-        autoFocus
-        className="border border-white bg-[#00082d] focus:bg-[#00082d] px-3 py-2 text-white placeholder:text-white/70 outline-none focus:border-[#7fffd4]"
-      />
-    </form>
-  </div>
-)}
-{wishPoof > 0 && (
-  <div
-    key={wishPoof}
-    className="absolute left-1/2 top-1/2 z-[10001] pointer-events-none"
-  >
-    {[0, 1, 2].map((i) => (
-      <svg
-        key={i}
-        viewBox="0 0 100 100"
-        className="wish-star-poof absolute left-0 top-0 w-12 h-12"
-        style={{ animationDelay: `${i * 90}ms` }}
-      >
-        <path
-          d="M50 5 L61 35 L93 35 L67 54 L78 90 L50 68 L22 90 L33 54 L7 35 L39 35 Z"
-          fill="none"
-          stroke="#7fffd4"
-          strokeWidth="2"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ))}
-  </div>
-)}
+
+
+
 
 
                <div className="fixed bottom-0 inset-x-0 z-40 overflow-hidden border-t border-[#7fffd4] bg-[#00082d]/80 py-2 pointer-events-none">
