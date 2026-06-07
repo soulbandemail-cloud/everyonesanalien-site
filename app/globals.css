@@ -561,3 +561,28 @@ svg {
   animation: orbital-ring-blink-now 420ms ease-in-out;
   transform-origin: center;
 }
+.shooting-star {
+  pointer-events: auto;
+  cursor: crosshair;
+  height: 18px;
+  background-size: 100% 2px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.wish-box {
+  transform: translate(-50%, -120%);
+  animation: wish-box-arrive 240ms ease-out both;
+}
+
+@keyframes wish-box-arrive {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -90%) scale(0.92);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -120%) scale(1);
+  }
+}

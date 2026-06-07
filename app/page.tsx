@@ -19,7 +19,25 @@ export default function Home() {
   const [hideCursorUfo, setHideCursorUfo] = useState(false);
   const [ringBlinking, setRingBlinking] = useState(false);
 
+const [wishPrompt, setWishPrompt] = useState<{
+  x: number;
+  y: number;
+  key: number;
+} | null>(null);
 
+const [wish, setWish] = useState("");
+
+const catchShootingStar = (e: React.PointerEvent<HTMLSpanElement>) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  setWish("");
+  setWishPrompt({
+    x: e.clientX,
+    y: e.clientY,
+    key: Date.now(),
+  });
+};
 
 
 const orbitRef = useRef<HTMLSpanElement | null>(null);
@@ -107,6 +125,30 @@ return (
         transform: "translate(-50%, -50%)",
       }}
     >
+
+{wishPrompt && (
+  <form
+    key={wishPrompt.key}
+    className="fixed z-[9999] wish-box"
+    style={{
+      left: `${wishPrompt.x}px`,
+      top: `${wishPrompt.y}px`,
+    }}
+    onSubmit={(e) => {
+      e.preventDefault();
+      setWishPrompt(null);
+    }}
+  >
+    <input
+      value={wish}
+      onChange={(e) => setWish(e.target.value)}
+      placeholder="MAKE A WISH!"
+      autoFocus
+      className="border border-white bg-[#00082d] px-3 py-2 text-white placeholder:text-white/70 outline-none focus:border-[#7fffd4]"
+    />
+  </form>
+)}
+
       <svg viewBox="0 0 120 80" className="w-10 h-10 opacity-95">
         <ellipse cx="60" cy="42" rx="42" ry="12" fill="white" />
 
@@ -191,17 +233,17 @@ return (
       </div>
 
 <div className="shooting-stars">
-  <span className="shooting-star shooting-star-launch"></span>
-  <span className="shooting-star shooting-star-1"></span>
-  <span className="shooting-star shooting-star-2"></span>
-  <span className="shooting-star shooting-star-3"></span>
-  <span className="shooting-star shooting-star-4"></span>
-  <span className="shooting-star shooting-star-5"></span>
-  <span className="shooting-star shooting-star-6"></span>
-  <span className="shooting-star shooting-star-7"></span>
-  <span className="shooting-star shooting-star-8"></span>
-  <span className="shooting-star shooting-star-9"></span>
-  <span className="shooting-star shooting-star-10"></span>
+  <span className="shooting-star shooting-star-launch" onPointerDown={catchShootingStar}></span>
+  <span className="shooting-star shooting-star-1" onPointerDown={catchShootingStar}></span>
+  <span className="shooting-star shooting-star-2" onPointerDown={catchShootingStar}></span>
+  <span className="shooting-star shooting-star-3" onPointerDown={catchShootingStar}></span>
+  <span className="shooting-star shooting-star-4" onPointerDown={catchShootingStar}></span>
+  <span className="shooting-star shooting-star-5" onPointerDown={catchShootingStar}></span>
+  <span className="shooting-star shooting-star-6" onPointerDown={catchShootingStar}></span>
+  <span className="shooting-star shooting-star-7" onPointerDown={catchShootingStar}></span>
+  <span className="shooting-star shooting-star-8" onPointerDown={catchShootingStar}></span>
+  <span className="shooting-star shooting-star-9" onPointerDown={catchShootingStar}></span>
+  <span className="shooting-star shooting-star-10" onPointerDown={catchShootingStar}></span>
 </div>
 
       <main className="min-h-screen text-white p-8 md:p-12 max-w-8xl mx-auto">
