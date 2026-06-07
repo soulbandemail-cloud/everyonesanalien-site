@@ -378,44 +378,21 @@ return (
   )}
 
   {wishPoof > 0 && (
-  <div
-    key={wishPoof}
-    className="absolute left-1/2 top-1/2 z-[10050] pointer-events-none"
-style={{ transform: "translate(-50%, -50%)" }}
-  >
-    {[
-      [-42, -26],
-      [38, -30],
-      [-52, 8],
-      [50, 10],
-      [-24, 38],
-      [24, 36],
-      [0, -48],
-      [0, 48],
-    ].map(([x, y], i) => (
-      <svg
-        key={i}
-        viewBox="0 0 100 100"
-        className="wish-mini-star absolute left-0 top-0 w-5 h-5"
-        style={
-          {
-            "--star-x": `${x}px`,
-            "--star-y": `${y}px`,
-            animationDelay: `${i * 35}ms`,
-          } as React.CSSProperties
-        }
-      >
-        <path
-          d="M50 5 L61 35 L93 35 L67 54 L78 90 L50 68 L22 90 L33 54 L7 35 L39 35 Z"
-          fill="none"
-          stroke="#7fffd4"
-          strokeWidth="7"
-          strokeLinejoin="round"
+    <div key={wishPoof} className="wish-burst-layer">
+      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => (
+        <span
+          key={i}
+          className="wish-burst-star"
+          style={
+            {
+              "--angle": `${i * 30}deg`,
+              "--delay": `${i * 18}ms`,
+            } as React.CSSProperties
+          }
         />
-      </svg>
-    ))}
-  </div>
-)}
+      ))}
+    </div>
+  )}
 </div>
 
 

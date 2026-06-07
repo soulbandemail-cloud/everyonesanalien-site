@@ -579,28 +579,50 @@ svg {
   }
 }
 
-@keyframes wish-mini-star-burst {
+.wish-burst-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  pointer-events: none;
+}
+
+.wish-burst-star {
+  position: fixed;
+  left: 50%;
+  top: 38%;
+  width: 18px;
+  height: 18px;
+  background: #7fffd4;
+  clip-path: polygon(
+    50% 5%,
+    61% 35%,
+    93% 35%,
+    67% 54%,
+    78% 90%,
+    50% 68%,
+    22% 90%,
+    33% 54%,
+    7% 35%,
+    39% 35%
+  );
+  opacity: 0;
+  filter: drop-shadow(0 0 12px #7fffd4);
+  animation: wish-burst-star 900ms ease-out forwards;
+  animation-delay: var(--delay);
+}
+
+@keyframes wish-burst-star {
   0% {
-    transform: translate(-50%, -50%) translate(0, 0) scale(0.3) rotate(0deg);
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateX(0) scale(0.2);
     opacity: 0;
-    filter: drop-shadow(0 0 0px #7fffd4);
   }
 
-  12% {
+  15% {
     opacity: 1;
-    filter: drop-shadow(0 0 14px #7fffd4);
   }
 
   100% {
-    transform: translate(-50%, -50%) translate(var(--star-x), var(--star-y)) scale(1.8) rotate(160deg);
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateX(96px) scale(0.9);
     opacity: 0;
-    filter: drop-shadow(0 0 22px #7fffd4);
   }
-}
-
-.wish-mini-star {
-  opacity: 0;
-  animation: wish-mini-star-burst 1100ms ease-out forwards;
-  animation-fill-mode: both;
-  transform-origin: center;
 }
