@@ -564,9 +564,7 @@ return (
               <div className="mt-4 border border-white p-3">
                 WELCOME ABOARD.
                 <br />
-                You&apos;re now a Mate.
-                <br />
-                Watch your inbox for transmissions.
+                You&apos;re now a Mate of the Band.
               </div>
             )}
 
