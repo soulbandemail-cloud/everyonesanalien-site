@@ -187,7 +187,9 @@ body {
 }
 
 .clicked-heart-pulse {
+  opacity: 0;
   animation: clicked-heart-pulse 2.2s ease-out forwards;
+  animation-fill-mode: both;
   transform-origin: center;
 }
 .shooting-stars {
