@@ -533,11 +533,11 @@ svg {
 }
 @keyframes orbital-ring-blink {
   0%, 88%, 92%, 100% {
-    transform: translateY(0.30rem) scaleY(1);
+    transform: translateY(0.20rem) scaleY(1);
   }
 
   90% {
-    transform: translateY(0.30rem) scaleY(0.20);
+    transform: translateY(0.20rem) scaleY(0.20);
   }
 }
 
