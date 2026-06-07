@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   FaInstagram,
@@ -15,8 +15,73 @@ export default function Home() {
     "idle" | "loading" | "success" | "already" | "error"
   >("idle");
 
+  const [alienPos, setAlienPos] = useState({ x: -100, y: -100 });
+
+  useEffect(() => {
+    const moveAlien = (e: PointerEvent) => {
+      setAlienPos({
+        x: e.clientX,
+        y: e.clientY,
+      });
+    };
+
+    window.addEventListener("pointermove", moveAlien);
+    window.addEventListener("pointerdown", moveAlien);
+
+    return () => {
+      window.removeEventListener("pointermove", moveAlien);
+      window.removeEventListener("pointerdown", moveAlien);
+    };
+  }, []);
+
   return (
     <>
+      <div
+        className="fixed z-[9999] pointer-events-none"
+        style={{
+          left: `${alienPos.x}px`,
+          top: `${alienPos.y}px`,
+          transform: "translate(-50%, -50%)",
+        }}
+      >
+        <svg viewBox="0 0 100 100" className="w-8 h-8 opacity-90">
+          <path
+            fill="#7fffd4"
+            d="
+              M50 10
+              C27 10 15 30 18 52
+              C21 75 38 90 50 90
+              C62 90 79 75 82 52
+              C85 30 73 10 50 10
+              Z
+            "
+          />
+          <ellipse
+            cx="36"
+            cy="48"
+            rx="9"
+            ry="15"
+            fill="black"
+            transform="rotate(-22 36 48)"
+          />
+          <ellipse
+            cx="64"
+            cy="48"
+            rx="9"
+            ry="15"
+            fill="black"
+            transform="rotate(22 64 48)"
+          />
+          <path
+            d="M42 68 C47 72 53 72 58 68"
+            fill="none"
+            stroke="black"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
+        </svg>
+      </div>
+
       <div className="stars">
         <span className="star star-1"></span>
         <span className="star star-2"></span>
@@ -79,40 +144,19 @@ export default function Home() {
               <span className="-mr-2">S</span>
 
               <span className="relative inline-flex items-center justify-center w-32 h-24 mx-0 overflow-hidden">
-                <svg viewBox="0 0 100 100" className="absolute w-9 h-9 z-10">
+                <svg viewBox="0 0 100 100" className="absolute w-8 h-8 z-10">
                   <path
                     fill="#7fffd4"
                     d="
-                      M50 10
-                      C27 10 15 30 18 52
-                      C21 75 38 90 50 90
-                      C62 90 79 75 82 52
-                      C85 30 73 10 50 10
+                      M50 86
+                      C42 76 20 62 14 45
+                      C8 28 18 12 35 13
+                      C44 14 49 22 50 25
+                      C51 22 56 14 65 13
+                      C82 12 92 28 86 45
+                      C80 62 58 76 50 86
                       Z
                     "
-                  />
-                  <ellipse
-                    cx="36"
-                    cy="48"
-                    rx="9"
-                    ry="15"
-                    fill="black"
-                    transform="rotate(-22 36 48)"
-                  />
-                  <ellipse
-                    cx="64"
-                    cy="48"
-                    rx="9"
-                    ry="15"
-                    fill="black"
-                    transform="rotate(22 64 48)"
-                  />
-                  <path
-                    d="M42 68 C47 72 53 72 58 68"
-                    fill="none"
-                    stroke="black"
-                    strokeWidth="3"
-                    strokeLinecap="round"
                   />
                 </svg>
 
