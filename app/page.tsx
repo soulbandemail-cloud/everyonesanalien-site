@@ -15,72 +15,81 @@ export default function Home() {
     "idle" | "loading" | "success" | "already" | "error"
   >("idle");
 
-  const [alienPos, setAlienPos] = useState({ x: -100, y: -100 });
+  const [ufoPos, setUfoPos] = useState({ x: -100, y: -100 });
 
   useEffect(() => {
-    const moveAlien = (e: PointerEvent) => {
-      setAlienPos({
-        x: e.clientX,
-        y: e.clientY,
-      });
-    };
+  const moveUfo = (e: PointerEvent) => {
+    setUfoPos({
+      x: e.clientX,
+      y: e.clientY,
+    });
+  };
 
-    window.addEventListener("pointermove", moveAlien);
-    window.addEventListener("pointerdown", moveAlien);
+  window.addEventListener("pointermove", moveUfo);
+  window.addEventListener("pointerdown", moveUfo);
 
-    return () => {
-      window.removeEventListener("pointermove", moveAlien);
-      window.removeEventListener("pointerdown", moveAlien);
-    };
-  }, []);
+  return () => {
+    window.removeEventListener("pointermove", moveUfo);
+    window.removeEventListener("pointerdown", moveUfo);
+  };
+}, []);
 
   return (
     <>
-      <div
-        className="fixed z-[9999] pointer-events-none"
-        style={{
-          left: `${alienPos.x}px`,
-          top: `${alienPos.y}px`,
-          transform: "translate(-50%, -50%)",
-        }}
-      >
-        <svg viewBox="0 0 100 100" className="w-8 h-8 opacity-90">
-          <path
-            fill="#7fffd4"
-            d="
-              M50 10
-              C27 10 15 30 18 52
-              C21 75 38 90 50 90
-              C62 90 79 75 82 52
-              C85 30 73 10 50 10
-              Z
-            "
-          />
-          <ellipse
-            cx="36"
-            cy="48"
-            rx="9"
-            ry="15"
-            fill="black"
-            transform="rotate(-22 36 48)"
-          />
-          <ellipse
-            cx="64"
-            cy="48"
-            rx="9"
-            ry="15"
-            fill="black"
-            transform="rotate(22 64 48)"
-          />
-          <path
-            d="M42 68 C47 72 53 72 58 68"
-            fill="none"
-            stroke="black"
-            strokeWidth="3"
-            strokeLinecap="round"
-          />
-        </svg>
-      </div>
+     <div
+  className="fixed z-[9999] pointer-events-none"
+  style={{
+    left: `${ufoPos.x}px`,
+    top: `${ufoPos.y}px`,
+    transform: "translate(-50%, -50%)",
+  }}
+>
+  <svg viewBox="0 0 120 80" className="w-10 h-10 opacity-95">
+    <ellipse
+      cx="60"
+      cy="42"
+      rx="42"
+      ry="12"
+      fill="#7fffd4"
+    />
+
+    <ellipse
+      cx="60"
+      cy="35"
+      rx="22"
+      ry="17"
+      fill="none"
+      stroke="#7fffd4"
+      strokeWidth="5"
+    />
+
+    <circle cx="38" cy="44" r="3" fill="black" />
+    <circle cx="60" cy="46" r="3" fill="black" />
+    <circle cx="82" cy="44" r="3" fill="black" />
+
+    <path
+      d="M46 56 L34 74"
+      stroke="#7fffd4"
+      strokeWidth="3"
+      strokeLinecap="round"
+      opacity="0.55"
+    />
+    <path
+      d="M60 58 L60 78"
+      stroke="#7fffd4"
+      strokeWidth="3"
+      strokeLinecap="round"
+      opacity="0.4"
+    />
+    <path
+      d="M74 56 L86 74"
+      stroke="#7fffd4"
+      strokeWidth="3"
+      strokeLinecap="round"
+      opacity="0.55"
+    />
+  </svg>
+</div>
 
       <div className="stars">
         <span className="star star-1"></span>
@@ -297,6 +306,38 @@ export default function Home() {
               <span className="animate-pulse">_</span>
             </p>
           </section>
+        </div>
+                <div className="fixed bottom-0 left-0 z-40 w-screen overflow-hidden border-t border-[#7fffd4] bg-[#00082d]/80 py-2 pointer-events-none">
+          <div className="alien-footer-track flex w-max gap-8">
+            {[...Array(18)].map((_, i) => (
+              <svg
+                key={i}
+                viewBox="0 0 100 100"
+                className="w-8 h-8 shrink-0 opacity-90"
+              >
+                <path
+                  fill="#7fffd4"
+                  d="
+                    M50 10
+                    C27 10 15 30 18 52
+                    C21 75 38 90 50 90
+                    C62 90 79 75 82 52
+                    C85 30 73 10 50 10
+                    Z
+                  "
+                />
+                <ellipse cx="36" cy="48" rx="9" ry="15" fill="black" transform="rotate(-22 36 48)" />
+                <ellipse cx="64" cy="48" rx="9" ry="15" fill="black" transform="rotate(22 64 48)" />
+                <path
+                  d="M42 68 C47 72 53 72 58 68"
+                  fill="none"
+                  stroke="black"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+              </svg>
+            ))}
+          </div>
         </div>
       </main>
     </>

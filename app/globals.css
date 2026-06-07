@@ -135,3 +135,16 @@ body {
 .header-heart-pulse {
   animation: header-heart-pulse 5s linear infinite;
 }
+@keyframes alien-footer-scroll {
+  from {
+    transform: translateX(100vw);
+  }
+
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.alien-footer-track {
+  animation: alien-footer-scroll 18s linear infinite;
+}
