@@ -249,21 +249,20 @@ export default function Home() {
     strokeWidth="5"
   />
 </svg>
-
 {ufoOrbiting && (
-  <div className="absolute inset-0 z-40 animate-ufo-orbit pointer-events-none">
+  <div className="absolute inset-0 z-40 pointer-events-none">
     <svg
       viewBox="0 0 120 80"
-      className="absolute left-1/2 top-1/2 w-8 h-8 -translate-x-1/2 -translate-y-[44px] opacity-95"
+      className="ufo-on-orbit absolute left-0 top-0 w-8 h-8 opacity-95"
     >
-      <ellipse cx="60" cy="42" rx="42" ry="12" fill="#7fffd4" />
+      <ellipse cx="60" cy="42" rx="42" ry="12" fill="white" />
       <ellipse
         cx="60"
         cy="35"
         rx="22"
         ry="17"
         fill="none"
-        stroke="#7fffd4"
+        stroke="white"
         strokeWidth="5"
       />
       <circle cx="38" cy="44" r="3" fill="black" />

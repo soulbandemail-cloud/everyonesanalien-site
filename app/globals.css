@@ -515,3 +515,19 @@ svg {
   max-width: 100%;
   height: auto;
 }
+@keyframes ufo-orbit-path {
+  from {
+    offset-distance: 0%;
+  }
+
+  to {
+    offset-distance: 100%;
+  }
+}
+
+.ufo-on-orbit {
+  offset-path: ellipse(40px 21px at 56px 48px);
+  offset-rotate: auto;
+  offset-distance: 0%;
+  animation: ufo-orbit-path 3.2s linear infinite;
+}
