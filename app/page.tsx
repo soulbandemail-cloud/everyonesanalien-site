@@ -353,7 +353,7 @@ return (
 
 
 {wishPrompt && (
-  <div className="relative flex min-h-[72px] justify-center">
+  <div className="relative flex min-h-[72px] mb-8 justify-center">
     <form
       className="wish-box"
       onSubmit={(e) => {
