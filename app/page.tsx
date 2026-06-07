@@ -200,9 +200,9 @@ export default function Home() {
             <div className="h-[4px] bg-[#7fffd4] flex-1 mr-2" />
 
             <h1 className="relative z-10 text-6xl font-bold text-center flex justify-center items-center text-[#7fffd4] shrink-0">
-              <span className="-mr-2">S</span>
+              <span className="-mr-3">S</span>
 
-              <span className="relative inline-flex items-center justify-center w-32 h-24 mx-0 overflow-hidden">
+              <span className="relative inline-flex items-center justify-center w-28 h-24 mx-0 overflow-hidden">
                 <svg
   viewBox="0 0 100 100"
   className="absolute w-8 h-8 z-30 cursor-pointer"
@@ -248,7 +248,7 @@ export default function Home() {
                 </svg>
               </span>
 
-              <span className="-ml-2">UL</span>
+              <span className="-ml-3">UL</span>
             </h1>
 
             <div className="h-[4px] bg-[#7fffd4] flex-1 ml-2" />
