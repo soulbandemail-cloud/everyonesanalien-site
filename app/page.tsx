@@ -232,7 +232,7 @@ export default function Home() {
                 </svg>
 
                 <svg
-                  className="absolute inset-0 translate-y-3 w-full h-full z-20"
+                  className="absolute inset-0 translate-y-2 w-full h-full z-20"
                   viewBox="0 0 120 80"
                 >
                   <ellipse
