@@ -189,8 +189,7 @@ body {
 .clicked-heart-pulse {
   animation: clicked-heart-pulse 2.2s ease-out forwards;
   transform-origin: center;
-}
-.shooting-stars {
+}.shooting-stars {
   position: fixed;
   inset: 0;
   pointer-events: none;
@@ -200,12 +199,12 @@ body {
 
 .shooting-star {
   position: absolute;
-  width: 140px;
+  width: 130px;
   height: 2px;
   opacity: 0;
   border-radius: 999px;
   background: linear-gradient(90deg, transparent, #6ee7b7 70%, white);
-  filter: drop-shadow(0 0 6px #6ee7b7);
+  filter: drop-shadow(0 0 5px #6ee7b7);
   transform-origin: right center;
 }
 
@@ -230,234 +229,118 @@ body {
     2% 35%,
     39% 35%
   );
-  filter: drop-shadow(0 0 8px #6ee7b7);
+  filter: drop-shadow(0 0 7px #6ee7b7);
 }
+
+/* same arc, different spawn points, sparse */
 .shooting-star-1 {
-  top: 18%;
-  left: -30%;
-  animation: shooting-star-one 19s ease-in-out infinite;
-  animation-delay: 1s;
+  top: 8%;
+  left: -35%;
+  animation: shooting-star-arc 18s ease-in-out infinite;
+  animation-delay: 0s;
 }
 
 .shooting-star-2 {
-  top: 45%;
-  left: -30%;
-  animation: shooting-star-two 23s ease-in-out infinite;
-  animation-delay: 7s;
+  top: 22%;
+  left: -40%;
+  animation: shooting-star-arc 24s ease-in-out infinite;
+  animation-delay: 6s;
 }
 
 .shooting-star-3 {
-  top: 72%;
-  right: -30%;
-  animation: shooting-star-three 29s ease-in-out infinite;
+  top: 40%;
+  left: -30%;
+  animation: shooting-star-arc 31s ease-in-out infinite;
   animation-delay: 13s;
 }
 
 .shooting-star-4 {
-  top: -20%;
-  left: 22%;
-  animation: shooting-star-four 31s ease-in-out infinite;
-  animation-delay: 19s;
+  top: 61%;
+  left: -45%;
+  animation: shooting-star-arc 27s ease-in-out infinite;
+  animation-delay: 21s;
 }
 
 .shooting-star-5 {
-  bottom: -20%;
-  left: 66%;
-  animation: shooting-star-five 37s ease-in-out infinite;
-  animation-delay: 25s;
+  top: 78%;
+  left: -35%;
+  animation: shooting-star-arc 36s ease-in-out infinite;
+  animation-delay: 30s;
 }
 
 .shooting-star-6 {
-  top: 58%;
-  right: -35%;
-  animation: shooting-star-six 41s ease-in-out infinite;
-  animation-delay: 31s;
+  top: 14%;
+  left: -55%;
+  animation: shooting-star-arc-soft 42s ease-in-out infinite;
+  animation-delay: 39s;
 }
 
 .shooting-star-7 {
-  bottom: -20%;
-  left: 12%;
-  animation: shooting-star-seven 43s ease-in-out infinite;
-  animation-delay: 37s;
+  top: 50%;
+  left: -50%;
+  animation: shooting-star-arc-soft 34s ease-in-out infinite;
+  animation-delay: 48s;
 }
 
 .shooting-star-8 {
-  top: -25%;
-  left: 78%;
-  animation: shooting-star-eight 47s ease-in-out infinite;
-  animation-delay: 43s;
+  top: 88%;
+  left: -45%;
+  animation: shooting-star-arc-soft 46s ease-in-out infinite;
+  animation-delay: 57s;
 }
 
 .shooting-star-9 {
-  top: 48%;
-  left: -25%;
-  animation: shooting-star-nine 53s ease-in-out infinite;
-  animation-delay: 49s;
+  top: 30%;
+  left: -60%;
+  animation: shooting-star-arc 52s ease-in-out infinite;
+  animation-delay: 66s;
 }
 
 .shooting-star-10 {
-  top: 90%;
-  right: -20%;
-  animation: shooting-star-ten 59s ease-in-out infinite;
-  animation-delay: 55s;
+  top: 70%;
+  left: -50%;
+  animation: shooting-star-arc-soft 58s ease-in-out infinite;
+  animation-delay: 75s;
 }
 
-@keyframes shooting-star-one {
-  0%, 88% {
+@keyframes shooting-star-arc {
+  0%, 68% {
     opacity: 0;
-    transform: translate(0, 0) rotate(9deg);
+    transform: translate(0, 0) rotate(11deg);
   }
 
-  91% {
-    opacity: 0.9;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate(145vw, 23vh) rotate(9deg);
-  }
-}
-
-@keyframes shooting-star-two {
-  0%, 89% {
-    opacity: 0;
-    transform: translate(0, 0) rotate(-11deg);
-  }
-
-  92% {
-    opacity: 0.75;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate(145vw, -28vh) rotate(-11deg);
-  }
-}
-
-@keyframes shooting-star-three {
-  0%, 90% {
-    opacity: 0;
-    transform: translate(0, 0) rotate(196deg);
-  }
-
-  93% {
-    opacity: 0.75;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate(-145vw, 36vh) rotate(196deg);
-  }
-}
-
-@keyframes shooting-star-four {
-  0%, 91% {
-    opacity: 0;
-    transform: translate(0, 0) rotate(78deg);
-  }
-
-  94% {
+  76% {
     opacity: 0.85;
   }
 
+  88% {
+    opacity: 0.65;
+    transform: translate(70vw, 10vh) rotate(11deg);
+  }
+
   100% {
     opacity: 0;
-    transform: translate(18vw, 130vh) rotate(78deg);
+    transform: translate(150vw, 28vh) rotate(11deg);
   }
 }
 
-@keyframes shooting-star-five {
-  0%, 92% {
+@keyframes shooting-star-arc-soft {
+  0%, 68% {
     opacity: 0;
-    transform: translate(0, 0) rotate(-102deg);
+    transform: translate(0, 0) rotate(7deg);
   }
 
-  95% {
-    opacity: 0.75;
+  78% {
+    opacity: 0.65;
+  }
+
+  90% {
+    opacity: 0.45;
+    transform: translate(75vw, 6vh) rotate(7deg);
   }
 
   100% {
     opacity: 0;
-    transform: translate(-12vw, -130vh) rotate(-102deg);
-  }
-}
-
-@keyframes shooting-star-six {
-  0%, 93% {
-    opacity: 0;
-    transform: translate(0, 0) rotate(188deg);
-  }
-
-  96% {
-    opacity: 0.75;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate(-150vw, -18vh) rotate(188deg);
-  }
-}
-
-@keyframes shooting-star-seven {
-  0%, 91% {
-    opacity: 0;
-    transform: translate(0, 0) rotate(-72deg);
-  }
-
-  94% {
-    opacity: 0.85;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate(34vw, -140vh) rotate(-72deg);
-  }
-}
-
-@keyframes shooting-star-eight {
-  0%, 94% {
-    opacity: 0;
-    transform: translate(0, 0) rotate(104deg);
-  }
-
-  97% {
-    opacity: 0.8;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate(-30vw, 150vh) rotate(104deg);
-  }
-}
-
-@keyframes shooting-star-nine {
-  0%, 93% {
-    opacity: 0;
-    transform: translate(0, 0) rotate(5deg);
-  }
-
-  96% {
-    opacity: 0.7;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate(150vw, 12vh) rotate(5deg);
-  }
-}
-
-@keyframes shooting-star-ten {
-  0%, 94% {
-    opacity: 0;
-    transform: translate(0, 0) rotate(205deg);
-  }
-
-  97% {
-    opacity: 0.8;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate(-145vw, -32vh) rotate(205deg);
+    transform: translate(150vw, 18vh) rotate(7deg);
   }
 }
