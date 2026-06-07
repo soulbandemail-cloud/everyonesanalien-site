@@ -533,25 +533,25 @@ svg {
 }
 @keyframes orbital-ring-blink-now {
   0%, 100% {
-    transform: translateY(0.45rem) scaleY(1);
+    transform: translateY(0.6rem) scaleY(1);
   }
 
   50% {
-    transform: translateY(0.45rem) scaleY(0.2);
+    transform: translateY(0.6rem) scaleY(0.2);
   }
 }
 .orbital-ring {
-  transform: translateY(0.45rem);
+  transform: translateY(0.6rem);
   transform-origin: center;
 }
 
 @keyframes orbital-ring-blink-now {
   0%, 100% {
-    transform: translateY(0.45rem) scaleY(1);
+    transform: translateY(0.6rem) scaleY(1);
   }
 
   50% {
-    transform: translateY(0.45rem) scaleY(0.2);
+    transform: translateY(0.6rem) scaleY(0.2);
   }
 }
 
