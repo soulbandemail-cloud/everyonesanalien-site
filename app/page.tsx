@@ -40,7 +40,7 @@ const closeWishPrompt = () => {
     key: Date.now(),
   });
 
-  closeWishPrompt();
+  setWishPrompt(null);
 
   setTimeout(() => {
     setWishPoof(null);
@@ -133,20 +133,6 @@ useEffect(() => {
   };
 }, [hideCursorUfo]);
 
-useEffect(() => {
-  if (!wishPrompt) return;
-
-  const closeOnOutsideClick = () => {
-    closeWishPrompt();
-  };
-
-  window.addEventListener("pointerdown", closeOnOutsideClick);
-
-  return () => {
-    window.removeEventListener("pointerdown", closeOnOutsideClick);
-  };
-}, [wishPrompt]);
-
 return (
   <>
     <div
@@ -164,7 +150,10 @@ return (
   <div
     key={wishPrompt.key}
     className="fixed inset-0 z-[10000]"
-    onPointerDown={closeWishPrompt}
+    onPointerDownCapture={(e) => {
+      e.preventDefault();
+      closeWishPrompt();
+    }}
   >
     <form
       className="fixed left-1/2 top-1/2 wish-box"
@@ -176,6 +165,12 @@ return (
       <input
         value={wish}
         onChange={(e) => setWish(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            closeWishPrompt();
+          }
+        }}
         placeholder="MAKE A WISH"
         autoFocus
         className="border border-white bg-[#00082d] focus:bg-[#00082d] px-3 py-2 text-white placeholder:text-white/70 outline-none focus:border-[#7fffd4]"
