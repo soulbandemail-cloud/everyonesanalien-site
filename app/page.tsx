@@ -16,6 +16,7 @@ export default function Home() {
   >("idle");
 
   const [ufoPos, setUfoPos] = useState({ x: -100, y: -100 });
+  const [ufoOrbiting, setUfoOrbiting] = useState(false);
   const [heartPulseKey, setHeartPulseKey] = useState(0);
   const [heartPulse, setHeartPulse] = useState({
   x: -100,
@@ -43,7 +44,9 @@ export default function Home() {
   return (
     <>
      <div
-  className="fixed z-[9999] pointer-events-none"
+  className={`fixed z-[9999] pointer-events-none ${
+    ufoOrbiting ? "opacity-0" : "opacity-100"
+  } transition-opacity duration-300`}
   style={{
     left: `${ufoPos.x}px`,
     top: `${ufoPos.y}px`,
@@ -232,20 +235,44 @@ export default function Home() {
                 </svg>
 
                 <svg
-                  className="absolute inset-0 translate-y-[10px] w-full h-full z-20"
-                  viewBox="0 0 120 80"
-                >
-                  <ellipse
-                    cx="60"
-                    cy="39"
-                    rx="40"
-                    ry="21"
-                    fill="none"
-                    stroke="#7fffd4"
-                    strokeWidth="5"
-                   
-                  />
-                </svg>
+  className="absolute inset-0 translate-y-2.5 w-full h-full z-20 cursor-pointer"
+  viewBox="0 0 120 80"
+  onClick={() => setUfoOrbiting((orbiting) => !orbiting)}
+>
+  <ellipse
+    cx="60"
+    cy="39"
+    rx="40"
+    ry="21"
+    fill="none"
+    stroke="#7fffd4"
+    strokeWidth="5"
+  />
+</svg>
+
+{ufoOrbiting && (
+  <div className="absolute inset-0 z-40 animate-ufo-orbit pointer-events-none">
+    <svg
+      viewBox="0 0 120 80"
+      className="absolute left-1/2 top-1/2 w-8 h-8 -translate-x-1/2 -translate-y-[44px] opacity-95"
+    >
+      <ellipse cx="60" cy="42" rx="42" ry="12" fill="#7fffd4" />
+      <ellipse
+        cx="60"
+        cy="35"
+        rx="22"
+        ry="17"
+        fill="none"
+        stroke="#7fffd4"
+        strokeWidth="5"
+      />
+      <circle cx="38" cy="44" r="3" fill="black" />
+      <circle cx="60" cy="46" r="3" fill="black" />
+      <circle cx="82" cy="44" r="3" fill="black" />
+    </svg>
+  </div>
+)}
+
               </span>
 
               <span className="-ml-3">UL</span>
