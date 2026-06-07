@@ -100,7 +100,7 @@ export default function Home() {
       <svg
         key={i}
         viewBox="0 0 100 100"
-        className="clicked-heart-pulse absolute left-1/2 top-[140px] w-[120px] h-[120px]"
+        className="clicked-heart-pulse absolute left-48% top-[140px] w-[120px] h-[120px]"
         style={{
           animationDelay: `${i * 0.18}s`,
         }}

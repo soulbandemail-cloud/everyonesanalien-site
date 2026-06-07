@@ -166,19 +166,19 @@ body {
   }
 
   10% {
-    opacity: 0.95;
+    opacity: 0.4;
     filter: drop-shadow(0 0 10px #7fffd4);
   }
 
   45% {
-    opacity: 0.35;
-    filter: drop-shadow(0 0 28px #7fffd4);
+    opacity: 0.15;
+    filter: drop-shadow(0 0 10px #7fffd4);
   }
 
   100% {
     transform: translate(-50%, -50%) scale(28);
     opacity: 0;
-    filter: drop-shadow(0 0 70px #7fffd4);
+    filter: drop-shadow(0 0 25px #7fffd4);
   }
 }
 
