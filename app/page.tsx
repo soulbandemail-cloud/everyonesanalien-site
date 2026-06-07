@@ -16,6 +16,7 @@ export default function Home() {
   >("idle");
 
   const [ufoPos, setUfoPos] = useState({ x: -100, y: -100 });
+  const [heartPulseKey, setHeartPulseKey] = useState(0);
 
   useEffect(() => {
   const moveUfo = (e: PointerEvent) => {
@@ -90,7 +91,39 @@ export default function Home() {
     />
   </svg>
 </div>
-
+{heartPulseKey > 0 && (
+  <div
+    key={heartPulseKey}
+    className="fixed inset-0 z-[30] pointer-events-none overflow-hidden"
+  >
+    {[0, 1, 2, 3, 4].map((i) => (
+      <svg
+        key={i}
+        viewBox="0 0 100 100"
+        className="clicked-heart-pulse absolute left-1/2 top-[140px] w-[120px] h-[120px]"
+        style={{
+          animationDelay: `${i * 0.18}s`,
+        }}
+      >
+        <path
+          fill="none"
+          stroke="#7fffd4"
+          strokeWidth="2"
+          d="
+            M50 86
+            C42 76 20 62 14 45
+            C8 28 18 12 35 13
+            C44 14 49 22 50 25
+            C51 22 56 14 65 13
+            C82 12 92 28 86 45
+            C80 62 58 76 50 86
+            Z
+          "
+        />
+      </svg>
+    ))}
+  </div>
+)}
       <div className="stars">
         <span className="star star-1"></span>
         <span className="star star-2"></span>
@@ -153,7 +186,11 @@ export default function Home() {
               <span className="-mr-2">S</span>
 
               <span className="relative inline-flex items-center justify-center w-32 h-24 mx-0 overflow-hidden">
-                <svg viewBox="0 0 100 100" className="absolute w-8 h-8 z-10">
+                <svg
+  viewBox="0 0 100 100"
+  className="absolute w-8 h-8 z-30 cursor-pointer"
+  onClick={() => setHeartPulseKey((key) => key + 1)}
+>
                   <path
                     fill="#7fffd4"
                     d="

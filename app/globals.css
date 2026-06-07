@@ -158,3 +158,30 @@ body {
 .alien-footer-marquee {
   animation: alien-footer-marquee 22s linear infinite;
 }
+@keyframes clicked-heart-pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.45);
+    opacity: 0;
+    filter: drop-shadow(0 0 0px #7fffd4);
+  }
+
+  10% {
+    opacity: 0.95;
+    filter: drop-shadow(0 0 10px #7fffd4);
+  }
+
+  45% {
+    opacity: 0.35;
+    filter: drop-shadow(0 0 28px #7fffd4);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(28);
+    opacity: 0;
+    filter: drop-shadow(0 0 70px #7fffd4);
+  }
+}
+
+.clicked-heart-pulse {
+  animation: clicked-heart-pulse 2.8s ease-out forwards;
+}
