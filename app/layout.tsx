@@ -11,8 +11,11 @@ export const metadata: Metadata = {
   title: "everyonesanalien.com",
   description: "Soul's official band website",
   icons: {
-    icon: [{ url: "/favicon.svg?v=10", type: "image/svg+xml" }],
-    shortcut: [{ url: "/favicon.svg?v=10", type: "image/svg+xml" }],
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.svg?v=10", type: "image/svg+xml" },
+    ],
+    shortcut: "/favicon.ico",
   },
 };
 
