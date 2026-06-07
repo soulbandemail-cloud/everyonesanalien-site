@@ -198,6 +198,14 @@ body {
   z-index: 1;
 }
 
+.shooting-stars {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
 .shooting-star {
   position: absolute;
   width: 140px;
@@ -232,83 +240,105 @@ body {
   );
   filter: drop-shadow(0 0 8px #6ee7b7);
 }
+
+/* guaranteed launch star: appears after 5 seconds */
+.shooting-star-launch {
+  top: 24%;
+  left: -35%;
+  animation: shooting-star-launch 2.2s ease-out forwards;
+  animation-delay: 5s;
+}
+
+/* sparse background stars */
 .shooting-star-1 {
   top: 18%;
   left: -30%;
   animation: shooting-star-one 19s ease-in-out infinite;
-  animation-delay: 1s;
+  animation-delay: 12s;
 }
 
 .shooting-star-2 {
   top: 45%;
   left: -30%;
   animation: shooting-star-two 23s ease-in-out infinite;
-  animation-delay: 7s;
+  animation-delay: 22s;
 }
 
 .shooting-star-3 {
   top: 72%;
   right: -30%;
   animation: shooting-star-three 29s ease-in-out infinite;
-  animation-delay: 13s;
+  animation-delay: 33s;
 }
 
 .shooting-star-4 {
   top: -20%;
   left: 22%;
   animation: shooting-star-four 31s ease-in-out infinite;
-  animation-delay: 19s;
+  animation-delay: 44s;
 }
 
 .shooting-star-5 {
   bottom: -20%;
   left: 66%;
   animation: shooting-star-five 37s ease-in-out infinite;
-  animation-delay: 25s;
+  animation-delay: 55s;
 }
 
 .shooting-star-6 {
   top: 58%;
   right: -35%;
   animation: shooting-star-six 41s ease-in-out infinite;
-  animation-delay: 31s;
+  animation-delay: 66s;
 }
 
 .shooting-star-7 {
   bottom: -20%;
   left: 12%;
   animation: shooting-star-seven 43s ease-in-out infinite;
-  animation-delay: 37s;
+  animation-delay: 77s;
 }
 
 .shooting-star-8 {
   top: -25%;
   left: 78%;
   animation: shooting-star-eight 47s ease-in-out infinite;
-  animation-delay: 43s;
+  animation-delay: 88s;
 }
 
 .shooting-star-9 {
   top: 48%;
   left: -25%;
   animation: shooting-star-nine 53s ease-in-out infinite;
-  animation-delay: 49s;
+  animation-delay: 99s;
 }
 
 .shooting-star-10 {
   top: 90%;
   right: -20%;
   animation: shooting-star-ten 59s ease-in-out infinite;
-  animation-delay: 55s;
+  animation-delay: 110s;
+}
+
+@keyframes shooting-star-launch {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(11deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(150vw, 28vh) rotate(11deg);
+  }
 }
 
 @keyframes shooting-star-one {
-  0%, 88% {
+  0%, 78% {
     opacity: 0;
     transform: translate(0, 0) rotate(9deg);
   }
 
-  91% {
+  82% {
     opacity: 0.9;
   }
 
@@ -319,12 +349,12 @@ body {
 }
 
 @keyframes shooting-star-two {
-  0%, 89% {
+  0%, 78% {
     opacity: 0;
     transform: translate(0, 0) rotate(-11deg);
   }
 
-  92% {
+  82% {
     opacity: 0.75;
   }
 
@@ -335,12 +365,12 @@ body {
 }
 
 @keyframes shooting-star-three {
-  0%, 90% {
+  0%, 78% {
     opacity: 0;
     transform: translate(0, 0) rotate(196deg);
   }
 
-  93% {
+  82% {
     opacity: 0.75;
   }
 
@@ -351,12 +381,12 @@ body {
 }
 
 @keyframes shooting-star-four {
-  0%, 91% {
+  0%, 78% {
     opacity: 0;
     transform: translate(0, 0) rotate(78deg);
   }
 
-  94% {
+  82% {
     opacity: 0.85;
   }
 
@@ -367,12 +397,12 @@ body {
 }
 
 @keyframes shooting-star-five {
-  0%, 92% {
+  0%, 78% {
     opacity: 0;
     transform: translate(0, 0) rotate(-102deg);
   }
 
-  95% {
+  82% {
     opacity: 0.75;
   }
 
@@ -383,12 +413,12 @@ body {
 }
 
 @keyframes shooting-star-six {
-  0%, 93% {
+  0%, 78% {
     opacity: 0;
     transform: translate(0, 0) rotate(188deg);
   }
 
-  96% {
+  82% {
     opacity: 0.75;
   }
 
@@ -399,12 +429,12 @@ body {
 }
 
 @keyframes shooting-star-seven {
-  0%, 91% {
+  0%, 78% {
     opacity: 0;
     transform: translate(0, 0) rotate(-72deg);
   }
 
-  94% {
+  82% {
     opacity: 0.85;
   }
 
@@ -415,12 +445,12 @@ body {
 }
 
 @keyframes shooting-star-eight {
-  0%, 94% {
+  0%, 78% {
     opacity: 0;
     transform: translate(0, 0) rotate(104deg);
   }
 
-  97% {
+  82% {
     opacity: 0.8;
   }
 
@@ -431,12 +461,12 @@ body {
 }
 
 @keyframes shooting-star-nine {
-  0%, 93% {
+  0%, 78% {
     opacity: 0;
     transform: translate(0, 0) rotate(5deg);
   }
 
-  96% {
+  82% {
     opacity: 0.7;
   }
 
@@ -447,47 +477,17 @@ body {
 }
 
 @keyframes shooting-star-ten {
-  0%, 94% {
+  0%, 78% {
     opacity: 0;
     transform: translate(0, 0) rotate(205deg);
   }
 
-  97% {
+  82% {
     opacity: 0.8;
   }
 
   100% {
     opacity: 0;
     transform: translate(-145vw, -32vh) rotate(205deg);
-  }
-}
-.shooting-star-launch {
-  top: 24%;
-  left: -35%;
-
-  animation: shooting-star-launch 12s ease-out 1;
-  animation-delay: 5s;
-}
-.shooting-star-launch {
-  top: 24%;
-  left: -35%;
-  opacity: 0;
-  animation: shooting-star-launch 2.2s ease-out forwards;
-  animation-delay: 5s;
-}
-
-@keyframes shooting-star-launch {
-  0% {
-    opacity: 0;
-    transform: translate(0, 0) rotate(11deg);
-  }
-
-  8% {
-    opacity: 0.95;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate(150vw, 28vh) rotate(11deg);
   }
 }
