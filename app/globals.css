@@ -632,3 +632,17 @@ svg {
     opacity: 0;
   }
 }
+
+@keyframes flying-alien-spin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(calc(var(--spin) * 360deg));
+  }
+}
+
+.flying-alien-head {
+  animation: flying-alien-spin 700ms linear infinite;
+}

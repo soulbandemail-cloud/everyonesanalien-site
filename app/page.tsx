@@ -19,6 +19,17 @@ export default function Home() {
   const [hideCursorUfo, setHideCursorUfo] = useState(false);
   const [ringBlinking, setRingBlinking] = useState(false);
 
+  const [flyingAliens, setFlyingAliens] = useState<
+  {
+    id: number;
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    spin: number;
+  }[]
+>([]);
+
 const [wishPrompt, setWishPrompt] = useState(false);
 const [wish, setWish] = useState("");
 const [wishPoof, setWishPoof] = useState(0);
@@ -52,6 +63,28 @@ const orbitRef = useRef<HTMLSpanElement | null>(null);
 const toggleUfoOrbit = () => {
   setUfoOrbiting((orbiting) => !orbiting);
 };
+
+const launchAlien = (e: React.PointerEvent<SVGSVGElement>) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  const rect = e.currentTarget.getBoundingClientRect();
+  const angle = Math.random() * Math.PI * 2;
+  const speed = 5 + Math.random() * 4;
+
+  setFlyingAliens((aliens) => [
+    ...aliens,
+    {
+      id: Date.now() + Math.random(),
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      spin: Math.random() > 0.5 ? 1 : -1,
+    },
+  ]);
+};
+
   useEffect(() => {
   const moveUfo = (e: PointerEvent) => {
     setUfoPos({
@@ -114,6 +147,50 @@ useEffect(() => {
   };
 }, [hideCursorUfo]);
 
+useEffect(() => {
+  const interval = window.setInterval(() => {
+    setFlyingAliens((aliens) => {
+      if (!orbitRef.current) return aliens;
+
+      const rect = orbitRef.current.getBoundingClientRect();
+      const heartX = rect.left + rect.width / 2;
+      const heartY = rect.top + rect.height / 2;
+
+      return aliens
+        .map((alien) => {
+          const next = {
+            ...alien,
+            x: alien.x + alien.vx,
+            y: alien.y + alien.vy,
+          };
+
+          const hitHeart = Math.hypot(next.x - heartX, next.y - heartY) < 42;
+
+          if (hitHeart) {
+            setHeartPulse({
+              x: heartX,
+              y: heartY,
+              key: Date.now(),
+            });
+
+            return null;
+          }
+
+          const offscreen =
+            next.x < -80 ||
+            next.x > window.innerWidth + 80 ||
+            next.y < -80 ||
+            next.y > window.innerHeight + 80;
+
+          return offscreen ? null : next;
+        })
+        .filter((alien): alien is NonNullable<typeof alien> => alien !== null);
+    });
+  }, 16);
+
+  return () => window.clearInterval(interval);
+}, []);
+
 return (
   <>
     <div
@@ -166,6 +243,42 @@ return (
         />
       </svg>
     </div>
+
+{flyingAliens.map((alien) => (
+  <svg
+    key={alien.id}
+    viewBox="0 0 100 100"
+    className="fixed z-[9998] pointer-events-none w-8 h-8 flying-alien-head"
+    style={
+      {
+        left: `${alien.x}px`,
+        top: `${alien.y}px`,
+        "--spin": `${alien.spin}`,
+      } as React.CSSProperties
+    }
+  >
+    <path
+      fill="#7fffd4"
+      d="
+        M50 10
+        C27 10 15 30 18 52
+        C21 75 38 90 50 90
+        C62 90 79 75 82 52
+        C85 30 73 10 50 10
+        Z
+      "
+    />
+    <ellipse cx="36" cy="48" rx="9" ry="15" fill="black" transform="rotate(-22 36 48)" />
+    <ellipse cx="64" cy="48" rx="9" ry="15" fill="black" transform="rotate(22 64 48)" />
+    <path
+      d="M42 68 C47 72 53 72 58 68"
+      fill="none"
+      stroke="black"
+      strokeWidth="3"
+      strokeLinecap="round"
+    />
+  </svg>
+))}
 
 {heartPulse.key > 0 && (
   <div
@@ -517,7 +630,7 @@ return (
 
 
 
-               <div className="fixed bottom-0 inset-x-0 z-40 overflow-hidden border-t border-[#7fffd4] bg-[#00082d]/80 py-2 pointer-events-none">
+               <div className="fixed bottom-0 inset-x-0 z-40 overflow-hidden border-t border-[#7fffd4] bg-[#00082d]/80 py-2">
   <div className="alien-footer-marquee flex w-max items-center">
     {[0, 1].map((track) => (
       <div key={track} className="flex items-center gap-8 px-4 shrink-0">
@@ -525,7 +638,8 @@ return (
           <svg
             key={`${track}-${i}`}
             viewBox="0 0 100 100"
-            className="w-8 h-8 shrink-0 opacity-90"
+            onPointerDown={launchAlien}
+            className="w-8 h-8 shrink-0 opacity-90 pointer-events-auto cursor-pointer"
           >
             <path
               fill="#7fffd4"
@@ -558,7 +672,8 @@ return (
           <svg
             key={`${track}-b-${i}`}
             viewBox="0 0 100 100"
-            className="w-8 h-8 shrink-0 opacity-90"
+            onPointerDown={launchAlien}
+            className="w-8 h-8 shrink-0 opacity-90 pointer-events-auto cursor-pointer"
           >
             <path
               fill="#7fffd4"
