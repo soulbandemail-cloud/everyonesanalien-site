@@ -98,7 +98,7 @@ export default function Home() {
   >
     <svg
   viewBox="0 0 100 100"
-  className="clicked-heart-pulse absolute left-1/2 top-[140px] w-[60px] h-[60px]"
+  className="clicked-heart-pulse absolute left-[48%] top-[148px] w-[60px] h-[60px]"
 >
         <path
           fill="none"
