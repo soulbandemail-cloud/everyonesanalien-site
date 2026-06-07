@@ -11,12 +11,7 @@ export const metadata: Metadata = {
   title: "everyonesanalien.com",
   description: "Soul's official band website",
   icons: {
-    icon: [
-      { url: "/favicon.png", type: "image/png" },
-      { url: "/favicon.svg", type: "image/svg+xml" },
-    ],
-    shortcut: "/favicon.png",
-    apple: "/favicon.png",
+    icon: "/icon.svg",
   },
 };
 
