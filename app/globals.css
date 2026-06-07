@@ -468,6 +468,13 @@ body {
   animation: shooting-star-launch 12s ease-out 1;
   animation-delay: 5s;
 }
+.shooting-star-launch {
+  top: 24%;
+  left: -35%;
+  opacity: 0;
+  animation: shooting-star-launch 2.2s ease-out forwards;
+  animation-delay: 5s;
+}
 
 @keyframes shooting-star-launch {
   0% {
@@ -475,8 +482,8 @@ body {
     transform: translate(0, 0) rotate(11deg);
   }
 
-  5% {
-    opacity: 0.9;
+  8% {
+    opacity: 0.95;
   }
 
   100% {
