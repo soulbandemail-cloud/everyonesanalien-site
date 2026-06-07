@@ -65,10 +65,6 @@ useEffect(() => {
 
       setUfoOrbiting(false);
       setHideCursorUfo(true);
-
-setTimeout(() => {
-  setHideCursorUfo(false);
-}, 1200);
     }
 
     setTimeout(() => {
@@ -250,7 +246,7 @@ setTimeout(() => {
               className="relative inline-flex items-center justify-center w-28 h-24 mx-0 overflow-hidden">
                 <svg
   viewBox="0 0 100 100"
-  className="absolute w-8 h-8 z-30 cursor-pointer"
+  className="absolute -translate-y-1 w-8 h-8 z-30 cursor-pointer"
   onClick={toggleUfoOrbit}
 >
                   <path
