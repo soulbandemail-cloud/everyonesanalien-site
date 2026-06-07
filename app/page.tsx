@@ -160,21 +160,23 @@ return (
       }}
     >
       <input
-        value={wish}
-        onChange={(e) => setWish(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            closeWishPrompt();
-          }
-        }}
-        placeholder="MAKE A WISH"
-        autoFocus
-        className="border border-white bg-[#00082d] focus:bg-[#00082d] px-3 py-2 text-white placeholder:text-white/70 outline-none focus:border-[#7fffd4]"
-      />
+  value={wish}
+  onChange={(e) => setWish(e.target.value)}
+  onClick={closeWishPrompt}
+  onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      closeWishPrompt();
+    }
+  }}
+  placeholder="MAKE A WISH"
+  autoFocus
+  className="border border-white bg-[#00082d] focus:bg-[#00082d] px-3 py-2 text-white placeholder:text-white/70 outline-none focus:border-[#7fffd4]"
+/>
     </form>
   </div>
 )}
+
 {wishPoof && (
   <div
     key={wishPoof.key}
