@@ -352,49 +352,50 @@ return (
         </div>
 
 
-<div className="relative flex min-h-[72px] justify-center mb-6">
-  {wishPrompt && (
-    <form
-      className="wish-box"
-      onSubmit={(e) => {
-        e.preventDefault();
-        closeWishPrompt();
-      }}
-    >
-      <input
-        value={wish}
-        onChange={(e) => setWish(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            closeWishPrompt();
-          }
+{(wishPrompt || wishPoof > 0) && (
+  <div className="relative flex min-h-[72px] justify-center mb-6">
+    {wishPrompt && (
+      <form
+        className="wish-box"
+        onSubmit={(e) => {
+          e.preventDefault();
+          closeWishPrompt();
         }}
-        placeholder="MAKE A WISH!"
-        autoFocus
-        className="border border-white bg-[#00082d] focus:bg-[#00082d] px-3 py-2 text-white placeholder:text-white/70 outline-none focus:border-[#7fffd4]"
-      />
-    </form>
-  )}
+      >
+        <input
+          value={wish}
+          onChange={(e) => setWish(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              closeWishPrompt();
+            }
+          }}
+          placeholder="MAKE A WISH!"
+          autoFocus
+          className="border border-white bg-[#00082d] focus:bg-[#00082d] px-3 py-2 text-white placeholder:text-white/70 outline-none focus:border-[#7fffd4]"
+        />
+      </form>
+    )}
 
-  {wishPoof > 0 && (
-    <div key={wishPoof} className="wish-burst-layer">
-    {[-120, -92, -66, -38, -14, 14, 38, 66, 92, 120].map((x, i) => (
-  <span
-    key={i}
-    className="wish-burst-star"
-    style={
-      {
-        "--burst-x": `${x}px`,
-        "--delay": `${i * 45}ms`,
-      } as React.CSSProperties
-    }
-  />
-))}
-    </div>
-  )}
-</div>
-
+    {wishPoof > 0 && (
+      <div key={wishPoof} className="wish-burst-layer">
+        {[-120, -92, -66, -38, -14, 14, 38, 66, 92, 120].map((x, i) => (
+          <span
+            key={i}
+            className="wish-burst-star"
+            style={
+              {
+                "--burst-x": `${x}px`,
+                "--delay": `${i * 45}ms`,
+              } as React.CSSProperties
+            }
+          />
+        ))}
+      </div>
+    )}
+  </div>
+)}
 
         <div className="grid gap-8 md:gap-16 md:grid-cols-3 mt-4 mb-4 md:mb-16">
           <section className="md:max-w-sm md:mx-auto">

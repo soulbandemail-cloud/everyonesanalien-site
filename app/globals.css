@@ -589,7 +589,7 @@ svg {
 .wish-burst-star {
   position: fixed;
   left: 50%;
-  top: 32%;
+  top: 34%;
   width: 18px;
   height: 18px;
   background: #7fffd4;
@@ -609,6 +609,12 @@ svg {
   filter: drop-shadow(0 0 12px #7fffd4);
   animation: wish-burst-star 900ms ease-out forwards;
   animation-delay: var(--delay);
+}
+
+@media (max-width: 640px) {
+  .wish-burst-star {
+    top: 24%;
+  }
 }
 
 @keyframes wish-burst-star {
