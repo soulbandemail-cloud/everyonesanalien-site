@@ -161,26 +161,28 @@ return (
     >
 
 {wishPrompt && (
-  <form
-  key={wishPrompt.key}
-  className="fixed left-1/2 top-1/2 z-[10000] wish-box"
-  onPointerDown={(e) => e.stopPropagation()}
-  onSubmit={(e) => {
-    e.preventDefault();
-    closeWishPrompt();
-  }}
-
->
-    <input
-      value={wish}
-      onChange={(e) => setWish(e.target.value)}
-      placeholder="MAKE A WISH!"
-      autoFocus
-      className="border border-white bg-[#00082d] px-3 py-2 text-white placeholder:text-white/70 outline-none focus:border-[#7fffd4]"
-    />
-  </form>
+  <div
+    key={wishPrompt.key}
+    className="fixed inset-0 z-[10000]"
+    onPointerDown={closeWishPrompt}
+  >
+    <form
+      className="fixed left-1/2 top-1/2 wish-box"
+      onSubmit={(e) => {
+        e.preventDefault();
+        closeWishPrompt();
+      }}
+    >
+      <input
+        value={wish}
+        onChange={(e) => setWish(e.target.value)}
+        placeholder="MAKE A WISH"
+        autoFocus
+        className="border border-white bg-[#00082d] focus:bg-[#00082d] px-3 py-2 text-white placeholder:text-white/70 outline-none focus:border-[#7fffd4]"
+      />
+    </form>
+  </div>
 )}
-
 {wishPoof && (
   <div
     key={wishPoof.key}
