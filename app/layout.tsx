@@ -12,9 +12,9 @@ export const metadata: Metadata = {
   description: "Soul's official band website",
   icons: {
     icon: [
-      { url: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+      { url: "/favicon-32x32.png?v=14", type: "image/png", sizes: "32x32" },
     ],
-    shortcut: "/favicon-32x32.png",
+    shortcut: "/favicon-32x32.png?v=14",
   },
 };
 
