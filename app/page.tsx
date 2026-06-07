@@ -195,7 +195,7 @@ export default function Home() {
           </a>
         </div>
 
-        <div className="relative mt-4 mb-8 w-screen left-1/2 -translate-x-1/2 overflow-hidden">
+        <div className="relative mt-4 mb-8 -mx-8 md:-mx-12 overflow-hidden">
           <div className="flex items-center justify-center w-full mt-4">
             <div className="h-[4px] bg-[#7fffd4] flex-1 mr-2" />
 
@@ -369,7 +369,7 @@ export default function Home() {
             </p>
           </section>
         </div>
-               <div className="fixed bottom-0 left-0 z-40 w-screen overflow-hidden border-t border-[#7fffd4] bg-[#00082d]/80 py-2 pointer-events-none">
+               <div className="fixed bottom-0 inset-x-0 z-40 overflow-hidden border-t border-[#7fffd4] bg-[#00082d]/80 py-2 pointer-events-none">
   <div className="alien-footer-marquee flex w-max items-center">
     {[0, 1].map((track) => (
       <div key={track} className="flex items-center gap-8 px-4 shrink-0">
