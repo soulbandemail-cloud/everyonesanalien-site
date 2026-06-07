@@ -16,6 +16,7 @@ export default function Home() {
   >("idle");
 
   const [ufoPos, setUfoPos] = useState({ x: -100, y: -100 });
+  const [hideCursorUfo, setHideCursorUfo] = useState(false);
   const [ringBlinking, setRingBlinking] = useState(false);
 
   const [flyingAliens, setFlyingAliens] = useState<
@@ -100,6 +101,26 @@ const launchAlien = (e: React.PointerEvent<SVGSVGElement>) => {
     window.removeEventListener("pointerdown", moveUfo);
   };
 }, []);
+
+useEffect(() => {
+  const respawnUfo = (e: PointerEvent) => {
+    if (!hideCursorUfo) return;
+
+    setUfoPos({
+      x: e.clientX,
+      y: e.clientY,
+    });
+
+    setHideCursorUfo(false);
+  };
+
+  window.addEventListener("pointerdown", respawnUfo);
+
+  return () => {
+    window.removeEventListener("pointerdown", respawnUfo);
+  };
+}, [hideCursorUfo]);
+
 useEffect(() => {
   const interval = window.setInterval(() => {
     setFlyingAliens((aliens) => {
@@ -121,6 +142,8 @@ useEffect(() => {
 
           if (hitHeart) {
             setRingBlinking(true);
+            setUfoOrbiting(false);
+            setHideCursorUfo(true);
             setHeartPulse({
               x: heartX,
               y: heartY,
@@ -153,7 +176,7 @@ return (
   <>
     <div
       className={`fixed z-[9999] pointer-events-none ${
-        ufoOrbiting ? "opacity-0" : "opacity-100"
+        ufoOrbiting || hideCursorUfo ? "opacity-0" : "opacity-100"
       } transition-opacity duration-300`}
       style={{
         left: `${ufoPos.x}px`,
