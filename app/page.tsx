@@ -236,16 +236,15 @@ export default function Home() {
                   viewBox="0 0 120 80"
                 >
                   <ellipse
-                    cx="60"
-                    cy="39"
-                    rx="40"
-                    ry="21"
-                    fill="none"
-                    transform="rotate(-22 60 40)"
-                    stroke="#7fffd4"
-                    strokeWidth="5"
-                   
-                  />
+  cx="60"
+  cy="38"
+  rx="40"
+  ry="22"
+  fill="none"
+  stroke="#7fffd4"
+  strokeWidth="5"
+  transform="rotate(-18 60 40)"
+/>
                 </svg>
               </span>
 
