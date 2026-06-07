@@ -96,15 +96,10 @@ export default function Home() {
     key={heartPulseKey}
     className="fixed inset-0 z-[30] pointer-events-none overflow-hidden"
   >
-    {[0, 1, 2, 3, 4].map((i) => (
-      <svg
-        key={i}
-        viewBox="0 0 100 100"
-        className="clicked-heart-pulse absolute left-1/2 top-[140px] w-[120px] h-[120px]"
-        style={{
-          animationDelay: `${i * 0.18}s`,
-        }}
-      >
+    <svg
+  viewBox="0 0 100 100"
+  className="clicked-heart-pulse absolute left-1/2 top-[140px] w-[60px] h-[60px]"
+>
         <path
           fill="none"
           stroke="#7fffd4"
@@ -121,7 +116,7 @@ export default function Home() {
           "
         />
       </svg>
-    ))}
+   
   </div>
 )}
       <div className="stars">
