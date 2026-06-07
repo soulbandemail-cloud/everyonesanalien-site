@@ -100,7 +100,7 @@ export default function Home() {
       </div>
 
       <main className="min-h-screen text-white p-8 md:p-12 max-w-8xl mx-auto">
-        <div className="flex flex-wrap justify-center gap-8 mb-4 md:mb-4">
+        <div className="flex flex-wrap justify-center gap-10 mb-4 md:mb-4">
           <a
             href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
             target="_blank"
@@ -176,8 +176,8 @@ export default function Home() {
                   <ellipse
                     cx="60"
                     cy="40"
-                    rx="50"
-                    ry="20"
+                    rx="40"
+                    ry="18"
                     fill="none"
                     stroke="#7fffd4"
                     strokeWidth="5"
