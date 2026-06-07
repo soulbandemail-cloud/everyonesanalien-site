@@ -277,7 +277,7 @@ useEffect(() => {
                 </svg>
 
                 <svg
-  className={`absolute inset-0 w-full h-full z-20 cursor-pointer ${
+  className={`orbital-ring absolute inset-0 w-full h-full z-20 cursor-pointer ${
   ringBlinking ? "orbital-ring-blink-now" : ""
 }`}
   viewBox="0 0 120 80"

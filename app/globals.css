@@ -540,21 +540,25 @@ svg {
     transform: translateY(0.45rem) scaleY(0.2);
   }
 }
+.orbital-ring {
+  transform: translateY(0.45rem);
+  transform-origin: center;
+}
+
+@keyframes orbital-ring-blink-now {
+  0%, 100% {
+    transform: translateY(0.45rem) scaleY(1);
+  }
+
+  50% {
+    transform: translateY(0.45rem) scaleY(0.2);
+  }
+}
 
 .orbital-ring-blink-now {
   animation: orbital-ring-blink-now 420ms ease-in-out;
   transform-origin: center;
 }
-@keyframes ufo-returning {
-  from {
-    transform: translate(-50%, -50%) translate(0, 0) scale(0.8);
-  }
-
-  to {
-    transform: translate(-50%, -50%) translate(var(--to-x), var(--to-y)) scale(1);
-  }
-}
-
 .ufo-returning {
   animation: ufo-returning 700ms ease-in-out forwards;
 }
