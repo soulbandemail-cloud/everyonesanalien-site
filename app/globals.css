@@ -559,6 +559,3 @@ svg {
   animation: orbital-ring-blink-now 420ms ease-in-out;
   transform-origin: center;
 }
-.ufo-returning {
-  animation: ufo-returning 700ms ease-in-out forwards;
-}
