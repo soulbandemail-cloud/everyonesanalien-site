@@ -318,8 +318,8 @@ return (
   <span className="shooting-star shooting-star-10" onPointerDown={catchShootingStar}></span>
 </div>
 
-      <main className="min-h-screen text-white p-8 md:p-12 max-w-8xl mx-auto">
-        <div className="flex flex-nowrap justify-center gap-12 sm:gap-10 mb-4 md:mb-4">
+      <main className="min-h-screen text-white p-8 md:p-12 max-w-12xl mx-auto">
+        <div className="flex flex-nowrap justify-center gap-10 sm:gap-10 mb-4 md:mb-4">
           <a
             href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
             target="_blank"
