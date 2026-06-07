@@ -53,7 +53,7 @@ useEffect(() => {
   const blink = () => {
     setRingBlinking(true);
 
-    if (orbitRef.current) {
+    if (ufoOrbiting && orbitRef.current) {
       const rect = orbitRef.current.getBoundingClientRect();
 
       setHeartPulse({
@@ -61,9 +61,7 @@ useEffect(() => {
         y: rect.top + rect.height / 2,
         key: Date.now(),
       });
-    }
 
-    if (ufoOrbiting) {
       setUfoOrbiting(false);
     }
 
