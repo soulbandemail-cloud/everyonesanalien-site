@@ -364,12 +364,12 @@ return (
           </a>
         </div>
 
-      <p className="text-center text-white text-m md:text-base tracking-[0.2em] uppercase mb-2">
-  a band called...
-</p>
-
         <div className="relative mt-4 mb-8 -mx-8 md:-mx-12 overflow-hidden">
-          <div className="flex items-center justify-center w-full mt-4">
+          <p className="text-center text-white text-sm md:text-base tracking-[0.2em] uppercase mb-[-0.4rem]">
+            a band called...
+          </p>
+
+          <div className="flex items-center justify-center w-full mt-0">
             <div className="h-[4px] bg-white flex-1 mr-2" />
 
             <h1 className="relative z-10 text-6xl font-bold text-center flex justify-center items-center text-white shrink-0">
