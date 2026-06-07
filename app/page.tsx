@@ -243,7 +243,7 @@ export default function Home() {
                     fill="none"
                     stroke="#7fffd4"
                     strokeWidth="5"
-                    transform="rotate(-18 60 40)"
+                    transform="rotate(-8 60 40)"
                   />
                 </svg>
               </span>
