@@ -648,7 +648,7 @@ return (
 
         <Link
           href="/"
-          className="shrink-0 px-6 text-[#6ee7b7] text-sm md:text-base font-bold tracking-[0.25em] pointer-events-auto"
+          className="shrink-0 mx-2 px-4 py-1 border border-[#6ee7b7] text-[#6ee7b7] text-sm md:text-base font-bold tracking-[0.25em] pointer-events-auto transition-all duration-200 hover:bg-[#6ee7b7] hover:text-[#00082d] active:bg-white active:border-white active:text-[#00082d]"
         >
           everyonesanalien.com
         </Link>
