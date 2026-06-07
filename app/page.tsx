@@ -16,6 +16,7 @@ export default function Home() {
   >("idle");
 
   const [ufoPos, setUfoPos] = useState({ x: -100, y: -100 });
+  const [hideCursorUfo, setHideCursorUfo] = useState(false);
   const [ringBlinking, setRingBlinking] = useState(false);
 
 
@@ -63,6 +64,11 @@ useEffect(() => {
       });
 
       setUfoOrbiting(false);
+      setHideCursorUfo(true);
+
+setTimeout(() => {
+  setHideCursorUfo(false);
+}, 1200);
     }
 
     setTimeout(() => {
@@ -79,7 +85,7 @@ useEffect(() => {
     <>
      <div
   className={`fixed z-[9999] pointer-events-none ${
-    ufoOrbiting ? "opacity-0" : "opacity-100"
+    ufoOrbiting || hideCursorUfo ? "opacity-0" : "opacity-100"
   } transition-opacity duration-300`}
   style={{
     left: `${ufoPos.x}px`,
