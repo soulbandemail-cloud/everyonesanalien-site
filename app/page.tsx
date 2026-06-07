@@ -49,7 +49,6 @@ const toggleUfoOrbit = () => {
     window.removeEventListener("pointerdown", moveUfo);
   };
 }, []);
-
 useEffect(() => {
   const blink = () => {
     setRingBlinking(true);
@@ -72,7 +71,12 @@ useEffect(() => {
     }, 420);
   };
 
-  useEffect(() => {
+  const timeout = window.setTimeout(blink, 8000 + Math.random() * 9000);
+
+  return () => window.clearTimeout(timeout);
+}, [ringBlinking, ufoOrbiting]);
+
+useEffect(() => {
   const respawnUfo = (e: PointerEvent) => {
     if (!hideCursorUfo) return;
 
@@ -91,69 +95,58 @@ useEffect(() => {
   };
 }, [hideCursorUfo]);
 
-  const timeout = window.setTimeout(blink, 8000 + Math.random() * 9000);
+return (
+  <>
+    <div
+      className={`fixed z-[9999] pointer-events-none ${
+        ufoOrbiting || hideCursorUfo ? "opacity-0" : "opacity-100"
+      } transition-opacity duration-300`}
+      style={{
+        left: `${ufoPos.x}px`,
+        top: `${ufoPos.y}px`,
+        transform: "translate(-50%, -50%)",
+      }}
+    >
+      <svg viewBox="0 0 120 80" className="w-10 h-10 opacity-95">
+        <ellipse cx="60" cy="42" rx="42" ry="12" fill="white" />
 
-  return () => window.clearTimeout(timeout);
-}, [ringBlinking, ufoOrbiting]);
+        <ellipse
+          cx="60"
+          cy="35"
+          rx="22"
+          ry="17"
+          fill="none"
+          stroke="white"
+          strokeWidth="5"
+        />
 
-  return (
-    <>
-     <div
-  className={`fixed z-[9999] pointer-events-none ${
-    ufoOrbiting || hideCursorUfo ? "opacity-0" : "opacity-100"
-  } transition-opacity duration-300`}
-  style={{
-    left: `${ufoPos.x}px`,
-    top: `${ufoPos.y}px`,
-    transform: "translate(-50%, -50%)",
-  }}
->
-  <svg viewBox="0 0 120 80" className="w-10 h-10 opacity-95">
-    <ellipse
-      cx="60"
-      cy="42"
-      rx="42"
-      ry="12"
-      fill="white"
-    />
+        <circle cx="38" cy="44" r="3" fill="black" />
+        <circle cx="60" cy="46" r="3" fill="black" />
+        <circle cx="82" cy="44" r="3" fill="black" />
 
-    <ellipse
-      cx="60"
-      cy="35"
-      rx="22"
-      ry="17"
-      fill="none"
-      stroke="white"
-      strokeWidth="5"
-    />
-
-    <circle cx="38" cy="44" r="3" fill="black" />
-    <circle cx="60" cy="46" r="3" fill="black" />
-    <circle cx="82" cy="44" r="3" fill="black" />
-
-    <path
-      d="M46 56 L34 74"
-      stroke="#7fffd4"
-      strokeWidth="3"
-      strokeLinecap="round"
-      opacity="0.55"
-    />
-    <path
-      d="M60 58 L60 78"
-      stroke="#7fffd4"
-      strokeWidth="3"
-      strokeLinecap="round"
-      opacity="0.4"
-    />
-    <path
-      d="M74 56 L86 74"
-      stroke="#7fffd4"
-      strokeWidth="3"
-      strokeLinecap="round"
-      opacity="0.55"
-    />
-  </svg>
-</div>
+        <path
+          d="M46 56 L34 74"
+          stroke="white"
+          strokeWidth="3"
+          strokeLinecap="round"
+          opacity="0.55"
+        />
+        <path
+          d="M60 58 L60 78"
+          stroke="white"
+          strokeWidth="3"
+          strokeLinecap="round"
+          opacity="0.4"
+        />
+        <path
+          d="M74 56 L86 74"
+          stroke="white"
+          strokeWidth="3"
+          strokeLinecap="round"
+          opacity="0.55"
+        />
+      </svg>
+    </div>
 {heartPulse.key > 0 && (
   <div
     key={heartPulse.key}
