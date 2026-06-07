@@ -241,6 +241,7 @@ export default function Home() {
                     rx="40"
                     ry="21"
                     fill="none"
+                    transform="rotate(-22 60 40)"
                     stroke="#7fffd4"
                     strokeWidth="5"
                    
