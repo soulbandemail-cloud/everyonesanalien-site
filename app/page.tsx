@@ -134,6 +134,12 @@ export default function Home() {
         <span className="star star-4"></span>
         <span className="star star-5"></span>
       </div>
+      
+<div className="shooting-stars">
+  <span className="shooting-star shooting-star-1"></span>
+  <span className="shooting-star shooting-star-2"></span>
+  <span className="shooting-star shooting-star-3"></span>
+</div>
 
       <main className="min-h-screen text-white p-8 md:p-12 max-w-8xl mx-auto">
         <div className="flex flex-wrap justify-center gap-10 mb-4 md:mb-4">

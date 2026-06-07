@@ -185,3 +185,95 @@ body {
 .clicked-heart-pulse {
   animation: clicked-heart-pulse 2.8s ease-out forwards;
 }
+
+.clicked-heart-pulse {
+  animation: clicked-heart-pulse 2.2s ease-out forwards;
+  transform-origin: center;
+}
+.shooting-stars {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.shooting-star {
+  position: absolute;
+  width: 90px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #6ee7b7, transparent);
+  opacity: 0;
+  border-radius: 999px;
+  transform: rotate(-18deg);
+  filter: drop-shadow(0 0 6px #6ee7b7);
+}
+
+.shooting-star-1 {
+  top: 18%;
+  left: -20%;
+  animation: shooting-star-one 9s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+.shooting-star-2 {
+  top: 42%;
+  left: -25%;
+  animation: shooting-star-two 13s ease-in-out infinite;
+  animation-delay: 7s;
+}
+
+.shooting-star-3 {
+  top: 70%;
+  left: -30%;
+  animation: shooting-star-three 17s ease-in-out infinite;
+  animation-delay: 11s;
+}
+
+@keyframes shooting-star-one {
+  0%, 72% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(-18deg);
+  }
+
+  76% {
+    opacity: 0.85;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(140vw, 22vh) rotate(-18deg);
+  }
+}
+
+@keyframes shooting-star-two {
+  0%, 78% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(-8deg);
+  }
+
+  82% {
+    opacity: 0.65;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(140vw, -14vh) rotate(-8deg);
+  }
+}
+
+@keyframes shooting-star-three {
+  0%, 82% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(-28deg);
+  }
+
+  86% {
+    opacity: 0.7;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(140vw, -32vh) rotate(-28deg);
+  }
+}
