@@ -326,7 +326,7 @@ return (
             rel="noopener noreferrer"
             className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
           >
-            <FaSpotify size={36} />
+            <FaSpotify size={40} />
           </a>
 
           <a
@@ -335,7 +335,7 @@ return (
             rel="noopener noreferrer"
             className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
           >
-            <FaInstagram size={36} />
+            <FaInstagram size={40} />
           </a>
 
           <a
@@ -344,7 +344,7 @@ return (
             rel="noopener noreferrer"
             className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
           >
-            <FaTiktok size={36} />
+            <FaTiktok size={40} />
           </a>
 
           <a
@@ -353,14 +353,14 @@ return (
             rel="noopener noreferrer"
             className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
           >
-            <FaYoutube size={36} />
+            <FaYoutube size={40} />
           </a>
 
           <a
             href="mailto:soul.band.email@gmail.com"
             className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
           >
-            <FaEnvelope size={36} />
+            <FaEnvelope size={40} />
           </a>
         </div>
 
