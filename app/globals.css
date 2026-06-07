@@ -461,3 +461,26 @@ body {
     transform: translate(-145vw, -32vh) rotate(205deg);
   }
 }
+.shooting-star-launch {
+  top: 24%;
+  left: -35%;
+
+  animation: shooting-star-launch 12s ease-out 1;
+  animation-delay: 5s;
+}
+
+@keyframes shooting-star-launch {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(11deg);
+  }
+
+  5% {
+    opacity: 0.9;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(150vw, 28vh) rotate(11deg);
+  }
+}
