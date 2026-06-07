@@ -564,13 +564,13 @@ return (
               <div className="mt-4 border border-white p-3">
                 WELCOME ABOARD.
                 <br />
-                You&apos;re now a Mate of the Band.
+                You are now a Mate of the Band!
               </div>
             )}
 
             {status === "error" && (
               <div className="mt-4 border border-red-500 p-3 text-red-400">
-                Transmission failed. Try again.
+                Mating failed, please try again.
               </div>
             )}
 
