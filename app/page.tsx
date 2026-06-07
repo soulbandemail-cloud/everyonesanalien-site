@@ -150,10 +150,7 @@ return (
   <div
     key={wishPrompt.key}
     className="fixed inset-0 z-[10000]"
-    onPointerDownCapture={(e) => {
-      e.preventDefault();
-      closeWishPrompt();
-    }}
+    onClick={closeWishPrompt}
   >
     <form
       className="fixed left-1/2 top-1/2 wish-box"
