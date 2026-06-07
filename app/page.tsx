@@ -380,7 +380,7 @@ return (
   onClick={toggleUfoOrbit}
 >
                   <path
-                    className="fill-[#7fffd4] transition-colors duration-200 group-hover:fill-white"
+                    className="fill-[#7fffd4] transition-colors duration-200 group-hover:fill-white group-active:fill-white"
                     d="
                       M50 86
                       C42 76 20 62 14 45
@@ -406,7 +406,7 @@ return (
     cy="39"
     rx="40"
     ry="21"
-    className="fill-transparent stroke-[#7fffd4] transition-colors duration-200 group-hover:fill-[#7fffd4]"
+    className="fill-transparent stroke-[#7fffd4] transition-colors duration-200 group-hover:fill-[#7fffd4] group-active:fill-[#7fffd4]"
     strokeWidth="5"
   />
 </svg>
@@ -619,10 +619,10 @@ return (
             key={`${track}-${i}`}
             viewBox="0 0 100 100"
             onPointerDown={launchAlien}
-            className="w-8 h-8 shrink-0 opacity-90 pointer-events-auto cursor-pointer"
+            className="footer-alien-head w-8 h-8 shrink-0 opacity-90 pointer-events-auto cursor-pointer"
           >
             <path
-              fill="#7fffd4"
+              className="footer-alien-head-fill"
               d="
                 M50 10
                 C27 10 15 30 18 52
@@ -657,10 +657,10 @@ return (
             key={`${track}-b-${i}`}
             viewBox="0 0 100 100"
             onPointerDown={launchAlien}
-            className="w-8 h-8 shrink-0 opacity-90 pointer-events-auto cursor-pointer"
+            className="footer-alien-head w-8 h-8 shrink-0 opacity-90 pointer-events-auto cursor-pointer"
           >
             <path
-              fill="#7fffd4"
+              className="footer-alien-head-fill"
               d="
                 M50 10
                 C27 10 15 30 18 52

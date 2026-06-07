@@ -646,3 +646,13 @@ svg {
 .flying-alien-head {
   animation: flying-alien-spin 700ms linear infinite;
 }
+
+.footer-alien-head-fill {
+  fill: #7fffd4;
+  transition: fill 200ms ease;
+}
+
+.footer-alien-head:hover .footer-alien-head-fill,
+.footer-alien-head:active .footer-alien-head-fill {
+  fill: white;
+}
