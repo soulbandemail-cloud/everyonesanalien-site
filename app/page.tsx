@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   FaInstagram,
@@ -16,6 +16,16 @@ export default function Home() {
   >("idle");
 
   const [ufoPos, setUfoPos] = useState({ x: -100, y: -100 });
+  const [ringBlinking, setRingBlinking] = useState(false);
+const [ufoReturning, setUfoReturning] = useState<{
+  x: number;
+  y: number;
+  key: number;
+} | null>(null);
+
+
+
+const orbitRef = useRef<HTMLSpanElement | null>(null);
   const [ufoOrbiting, setUfoOrbiting] = useState(false);
   const [heartPulseKey, setHeartPulseKey] = useState(0);
   const [heartPulse, setHeartPulse] = useState({
@@ -41,11 +51,41 @@ export default function Home() {
   };
 }, []);
 
+useEffect(() => {
+  const blink = () => {
+    setRingBlinking(true);
+
+    if (ufoOrbiting && orbitRef.current) {
+      const rect = orbitRef.current.getBoundingClientRect();
+
+      setUfoReturning({
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+        key: Date.now(),
+      });
+
+      setUfoOrbiting(false);
+
+      setTimeout(() => {
+        setUfoReturning(null);
+      }, 700);
+    }
+
+    setTimeout(() => {
+      setRingBlinking(false);
+    }, 420);
+  };
+
+  const timeout = window.setTimeout(blink, 8000 + Math.random() * 9000);
+
+  return () => window.clearTimeout(timeout);
+}, [ringBlinking, ufoOrbiting]);
+
   return (
     <>
      <div
   className={`fixed z-[9999] pointer-events-none ${
-    ufoOrbiting ? "opacity-0" : "opacity-100"
+    ufoOrbiting || ufoReturning ? "opacity-0" : "opacity-100"
   } transition-opacity duration-300`}
   style={{
     left: `${ufoPos.x}px`,
@@ -205,7 +245,9 @@ export default function Home() {
             <h1 className="relative z-10 text-6xl font-bold text-center flex justify-center items-center text-[#7fffd4] shrink-0">
               <span className="-mr-4">S</span>
 
-              <span className="relative inline-flex items-center justify-center w-28 h-24 mx-0 overflow-hidden">
+              <span 
+              ref={orbitRef}
+              className="relative inline-flex items-center justify-center w-28 h-24 mx-0 overflow-hidden">
                 <svg
   viewBox="0 0 100 100"
   className="absolute w-8 h-8 z-30 cursor-pointer"
@@ -235,7 +277,9 @@ export default function Home() {
                 </svg>
 
                 <svg
-  className="orbital-ring-blink absolute inset-0 translate-y-2.5 w-full h-full z-20 cursor-pointer"
+  className={`absolute inset-0 w-full h-full z-20 cursor-pointer ${
+  ringBlinking ? "orbital-ring-blink-now" : ""
+}`}
   viewBox="0 0 120 80"
   onClick={() => setUfoOrbiting((orbiting) => !orbiting)}
 >
@@ -269,6 +313,62 @@ export default function Home() {
       <circle cx="60" cy="46" r="3" fill="black" />
       <circle cx="82" cy="44" r="3" fill="black" />
     </svg>
+  </div>
+  
+)}
+
+{ufoReturning && (
+  <div
+    key={ufoReturning.key}
+    className="fixed z-[9999] pointer-events-none ufo-returning"
+    style={
+      {
+        left: `${ufoReturning.x}px`,
+        top: `${ufoReturning.y}px`,
+        "--to-x": `${ufoPos.x - ufoReturning.x}px`,
+        "--to-y": `${ufoPos.y - ufoReturning.y}px`,
+      } as React.CSSProperties
+    }
+  >
+    <svg viewBox="0 0 120 80" className="w-10 h-10 opacity-95">
+  <ellipse cx="60" cy="42" rx="42" ry="12" fill="white" />
+
+  <ellipse
+    cx="60"
+    cy="35"
+    rx="22"
+    ry="17"
+    fill="none"
+    stroke="white"
+    strokeWidth="5"
+  />
+
+  <circle cx="38" cy="44" r="3" fill="black" />
+  <circle cx="60" cy="46" r="3" fill="black" />
+  <circle cx="82" cy="44" r="3" fill="black" />
+
+  <path
+    d="M46 56 L34 74"
+    stroke="white"
+    strokeWidth="3"
+    strokeLinecap="round"
+    opacity="0.55"
+  />
+  <path
+    d="M60 58 L60 78"
+    stroke="white"
+    strokeWidth="3"
+    strokeLinecap="round"
+    opacity="0.4"
+  />
+  <path
+    d="M74 56 L86 74"
+    stroke="white"
+    strokeWidth="3"
+    strokeLinecap="round"
+    opacity="0.55"
+  />
+</svg>
   </div>
 )}
 
