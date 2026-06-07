@@ -237,9 +237,9 @@ export default function Home() {
                 >
                   <ellipse
                     cx="60"
-                    cy="35"
+                    cy="39"
                     rx="40"
-                    ry="25"
+                    ry="21"
                     fill="none"
                     stroke="#7fffd4"
                     strokeWidth="5"
@@ -248,7 +248,7 @@ export default function Home() {
                 </svg>
               </span>
 
-              <span className="-ml-2">U L</span>
+              <span className="-ml-2">UL</span>
             </h1>
 
             <div className="h-[4px] bg-[#7fffd4] flex-1 ml-2" />
