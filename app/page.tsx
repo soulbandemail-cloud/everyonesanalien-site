@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 
 import {
   FaInstagram,
@@ -611,7 +612,7 @@ return (
 
 
 
-               <div className="fixed bottom-0 inset-x-0 z-40 overflow-hidden border-t border-[#7fffd4] bg-[#00082d]/80 py-2">
+               <div className="fixed bottom-0 inset-x-0 z-40 overflow-hidden border-t border-white bg-[#00082d]/80 py-2">
   <div className="alien-footer-marquee flex w-max items-center">
     {[0, 1].map((track) => (
       <div key={track} className="flex items-center gap-8 px-4 shrink-0">
@@ -645,9 +646,12 @@ return (
           </svg>
         ))}
 
-        <span className="shrink-0 px-6 text-[#6ee7b7] text-sm md:text-base font-bold tracking-[0.25em]">
+        <Link
+          href="/"
+          className="shrink-0 px-6 text-[#6ee7b7] text-sm md:text-base font-bold tracking-[0.25em] pointer-events-auto"
+        >
           everyonesanalien.com
-        </span>
+        </Link>
 
         {[...Array(18)].map((_, i) => (
           <svg
