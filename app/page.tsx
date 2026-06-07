@@ -379,18 +379,18 @@ return (
 
   {wishPoof > 0 && (
     <div key={wishPoof} className="wish-burst-layer">
-      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => (
-        <span
-          key={i}
-          className="wish-burst-star"
-          style={
-            {
-              "--angle": `${i * 30}deg`,
-              "--delay": `${i * 18}ms`,
-            } as React.CSSProperties
-          }
-        />
-      ))}
+    {[-120, -92, -66, -38, -14, 14, 38, 66, 92, 120].map((x, i) => (
+  <span
+    key={i}
+    className="wish-burst-star"
+    style={
+      {
+        "--burst-x": `${x}px`,
+        "--delay": `${Math.abs(i - 4.5) * 18}ms`,
+      } as React.CSSProperties
+    }
+  />
+))}
     </div>
   )}
 </div>

@@ -613,7 +613,7 @@ svg {
 
 @keyframes wish-burst-star {
   0% {
-    transform: translate(-50%, -50%) rotate(var(--angle)) translateX(0) scale(0.2);
+    transform: translate(-50%, -50%) translateX(0) scale(0.2);
     opacity: 0;
   }
 
@@ -622,7 +622,7 @@ svg {
   }
 
   100% {
-    transform: translate(-50%, -50%) rotate(var(--angle)) translateX(96px) scale(0.9);
+    transform: translate(-50%, -50%) translateX(var(--burst-x)) scale(0.8);
     opacity: 0;
   }
 }
