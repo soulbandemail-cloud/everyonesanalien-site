@@ -103,7 +103,7 @@ export default function Home() {
   >
     <svg
       viewBox="0 0 100 100"
-      className="clicked-heart-pulse absolute w-[60px] h-[60px]"
+      className="clicked-heart-pulse absolute left-0 top-0 w-[60px] h-[60px]"
       style={{
         left: `${heartPulse.x}px`,
         top: `${heartPulse.y}px`,
@@ -192,7 +192,15 @@ export default function Home() {
                 <svg
   viewBox="0 0 100 100"
   className="absolute w-8 h-8 z-30 cursor-pointer"
-  onClick={() => setHeartPulseKey((key) => key + 1)}
+  onClick={(e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    setHeartPulse({
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+      key: Date.now(),
+    });
+  }}
 >
                   <path
                     fill="#7fffd4"
