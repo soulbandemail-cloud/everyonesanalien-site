@@ -245,17 +245,7 @@ useEffect(() => {
                 <svg
   viewBox="0 0 100 100"
   className="absolute w-8 h-8 z-30 cursor-pointer"
-  onClick={(e) => {
-  const rect = e.currentTarget.getBoundingClientRect();
-
-  setHeartPulse({
-    x: rect.left + rect.width / 2,
-    y: rect.top + rect.height / 2,
-    key: Date.now(),
-  });
-
-  toggleUfoOrbit();
-}}
+  onClick={toggleUfoOrbit}
 >
                   <path
                     fill="#7fffd4"
