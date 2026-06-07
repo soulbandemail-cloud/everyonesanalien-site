@@ -571,19 +571,18 @@ svg {
 }
 
 .wish-box {
-  transform: translate(-50%, -50%);
   animation: wish-box-arrive 240ms ease-out both;
 }
 
 @keyframes wish-box-arrive {
   from {
     opacity: 0;
-    transform: translate(-50%, -42%) scale(0.92);
+    transform: translateY(8px) scale(0.92);
   }
 
   to {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+    transform: translateY(0) scale(1);
   }
 }
 @keyframes wish-star-poof {
