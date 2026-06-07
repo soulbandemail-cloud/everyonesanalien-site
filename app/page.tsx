@@ -134,11 +134,18 @@ export default function Home() {
         <span className="star star-4"></span>
         <span className="star star-5"></span>
       </div>
-      
+
 <div className="shooting-stars">
   <span className="shooting-star shooting-star-1"></span>
   <span className="shooting-star shooting-star-2"></span>
   <span className="shooting-star shooting-star-3"></span>
+  <span className="shooting-star shooting-star-4"></span>
+  <span className="shooting-star shooting-star-5"></span>
+  <span className="shooting-star shooting-star-6"></span>
+  <span className="shooting-star shooting-star-7"></span>
+  <span className="shooting-star shooting-star-8"></span>
+  <span className="shooting-star shooting-star-9"></span>
+  <span className="shooting-star shooting-star-10"></span>
 </div>
 
       <main className="min-h-screen text-white p-8 md:p-12 max-w-8xl mx-auto">

@@ -300,4 +300,95 @@ body {
     opacity: 0;
     transform: translate(145vw, 42vh) rotate(16deg);
   }
+  
+}
+.shooting-star-4 {
+  top: 8%;
+  left: -25%;
+  animation: shooting-star-four 23s ease-in-out infinite;
+  animation-delay: 13s;
+}
+
+.shooting-star-5 {
+  top: 30%;
+  left: -20%;
+  animation: shooting-star-five 17s ease-in-out infinite;
+  animation-delay: 4s;
+}
+
+.shooting-star-6 {
+  top: 58%;
+  left: -35%;
+  animation: shooting-star-six 27s ease-in-out infinite;
+  animation-delay: 18s;
+}
+
+.shooting-star-7 {
+  top: 82%;
+  left: -30%;
+  animation: shooting-star-seven 21s ease-in-out infinite;
+  animation-delay: 9s;
+}
+
+.shooting-star-8 {
+  top: 12%;
+  left: -40%;
+  animation: shooting-star-eight 31s ease-in-out infinite;
+  animation-delay: 22s;
+}
+
+.shooting-star-9 {
+  top: 48%;
+  left: -25%;
+  animation: shooting-star-nine 25s ease-in-out infinite;
+  animation-delay: 15s;
+}
+
+.shooting-star-10 {
+  top: 90%;
+  left: -20%;
+  animation: shooting-star-ten 29s ease-in-out infinite;
+  animation-delay: 6s;
+}
+
+@keyframes shooting-star-four {
+  0%, 86% { opacity: 0; transform: translate(0,0) rotate(-23deg); }
+  90% { opacity: .9; }
+  100% { opacity: 0; transform: translate(150vw,-45vh) rotate(-23deg); }
+}
+
+@keyframes shooting-star-five {
+  0%, 80% { opacity: 0; transform: translate(0,0) rotate(22deg); }
+  84% { opacity: .8; }
+  100% { opacity: 0; transform: translate(130vw,35vh) rotate(22deg); }
+}
+
+@keyframes shooting-star-six {
+  0%, 90% { opacity: 0; transform: translate(0,0) rotate(-7deg); }
+  93% { opacity: .75; }
+  100% { opacity: 0; transform: translate(170vw,-20vh) rotate(-7deg); }
+}
+
+@keyframes shooting-star-seven {
+  0%, 82% { opacity: 0; transform: translate(0,0) rotate(28deg); }
+  86% { opacity: .85; }
+  100% { opacity: 0; transform: translate(120vw,55vh) rotate(28deg); }
+}
+
+@keyframes shooting-star-eight {
+  0%, 92% { opacity: 0; transform: translate(0,0) rotate(-31deg); }
+  95% { opacity: .8; }
+  100% { opacity: 0; transform: translate(180vw,-65vh) rotate(-31deg); }
+}
+
+@keyframes shooting-star-nine {
+  0%, 88% { opacity: 0; transform: translate(0,0) rotate(5deg); }
+  92% { opacity: .7; }
+  100% { opacity: 0; transform: translate(150vw,12vh) rotate(5deg); }
+}
+
+@keyframes shooting-star-ten {
+  0%, 84% { opacity: 0; transform: translate(0,0) rotate(-17deg); }
+  88% { opacity: .8; }
+  100% { opacity: 0; transform: translate(145vw,-32vh) rotate(-17deg); }
 }
