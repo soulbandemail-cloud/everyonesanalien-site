@@ -140,30 +140,34 @@ useEffect(() => {
     key={heartPulse.key}
     className="fixed inset-0 pointer-events-none z-[30]"
   >
-    <svg
-      viewBox="0 0 100 100"
-      className="clicked-heart-pulse absolute left-0 top-0 w-[60px] h-[60px]"
-      style={{
-        left: `${heartPulse.x}px`,
-        top: `${heartPulse.y}px`,
-      }}
-    >
-      <path
-        fill="none"
-        stroke="#7fffd4"
-        strokeWidth="1"
-        d="
-          M50 86
-          C42 76 20 62 14 45
-          C8 28 18 12 35 13
-          C44 14 49 22 50 25
-          C51 22 56 14 65 13
-          C82 12 92 28 86 45
-          C80 62 58 76 50 86
-          Z
-        "
-      />
-    </svg>
+    {[0, 1, 2, 3].map((i) => (
+      <svg
+        key={i}
+        viewBox="0 0 100 100"
+        className="clicked-heart-pulse absolute left-0 top-0 w-[60px] h-[60px]"
+        style={{
+          left: `${heartPulse.x}px`,
+          top: `${heartPulse.y}px`,
+          animationDelay: `${i * 120}ms`,
+        }}
+      >
+        <path
+          fill="none"
+          stroke="#7fffd4"
+          strokeWidth="1"
+          d="
+            M50 86
+            C42 76 20 62 14 45
+            C8 28 18 12 35 13
+            C44 14 49 22 50 25
+            C51 22 56 14 65 13
+            C82 12 92 28 86 45
+            C80 62 58 76 50 86
+            Z
+          "
+        />
+      </svg>
+    ))}
   </div>
 )}
       <div className="stars">
