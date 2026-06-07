@@ -319,7 +319,7 @@ return (
 </div>
 
       <main className="min-h-screen text-white p-8 md:p-12 max-w-8xl mx-auto">
-        <div className="flex flex-nowrap justify-center gap-6 sm:gap-10 mb-4 md:mb-4">
+        <div className="flex flex-nowrap justify-center gap-10 sm:gap-10 mb-4 md:mb-4">
           <a
             href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
             target="_blank"
@@ -364,8 +364,8 @@ return (
           </a>
         </div>
 
-        <div className="relative mt-8 mb-0 -mx-8 md:-mx-12 overflow-hidden">
-          <p className="text-center text-white text-base md:text-base tracking-[0.2em] uppercase mb-[-0.4rem]">
+        <div className="relative mt-12 mb-0 -mx-8 md:-mx-12 overflow-hidden">
+          <p className="text-center text-white text-xs md:text-xs tracking-[0.2em] uppercase mb-[-0.7rem]">
             a band called...
           </p>
           
