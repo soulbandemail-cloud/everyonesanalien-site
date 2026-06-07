@@ -59,7 +59,7 @@ export default function Home() {
       cy="42"
       rx="42"
       ry="12"
-      fill="#7fffd4"
+      fill="white"
     />
 
     <ellipse
@@ -68,7 +68,7 @@ export default function Home() {
       rx="22"
       ry="17"
       fill="none"
-      stroke="#7fffd4"
+      stroke="white"
       strokeWidth="5"
     />
 
@@ -245,7 +245,7 @@ export default function Home() {
     rx="40"
     ry="21"
     fill="none"
-    stroke="white"
+    stroke="#7fffd4"
     strokeWidth="5"
   />
 </svg>
