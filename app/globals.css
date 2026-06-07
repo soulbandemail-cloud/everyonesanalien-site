@@ -232,35 +232,83 @@ body {
   );
   filter: drop-shadow(0 0 8px #6ee7b7);
 }
-
 .shooting-star-1 {
   top: 18%;
   left: -30%;
-  animation: shooting-star-one 9s ease-in-out infinite;
-  animation-delay: 2s;
+  animation: shooting-star-one 19s ease-in-out infinite;
+  animation-delay: 1s;
 }
 
 .shooting-star-2 {
   top: 45%;
   left: -30%;
-  animation: shooting-star-two 14s ease-in-out infinite;
-  animation-delay: 6s;
+  animation: shooting-star-two 23s ease-in-out infinite;
+  animation-delay: 7s;
 }
 
 .shooting-star-3 {
   top: 72%;
-  left: -30%;
-  animation: shooting-star-three 19s ease-in-out infinite;
-  animation-delay: 11s;
+  right: -30%;
+  animation: shooting-star-three 29s ease-in-out infinite;
+  animation-delay: 13s;
+}
+
+.shooting-star-4 {
+  top: -20%;
+  left: 22%;
+  animation: shooting-star-four 31s ease-in-out infinite;
+  animation-delay: 19s;
+}
+
+.shooting-star-5 {
+  bottom: -20%;
+  left: 66%;
+  animation: shooting-star-five 37s ease-in-out infinite;
+  animation-delay: 25s;
+}
+
+.shooting-star-6 {
+  top: 58%;
+  right: -35%;
+  animation: shooting-star-six 41s ease-in-out infinite;
+  animation-delay: 31s;
+}
+
+.shooting-star-7 {
+  bottom: -20%;
+  left: 12%;
+  animation: shooting-star-seven 43s ease-in-out infinite;
+  animation-delay: 37s;
+}
+
+.shooting-star-8 {
+  top: -25%;
+  left: 78%;
+  animation: shooting-star-eight 47s ease-in-out infinite;
+  animation-delay: 43s;
+}
+
+.shooting-star-9 {
+  top: 48%;
+  left: -25%;
+  animation: shooting-star-nine 53s ease-in-out infinite;
+  animation-delay: 49s;
+}
+
+.shooting-star-10 {
+  top: 90%;
+  right: -20%;
+  animation: shooting-star-ten 59s ease-in-out infinite;
+  animation-delay: 55s;
 }
 
 @keyframes shooting-star-one {
-  0%, 74% {
+  0%, 88% {
     opacity: 0;
     transform: translate(0, 0) rotate(9deg);
   }
 
-  78% {
+  91% {
     opacity: 0.9;
   }
 
@@ -271,12 +319,12 @@ body {
 }
 
 @keyframes shooting-star-two {
-  0%, 78% {
+  0%, 89% {
     opacity: 0;
     transform: translate(0, 0) rotate(-11deg);
   }
 
-  82% {
+  92% {
     opacity: 0.75;
   }
 
@@ -287,108 +335,129 @@ body {
 }
 
 @keyframes shooting-star-three {
-  0%, 82% {
+  0%, 90% {
     opacity: 0;
-    transform: translate(0, 0) rotate(16deg);
+    transform: translate(0, 0) rotate(196deg);
   }
 
-  86% {
+  93% {
     opacity: 0.75;
   }
 
   100% {
     opacity: 0;
-    transform: translate(145vw, 42vh) rotate(16deg);
+    transform: translate(-145vw, 36vh) rotate(196deg);
   }
-  
-}
-.shooting-star-4 {
-  top: 8%;
-  left: -25%;
-  animation: shooting-star-four 23s ease-in-out infinite;
-  animation-delay: 13s;
-}
-
-.shooting-star-5 {
-  top: 30%;
-  left: -20%;
-  animation: shooting-star-five 17s ease-in-out infinite;
-  animation-delay: 4s;
-}
-
-.shooting-star-6 {
-  top: 58%;
-  left: -35%;
-  animation: shooting-star-six 27s ease-in-out infinite;
-  animation-delay: 18s;
-}
-
-.shooting-star-7 {
-  top: 82%;
-  left: -30%;
-  animation: shooting-star-seven 21s ease-in-out infinite;
-  animation-delay: 9s;
-}
-
-.shooting-star-8 {
-  top: 12%;
-  left: -40%;
-  animation: shooting-star-eight 31s ease-in-out infinite;
-  animation-delay: 22s;
-}
-
-.shooting-star-9 {
-  top: 48%;
-  left: -25%;
-  animation: shooting-star-nine 25s ease-in-out infinite;
-  animation-delay: 15s;
-}
-
-.shooting-star-10 {
-  top: 90%;
-  left: -20%;
-  animation: shooting-star-ten 29s ease-in-out infinite;
-  animation-delay: 6s;
 }
 
 @keyframes shooting-star-four {
-  0%, 86% { opacity: 0; transform: translate(0,0) rotate(-23deg); }
-  90% { opacity: .9; }
-  100% { opacity: 0; transform: translate(150vw,-45vh) rotate(-23deg); }
+  0%, 91% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(78deg);
+  }
+
+  94% {
+    opacity: 0.85;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(18vw, 130vh) rotate(78deg);
+  }
 }
 
 @keyframes shooting-star-five {
-  0%, 80% { opacity: 0; transform: translate(0,0) rotate(22deg); }
-  84% { opacity: .8; }
-  100% { opacity: 0; transform: translate(130vw,35vh) rotate(22deg); }
+  0%, 92% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(-102deg);
+  }
+
+  95% {
+    opacity: 0.75;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-12vw, -130vh) rotate(-102deg);
+  }
 }
 
 @keyframes shooting-star-six {
-  0%, 90% { opacity: 0; transform: translate(0,0) rotate(-7deg); }
-  93% { opacity: .75; }
-  100% { opacity: 0; transform: translate(170vw,-20vh) rotate(-7deg); }
+  0%, 93% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(188deg);
+  }
+
+  96% {
+    opacity: 0.75;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-150vw, -18vh) rotate(188deg);
+  }
 }
 
 @keyframes shooting-star-seven {
-  0%, 82% { opacity: 0; transform: translate(0,0) rotate(28deg); }
-  86% { opacity: .85; }
-  100% { opacity: 0; transform: translate(120vw,55vh) rotate(28deg); }
+  0%, 91% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(-72deg);
+  }
+
+  94% {
+    opacity: 0.85;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(34vw, -140vh) rotate(-72deg);
+  }
 }
 
 @keyframes shooting-star-eight {
-  0%, 92% { opacity: 0; transform: translate(0,0) rotate(-31deg); }
-  95% { opacity: .8; }
-  100% { opacity: 0; transform: translate(180vw,-65vh) rotate(-31deg); }
+  0%, 94% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(104deg);
+  }
+
+  97% {
+    opacity: 0.8;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-30vw, 150vh) rotate(104deg);
+  }
 }
 
 @keyframes shooting-star-nine {
-  0%, 88% { opacity: 0; transform: translate(0,0) rotate(5deg); }
-  92% { opacity: .7; }
-  100% { opacity: 0; transform: translate(150vw,12vh) rotate(5deg); }
+  0%, 93% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(5deg);
+  }
+
+  96% {
+    opacity: 0.7;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(150vw, 12vh) rotate(5deg);
+  }
 }
 
 @keyframes shooting-star-ten {
-  0%, 84% { opacity: 0; transform: translate(0,0) rotate(-17deg); }
-  88% { opacity: .8; }
-  100% { opacity: 0; transform: translate(145vw,-32vh) rotate(-17deg); }
+  0%, 94% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(205deg);
+  }
+
+  97% {
+    opacity: 0.8;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-145vw, -32vh) rotate(205deg);
+  }
 }
