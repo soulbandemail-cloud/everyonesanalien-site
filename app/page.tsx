@@ -237,18 +237,18 @@ export default function Home() {
                 >
                   <ellipse
                     cx="60"
-                    cy="40"
+                    cy="35"
                     rx="40"
-                    ry="18"
+                    ry="25"
                     fill="none"
                     stroke="#7fffd4"
                     strokeWidth="5"
-                    transform="rotate(0 60 40)"
+                   
                   />
                 </svg>
               </span>
 
-              <span className="-ml-2">UL</span>
+              <span className="-ml-2">U L</span>
             </h1>
 
             <div className="h-[4px] bg-[#7fffd4] flex-1 ml-2" />
