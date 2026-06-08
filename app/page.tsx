@@ -8,6 +8,7 @@ import {
   FaTiktok,
   FaYoutube,
   FaEnvelope,
+  FaCompress,
   FaExpand,
   FaVolumeMute,
   FaVolumeUp,
@@ -95,7 +96,7 @@ const launchAlien = (e: React.PointerEvent<SVGSVGElement>) => {
 const clampTvPosition = (x: number, y: number) => {
   const tvWidth = tvRef.current?.offsetWidth ?? 320;
   const tvHeight = tvRef.current?.offsetHeight ?? 250;
-  const margin = 12;
+  const margin = window.innerWidth < 640 ? 8 : 12;
 
   return {
     x: Math.min(Math.max(margin, x), window.innerWidth - tvWidth - margin),
@@ -175,8 +176,10 @@ useEffect(() => {
 useEffect(() => {
   const placeTv = () => {
     setTvPos((current) => {
-      const fallbackX = window.innerWidth - Math.min(360, window.innerWidth * 0.84) - 26;
-      const fallbackY = window.innerHeight - 330;
+      const isMobile = window.innerWidth < 640;
+      const fallbackWidth = isMobile ? Math.min(216, window.innerWidth * 0.54) : Math.min(360, window.innerWidth * 0.84);
+      const fallbackX = window.innerWidth - fallbackWidth - (isMobile ? 8 : 26);
+      const fallbackY = isMobile ? window.innerHeight * 0.55 : window.innerHeight - 330;
 
       return clampTvPosition(current?.x ?? fallbackX, current?.y ?? fallbackY);
     });
@@ -384,11 +387,6 @@ return (
     onPointerDown={dragTv}
     aria-label="Floating space TV"
   >
-    <div className="space-tv-handle">
-      <span className="space-tv-antenna" />
-      <span className="space-tv-grip">···</span>
-    </div>
-
     <div className="space-tv-body">
       <div className="space-tv-screen">
         <div className="space-tv-static" />
@@ -414,7 +412,7 @@ return (
           onPointerDown={(e) => e.stopPropagation()}
           onClick={toggleTvFullscreen}
         >
-          <FaExpand />
+          {tvExpanded ? <FaCompress /> : <FaExpand />}
         </button>
       </div>
     </div>

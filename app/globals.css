@@ -158,77 +158,17 @@ body {
   cursor: grabbing;
 }
 
-.space-tv:fullscreen {
-  display: grid;
-  place-items: center;
-  width: 100vw;
-  height: 100vh;
-  background: #00082d;
-  cursor: default;
-}
-
-.space-tv:fullscreen .space-tv-body {
-  width: min(86vw, 980px);
-}
-
 .space-tv-expanded {
   display: grid;
   place-items: center;
-  width: 100vw;
-  height: 100vh;
+  width: 100dvw;
+  height: 100dvh;
   background: #00082d;
   cursor: default;
 }
 
 .space-tv-expanded .space-tv-body {
   width: min(86vw, 980px);
-}
-
-.space-tv-handle {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  height: 28px;
-  padding-right: 18%;
-}
-
-.space-tv-antenna {
-  position: relative;
-  width: 68px;
-  height: 28px;
-  border-top: 2px solid #ffccff;
-  filter: drop-shadow(0 0 7px rgba(255, 204, 255, 0.72));
-}
-
-.space-tv-antenna::before,
-.space-tv-antenna::after {
-  content: "";
-  position: absolute;
-  bottom: -2px;
-  width: 44px;
-  height: 2px;
-  background: #ffccff;
-  transform-origin: right center;
-  box-shadow: 0 0 8px rgba(255, 204, 255, 0.7);
-}
-
-.space-tv-antenna::before {
-  right: 50%;
-  transform: rotate(35deg);
-}
-
-.space-tv-antenna::after {
-  left: 50%;
-  transform-origin: left center;
-  transform: rotate(-35deg);
-}
-
-.space-tv-grip {
-  margin-left: 10px;
-  line-height: 1;
-  letter-spacing: 0.18em;
-  color: #ffccff;
-  text-shadow: 0 0 8px rgba(255, 204, 255, 0.8);
 }
 
 .space-tv-body {
@@ -351,22 +291,37 @@ body {
 
 @media (max-width: 640px) {
   .space-tv {
-    width: min(78vw, 280px);
+    width: min(54vw, 216px);
+  }
+
+  .space-tv.space-tv-expanded {
+    width: 100dvw;
+    height: 100dvh;
+  }
+
+  .space-tv.space-tv-expanded .space-tv-body {
+    width: min(90vw, 520px);
   }
 
   .space-tv-body {
     grid-template-columns: minmax(0, 1fr) 42px;
-    gap: 8px;
-    padding: 10px;
+    gap: 7px;
+    padding: 8px;
+    border-radius: 7px 7px 12px 12px;
   }
 
   .space-tv-screen {
-    min-height: 112px;
+    min-height: 82px;
   }
 
   .space-tv-panel button {
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .space-tv-screen p {
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
   }
 }
 
