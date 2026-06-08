@@ -151,11 +151,7 @@ body {
   touch-action: none;
   user-select: none;
   color: #ffccff;
-  cursor: grab;
-}
-
-.space-tv:active {
-  cursor: grabbing;
+  cursor: default;
 }
 
 .space-tv-expanded {
@@ -169,6 +165,76 @@ body {
 
 .space-tv-expanded .space-tv-body {
   width: min(86vw, 980px);
+}
+
+.space-tv-top {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 34px;
+  pointer-events: none;
+}
+
+.space-tv-handle {
+  width: min(46%, 146px);
+  height: 22px;
+  border: 2px solid #7fffd4;
+  border-bottom: 0;
+  border-radius: 999px 999px 0 0;
+  background: rgba(0, 8, 45, 0.8);
+  box-shadow:
+    0 0 9px rgba(127, 255, 212, 0.72),
+    inset 0 0 8px rgba(127, 255, 212, 0.18);
+  cursor: grab;
+  pointer-events: auto;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.space-tv-handle:hover,
+.space-tv-handle:active {
+  border-color: #ffffff;
+  box-shadow:
+    0 0 10px rgba(255, 255, 255, 0.78),
+    0 0 18px rgba(255, 204, 255, 0.32),
+    inset 0 0 8px rgba(255, 255, 255, 0.16);
+}
+
+.space-tv-handle:active {
+  cursor: grabbing;
+}
+
+.space-tv-antenna {
+  position: absolute;
+  right: 18px;
+  bottom: 1px;
+  width: 54px;
+  height: 58px;
+  pointer-events: none;
+  filter:
+    drop-shadow(0 0 6px rgba(127, 255, 212, 0.68))
+    drop-shadow(0 0 12px rgba(127, 255, 212, 0.25));
+}
+
+.space-tv-antenna::before,
+.space-tv-antenna::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 2px;
+  height: 58px;
+  background: #7fffd4;
+  transform-origin: bottom center;
+}
+
+.space-tv-antenna::before {
+  left: 50%;
+  transform: rotate(-24deg);
+}
+
+.space-tv-antenna::after {
+  right: 50%;
+  transform: rotate(24deg);
 }
 
 .space-tv-body {
@@ -278,6 +344,29 @@ body {
 
   .space-tv.space-tv-expanded .space-tv-body {
     width: min(90vw, 520px);
+  }
+
+  .space-tv-top {
+    height: 24px;
+  }
+
+  .space-tv-handle {
+    width: min(58%, 92px);
+    height: 17px;
+    border-width: 1px;
+  }
+
+  .space-tv-antenna {
+    right: 8px;
+    bottom: 1px;
+    width: 28px;
+    height: 34px;
+  }
+
+  .space-tv-antenna::before,
+  .space-tv-antenna::after {
+    height: 34px;
+    width: 1px;
   }
 
   .space-tv-body {

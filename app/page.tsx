@@ -386,11 +386,20 @@ return (
 
         return;
       }
-
-      dragTv(e);
     }}
     aria-label="Floating space TV"
   >
+    <div className="space-tv-top">
+      <div
+        role="button"
+        tabIndex={0}
+        className="space-tv-handle"
+        aria-label="Move TV"
+        onPointerDown={dragTv}
+      />
+      <span className="space-tv-antenna" aria-hidden="true" />
+    </div>
+
     <div className="space-tv-body">
       <div
         className="space-tv-screen"
