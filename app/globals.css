@@ -75,7 +75,7 @@ body {
   z-index: -1;
   width: 26px;
   height: 26px;
-  background: #ffccff;
+  background: #ffffff;
   clip-path: polygon(
     50% 0%,
     58% 42%,
@@ -87,7 +87,7 @@ body {
     42% 42%
   );
   filter:
-    drop-shadow(0 0 9px #ffccff)
+    drop-shadow(0 0 9px rgba(255, 204, 255, 0.9))
     drop-shadow(0 0 22px rgba(255, 204, 255, 0.58));
   opacity: 0.75;
 }
@@ -121,7 +121,7 @@ body {
   position: fixed;
   width: 18px;
   height: 18px;
-  background: #ffccff;
+  background: #ffffff;
   clip-path: polygon(
     50% 0%,
     58% 42%,
@@ -133,7 +133,7 @@ body {
     42% 42%
   );
   filter:
-    drop-shadow(0 0 9px #ffccff)
+    drop-shadow(0 0 9px rgba(255, 204, 255, 0.9))
     drop-shadow(0 0 22px rgba(255, 204, 255, 0.58));
   animation: star-glint 3.5s infinite ease-in-out;
 }
@@ -150,7 +150,7 @@ body {
   width: clamp(230px, 28vw, 340px);
   touch-action: none;
   user-select: none;
-  color: #ffccff;
+  color: #ffffff;
   cursor: default;
 }
 
@@ -195,9 +195,9 @@ body {
 .space-tv-handle:active {
   border-color: #ffffff;
   box-shadow:
-    0 0 10px rgba(255, 255, 255, 0.78),
+    0 0 10px rgba(255, 204, 255, 0.78),
     0 0 18px rgba(255, 204, 255, 0.32),
-    inset 0 0 8px rgba(255, 255, 255, 0.16);
+    inset 0 0 8px rgba(255, 204, 255, 0.16);
 }
 
 .space-tv-handle:active {
@@ -212,8 +212,8 @@ body {
   height: 58px;
   pointer-events: none;
   background:
-    radial-gradient(circle at 4px 5px, #7fffd4 0 4px, rgba(127, 255, 212, 0.44) 4px 8px, transparent 8px),
-    radial-gradient(circle at calc(100% - 4px) 5px, #7fffd4 0 4px, rgba(127, 255, 212, 0.44) 4px 8px, transparent 8px);
+    radial-gradient(circle at 4px 5px, #7fffd4 0 4px, transparent 4.5px),
+    radial-gradient(circle at calc(100% - 4px) 5px, #7fffd4 0 4px, transparent 4.5px);
 }
 
 .space-tv-antenna::before,
@@ -223,7 +223,7 @@ body {
   bottom: 0;
   width: 2px;
   height: 58px;
-  background: #ffccff;
+  background: #ffffff;
   box-shadow: 0 0 7px rgba(255, 204, 255, 0.72);
   transform-origin: bottom center;
 }
@@ -240,7 +240,7 @@ body {
 
 .space-tv-body {
   padding: 14px;
-  border: 2px solid #ffccff;
+  border: 2px solid #ffffff;
   border-radius: 8px 8px 16px 16px;
   background:
     linear-gradient(135deg, rgba(255, 204, 255, 0.22), transparent 22%),
@@ -274,7 +274,7 @@ body {
   margin: 0;
   font-size: clamp(1rem, 2.6vw, 1.65rem);
   letter-spacing: 0.28em;
-  color: #ffccff;
+  color: #ffffff;
   text-shadow:
     0 0 8px rgba(255, 204, 255, 0.95),
     0 0 20px rgba(255, 204, 255, 0.5);
@@ -363,8 +363,8 @@ body {
     width: 28px;
     height: 34px;
     background:
-      radial-gradient(circle at 2px 4px, #7fffd4 0 3px, rgba(127, 255, 212, 0.42) 3px 6px, transparent 6px),
-      radial-gradient(circle at calc(100% - 2px) 4px, #7fffd4 0 3px, rgba(127, 255, 212, 0.42) 3px 6px, transparent 6px);
+      radial-gradient(circle at 2px 4px, #7fffd4 0 3px, transparent 3.5px),
+      radial-gradient(circle at calc(100% - 2px) 4px, #7fffd4 0 3px, transparent 3.5px);
   }
 
   .space-tv-antenna::before,
@@ -507,7 +507,7 @@ body {
   height: 2px;
   opacity: 0;
   border-radius: 999px;
-  background: linear-gradient(90deg, transparent, #6ee7b7 70%, #ffccff);
+  background: linear-gradient(90deg, transparent, #6ee7b7 70%, #ffffff);
   filter:
     drop-shadow(0 0 6px #6ee7b7)
     drop-shadow(0 0 10px rgba(255, 204, 255, 0.55));
@@ -949,6 +949,6 @@ svg {
 
 .footer-alien-head:hover .footer-alien-head-fill,
 .footer-alien-head:active .footer-alien-head-fill {
-  fill: #ffccff;
+  fill: #ffffff;
   filter: drop-shadow(0 0 7px rgba(255, 204, 255, 0.72));
 }
