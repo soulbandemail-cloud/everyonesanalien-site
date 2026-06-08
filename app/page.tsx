@@ -8,8 +8,6 @@ import {
   FaTiktok,
   FaYoutube,
   FaEnvelope,
-  FaCompress,
-  FaExpand,
 } from "react-icons/fa";
 
 export default function Home() {
@@ -105,6 +103,7 @@ const clampTvPosition = (x: number, y: number) => {
 const dragTv = (e: React.PointerEvent<HTMLElement>) => {
   if (tvExpanded) return;
   if ((e.target as HTMLElement).closest("button")) return;
+  if ((e.target as HTMLElement).closest(".space-tv-screen")) return;
 
   e.preventDefault();
   e.stopPropagation();
@@ -129,10 +128,6 @@ const dragTv = (e: React.PointerEvent<HTMLElement>) => {
 
   window.addEventListener("pointermove", moveTv);
   window.addEventListener("pointerup", stopDragging);
-};
-
-const toggleTvFullscreen = () => {
-  setTvExpanded((expanded) => !expanded);
 };
 
   useEffect(() => {
@@ -383,11 +378,28 @@ return (
       left: tvExpanded ? "0px" : `${tvPos.x}px`,
       top: tvExpanded ? "0px" : `${tvPos.y}px`,
     }}
-    onPointerDown={dragTv}
+    onPointerDown={(e) => {
+      if (tvExpanded) {
+        if (e.target === e.currentTarget) {
+          setTvExpanded(false);
+        }
+
+        return;
+      }
+
+      dragTv(e);
+    }}
     aria-label="Floating space TV"
   >
     <div className="space-tv-body">
-      <div className="space-tv-screen">
+      <div
+        className="space-tv-screen"
+        onPointerDownCapture={() => {
+          if (!tvExpanded) {
+            setTvExpanded(true);
+          }
+        }}
+      >
         <iframe
           src="https://www.tiktok.com/embed/v2/7623124860574731543?autoplay=1&muted=1"
           title="SOUL music video"
@@ -397,17 +409,6 @@ return (
           className="space-tv-video"
         />
         <div className="space-tv-scanlines" />
-
-        <button
-          type="button"
-          className="space-tv-fullscreen"
-          aria-label={tvExpanded ? "Exit fullscreen TV" : "Fullscreen TV"}
-          title={tvExpanded ? "Exit fullscreen" : "Fullscreen"}
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={toggleTvFullscreen}
-        >
-          {tvExpanded ? <FaCompress /> : <FaExpand />}
-        </button>
       </div>
     </div>
   </aside>
