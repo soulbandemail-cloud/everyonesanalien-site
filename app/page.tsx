@@ -18,6 +18,7 @@ export default function Home() {
   const [tvPos, setTvPos] = useState<{ x: number; y: number } | null>(null);
   const [tvExpanded, setTvExpanded] = useState(false);
   const [tvStarted, setTvStarted] = useState(false);
+  const [tvSpark, setTvSpark] = useState(false);
 
   const [ufoPos, setUfoPos] = useState({ x: -100, y: -100 });
   const [hideCursorUfo, setHideCursorUfo] = useState(false);
@@ -129,6 +130,17 @@ const dragTv = (e: React.PointerEvent<HTMLElement>) => {
 
   window.addEventListener("pointermove", moveTv);
   window.addEventListener("pointerup", stopDragging);
+};
+
+const sparkTvAntenna = (e: React.PointerEvent<HTMLSpanElement>) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  setTvSpark(true);
+
+  window.setTimeout(() => {
+    setTvSpark(false);
+  }, 500);
 };
 
   useEffect(() => {
@@ -398,7 +410,30 @@ return (
         aria-label="Move TV"
         onPointerDown={dragTv}
       />
-      <span className="space-tv-antenna" aria-hidden="true" />
+      <span
+        className="space-tv-antenna"
+        role="button"
+        tabIndex={0}
+        aria-label="Spark TV antenna"
+        onPointerDown={sparkTvAntenna}
+      >
+        {tvSpark && (
+          <svg
+            viewBox="0 0 100 46"
+            className="space-tv-spark"
+            aria-hidden="true"
+          >
+            <polyline
+              points="8,24 28,10 42,30 58,12 72,32 92,18"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        )}
+      </span>
     </div>
 
     <div className="space-tv-body">
