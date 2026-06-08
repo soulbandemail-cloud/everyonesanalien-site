@@ -10,8 +10,6 @@ import {
   FaEnvelope,
   FaCompress,
   FaExpand,
-  FaVolumeMute,
-  FaVolumeUp,
 } from "react-icons/fa";
 
 export default function Home() {
@@ -20,7 +18,6 @@ export default function Home() {
   >("idle");
   const tvRef = useRef<HTMLElement | null>(null);
   const [tvPos, setTvPos] = useState<{ x: number; y: number } | null>(null);
-  const [tvMuted, setTvMuted] = useState(true);
   const [tvExpanded, setTvExpanded] = useState(false);
 
   const [ufoPos, setUfoPos] = useState({ x: -100, y: -100 });
@@ -392,29 +389,18 @@ return (
     <div className="space-tv-body">
       <div className="space-tv-screen">
         <iframe
-          src="https://www.tiktok.com/embed/v2/7623124860574731543"
+          src="https://www.tiktok.com/embed/v2/7623124860574731543?autoplay=1&muted=1"
           title="SOUL music video"
-          allow="fullscreen; encrypted-media; picture-in-picture"
+          allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
           allowFullScreen
           loading="lazy"
           className="space-tv-video"
         />
         <div className="space-tv-scanlines" />
-      </div>
-
-      <div className="space-tv-panel">
-        <button
-          type="button"
-          aria-label={tvMuted ? "Unmute TV" : "Mute TV"}
-          title={tvMuted ? "Unmute" : "Mute"}
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={() => setTvMuted((muted) => !muted)}
-        >
-          {tvMuted ? <FaVolumeMute /> : <FaVolumeUp />}
-        </button>
 
         <button
           type="button"
+          className="space-tv-fullscreen"
           aria-label={tvExpanded ? "Exit fullscreen TV" : "Fullscreen TV"}
           title={tvExpanded ? "Exit fullscreen" : "Fullscreen"}
           onPointerDown={(e) => e.stopPropagation()}

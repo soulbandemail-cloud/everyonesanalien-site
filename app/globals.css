@@ -172,9 +172,6 @@ body {
 }
 
 .space-tv-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 54px;
-  gap: 10px;
   padding: 14px;
   border: 2px solid #ffccff;
   border-radius: 8px 8px 16px 16px;
@@ -254,25 +251,19 @@ body {
   );
 }
 
-.space-tv-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-  border-left: 1px solid rgba(255, 204, 255, 0.42);
-  padding-left: 8px;
-}
-
-.space-tv-panel button {
+.space-tv-fullscreen {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 4;
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   border: 1px solid #ffccff;
   border-radius: 999px;
   color: #ffccff;
-  background: rgba(0, 8, 45, 0.72);
+  background: rgba(0, 8, 45, 0.82);
   box-shadow:
     0 0 8px rgba(255, 204, 255, 0.48),
     inset 0 0 5px rgba(255, 204, 255, 0.18);
@@ -280,8 +271,8 @@ body {
   cursor: pointer;
 }
 
-.space-tv-panel button:hover,
-.space-tv-panel button:active {
+.space-tv-fullscreen:hover,
+.space-tv-fullscreen:active {
   color: #7fffd4;
   border-color: #7fffd4;
   box-shadow:
@@ -314,8 +305,6 @@ body {
   }
 
   .space-tv-body {
-    grid-template-columns: minmax(0, 1fr) 30px;
-    gap: 5px;
     padding: 6px;
     border-radius: 7px 7px 12px 12px;
   }
@@ -325,9 +314,11 @@ body {
     border-width: 1px;
   }
 
-  .space-tv-panel button {
-    width: 22px;
-    height: 22px;
+  .space-tv-fullscreen {
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
     font-size: 0.72rem;
   }
 
