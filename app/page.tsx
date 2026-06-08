@@ -17,6 +17,7 @@ export default function Home() {
   const tvRef = useRef<HTMLElement | null>(null);
   const [tvPos, setTvPos] = useState<{ x: number; y: number } | null>(null);
   const [tvExpanded, setTvExpanded] = useState(false);
+  const [tvStarted, setTvStarted] = useState(false);
 
   const [ufoPos, setUfoPos] = useState({ x: -100, y: -100 });
   const [hideCursorUfo, setHideCursorUfo] = useState(false);
@@ -405,6 +406,7 @@ return (
         className="space-tv-screen"
         onPointerDownCapture={() => {
           if (!tvExpanded) {
+            setTvStarted(true);
             setTvExpanded(true);
           }
         }}
@@ -417,6 +419,7 @@ return (
           loading="lazy"
           className="space-tv-video"
         />
+        {!tvStarted && <div className="space-tv-poster" aria-hidden="true" />}
         <div className="space-tv-scanlines" />
       </div>
     </div>
