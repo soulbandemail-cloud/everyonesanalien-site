@@ -451,7 +451,7 @@ return (
 
 
 {(wishPrompt || wishPoof > 0) && (
-  <div className="relative flex min-h-[72px] justify-center mb-2">
+  <div className="relative flex min-h-[72px] justify-center mb-0">
     {wishPrompt && (
       <form
         className="wish-box"
