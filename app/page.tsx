@@ -373,7 +373,7 @@ return (
 {tvPos && (
   <aside
     ref={tvRef}
-    className={`space-tv pink-border-glow ${tvExpanded ? "space-tv-expanded" : ""}`}
+    className={`space-tv ${tvExpanded ? "space-tv-expanded" : ""}`}
     style={{
       left: tvExpanded ? "0px" : `${tvPos.x}px`,
       top: tvExpanded ? "0px" : `${tvPos.y}px`,

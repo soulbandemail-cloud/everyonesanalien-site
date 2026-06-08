@@ -211,9 +211,9 @@ body {
   width: 54px;
   height: 58px;
   pointer-events: none;
-  filter:
-    drop-shadow(0 0 6px rgba(127, 255, 212, 0.68))
-    drop-shadow(0 0 12px rgba(127, 255, 212, 0.25));
+  background:
+    radial-gradient(circle at 4px 5px, #7fffd4 0 4px, rgba(127, 255, 212, 0.44) 4px 8px, transparent 8px),
+    radial-gradient(circle at calc(100% - 4px) 5px, #7fffd4 0 4px, rgba(127, 255, 212, 0.44) 4px 8px, transparent 8px);
 }
 
 .space-tv-antenna::before,
@@ -223,7 +223,8 @@ body {
   bottom: 0;
   width: 2px;
   height: 58px;
-  background: #7fffd4;
+  background: #ffccff;
+  box-shadow: 0 0 7px rgba(255, 204, 255, 0.72);
   transform-origin: bottom center;
 }
 
@@ -361,6 +362,9 @@ body {
     bottom: 1px;
     width: 28px;
     height: 34px;
+    background:
+      radial-gradient(circle at 2px 4px, #7fffd4 0 3px, rgba(127, 255, 212, 0.42) 3px 6px, transparent 6px),
+      radial-gradient(circle at calc(100% - 2px) 4px, #7fffd4 0 3px, rgba(127, 255, 212, 0.42) 3px 6px, transparent 6px);
   }
 
   .space-tv-antenna::before,
