@@ -381,11 +381,11 @@ return (
               className="group relative inline-flex items-center justify-center w-28 h-24 mx-0 overflow-hidden">
                 <svg
   viewBox="0 0 100 100"
-  className="planet-heart-glow absolute -translate-y-0.5 w-8 h-8 z-30 cursor-pointer"
+  className="absolute -translate-y-0.5 w-8 h-8 z-30 cursor-pointer"
   onClick={toggleUfoOrbit}
 >
                   <path
-                    className="fill-[#7fffd4] transition-colors duration-200 group-hover:fill-[#ffccff] group-active:fill-[#ffccff]"
+                    className="planet-heart-glow fill-[#7fffd4] transition-colors duration-200 group-hover:fill-[#ffccff] group-active:fill-[#ffccff]"
                     d="
                       M50 86
                       C42 76 20 62 14 45
@@ -400,7 +400,7 @@ return (
                 </svg>
 
                 <svg
-  className={`planet-heart-glow orbital-ring absolute inset-0 w-full h-full z-20 cursor-pointer ${
+  className={`orbital-ring absolute inset-0 w-full h-full z-20 cursor-pointer ${
   ringBlinking ? "orbital-ring-blink-now" : ""
 }`}
   viewBox="0 0 120 80"
@@ -411,7 +411,7 @@ return (
     cy="39"
     rx="40"
     ry="21"
-    className="fill-transparent stroke-[#7fffd4] transition-colors duration-200 group-hover:fill-[#7fffd4] group-active:fill-[#7fffd4]"
+    className="planet-heart-glow fill-transparent stroke-[#7fffd4] transition-colors duration-200 group-hover:fill-[#7fffd4] group-active:fill-[#7fffd4]"
     strokeWidth="5"
   />
 </svg>
