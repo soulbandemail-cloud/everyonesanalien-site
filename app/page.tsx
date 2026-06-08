@@ -384,8 +384,15 @@ return (
   className="absolute -translate-y-0.5 w-8 h-8 z-30 cursor-pointer"
   onClick={toggleUfoOrbit}
 >
+                  <defs>
+                    <filter id="heartGlow" x="-80%" y="-80%" width="260%" height="260%">
+                      <feDropShadow dx="0" dy="0" stdDeviation="5" floodColor="#7fffd4" floodOpacity="0.9" />
+                      <feDropShadow dx="0" dy="0" stdDeviation="11" floodColor="#7fffd4" floodOpacity="0.35" />
+                    </filter>
+                  </defs>
                   <path
-                    className="planet-heart-glow fill-[#7fffd4] transition-colors duration-200 group-hover:fill-[#ffccff] group-active:fill-[#ffccff]"
+                    filter="url(#heartGlow)"
+                    className="fill-[#7fffd4] transition-colors duration-200 group-hover:fill-[#ffccff] group-active:fill-[#ffccff]"
                     d="
                       M50 86
                       C42 76 20 62 14 45
@@ -406,12 +413,19 @@ return (
   viewBox="0 0 120 80"
   onClick={toggleUfoOrbit}
 >
+  <defs>
+    <filter id="orbitGlow" x="-50%" y="-80%" width="200%" height="260%">
+      <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#7fffd4" floodOpacity="0.85" />
+      <feDropShadow dx="0" dy="0" stdDeviation="10" floodColor="#7fffd4" floodOpacity="0.32" />
+    </filter>
+  </defs>
   <ellipse
     cx="60"
     cy="39"
     rx="40"
     ry="21"
-    className="planet-heart-glow fill-transparent stroke-[#7fffd4] transition-colors duration-200 group-hover:fill-[#7fffd4] group-active:fill-[#7fffd4]"
+    filter="url(#orbitGlow)"
+    className="fill-transparent stroke-[#7fffd4] transition-colors duration-200 group-hover:fill-[#7fffd4] group-active:fill-[#7fffd4]"
     strokeWidth="5"
   />
 </svg>
