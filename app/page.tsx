@@ -391,9 +391,15 @@ return (
   >
     <div className="space-tv-body">
       <div className="space-tv-screen">
-        <div className="space-tv-static" />
+        <iframe
+          src="https://www.tiktok.com/embed/v2/7623124860574731543"
+          title="SOUL music video"
+          allow="fullscreen; encrypted-media; picture-in-picture"
+          allowFullScreen
+          loading="lazy"
+          className="space-tv-video"
+        />
         <div className="space-tv-scanlines" />
-        <p>NO SIGNAL</p>
       </div>
 
       <div className="space-tv-panel">
