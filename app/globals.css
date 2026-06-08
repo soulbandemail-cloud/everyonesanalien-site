@@ -167,6 +167,14 @@ body {
   width: min(86vw, 980px);
 }
 
+.space-tv-expanded .space-tv-top {
+  display: none;
+}
+
+.space-tv-expanded .space-tv-antenna {
+  display: none;
+}
+
 .space-tv-top {
   position: relative;
   display: flex;
@@ -363,8 +371,8 @@ body {
     width: 28px;
     height: 34px;
     background:
-      radial-gradient(circle at 2px 4px, #7fffd4 0 3px, transparent 3.5px),
-      radial-gradient(circle at calc(100% - 2px) 4px, #7fffd4 0 3px, transparent 3.5px);
+      radial-gradient(circle at 5px 5px, #7fffd4 0 3px, transparent 3.5px),
+      radial-gradient(circle at calc(100% - 5px) 5px, #7fffd4 0 3px, transparent 3.5px);
   }
 
   .space-tv-antenna::before,

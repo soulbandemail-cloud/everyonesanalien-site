@@ -173,7 +173,7 @@ useEffect(() => {
       const fallbackWidth = isMobile ? Math.min(140, window.innerWidth * 0.35) : Math.min(360, window.innerWidth * 0.84);
       const fallbackHeight = isMobile ? 92 : 250;
       const fallbackX = window.innerWidth - fallbackWidth - (isMobile ? 8 : 26);
-      const fallbackY = isMobile ? window.innerHeight - fallbackHeight - 128 : window.innerHeight - 380;
+      const fallbackY = isMobile ? window.innerHeight - fallbackHeight - 108 : window.innerHeight - 380;
 
       return clampTvPosition(current?.x ?? fallbackX, current?.y ?? fallbackY);
     });
