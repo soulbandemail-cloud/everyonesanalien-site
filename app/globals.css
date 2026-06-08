@@ -291,7 +291,7 @@ body {
 
 @media (max-width: 640px) {
   .space-tv {
-    width: min(54vw, 216px);
+    width: min(35vw, 140px);
   }
 
   .space-tv.space-tv-expanded {
@@ -304,24 +304,26 @@ body {
   }
 
   .space-tv-body {
-    grid-template-columns: minmax(0, 1fr) 42px;
-    gap: 7px;
-    padding: 8px;
+    grid-template-columns: minmax(0, 1fr) 30px;
+    gap: 5px;
+    padding: 6px;
     border-radius: 7px 7px 12px 12px;
   }
 
   .space-tv-screen {
-    min-height: 82px;
+    min-height: 52px;
+    border-width: 1px;
   }
 
   .space-tv-panel button {
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
+    font-size: 0.72rem;
   }
 
   .space-tv-screen p {
-    font-size: 0.72rem;
-    letter-spacing: 0.2em;
+    font-size: 0.5rem;
+    letter-spacing: 0.16em;
   }
 }
 

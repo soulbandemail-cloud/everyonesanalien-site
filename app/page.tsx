@@ -94,9 +94,10 @@ const launchAlien = (e: React.PointerEvent<SVGSVGElement>) => {
 };
 
 const clampTvPosition = (x: number, y: number) => {
-  const tvWidth = tvRef.current?.offsetWidth ?? 320;
-  const tvHeight = tvRef.current?.offsetHeight ?? 250;
-  const margin = window.innerWidth < 640 ? 8 : 12;
+  const isMobile = window.innerWidth < 640;
+  const tvWidth = tvRef.current?.offsetWidth ?? (isMobile ? Math.min(140, window.innerWidth * 0.35) : 320);
+  const tvHeight = tvRef.current?.offsetHeight ?? (isMobile ? 80 : 250);
+  const margin = isMobile ? 8 : 12;
 
   return {
     x: Math.min(Math.max(margin, x), window.innerWidth - tvWidth - margin),
@@ -177,9 +178,10 @@ useEffect(() => {
   const placeTv = () => {
     setTvPos((current) => {
       const isMobile = window.innerWidth < 640;
-      const fallbackWidth = isMobile ? Math.min(216, window.innerWidth * 0.54) : Math.min(360, window.innerWidth * 0.84);
+      const fallbackWidth = isMobile ? Math.min(140, window.innerWidth * 0.35) : Math.min(360, window.innerWidth * 0.84);
+      const fallbackHeight = isMobile ? 92 : 250;
       const fallbackX = window.innerWidth - fallbackWidth - (isMobile ? 8 : 26);
-      const fallbackY = isMobile ? window.innerHeight * 0.55 : window.innerHeight - 330;
+      const fallbackY = isMobile ? window.innerHeight - fallbackHeight - 78 : window.innerHeight - 330;
 
       return clampTvPosition(current?.x ?? fallbackX, current?.y ?? fallbackY);
     });
