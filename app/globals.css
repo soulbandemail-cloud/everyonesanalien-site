@@ -31,7 +31,7 @@ body {
   z-index: -1;
   width: 26px;
   height: 26px;
-  background: #fce6fc;
+  background: #ffccff;
   clip-path: polygon(
     50% 0%,
     58% 42%,
@@ -42,7 +42,7 @@ body {
     0% 50%,
     42% 42%
   );
-  filter: drop-shadow(0 0 6px #fce6fc);
+  filter: drop-shadow(0 0 6px #ffccff);
   opacity: 0.75;
 }
 
@@ -75,7 +75,7 @@ body {
   position: fixed;
   width: 18px;
   height: 18px;
-  background: #fce6fc;
+  background: #ffccff;
   clip-path: polygon(
     50% 0%,
     58% 42%,
@@ -86,7 +86,7 @@ body {
     0% 50%,
     42% 42%
   );
-  filter: drop-shadow(0 0 6px #fce6fc);
+  filter: drop-shadow(0 0 6px #ffccff);
   animation: star-glint 3.5s infinite ease-in-out;
 }
 
@@ -214,7 +214,7 @@ body {
   height: 2px;
   opacity: 0;
   border-radius: 999px;
-  background: linear-gradient(90deg, transparent, #6ee7b7 70%, #fce6fc);
+  background: linear-gradient(90deg, transparent, #6ee7b7 70%, #ffccff);
   filter: drop-shadow(0 0 6px #6ee7b7);
   transform-origin: right center;
 }
@@ -654,5 +654,5 @@ svg {
 
 .footer-alien-head:hover .footer-alien-head-fill,
 .footer-alien-head:active .footer-alien-head-fill {
-  fill: #fce6fc;
+  fill: #ffccff;
 }

@@ -185,7 +185,7 @@ return (
       }}
     >
       <svg viewBox="0 0 120 80" className="w-10 h-10 opacity-95">
-        <ellipse cx="60" cy="42" rx="42" ry="12" fill="#fce6fc" />
+        <ellipse cx="60" cy="42" rx="42" ry="12" fill="#ffccff" />
 
         <ellipse
           cx="60"
@@ -193,7 +193,7 @@ return (
           rx="22"
           ry="17"
           fill="none"
-          stroke="#fce6fc"
+          stroke="#ffccff"
           strokeWidth="5"
         />
 
@@ -203,21 +203,21 @@ return (
 
         <path
           d="M46 56 L34 74"
-          stroke="#fce6fc"
+          stroke="#ffccff"
           strokeWidth="3"
           strokeLinecap="round"
           opacity="0.55"
         />
         <path
           d="M60 58 L60 78"
-          stroke="#fce6fc"
+          stroke="#ffccff"
           strokeWidth="3"
           strokeLinecap="round"
           opacity="0.4"
         />
         <path
           d="M74 56 L86 74"
-          stroke="#fce6fc"
+          stroke="#ffccff"
           strokeWidth="3"
           strokeLinecap="round"
           opacity="0.55"
@@ -318,7 +318,7 @@ return (
   <span className="shooting-star shooting-star-10" onPointerDown={catchShootingStar}></span>
 </div>
 
-      <main className="min-h-screen text-[#fce6fc] p-8 md:p-12 max-w-12xl mx-auto">
+      <main className="min-h-screen text-[#ffccff] p-8 md:p-12 max-w-12xl mx-auto">
         <div className="flex flex-nowrap justify-center gap-10 sm:gap-10 mb-0 md:mb-4">
           <a
             href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
@@ -365,15 +365,15 @@ return (
         </div>
 
         <div className="relative mt-8 mb-0 -mx-8 md:-mx-12 overflow-hidden">
-          <p className="text-center text-[#fce6fc] text-sm md:text-sm tracking-[0.2em] uppercase mb-[-0.7rem]">
+          <p className="text-center text-[#ffccff] text-sm md:text-sm tracking-[0.2em] uppercase mb-[-0.7rem]">
             a band called...
           </p>
           
 
           <div className="flex items-center justify-center w-full mt-0">
-            <div className="h-[4px] bg-[#fce6fc] flex-1 mr-2" />
+            <div className="h-[4px] bg-[#ffccff] flex-1 mr-2" />
 
-            <h1 className="relative z-10 text-6xl font-bold text-center flex justify-center items-center text-[#fce6fc] shrink-0">
+            <h1 className="relative z-10 text-6xl font-bold text-center flex justify-center items-center text-[#ffccff] shrink-0">
               <span className="-mr-4">S</span>
 
               <span 
@@ -385,7 +385,7 @@ return (
   onClick={toggleUfoOrbit}
 >
                   <path
-                    className="fill-[#7fffd4] transition-colors duration-200 group-hover:fill-[#fce6fc] group-active:fill-[#fce6fc]"
+                    className="fill-[#7fffd4] transition-colors duration-200 group-hover:fill-[#ffccff] group-active:fill-[#ffccff]"
                     d="
                       M50 86
                       C42 76 20 62 14 45
@@ -421,14 +421,14 @@ return (
       viewBox="0 0 120 80"
       className="ufo-on-orbit absolute left-0 top-0 w-8 h-8 opacity-95"
     >
-      <ellipse cx="60" cy="42" rx="42" ry="12" fill="#fce6fc" />
+      <ellipse cx="60" cy="42" rx="42" ry="12" fill="#ffccff" />
       <ellipse
         cx="60"
         cy="35"
         rx="22"
         ry="17"
         fill="none"
-        stroke="#fce6fc"
+        stroke="#ffccff"
         strokeWidth="5"
       />
       <circle cx="38" cy="44" r="3" fill="black" />
@@ -445,7 +445,7 @@ return (
               <span className="-ml-3">UL</span>
             </h1>
 
-            <div className="h-[4px] bg-[#fce6fc] flex-1 ml-2" />
+            <div className="h-[4px] bg-[#ffccff] flex-1 ml-2" />
           </div>
         </div>
 
@@ -471,7 +471,7 @@ return (
           }}
           placeholder="MAKE A WISH!"
           autoFocus
-          className="border border-[#fce6fc] bg-[#00082d] focus:bg-[#00082d] px-3 py-2 text-[#fce6fc] placeholder:text-[#fce6fc]/70 outline-none focus:border-[#7fffd4]"
+          className="border border-[#ffccff] bg-[#00082d] focus:bg-[#00082d] px-3 py-2 text-[#ffccff] placeholder:text-[#ffccff]/70 outline-none focus:border-[#7fffd4]"
         />
       </form>
     )}
@@ -540,7 +540,7 @@ return (
                 name="name"
                 type="text"
                 placeholder="NAME"
-                className="border border-[#fce6fc] bg-[#00082d] p-2"
+                className="border border-[#ffccff] bg-[#00082d] p-2"
                 required
               />
 
@@ -548,12 +548,12 @@ return (
                 name="email"
                 type="email"
                 placeholder="EMAIL"
-                className="border border-[#fce6fc] bg-[#00082d] p-2"
+                className="border border-[#ffccff] bg-[#00082d] p-2"
                 required
               />
 
               <button
-                className="border border-[#fce6fc] p-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] active:bg-[#6ee7b7] active:border-[#6ee7b7] active:text-[#00082d] transition-all duration-200 disabled:opacity-50"
+                className="border border-[#ffccff] p-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] active:bg-[#6ee7b7] active:border-[#6ee7b7] active:text-[#00082d] transition-all duration-200 disabled:opacity-50"
                 disabled={status === "loading"}
               >
                 {status === "loading" ? "MATING..." : "SIGN UP"}
@@ -561,7 +561,7 @@ return (
             </form>
 
             {status === "success" && (
-              <div className="mt-4 border border-[#fce6fc] p-3">
+              <div className="mt-4 border border-[#ffccff] p-3">
                 WELCOME ABOARD.
                 <br />
                 You are now a Mate of the Band!
@@ -575,7 +575,7 @@ return (
             )}
 
             {status === "already" && (
-              <div className="mt-4 border border-[#fce6fc] p-3">
+              <div className="mt-4 border border-[#ffccff] p-3">
                 You&apos;re already a Mate, mate.
               </div>
             )}
@@ -590,7 +590,7 @@ return (
                   href="https://link.dice.fm/Md31a985f532?dice_id=Md31a985f532"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-block border border-[#fce6fc] px-3 py-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] active:bg-[#6ee7b7] active:border-[#6ee7b7] active:text-[#00082d] transition-all duration-200"
+                  className="inline-block border border-[#ffccff] px-3 py-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] active:bg-[#6ee7b7] active:border-[#6ee7b7] active:text-[#00082d] transition-all duration-200"
                 >
                   LONDON 25th June
                 </a>
@@ -613,7 +613,7 @@ return (
 
 
 
-               <div className="fixed bottom-0 inset-x-0 z-40 overflow-hidden border-t border-[#fce6fc] bg-[#00082d]/80 py-2">
+               <div className="fixed bottom-0 inset-x-0 z-40 overflow-hidden border-t border-[#ffccff] bg-[#00082d]/80 py-2">
   <div className="alien-footer-marquee flex w-max items-center">
     {[0, 1].map((track) => (
       <div key={track} className="flex items-center gap-8 px-4 shrink-0">
@@ -650,7 +650,7 @@ return (
         <button
           type="button"
           onClick={() => window.location.reload()}
-          className="shrink-0 mx-2 px-4 py-1 border border-[#6ee7b7] text-[#6ee7b7] text-sm md:text-base font-bold tracking-[0.25em] pointer-events-auto transition-all duration-200 hover:bg-[#6ee7b7] hover:text-[#00082d] active:bg-[#fce6fc] active:border-[#fce6fc] active:text-[#00082d]"
+          className="shrink-0 mx-2 px-4 py-1 border border-[#6ee7b7] text-[#6ee7b7] text-sm md:text-base font-bold tracking-[0.25em] pointer-events-auto transition-all duration-200 hover:bg-[#6ee7b7] hover:text-[#00082d] active:bg-[#ffccff] active:border-[#ffccff] active:text-[#00082d]"
         >
           everyonesanalien.com
         </button>
