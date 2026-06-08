@@ -324,7 +324,7 @@ return (
             href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
             target="_blank"
             rel="noopener noreferrer"
-            className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
+            className="pink-icon-glow transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
           >
             <FaSpotify size={48} />
           </a>
@@ -333,7 +333,7 @@ return (
             href="https://www.instagram.com/everyonesanalien/"
             target="_blank"
             rel="noopener noreferrer"
-            className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
+            className="pink-icon-glow transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
           >
             <FaInstagram size={48} />
           </a>
@@ -342,7 +342,7 @@ return (
             href="https://www.tiktok.com/@everyonesanalien?lang=en-GB"
             target="_blank"
             rel="noopener noreferrer"
-            className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
+            className="pink-icon-glow transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
           >
             <FaTiktok size={48} />
           </a>
@@ -351,14 +351,14 @@ return (
             href="https://www.youtube.com/channel/UCTp_Wb8HBHWMQxXvNzxkksg"
             target="_blank"
             rel="noopener noreferrer"
-            className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
+            className="pink-icon-glow transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
           >
             <FaYoutube size={48} />
           </a>
 
           <a
             href="mailto:soul.band.email@gmail.com"
-            className="transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
+            className="pink-icon-glow transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
           >
             <FaEnvelope size={48} />
           </a>
@@ -381,7 +381,7 @@ return (
               className="group relative inline-flex items-center justify-center w-28 h-24 mx-0 overflow-hidden">
                 <svg
   viewBox="0 0 100 100"
-  className="absolute -translate-y-0.5 w-8 h-8 z-30 cursor-pointer"
+  className="planet-heart-glow absolute -translate-y-0.5 w-8 h-8 z-30 cursor-pointer"
   onClick={toggleUfoOrbit}
 >
                   <path
@@ -400,7 +400,7 @@ return (
                 </svg>
 
                 <svg
-  className={`orbital-ring absolute inset-0 w-full h-full z-20 cursor-pointer ${
+  className={`planet-heart-glow orbital-ring absolute inset-0 w-full h-full z-20 cursor-pointer ${
   ringBlinking ? "orbital-ring-blink-now" : ""
 }`}
   viewBox="0 0 120 80"

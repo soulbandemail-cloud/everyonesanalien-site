@@ -42,6 +42,25 @@ body {
     drop-shadow(0 0 14px rgba(255, 204, 255, 0.28));
 }
 
+.pink-icon-glow {
+  filter:
+    drop-shadow(0 0 5px rgba(255, 204, 255, 0.78))
+    drop-shadow(0 0 12px rgba(255, 204, 255, 0.3));
+}
+
+.planet-heart-glow {
+  filter:
+    drop-shadow(0 0 6px rgba(127, 255, 212, 0.72))
+    drop-shadow(0 0 16px rgba(127, 255, 212, 0.28));
+}
+
+.group:hover .planet-heart-glow,
+.group:active .planet-heart-glow {
+  filter:
+    drop-shadow(0 0 7px rgba(255, 204, 255, 0.78))
+    drop-shadow(0 0 17px rgba(255, 204, 255, 0.34));
+}
+
 .stars {
   position: fixed;
   inset: 0;
@@ -68,8 +87,8 @@ body {
     42% 42%
   );
   filter:
-    drop-shadow(0 0 7px #ffccff)
-    drop-shadow(0 0 18px rgba(255, 204, 255, 0.45));
+    drop-shadow(0 0 9px #ffccff)
+    drop-shadow(0 0 22px rgba(255, 204, 255, 0.58));
   opacity: 0.75;
 }
 
@@ -114,8 +133,8 @@ body {
     42% 42%
   );
   filter:
-    drop-shadow(0 0 7px #ffccff)
-    drop-shadow(0 0 18px rgba(255, 204, 255, 0.45));
+    drop-shadow(0 0 9px #ffccff)
+    drop-shadow(0 0 22px rgba(255, 204, 255, 0.58));
   animation: star-glint 3.5s infinite ease-in-out;
 }
 
