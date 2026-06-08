@@ -8,12 +8,19 @@ import {
   FaTiktok,
   FaYoutube,
   FaEnvelope,
+  FaExpand,
+  FaVolumeMute,
+  FaVolumeUp,
 } from "react-icons/fa";
 
 export default function Home() {
   const [status, setStatus] = useState<
     "idle" | "loading" | "success" | "already" | "error"
   >("idle");
+  const tvRef = useRef<HTMLElement | null>(null);
+  const [tvPos, setTvPos] = useState<{ x: number; y: number } | null>(null);
+  const [tvMuted, setTvMuted] = useState(true);
+  const [tvExpanded, setTvExpanded] = useState(false);
 
   const [ufoPos, setUfoPos] = useState({ x: -100, y: -100 });
   const [hideCursorUfo, setHideCursorUfo] = useState(false);
@@ -85,6 +92,50 @@ const launchAlien = (e: React.PointerEvent<SVGSVGElement>) => {
   ]);
 };
 
+const clampTvPosition = (x: number, y: number) => {
+  const tvWidth = tvRef.current?.offsetWidth ?? 320;
+  const tvHeight = tvRef.current?.offsetHeight ?? 250;
+  const margin = 12;
+
+  return {
+    x: Math.min(Math.max(margin, x), window.innerWidth - tvWidth - margin),
+    y: Math.min(Math.max(margin, y), window.innerHeight - tvHeight - 70),
+  };
+};
+
+const dragTv = (e: React.PointerEvent<HTMLElement>) => {
+  if (tvExpanded) return;
+  if ((e.target as HTMLElement).closest("button")) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  const startX = e.clientX;
+  const startY = e.clientY;
+  const startPos = tvPos ?? clampTvPosition(window.innerWidth - 340, window.innerHeight - 320);
+
+  const moveTv = (moveEvent: PointerEvent) => {
+    setTvPos(
+      clampTvPosition(
+        startPos.x + moveEvent.clientX - startX,
+        startPos.y + moveEvent.clientY - startY
+      )
+    );
+  };
+
+  const stopDragging = () => {
+    window.removeEventListener("pointermove", moveTv);
+    window.removeEventListener("pointerup", stopDragging);
+  };
+
+  window.addEventListener("pointermove", moveTv);
+  window.addEventListener("pointerup", stopDragging);
+};
+
+const toggleTvFullscreen = () => {
+  setTvExpanded((expanded) => !expanded);
+};
+
   useEffect(() => {
   const moveUfo = (e: PointerEvent) => {
     setUfoPos({
@@ -120,6 +171,24 @@ useEffect(() => {
     window.removeEventListener("pointerdown", respawnUfo);
   };
 }, [hideCursorUfo]);
+
+useEffect(() => {
+  const placeTv = () => {
+    setTvPos((current) => {
+      const fallbackX = window.innerWidth - Math.min(360, window.innerWidth * 0.84) - 26;
+      const fallbackY = window.innerHeight - 330;
+
+      return clampTvPosition(current?.x ?? fallbackX, current?.y ?? fallbackY);
+    });
+  };
+
+  placeTv();
+  window.addEventListener("resize", placeTv);
+
+  return () => {
+    window.removeEventListener("resize", placeTv);
+  };
+}, []);
 
 useEffect(() => {
   const interval = window.setInterval(() => {
@@ -303,6 +372,54 @@ return (
         <span className="star star-4"></span>
         <span className="star star-5"></span>
       </div>
+
+{tvPos && (
+  <aside
+    ref={tvRef}
+    className={`space-tv pink-border-glow ${tvExpanded ? "space-tv-expanded" : ""}`}
+    style={{
+      left: tvExpanded ? "0px" : `${tvPos.x}px`,
+      top: tvExpanded ? "0px" : `${tvPos.y}px`,
+    }}
+    onPointerDown={dragTv}
+    aria-label="Floating space TV"
+  >
+    <div className="space-tv-handle">
+      <span className="space-tv-antenna" />
+      <span className="space-tv-grip">···</span>
+    </div>
+
+    <div className="space-tv-body">
+      <div className="space-tv-screen">
+        <div className="space-tv-static" />
+        <div className="space-tv-scanlines" />
+        <p>NO SIGNAL</p>
+      </div>
+
+      <div className="space-tv-panel">
+        <button
+          type="button"
+          aria-label={tvMuted ? "Unmute TV" : "Mute TV"}
+          title={tvMuted ? "Unmute" : "Mute"}
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={() => setTvMuted((muted) => !muted)}
+        >
+          {tvMuted ? <FaVolumeMute /> : <FaVolumeUp />}
+        </button>
+
+        <button
+          type="button"
+          aria-label={tvExpanded ? "Exit fullscreen TV" : "Fullscreen TV"}
+          title={tvExpanded ? "Exit fullscreen" : "Fullscreen"}
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={toggleTvFullscreen}
+        >
+          <FaExpand />
+        </button>
+      </div>
+    </div>
+  </aside>
+)}
 
 <div className="shooting-stars">
   <span className="shooting-star shooting-star-launch" onPointerDown={catchShootingStar}></span>
