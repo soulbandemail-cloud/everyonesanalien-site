@@ -15,10 +15,14 @@ export default function Home() {
     "idle" | "loading" | "success" | "already" | "error"
   >("idle");
   const tvRef = useRef<HTMLElement | null>(null);
+  const antennaRef = useRef<HTMLSpanElement | null>(null);
+  const tvSparkActiveRef = useRef(false);
+  const tvSparkTimeoutRef = useRef<number | null>(null);
   const [tvPos, setTvPos] = useState<{ x: number; y: number } | null>(null);
   const [tvExpanded, setTvExpanded] = useState(false);
   const [tvStarted, setTvStarted] = useState(false);
   const [tvSpark, setTvSpark] = useState(false);
+  const [tvSparkBurst, setTvSparkBurst] = useState(0);
 
   const [ufoPos, setUfoPos] = useState({ x: -100, y: -100 });
   const [hideCursorUfo, setHideCursorUfo] = useState(false);
@@ -32,6 +36,8 @@ export default function Home() {
     vx: number;
     vy: number;
     spin: number;
+    stunnedUntil?: number;
+    skullUntil?: number;
   }[]
 >([]);
 
@@ -132,15 +138,31 @@ const dragTv = (e: React.PointerEvent<HTMLElement>) => {
   window.addEventListener("pointerup", stopDragging);
 };
 
+const activateTvSpark = (duration = 500, burst = false) => {
+  tvSparkActiveRef.current = true;
+  setTvSpark(true);
+
+  if (burst) {
+    setTvSparkBurst(Date.now());
+  }
+
+  if (tvSparkTimeoutRef.current) {
+    window.clearTimeout(tvSparkTimeoutRef.current);
+  }
+
+  tvSparkTimeoutRef.current = window.setTimeout(() => {
+    tvSparkActiveRef.current = false;
+    setTvSpark(false);
+    setTvSparkBurst(0);
+    tvSparkTimeoutRef.current = null;
+  }, duration);
+};
+
 const sparkTvAntenna = (e: React.PointerEvent<HTMLSpanElement>) => {
   e.preventDefault();
   e.stopPropagation();
 
-  setTvSpark(true);
-
-  window.setTimeout(() => {
-    setTvSpark(false);
-  }, 500);
+  activateTvSpark();
 };
 
   useEffect(() => {
@@ -201,6 +223,14 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
+  return () => {
+    if (tvSparkTimeoutRef.current) {
+      window.clearTimeout(tvSparkTimeoutRef.current);
+    }
+  };
+}, []);
+
+useEffect(() => {
   const interval = window.setInterval(() => {
     setFlyingAliens((aliens) => {
       if (!orbitRef.current) return aliens;
@@ -208,14 +238,49 @@ useEffect(() => {
       const rect = orbitRef.current.getBoundingClientRect();
       const heartX = rect.left + rect.width / 2;
       const heartY = rect.top + rect.height / 2;
+      const sparkRect = tvSparkActiveRef.current
+        ? antennaRef.current?.getBoundingClientRect()
+        : null;
+      const sparkX = sparkRect ? sparkRect.left + sparkRect.width / 2 : 0;
+      const sparkY = sparkRect ? sparkRect.top + sparkRect.height * 0.22 : 0;
+      const sparkRadius = window.innerWidth < 640 ? 26 : 38;
+      const now = Date.now();
 
       return aliens
         .map((alien) => {
+          if (alien.stunnedUntil && now < alien.stunnedUntil) {
+            return alien;
+          }
+
+          const activeAlien =
+            alien.stunnedUntil && now >= alien.stunnedUntil
+              ? { ...alien, stunnedUntil: undefined, skullUntil: undefined }
+              : alien;
+
           const next = {
-            ...alien,
-            x: alien.x + alien.vx,
-            y: alien.y + alien.vy,
+            ...activeAlien,
+            x: activeAlien.x + activeAlien.vx,
+            y: activeAlien.y + activeAlien.vy,
           };
+
+          const hitSpark =
+            sparkRect &&
+            !activeAlien.stunnedUntil &&
+            Math.hypot(next.x - sparkX, next.y - sparkY) < sparkRadius;
+
+          if (hitSpark) {
+            const stunnedUntil = now + 2200;
+
+            activateTvSpark(2300, true);
+
+            return {
+              ...next,
+              x: sparkX,
+              y: sparkY,
+              stunnedUntil,
+              skullUntil: stunnedUntil,
+            };
+          }
 
           const hitHeart = Math.hypot(next.x - heartX, next.y - heartY) < 42;
 
@@ -304,11 +369,16 @@ return (
       </svg>
     </div>
 
-{flyingAliens.map((alien) => (
+{flyingAliens.map((alien) => {
+  const alienIsSkull = Boolean(alien.skullUntil && Date.now() < alien.skullUntil);
+
+  return (
   <svg
     key={alien.id}
     viewBox="0 0 100 100"
-    className="fixed z-[9998] pointer-events-none w-8 h-8 flying-alien-head"
+    className={`fixed z-[9998] pointer-events-none w-8 h-8 flying-alien-head ${
+      alienIsSkull ? "flying-alien-skull" : ""
+    }`}
     style={
       {
         left: `${alien.x}px`,
@@ -317,6 +387,36 @@ return (
       } as React.CSSProperties
     }
   >
+    {alienIsSkull ? (
+      <>
+        <path
+          className="flying-alien-skull-fill"
+          d="
+            M50 10
+            C27 10 15 30 18 52
+            C21 75 38 90 50 90
+            C62 90 79 75 82 52
+            C85 30 73 10 50 10
+            Z
+          "
+        />
+        <ellipse cx="36" cy="45" rx="9" ry="13" fill="black" transform="rotate(-14 36 45)" />
+        <ellipse cx="64" cy="45" rx="9" ry="13" fill="black" transform="rotate(14 64 45)" />
+        <path
+          d="M41 68 H59"
+          stroke="black"
+          strokeWidth="4"
+          strokeLinecap="round"
+        />
+        <path
+          d="M45 63 V76 M50 62 V78 M55 63 V76"
+          stroke="black"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
+      </>
+    ) : (
+      <>
     <path
       fill="#7fffd4"
       d="
@@ -337,8 +437,10 @@ return (
       strokeWidth="3"
       strokeLinecap="round"
     />
+      </>
+    )}
   </svg>
-))}
+)})}
 
 {heartPulse.key > 0 && (
   <div
@@ -411,6 +513,7 @@ return (
         onPointerDown={dragTv}
       />
       <span
+        ref={antennaRef}
         className="space-tv-antenna"
         role="button"
         tabIndex={0}
@@ -432,6 +535,26 @@ return (
               strokeLinejoin="round"
             />
           </svg>
+        )}
+        {tvSparkBurst > 0 && (
+          <div key={tvSparkBurst} className="space-tv-spark-burst" aria-hidden="true">
+            {[0, 1, 2, 3, 4, 5].map((spark) => (
+              <svg
+                key={spark}
+                viewBox="0 0 52 32"
+                className={`space-tv-spark-bit space-tv-spark-bit-${spark}`}
+              >
+                <polyline
+                  points="3,18 15,7 24,22 35,8 49,17"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            ))}
+          </div>
         )}
       </span>
     </div>

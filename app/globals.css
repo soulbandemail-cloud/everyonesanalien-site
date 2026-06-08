@@ -1,3 +1,4 @@
+
 @import "tailwindcss";
 
 :root {
@@ -1044,4 +1045,173 @@ svg {
 .footer-alien-head:active .footer-alien-head-fill {
   fill: #ffffff;
   filter: drop-shadow(0 0 7px rgba(255, 204, 255, 0.72));
+}
+.space-tv-spark-burst {
+  position: absolute;
+  left: 50%;
+  top: -10px;
+  width: 1px;
+  height: 1px;
+  color: #ffffff;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.space-tv-spark-bit {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 46px;
+  height: 28px;
+  opacity: 0;
+  transform-origin: center;
+  filter:
+    drop-shadow(0 0 6px rgba(255, 255, 255, 0.95))
+    drop-shadow(0 0 14px rgba(255, 204, 255, 0.72))
+    drop-shadow(0 0 22px rgba(127, 255, 212, 0.38));
+  animation: space-tv-spark-bit-burst 780ms steps(2, end) forwards;
+}
+
+.space-tv-spark-bit-0 {
+  --spark-x: -70px;
+  --spark-y: -24px;
+  --spark-rotate: -28deg;
+  animation-delay: 40ms;
+}
+
+.space-tv-spark-bit-1 {
+  --spark-x: 34px;
+  --spark-y: -44px;
+  --spark-rotate: 18deg;
+  animation-delay: 90ms;
+}
+
+.space-tv-spark-bit-2 {
+  --spark-x: -54px;
+  --spark-y: 16px;
+  --spark-rotate: 26deg;
+  animation-delay: 140ms;
+}
+
+.space-tv-spark-bit-3 {
+  --spark-x: 42px;
+  --spark-y: 18px;
+  --spark-rotate: -20deg;
+  animation-delay: 190ms;
+}
+
+.space-tv-spark-bit-4 {
+  --spark-x: -16px;
+  --spark-y: -64px;
+  --spark-rotate: 78deg;
+  animation-delay: 240ms;
+}
+
+.space-tv-spark-bit-5 {
+  --spark-x: 12px;
+  --spark-y: 44px;
+  --spark-rotate: -78deg;
+  animation-delay: 290ms;
+}
+
+@keyframes space-tv-spark-bit-burst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translate(0, 0) rotate(var(--spark-rotate)) scale(0.55);
+  }
+
+  18%,
+  54% {
+    opacity: 1;
+  }
+
+  36% {
+    opacity: 0.32;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translate(var(--spark-x), var(--spark-y)) rotate(var(--spark-rotate)) scale(1.08);
+  }
+}
+
+.flying-alien-skull {
+  animation: none;
+  filter:
+    drop-shadow(0 0 8px rgba(255, 255, 255, 0.95))
+    drop-shadow(0 0 18px rgba(255, 204, 255, 0.62));
+}
+
+.flying-alien-skull-fill {
+  animation: flying-alien-skull-flash 150ms steps(1, end) infinite;
+}
+
+@keyframes flying-alien-skull-flash {
+  0%,
+  49% {
+    fill: #ffffff;
+  }
+
+  50%,
+  100% {
+    fill: #000000;
+  }
+}
+
+.flying-alien-skull .flying-alien-skull-fill + ellipse,
+.flying-alien-skull .flying-alien-skull-fill + ellipse + ellipse,
+.flying-alien-skull .flying-alien-skull-fill + ellipse + ellipse + path,
+.flying-alien-skull .flying-alien-skull-fill + ellipse + ellipse + path + path {
+  animation: flying-alien-skull-face-flash 150ms steps(1, end) infinite;
+}
+
+@keyframes flying-alien-skull-face-flash {
+  0%,
+  49% {
+    fill: #000000;
+    stroke: #000000;
+  }
+
+  50%,
+  100% {
+    fill: #ffffff;
+    stroke: #ffffff;
+  }
+}
+
+@media (max-width: 640px) {
+  .space-tv-spark-bit {
+    width: 34px;
+    height: 22px;
+  }
+
+  .space-tv-spark-bit-0 {
+    --spark-x: -42px;
+    --spark-y: -16px;
+  }
+
+  .space-tv-spark-bit-1 {
+    --spark-x: 26px;
+    --spark-y: -28px;
+  }
+
+  .space-tv-spark-bit-2 {
+    --spark-x: -34px;
+    --spark-y: 12px;
+  }
+
+  .space-tv-spark-bit-3 {
+    --spark-x: 30px;
+    --spark-y: 14px;
+  }
+
+  .space-tv-spark-bit-4 {
+    --spark-x: -10px;
+    --spark-y: -42px;
+  }
+
+  .space-tv-spark-bit-5 {
+    --spark-x: 8px;
+    --spark-y: 30px;
+  }
 }
