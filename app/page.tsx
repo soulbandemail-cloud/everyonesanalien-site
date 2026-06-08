@@ -241,8 +241,8 @@ useEffect(() => {
       const sparkRect = tvSparkActiveRef.current
         ? antennaRef.current?.getBoundingClientRect()
         : null;
-    const sparkX = sparkRect ? sparkRect.left + sparkRect.width * 0.10 : 0;
-const sparkY = sparkRect ? sparkRect.top + sparkRect.height * 0.10 : 0;
+    const sparkX = sparkRect ? sparkRect.left + sparkRect.width * 0.01 : 0;
+const sparkY = sparkRect ? sparkRect.top + sparkRect.height * 0.01 : 0;
       const sparkRadius = window.innerWidth < 640 ? 26 : 38;
       const now = Date.now();
 
