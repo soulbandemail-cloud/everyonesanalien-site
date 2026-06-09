@@ -81,6 +81,14 @@ const toggleUfoOrbit = () => {
   setUfoOrbiting((orbiting) => !orbiting);
 };
 
+const triggerUfoFlyaway = (x: number, y: number, key = Date.now()) => {
+  setUfoFlyaway({ x, y, key });
+
+  window.setTimeout(() => {
+    setUfoFlyaway(null);
+  }, 2600);
+};
+
 const launchAlien = (e: React.PointerEvent<SVGSVGElement>) => {
   e.preventDefault();
   e.stopPropagation();
@@ -296,27 +304,22 @@ useEffect(() => {
 
               setUfoOrbiting(false);
               setHideCursorUfo(true);
-              setUfoFlyaway({
-                x: heartX,
-                y: heartY,
-                key,
-              });
+              triggerUfoFlyaway(heartX, heartY, key);
               setFlashbangKey(key);
-
-              window.setTimeout(() => {
-                setUfoFlyaway(null);
-              }, 2600);
 
               return null;
             }
 
+            const key = Date.now();
+
             setRingBlinking(true);
             setUfoOrbiting(false);
             setHideCursorUfo(true);
+            triggerUfoFlyaway(heartX, heartY, key);
             setHeartPulse({
               x: heartX,
               y: heartY,
-              key: Date.now(),
+              key,
             });
 
             window.setTimeout(() => {
