@@ -70,6 +70,7 @@ const closeWishPrompt = () => {
 
 
 const orbitRef = useRef<HTMLSpanElement | null>(null);
+  const ufoOrbitingRef = useRef(false);
   const [ufoOrbiting, setUfoOrbiting] = useState(false);
   const [heartPulseKey, setHeartPulseKey] = useState(0);
   const [heartPulse, setHeartPulse] = useState({
@@ -78,7 +79,13 @@ const orbitRef = useRef<HTMLSpanElement | null>(null);
   key: 0,
 });
 const toggleUfoOrbit = () => {
-  setUfoOrbiting((orbiting) => !orbiting);
+  setUfoOrbiting((orbiting) => {
+    const nextOrbiting = !orbiting;
+
+    ufoOrbitingRef.current = nextOrbiting;
+
+    return nextOrbiting;
+  });
 };
 
 const triggerUfoFlyaway = (x: number, y: number, key = Date.now()) => {
@@ -301,21 +308,29 @@ useEffect(() => {
           if (hitHeart) {
             if (next.isSkull) {
               const key = Date.now();
+              const wasUfoOrbiting = ufoOrbitingRef.current;
 
+              ufoOrbitingRef.current = false;
               setUfoOrbiting(false);
               setHideCursorUfo(true);
-              triggerUfoFlyaway(heartX, heartY, key);
+              if (wasUfoOrbiting) {
+                triggerUfoFlyaway(heartX, heartY, key);
+              }
               setFlashbangKey(key);
 
               return null;
             }
 
             const key = Date.now();
+            const wasUfoOrbiting = ufoOrbitingRef.current;
 
             setRingBlinking(true);
+            ufoOrbitingRef.current = false;
             setUfoOrbiting(false);
             setHideCursorUfo(true);
-            triggerUfoFlyaway(heartX, heartY, key);
+            if (wasUfoOrbiting) {
+              triggerUfoFlyaway(heartX, heartY, key);
+            }
             setHeartPulse({
               x: heartX,
               y: heartY,
