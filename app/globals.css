@@ -1215,6 +1215,41 @@ svg {
   }
 }
 
+.ufo-flashbang-flyaway {
+  transform-origin: center;
+  animation: ufo-flashbang-flyaway 2.45s cubic-bezier(0.18, 0.78, 0.2, 1) both;
+  filter:
+    drop-shadow(0 0 10px rgba(255, 176, 255, 0.9))
+    drop-shadow(0 0 24px rgba(127, 255, 212, 0.45));
+}
+
+@keyframes ufo-flashbang-flyaway {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translate(0, 0) rotate(0deg) scale(0.2);
+  }
+
+  12% {
+    opacity: 1;
+    transform: translate(-50%, -50%) translate(-8px, 10px) rotate(-35deg) scale(0.62);
+  }
+
+  42% {
+    opacity: 1;
+    transform: translate(-50%, -50%) translate(-72px, 96px) rotate(-220deg) scale(2.3);
+  }
+
+  72% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) translate(-190px, 230px) rotate(-520deg) scale(5.6);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translate(-360px, 430px) rotate(-760deg) scale(9);
+  }
+}
+
 @media (max-width: 640px) {
   .space-tv-spark-bit {
     width: 34px;
