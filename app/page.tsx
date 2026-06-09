@@ -23,7 +23,11 @@ export default function Home() {
   const [tvStarted, setTvStarted] = useState(false);
   const [tvSpark, setTvSpark] = useState(false);
   const [tvSparkBurst, setTvSparkBurst] = useState(0);
-  const [flashbangKey, setFlashbangKey] = useState(0);
+  const [flashbang, setFlashbang] = useState<{
+    key: number;
+    type: "white" | "black";
+  } | null>(null);
+  const [womboComboKey, setWomboComboKey] = useState(0);
   const [ufoFlyaway, setUfoFlyaway] = useState<{
     x: number;
     y: number;
@@ -43,6 +47,7 @@ export default function Home() {
     vy: number;
     spin: number;
     isSkull?: boolean;
+    isBlackSkull?: boolean;
     stunnedUntil?: number;
   }[]
 >([]);
@@ -299,6 +304,7 @@ useEffect(() => {
               x: sparkX,
               y: sparkY,
               isSkull: true,
+              isBlackSkull: next.isSkull ? true : next.isBlackSkull,
               stunnedUntil,
             };
           }
@@ -306,17 +312,53 @@ useEffect(() => {
           const hitHeart = Math.hypot(next.x - heartX, next.y - heartY) < 42;
 
           if (hitHeart) {
+            if (next.isBlackSkull) {
+              const key = Date.now();
+              const wasUfoOrbiting = ufoOrbitingRef.current;
+
+              setRingBlinking(true);
+              if (wasUfoOrbiting) {
+                ufoOrbitingRef.current = false;
+                setUfoOrbiting(false);
+                setHideCursorUfo(true);
+                triggerUfoFlyaway(heartX, heartY, key);
+              }
+              setFlashbang({ key, type: "black" });
+              setWomboComboKey(key);
+              setHeartPulse({
+                x: heartX,
+                y: heartY,
+                key,
+              });
+
+              window.setTimeout(() => {
+                setRingBlinking(false);
+              }, 420);
+
+              return null;
+            }
+
             if (next.isSkull) {
               const key = Date.now();
               const wasUfoOrbiting = ufoOrbitingRef.current;
 
+              setRingBlinking(true);
               ufoOrbitingRef.current = false;
               setUfoOrbiting(false);
               setHideCursorUfo(true);
               if (wasUfoOrbiting) {
                 triggerUfoFlyaway(heartX, heartY, key);
               }
-              setFlashbangKey(key);
+              setFlashbang({ key, type: "white" });
+              setHeartPulse({
+                x: heartX,
+                y: heartY,
+                key,
+              });
+
+              window.setTimeout(() => {
+                setRingBlinking(false);
+              }, 420);
 
               return null;
             }
@@ -419,6 +461,8 @@ return (
     className={`fixed z-[9998] pointer-events-none w-8 h-8 flying-alien-head ${
       alien.isSkull ? "flying-alien-skull" : ""
     } ${
+      alien.isBlackSkull ? "flying-alien-black-skull" : ""
+    } ${
       alien.stunnedUntil ? "flying-alien-zapped" : ""
     }`}
     style={
@@ -484,8 +528,18 @@ return (
   </svg>
 ))}
 
-{flashbangKey > 0 && (
-  <div key={flashbangKey} className="flashbang-whiteout" aria-hidden="true" />
+{flashbang && (
+  <div
+    key={flashbang.key}
+    className={flashbang.type === "black" ? "flashbang-blackout" : "flashbang-whiteout"}
+    aria-hidden="true"
+  />
+)}
+
+{womboComboKey > 0 && (
+  <div key={womboComboKey} className="wombo-combo-callout" aria-hidden="true">
+    WOMBO<br />COMBO
+  </div>
 )}
 
 {ufoFlyaway && (

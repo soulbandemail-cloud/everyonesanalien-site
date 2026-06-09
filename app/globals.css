@@ -1146,6 +1146,16 @@ svg {
   fill: #ffffff;
 }
 
+.flying-alien-black-skull {
+  filter:
+    drop-shadow(0 0 8px rgba(0, 0, 0, 0.95))
+    drop-shadow(0 0 18px rgba(255, 176, 255, 0.72));
+}
+
+.flying-alien-black-skull .flying-alien-skull-fill {
+  fill: #000000;
+}
+
 .flying-alien-zapped .flying-alien-skull-fill {
   animation: flying-alien-skull-flash 150ms steps(1, end) infinite;
 }
@@ -1175,6 +1185,25 @@ svg {
 .flying-alien-zapped .flying-alien-skull-fill + ellipse + ellipse + path,
 .flying-alien-zapped .flying-alien-skull-fill + ellipse + ellipse + path + path {
   animation: flying-alien-skull-face-flash 150ms steps(1, end) infinite;
+}
+
+.flying-alien-black-skull .flying-alien-skull-fill,
+.flying-alien-black-skull.flying-alien-zapped .flying-alien-skull-fill {
+  animation: none;
+  fill: #000000;
+}
+
+.flying-alien-black-skull .flying-alien-skull-fill + ellipse,
+.flying-alien-black-skull .flying-alien-skull-fill + ellipse + ellipse,
+.flying-alien-black-skull .flying-alien-skull-fill + ellipse + ellipse + path,
+.flying-alien-black-skull .flying-alien-skull-fill + ellipse + ellipse + path + path,
+.flying-alien-black-skull.flying-alien-zapped .flying-alien-skull-fill + ellipse,
+.flying-alien-black-skull.flying-alien-zapped .flying-alien-skull-fill + ellipse + ellipse,
+.flying-alien-black-skull.flying-alien-zapped .flying-alien-skull-fill + ellipse + ellipse + path,
+.flying-alien-black-skull.flying-alien-zapped .flying-alien-skull-fill + ellipse + ellipse + path + path {
+  animation: none;
+  fill: #ffffff;
+  stroke: #ffffff;
 }
 
 @keyframes flying-alien-skull-face-flash {
@@ -1212,6 +1241,76 @@ svg {
 
   100% {
     opacity: 0;
+  }
+}
+
+.flashbang-blackout {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  pointer-events: none;
+  background: #000000;
+  animation: flashbang-blackout 2.8s ease-out both;
+}
+
+@keyframes flashbang-blackout {
+  0%,
+  18% {
+    opacity: 1;
+  }
+
+  48% {
+    opacity: 0.9;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+.wombo-combo-callout {
+  position: fixed;
+  top: 50%;
+  right: clamp(14px, 5vw, 74px);
+  z-index: 10002;
+  pointer-events: none;
+  transform: translateY(-50%) skew(-8deg);
+  color: #7fffd4;
+  font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
+  font-size: clamp(2.5rem, 8vw, 7rem);
+  font-weight: 900;
+  line-height: 0.82;
+  letter-spacing: 0;
+  text-align: right;
+  text-transform: uppercase;
+  text-shadow:
+    0 0 4px #ffffff,
+    0 0 10px rgba(255, 176, 255, 0.95),
+    0 0 22px rgba(255, 176, 255, 0.82),
+    0 0 38px rgba(255, 176, 255, 0.52),
+    5px 5px 0 #00082d;
+  animation: wombo-combo-callout 1.6s steps(2, end) both;
+}
+
+@keyframes wombo-combo-callout {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) skew(-8deg) scale(0.82);
+  }
+
+  14%,
+  76% {
+    opacity: 1;
+    transform: translateY(-50%) skew(-8deg) scale(1);
+  }
+
+  36% {
+    transform: translateY(-50%) skew(-8deg) scale(1.08);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-50%) skew(-8deg) scale(0.96);
   }
 }
 
