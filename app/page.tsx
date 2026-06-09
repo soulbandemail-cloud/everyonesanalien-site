@@ -23,6 +23,7 @@ export default function Home() {
   const [tvStarted, setTvStarted] = useState(false);
   const [tvSpark, setTvSpark] = useState(false);
   const [tvSparkBurst, setTvSparkBurst] = useState(0);
+  const [flashbangKey, setFlashbangKey] = useState(0);
 
   const [ufoPos, setUfoPos] = useState({ x: -100, y: -100 });
   const [hideCursorUfo, setHideCursorUfo] = useState(false);
@@ -36,8 +37,8 @@ export default function Home() {
     vx: number;
     vy: number;
     spin: number;
+    isSkull?: boolean;
     stunnedUntil?: number;
-    skullUntil?: number;
   }[]
 >([]);
 
@@ -241,8 +242,8 @@ useEffect(() => {
       const sparkRect = tvSparkActiveRef.current
         ? antennaRef.current?.getBoundingClientRect()
         : null;
-    const sparkX = sparkRect ? sparkRect.left + sparkRect.width * 0.01 : 0;
-const sparkY = sparkRect ? sparkRect.top + sparkRect.height * 0.01 : 0;
+      const sparkX = sparkRect ? sparkRect.left + sparkRect.width / 2 : 0;
+      const sparkY = sparkRect ? sparkRect.top + (window.innerWidth < 640 ? 5 : 5) : 0;
       const sparkRadius = window.innerWidth < 640 ? 26 : 38;
       const now = Date.now();
 
@@ -254,7 +255,7 @@ const sparkY = sparkRect ? sparkRect.top + sparkRect.height * 0.01 : 0;
 
           const activeAlien =
             alien.stunnedUntil && now >= alien.stunnedUntil
-              ? { ...alien, stunnedUntil: undefined, skullUntil: undefined }
+              ? { ...alien, stunnedUntil: undefined }
               : alien;
 
           const next = {
@@ -269,22 +270,27 @@ const sparkY = sparkRect ? sparkRect.top + sparkRect.height * 0.01 : 0;
             Math.hypot(next.x - sparkX, next.y - sparkY) < sparkRadius;
 
           if (hitSpark) {
-            const stunnedUntil = now + 2200;
+            const stunnedUntil = now + 3000;
 
-            activateTvSpark(2300, true);
+            activateTvSpark(3000, true);
 
             return {
               ...next,
               x: sparkX,
               y: sparkY,
+              isSkull: true,
               stunnedUntil,
-              skullUntil: stunnedUntil,
             };
           }
 
           const hitHeart = Math.hypot(next.x - heartX, next.y - heartY) < 42;
 
           if (hitHeart) {
+            if (next.isSkull) {
+              setFlashbangKey(Date.now());
+              return null;
+            }
+
             setRingBlinking(true);
             setUfoOrbiting(false);
             setHideCursorUfo(true);
@@ -369,15 +375,14 @@ return (
       </svg>
     </div>
 
-{flyingAliens.map((alien) => {
-  const alienIsSkull = Boolean(alien.skullUntil && Date.now() < alien.skullUntil);
-
-  return (
+{flyingAliens.map((alien) => (
   <svg
     key={alien.id}
     viewBox="0 0 100 100"
     className={`fixed z-[9998] pointer-events-none w-8 h-8 flying-alien-head ${
-      alienIsSkull ? "flying-alien-skull" : ""
+      alien.isSkull ? "flying-alien-skull" : ""
+    } ${
+      alien.stunnedUntil ? "flying-alien-zapped" : ""
     }`}
     style={
       {
@@ -387,7 +392,7 @@ return (
       } as React.CSSProperties
     }
   >
-    {alienIsSkull ? (
+    {alien.isSkull ? (
       <>
         <path
           className="flying-alien-skull-fill"
@@ -440,7 +445,11 @@ return (
       </>
     )}
   </svg>
-)})}
+))}
+
+{flashbangKey > 0 && (
+  <div key={flashbangKey} className="flashbang-whiteout" aria-hidden="true" />
+)}
 
 {heartPulse.key > 0 && (
   <div

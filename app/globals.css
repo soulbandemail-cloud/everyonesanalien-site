@@ -1143,6 +1143,10 @@ svg {
 }
 
 .flying-alien-skull-fill {
+  fill: #ffffff;
+}
+
+.flying-alien-zapped .flying-alien-skull-fill {
   animation: flying-alien-skull-flash 150ms steps(1, end) infinite;
 }
 
@@ -1162,6 +1166,14 @@ svg {
 .flying-alien-skull .flying-alien-skull-fill + ellipse + ellipse,
 .flying-alien-skull .flying-alien-skull-fill + ellipse + ellipse + path,
 .flying-alien-skull .flying-alien-skull-fill + ellipse + ellipse + path + path {
+  fill: #000000;
+  stroke: #000000;
+}
+
+.flying-alien-zapped .flying-alien-skull-fill + ellipse,
+.flying-alien-zapped .flying-alien-skull-fill + ellipse + ellipse,
+.flying-alien-zapped .flying-alien-skull-fill + ellipse + ellipse + path,
+.flying-alien-zapped .flying-alien-skull-fill + ellipse + ellipse + path + path {
   animation: flying-alien-skull-face-flash 150ms steps(1, end) infinite;
 }
 
@@ -1176,6 +1188,30 @@ svg {
   100% {
     fill: #ffffff;
     stroke: #ffffff;
+  }
+}
+
+.flashbang-whiteout {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  pointer-events: none;
+  background: #ffffff;
+  animation: flashbang-whiteout 2.8s ease-out both;
+}
+
+@keyframes flashbang-whiteout {
+  0%,
+  18% {
+    opacity: 1;
+  }
+
+  45% {
+    opacity: 0.82;
+  }
+
+  100% {
+    opacity: 0;
   }
 }
 
