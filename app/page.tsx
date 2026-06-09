@@ -287,6 +287,8 @@ useEffect(() => {
 
           if (hitHeart) {
             if (next.isSkull) {
+              setUfoOrbiting(false);
+              setHideCursorUfo(true);
               setFlashbangKey(Date.now());
               return null;
             }
