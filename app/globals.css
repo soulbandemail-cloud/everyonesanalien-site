@@ -975,6 +975,22 @@ svg {
   pointer-events: none;
 }
 
+.wish-pong-layer {
+  touch-action: none;
+}
+
+.wish-pong-handle {
+  position: fixed;
+  left: 50%;
+  top: 34%;
+  width: 280px;
+  height: 48px;
+  cursor: ew-resize;
+  pointer-events: auto;
+  touch-action: none;
+  transform: translate(-50%, -50%) translateX(var(--wish-paddle-x, 0px));
+}
+
 .wish-burst-star {
   position: fixed;
   left: 50%;
@@ -996,11 +1012,16 @@ svg {
   );
   opacity: 1;
   filter: drop-shadow(0 0 12px #7fffd4);
-  transform: translate(-50%, -50%) translateX(var(--burst-x)) scale(0.8);
+  transform: translate(-50%, -50%) translateX(calc(var(--wish-paddle-x, 0px) + var(--burst-x))) scale(0.8);
   animation: wish-burst-star 900ms ease-out forwards;
 }
 
+.wish-pong-star {
+  animation: none;
+}
+
 @media (max-width: 640px) {
+  .wish-pong-handle,
   .wish-burst-star {
     top: 24%;
   }

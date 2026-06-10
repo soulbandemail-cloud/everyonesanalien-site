@@ -12,8 +12,15 @@ import {
 
 const ZAP_STUN_DURATION = 3000;
 const WISH_BURST_DURATION = 900;
+const WISH_BOUNCE_COOLDOWN = 140;
 const WISH_STAR_OFFSETS = [-120, -92, -66, -38, -14, 14, 38, 66, 92, 120];
 const WISH_STAR_HIT_PADDING = 18;
+
+type WishBarrier = {
+  key: number;
+  activeUntil: number;
+  xOffset: number;
+};
 
 type FlyingAlien = {
   id: number;
@@ -37,9 +44,7 @@ export default function Home() {
   const antennaRef = useRef<HTMLSpanElement | null>(null);
   const tvSparkActiveRef = useRef(false);
   const tvSparkTimeoutRef = useRef<number | null>(null);
-  const wishBarrierRef = useRef<{ key: number; activeUntil: number } | null>(
-    null
-  );
+  const wishBarrierRef = useRef<WishBarrier | null>(null);
   const [tvPos, setTvPos] = useState<{ x: number; y: number } | null>(null);
   const [tvExpanded, setTvExpanded] = useState(false);
   const [tvStarted, setTvStarted] = useState(false);
@@ -65,6 +70,7 @@ export default function Home() {
 const [wishPrompt, setWishPrompt] = useState(false);
 const [wish, setWish] = useState("");
 const [wishPoof, setWishPoof] = useState(0);
+const [pongWish, setPongWish] = useState<{ key: number; x: number } | null>(null);
 
 const catchShootingStar = (e: React.PointerEvent<HTMLSpanElement>) => {
   e.preventDefault();
@@ -76,13 +82,21 @@ const catchShootingStar = (e: React.PointerEvent<HTMLSpanElement>) => {
 
 const closeWishPrompt = () => {
   const key = Date.now();
+  const wishcode = wish.trim().toLowerCase();
+  const isPongWish = wishcode === "pong";
 
   setWishPrompt(false);
   setWishPoof(key);
+  setPongWish(isPongWish ? { key, x: 0 } : null);
   wishBarrierRef.current = {
     key,
-    activeUntil: key + WISH_BURST_DURATION,
+    activeUntil: isPongWish ? Number.POSITIVE_INFINITY : key + WISH_BURST_DURATION,
+    xOffset: 0,
   };
+
+  if (isPongWish) {
+    return;
+  }
 
   setTimeout(() => {
     setWishPoof((current) => (current === key ? 0 : current));
@@ -224,17 +238,23 @@ const reflectAlienOffWishStars = (
 ) => {
   const barrier = wishBarrierRef.current;
 
-  if (!barrier || now > barrier.activeUntil || alien.lastWishBounce === barrier.key) {
+  if (
+    !barrier ||
+    now > barrier.activeUntil ||
+    now - (alien.lastWishBounce ?? 0) < WISH_BOUNCE_COOLDOWN
+  ) {
     return next;
   }
 
   const starY = window.innerHeight * (window.innerWidth < 640 ? 0.24 : 0.34);
   const minX =
     window.innerWidth / 2 +
+    barrier.xOffset +
     Math.min(...WISH_STAR_OFFSETS) -
     WISH_STAR_HIT_PADDING;
   const maxX =
     window.innerWidth / 2 +
+    barrier.xOffset +
     Math.max(...WISH_STAR_OFFSETS) +
     WISH_STAR_HIT_PADDING;
   const crossedStars =
@@ -258,8 +278,39 @@ const reflectAlienOffWishStars = (
     x: hitX + alien.vx * Math.max(0, 1 - progress),
     y: starY - Math.sign(alien.vy) * 18,
     vy: -alien.vy,
-    lastWishBounce: barrier.key,
+    lastWishBounce: now,
   };
+};
+
+const dragWishPaddle = (e: React.PointerEvent<HTMLDivElement>) => {
+  if (!pongWish) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  const startX = e.clientX;
+  const startOffset = pongWish.x;
+  const maxOffset = window.innerWidth / 2 - 40;
+
+  const movePaddle = (moveEvent: PointerEvent) => {
+    const nextX = Math.min(
+      Math.max(startOffset + moveEvent.clientX - startX, -maxOffset),
+      maxOffset
+    );
+
+    wishBarrierRef.current = wishBarrierRef.current
+      ? { ...wishBarrierRef.current, xOffset: nextX }
+      : null;
+    setPongWish((current) => (current ? { ...current, x: nextX } : current));
+  };
+
+  const stopDragging = () => {
+    window.removeEventListener("pointermove", movePaddle);
+    window.removeEventListener("pointerup", stopDragging);
+  };
+
+  window.addEventListener("pointermove", movePaddle);
+  window.addEventListener("pointerup", stopDragging);
 };
 
 const sparkTvAntenna = (e: React.PointerEvent<HTMLSpanElement>) => {
@@ -1011,11 +1062,26 @@ return (
     )}
 
     {wishPoof > 0 && (
-      <div key={wishPoof} className="wish-burst-layer">
+      <div
+        key={wishPoof}
+        className={`wish-burst-layer ${pongWish ? "wish-pong-layer" : ""}`}
+        style={
+          {
+            "--wish-paddle-x": `${pongWish?.x ?? 0}px`,
+          } as React.CSSProperties
+        }
+      >
+        {pongWish && (
+          <div
+            className="wish-pong-handle"
+            onPointerDown={dragWishPaddle}
+            aria-hidden="true"
+          />
+        )}
         {WISH_STAR_OFFSETS.map((x, i) => (
           <span
             key={i}
-            className="wish-burst-star"
+            className={`wish-burst-star ${pongWish ? "wish-pong-star" : ""}`}
             style={
               {
                 "--burst-x": `${x}px`,
