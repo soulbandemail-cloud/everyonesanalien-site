@@ -941,9 +941,9 @@ return (
 
         <div className="grid gap-8 md:gap-16 md:grid-cols-3 mt-2 mb-4 md:mb-16">
           <section className="md:max-w-sm md:mx-auto">
-            <h2 className="text-2xl mb-4">BECOME A MATE</h2>
+            <h2 className="text-2xl mb-4">GET YOUR HYPER-FIX!</h2>
             <p className="mb-4">
-              Sign up to SOUL&apos;s mailing list to get your HYPER-FIX!
+              Sign up to SOUL&apos;s mailing list for discounts on merch tickets to headline shows!
             </p>
 
             <form
@@ -955,7 +955,6 @@ return (
                 const form = e.target as HTMLFormElement;
                 const formData = new FormData(form);
 
-                const name = formData.get("name");
                 const email = formData.get("email");
 
                 const res = await fetch("/api/subscribe", {
@@ -963,7 +962,7 @@ return (
                   headers: {
                     "Content-Type": "application/json",
                   },
-                  body: JSON.stringify({ name, email }),
+                  body: JSON.stringify({ email }),
                 });
 
                 if (res.ok) {
@@ -981,14 +980,6 @@ return (
               }}
             >
               <input
-                name="name"
-                type="text"
-                placeholder="NAME"
-                className="pink-border-glow border border-white bg-[#00082d] p-2"
-                required
-              />
-
-              <input
                 name="email"
                 type="email"
                 placeholder="EMAIL"
@@ -1000,7 +991,7 @@ return (
                 className="pink-border-glow border border-white p-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] active:bg-[#6ee7b7] active:border-[#6ee7b7] active:text-[#00082d] transition-all duration-200 disabled:opacity-50"
                 disabled={status === "loading"}
               >
-                {status === "loading" ? "MATING..." : "SIGN UP"}
+                {status === "loading" ? "MATING..." : "BECOME A MATE"}
               </button>
             </form>
 
