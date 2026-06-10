@@ -13,6 +13,7 @@ import {
 const ZAP_STUN_DURATION = 3000;
 const WISH_BURST_DURATION = 900;
 const WISH_BOUNCE_COOLDOWN = 140;
+const FOOTER_BOUNCE_COOLDOWN = 140;
 const WISH_STAR_OFFSETS = [-120, -92, -66, -38, -14, 14, 38, 66, 92, 120];
 const WISH_STAR_HIT_PADDING = 18;
 
@@ -34,6 +35,7 @@ type FlyingAlien = {
   turningBlack?: boolean;
   stunnedUntil?: number;
   lastWishBounce?: number;
+  lastFooterBounce?: number;
 };
 
 export default function Home() {
@@ -42,6 +44,7 @@ export default function Home() {
   >("idle");
   const tvRef = useRef<HTMLElement | null>(null);
   const antennaRef = useRef<HTMLSpanElement | null>(null);
+  const footerRef = useRef<HTMLDivElement | null>(null);
   const tvSparkActiveRef = useRef(false);
   const tvSparkTimeoutRef = useRef<number | null>(null);
   const wishBarrierRef = useRef<WishBarrier | null>(null);
@@ -282,6 +285,40 @@ const reflectAlienOffWishStars = (
   };
 };
 
+const reflectAlienOffFooterLine = (
+  alien: FlyingAlien,
+  next: FlyingAlien,
+  now: number
+) => {
+  const footerTop = footerRef.current?.getBoundingClientRect().top;
+
+  if (
+    footerTop === undefined ||
+    alien.vy <= 0 ||
+    now - (alien.lastFooterBounce ?? 0) < FOOTER_BOUNCE_COOLDOWN
+  ) {
+    return next;
+  }
+
+  const crossedFooterTop = alien.y <= footerTop && next.y >= footerTop;
+
+  if (!crossedFooterTop) {
+    return next;
+  }
+
+  const travelY = next.y - alien.y;
+  const progress = travelY === 0 ? 0 : (footerTop - alien.y) / travelY;
+  const hitX = alien.x + (next.x - alien.x) * progress;
+
+  return {
+    ...next,
+    x: hitX + alien.vx * Math.max(0, 1 - progress),
+    y: footerTop - 18,
+    vy: -alien.vy,
+    lastFooterBounce: now,
+  };
+};
+
 const dragWishPaddle = (e: React.PointerEvent<HTMLDivElement>) => {
   if (!pongWish) return;
 
@@ -426,6 +463,7 @@ useEffect(() => {
           };
 
           next = reflectAlienOffWishStars(activeAlien, next, now);
+          next = reflectAlienOffFooterLine(activeAlien, next, now);
 
           const hitSpark =
             sparkPoint &&
@@ -1203,7 +1241,7 @@ return (
 
 
 
-               <div className="pink-line-glow fixed bottom-0 inset-x-0 z-40 overflow-hidden border-t border-white bg-[#00082d]/80 py-2">
+               <div ref={footerRef} className="pink-line-glow fixed bottom-0 inset-x-0 z-40 overflow-hidden border-t border-white bg-[#00082d]/80 py-2">
   <div className="alien-footer-marquee flex w-max items-center">
     {[0, 1].map((track) => (
       <div key={track} className="flex items-center gap-8 px-4 shrink-0">
