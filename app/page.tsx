@@ -10,6 +10,21 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 
+const ZAP_STUN_DURATION = 3000;
+
+type FlyingAlien = {
+  id: number;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  spin: number;
+  isSkull?: boolean;
+  isBlackSkull?: boolean;
+  turningBlack?: boolean;
+  stunnedUntil?: number;
+};
+
 export default function Home() {
   const [status, setStatus] = useState<
     "idle" | "loading" | "success" | "already" | "error"
@@ -38,19 +53,7 @@ export default function Home() {
   const [hideCursorUfo, setHideCursorUfo] = useState(false);
   const [ringBlinking, setRingBlinking] = useState(false);
 
-  const [flyingAliens, setFlyingAliens] = useState<
-  {
-    id: number;
-    x: number;
-    y: number;
-    vx: number;
-    vy: number;
-    spin: number;
-    isSkull?: boolean;
-    isBlackSkull?: boolean;
-    stunnedUntil?: number;
-  }[]
->([]);
+  const [flyingAliens, setFlyingAliens] = useState<FlyingAlien[]>([]);
 
 const [wishPrompt, setWishPrompt] = useState(false);
 const [wish, setWish] = useState("");
@@ -184,6 +187,19 @@ const activateTvSpark = (duration = 500, burst = false) => {
   }, duration);
 };
 
+const getAntennaCircuitPoint = () => {
+  const rect = antennaRef.current?.getBoundingClientRect();
+
+  if (!rect) return null;
+
+  const tipY = window.innerWidth < 640 ? 5 : 5;
+
+  return {
+    x: rect.left + rect.width / 2,
+    y: rect.top + tipY,
+  };
+};
+
 const sparkTvAntenna = (e: React.PointerEvent<HTMLSpanElement>) => {
   e.preventDefault();
   e.stopPropagation();
@@ -264,23 +280,30 @@ useEffect(() => {
       const rect = orbitRef.current.getBoundingClientRect();
       const heartX = rect.left + rect.width / 2;
       const heartY = rect.top + rect.height / 2;
-      const sparkRect = tvSparkActiveRef.current
-        ? antennaRef.current?.getBoundingClientRect()
-        : null;
-      const sparkX = sparkRect ? sparkRect.left + sparkRect.width / 2 : 0;
-      const sparkY = sparkRect ? sparkRect.top + (window.innerWidth < 640 ? 5 : 5) : 0;
+      const sparkPoint = tvSparkActiveRef.current ? getAntennaCircuitPoint() : null;
+      const sparkX = sparkPoint?.x ?? 0;
+      const sparkY = sparkPoint?.y ?? 0;
       const sparkRadius = window.innerWidth < 640 ? 26 : 38;
       const now = Date.now();
 
       return aliens
         .map((alien) => {
           if (alien.stunnedUntil && now < alien.stunnedUntil) {
-            return alien;
+            const circuitPoint = getAntennaCircuitPoint();
+
+            return circuitPoint
+              ? { ...alien, x: circuitPoint.x, y: circuitPoint.y }
+              : alien;
           }
 
           const activeAlien =
             alien.stunnedUntil && now >= alien.stunnedUntil
-              ? { ...alien, stunnedUntil: undefined }
+              ? {
+                  ...alien,
+                  isBlackSkull: alien.turningBlack ? true : alien.isBlackSkull,
+                  turningBlack: undefined,
+                  stunnedUntil: undefined,
+                }
               : alien;
 
           const next = {
@@ -290,21 +313,22 @@ useEffect(() => {
           };
 
           const hitSpark =
-            sparkRect &&
+            sparkPoint &&
             !activeAlien.stunnedUntil &&
             Math.hypot(next.x - sparkX, next.y - sparkY) < sparkRadius;
 
           if (hitSpark) {
-            const stunnedUntil = now + 3000;
+            const stunnedUntil = now + ZAP_STUN_DURATION;
 
-            activateTvSpark(3000, true);
+            activateTvSpark(ZAP_STUN_DURATION, true);
 
             return {
               ...next,
               x: sparkX,
               y: sparkY,
               isSkull: true,
-              isBlackSkull: next.isSkull ? true : next.isBlackSkull,
+              isBlackSkull: next.isSkull ? false : next.isBlackSkull,
+              turningBlack: next.isSkull || next.isBlackSkull,
               stunnedUntil,
             };
           }
@@ -394,7 +418,7 @@ useEffect(() => {
 
           return offscreen ? null : next;
         })
-        .filter((alien): alien is NonNullable<typeof alien> => alien !== null);
+        .filter((alien): alien is FlyingAlien => alien !== null);
     });
   }, 16);
 
@@ -462,6 +486,8 @@ return (
       alien.isSkull ? "flying-alien-skull" : ""
     } ${
       alien.isBlackSkull ? "flying-alien-black-skull" : ""
+    } ${
+      alien.turningBlack ? "flying-alien-turning-black" : ""
     } ${
       alien.stunnedUntil ? "flying-alien-zapped" : ""
     }`}
@@ -669,7 +695,7 @@ return (
         aria-label="Spark TV antenna"
         onPointerDown={sparkTvAntenna}
       >
-        {tvSpark && (
+        {tvSpark && !flyingAliens.some((alien) => alien.stunnedUntil) && (
           <svg
             viewBox="0 0 100 46"
             className="space-tv-spark"
@@ -943,7 +969,7 @@ return (
           <section className="md:max-w-sm md:mx-auto">
             <h2 className="text-2xl mb-4">GET YOUR HYPER-FIX!</h2>
             <p className="mb-4">
-              Sign up to SOUL&apos;s mailing list for discounts on merch tickets to headline shows!
+              Sign up to SOUL&apos;s mailing list for discounts on merch and tickets to headline shows!
             </p>
 
             <form

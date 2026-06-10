@@ -1033,6 +1033,7 @@ svg {
 }
 
 .flying-alien-head {
+  transform: translate(-50%, -50%);
   animation: flying-alien-spin 700ms linear infinite;
 }
 
@@ -1160,6 +1161,10 @@ svg {
   animation: flying-alien-skull-flash 150ms steps(1, end) infinite;
 }
 
+.flying-alien-turning-black.flying-alien-zapped .flying-alien-skull-fill {
+  animation: flying-alien-skull-blacken 3000ms linear forwards;
+}
+
 @keyframes flying-alien-skull-flash {
   0%,
   49% {
@@ -1168,6 +1173,16 @@ svg {
 
   50%,
   100% {
+    fill: #000000;
+  }
+}
+
+@keyframes flying-alien-skull-blacken {
+  from {
+    fill: #ffffff;
+  }
+
+  to {
     fill: #000000;
   }
 }
@@ -1185,6 +1200,13 @@ svg {
 .flying-alien-zapped .flying-alien-skull-fill + ellipse + ellipse + path,
 .flying-alien-zapped .flying-alien-skull-fill + ellipse + ellipse + path + path {
   animation: flying-alien-skull-face-flash 150ms steps(1, end) infinite;
+}
+
+.flying-alien-turning-black.flying-alien-zapped .flying-alien-skull-fill + ellipse,
+.flying-alien-turning-black.flying-alien-zapped .flying-alien-skull-fill + ellipse + ellipse,
+.flying-alien-turning-black.flying-alien-zapped .flying-alien-skull-fill + ellipse + ellipse + path,
+.flying-alien-turning-black.flying-alien-zapped .flying-alien-skull-fill + ellipse + ellipse + path + path {
+  animation: flying-alien-skull-face-blacken 3000ms linear forwards;
 }
 
 .flying-alien-black-skull .flying-alien-skull-fill,
@@ -1215,6 +1237,18 @@ svg {
 
   50%,
   100% {
+    fill: #ffffff;
+    stroke: #ffffff;
+  }
+}
+
+@keyframes flying-alien-skull-face-blacken {
+  from {
+    fill: #000000;
+    stroke: #000000;
+  }
+
+  to {
     fill: #ffffff;
     stroke: #ffffff;
   }
