@@ -994,10 +994,10 @@ svg {
     7% 35%,
     39% 35%
   );
-  opacity: 0;
+  opacity: 1;
   filter: drop-shadow(0 0 12px #7fffd4);
+  transform: translate(-50%, -50%) translateX(var(--burst-x)) scale(0.8);
   animation: wish-burst-star 900ms ease-out forwards;
-  animation-delay: var(--delay);
 }
 
 @media (max-width: 640px) {
@@ -1008,16 +1008,10 @@ svg {
 
 @keyframes wish-burst-star {
   0% {
-    transform: translate(-50%, -50%) translateX(0) scale(0.2);
-    opacity: 0;
-  }
-
-  18% {
     opacity: 1;
   }
 
   100% {
-    transform: translate(-50%, -50%) translateX(var(--burst-x)) scale(0.8);
     opacity: 0;
   }
 }

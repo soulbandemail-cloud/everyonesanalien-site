@@ -11,6 +11,9 @@ import {
 } from "react-icons/fa";
 
 const ZAP_STUN_DURATION = 3000;
+const WISH_BURST_DURATION = 900;
+const WISH_STAR_OFFSETS = [-120, -92, -66, -38, -14, 14, 38, 66, 92, 120];
+const WISH_STAR_HIT_PADDING = 18;
 
 type FlyingAlien = {
   id: number;
@@ -23,6 +26,7 @@ type FlyingAlien = {
   isBlackSkull?: boolean;
   turningBlack?: boolean;
   stunnedUntil?: number;
+  lastWishBounce?: number;
 };
 
 export default function Home() {
@@ -33,6 +37,9 @@ export default function Home() {
   const antennaRef = useRef<HTMLSpanElement | null>(null);
   const tvSparkActiveRef = useRef(false);
   const tvSparkTimeoutRef = useRef<number | null>(null);
+  const wishBarrierRef = useRef<{ key: number; activeUntil: number } | null>(
+    null
+  );
   const [tvPos, setTvPos] = useState<{ x: number; y: number } | null>(null);
   const [tvExpanded, setTvExpanded] = useState(false);
   const [tvStarted, setTvStarted] = useState(false);
@@ -68,12 +75,22 @@ const catchShootingStar = (e: React.PointerEvent<HTMLSpanElement>) => {
 };
 
 const closeWishPrompt = () => {
+  const key = Date.now();
+
   setWishPrompt(false);
-  setWishPoof(Date.now());
+  setWishPoof(key);
+  wishBarrierRef.current = {
+    key,
+    activeUntil: key + WISH_BURST_DURATION,
+  };
 
   setTimeout(() => {
-    setWishPoof(0);
-  }, 900);
+    setWishPoof((current) => (current === key ? 0 : current));
+
+    if (wishBarrierRef.current?.key === key) {
+      wishBarrierRef.current = null;
+    }
+  }, WISH_BURST_DURATION);
 };
 
 
@@ -200,6 +217,51 @@ const getAntennaCircuitPoint = () => {
   };
 };
 
+const reflectAlienOffWishStars = (
+  alien: FlyingAlien,
+  next: FlyingAlien,
+  now: number
+) => {
+  const barrier = wishBarrierRef.current;
+
+  if (!barrier || now > barrier.activeUntil || alien.lastWishBounce === barrier.key) {
+    return next;
+  }
+
+  const starY = window.innerHeight * (window.innerWidth < 640 ? 0.24 : 0.34);
+  const minX =
+    window.innerWidth / 2 +
+    Math.min(...WISH_STAR_OFFSETS) -
+    WISH_STAR_HIT_PADDING;
+  const maxX =
+    window.innerWidth / 2 +
+    Math.max(...WISH_STAR_OFFSETS) +
+    WISH_STAR_HIT_PADDING;
+  const crossedStars =
+    (alien.y <= starY && next.y >= starY) ||
+    (alien.y >= starY && next.y <= starY);
+
+  if (!crossedStars || alien.vy === 0) {
+    return next;
+  }
+
+  const travelY = next.y - alien.y;
+  const progress = travelY === 0 ? 0 : (starY - alien.y) / travelY;
+  const hitX = alien.x + (next.x - alien.x) * progress;
+
+  if (hitX < minX || hitX > maxX) {
+    return next;
+  }
+
+  return {
+    ...next,
+    x: hitX + alien.vx * Math.max(0, 1 - progress),
+    y: starY - Math.sign(alien.vy) * 18,
+    vy: -alien.vy,
+    lastWishBounce: barrier.key,
+  };
+};
+
 const sparkTvAntenna = (e: React.PointerEvent<HTMLSpanElement>) => {
   e.preventDefault();
   e.stopPropagation();
@@ -306,11 +368,13 @@ useEffect(() => {
                 }
               : alien;
 
-          const next = {
+          let next = {
             ...activeAlien,
             x: activeAlien.x + activeAlien.vx,
             y: activeAlien.y + activeAlien.vy,
           };
+
+          next = reflectAlienOffWishStars(activeAlien, next, now);
 
           const hitSpark =
             sparkPoint &&
@@ -948,14 +1012,13 @@ return (
 
     {wishPoof > 0 && (
       <div key={wishPoof} className="wish-burst-layer">
-        {[-120, -92, -66, -38, -14, 14, 38, 66, 92, 120].map((x, i) => (
+        {WISH_STAR_OFFSETS.map((x, i) => (
           <span
             key={i}
             className="wish-burst-star"
             style={
               {
                 "--burst-x": `${x}px`,
-                "--delay": `${i * 45}ms`,
               } as React.CSSProperties
             }
           />
