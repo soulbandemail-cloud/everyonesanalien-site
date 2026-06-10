@@ -1182,7 +1182,7 @@ return (
 
         <div className="grid gap-8 md:gap-16 md:grid-cols-3 mt-2 mb-4 md:mb-16">
           <section className="md:max-w-sm md:mx-auto">
-            <h2 className="text-2xl mb-4">GET YOUR HYPER-FIX!</h2>
+            <h2 className="text-2xl mb-4">GET YOUR HYPER-FIX</h2>
             <p className="mb-4">
               Sign up to SOUL&apos;s mailing list for discounts on merch and tickets to headline shows!
             </p>
