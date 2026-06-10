@@ -983,12 +983,12 @@ svg {
   position: fixed;
   left: 50%;
   top: 34%;
-  width: 280px;
+  width: 150px;
   height: 48px;
   cursor: ew-resize;
   pointer-events: auto;
   touch-action: none;
-  transform: translate(-50%, -50%) translateX(var(--wish-paddle-x, 0px));
+  transform: translate(-50%, -50%) translateX(calc(var(--wish-paddle-x, 0px) + var(--wish-paddle-center-x, 0px)));
 }
 
 .wish-burst-star {

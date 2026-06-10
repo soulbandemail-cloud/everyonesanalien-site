@@ -15,12 +15,15 @@ const WISH_BURST_DURATION = 900;
 const WISH_BOUNCE_COOLDOWN = 140;
 const FOOTER_BOUNCE_COOLDOWN = 140;
 const WISH_STAR_OFFSETS = [-120, -92, -66, -38, -14, 14, 38, 66, 92, 120];
+const PONG_STAR_OFFSETS = [-120, -92, -66, -38, -14];
+const PONG_PADDLE_CENTER_OFFSET = -67;
 const WISH_STAR_HIT_PADDING = 18;
 
 type WishBarrier = {
   key: number;
   activeUntil: number;
   xOffset: number;
+  starOffsets: number[];
 };
 
 type FlyingAlien = {
@@ -80,6 +83,9 @@ const catchShootingStar = (e: React.PointerEvent<HTMLSpanElement>) => {
   e.stopPropagation();
 
   setWish("");
+  setWishPoof(0);
+  setPongWish(null);
+  wishBarrierRef.current = null;
   setWishPrompt(true);
 };
 
@@ -95,6 +101,7 @@ const closeWishPrompt = () => {
     key,
     activeUntil: isPongWish ? Number.POSITIVE_INFINITY : key + WISH_BURST_DURATION,
     xOffset: 0,
+    starOffsets: isPongWish ? PONG_STAR_OFFSETS : WISH_STAR_OFFSETS,
   };
 
   if (isPongWish) {
@@ -253,12 +260,12 @@ const reflectAlienOffWishStars = (
   const minX =
     window.innerWidth / 2 +
     barrier.xOffset +
-    Math.min(...WISH_STAR_OFFSETS) -
+    Math.min(...barrier.starOffsets) -
     WISH_STAR_HIT_PADDING;
   const maxX =
     window.innerWidth / 2 +
     barrier.xOffset +
-    Math.max(...WISH_STAR_OFFSETS) +
+    Math.max(...barrier.starOffsets) +
     WISH_STAR_HIT_PADDING;
   const crossedStars =
     (alien.y <= starY && next.y >= starY) ||
@@ -1106,6 +1113,7 @@ return (
         style={
           {
             "--wish-paddle-x": `${pongWish?.x ?? 0}px`,
+            "--wish-paddle-center-x": `${pongWish ? PONG_PADDLE_CENTER_OFFSET : 0}px`,
           } as React.CSSProperties
         }
       >
@@ -1116,7 +1124,7 @@ return (
             aria-hidden="true"
           />
         )}
-        {WISH_STAR_OFFSETS.map((x, i) => (
+        {(pongWish ? PONG_STAR_OFFSETS : WISH_STAR_OFFSETS).map((x, i) => (
           <span
             key={i}
             className={`wish-burst-star ${pongWish ? "wish-pong-star" : ""}`}
