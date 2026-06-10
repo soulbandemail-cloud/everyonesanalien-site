@@ -27,6 +27,7 @@ const WISH_RULE_TRIGGERS = [
   /\bdead\b/,
   /\bdie\b/,
   /\bdeath\b/,
+  /back\s+to\s+life/,
   /fall\s+in\s+love/,
 ];
 
@@ -1112,7 +1113,7 @@ return (
 
 
 {(wishPrompt || wishPoof > 0 || wishRulesKey > 0) && (
-  <div className="relative flex min-h-[72px] justify-center mb-0">
+  <div className={`relative flex min-h-[72px] justify-center ${wishRulesKey > 0 ? "mb-4" : "mb-0"}`}>
     {wishPrompt && (
       <form
         className="wish-box"
