@@ -12,12 +12,23 @@ import {
 
 const ZAP_STUN_DURATION = 3000;
 const WISH_BURST_DURATION = 900;
+const WISH_RULE_DURATION = 6000;
 const WISH_BOUNCE_COOLDOWN = 140;
 const FOOTER_BOUNCE_COOLDOWN = 140;
 const WISH_STAR_OFFSETS = [-120, -92, -66, -38, -14, 14, 38, 66, 92, 120];
 const PONG_STAR_OFFSETS = [-120, -92, -66, -38, -14];
 const PONG_PADDLE_CENTER_OFFSET = -67;
 const WISH_STAR_HIT_PADDING = 18;
+const WISH_RULE_TRIGGERS = [
+  /another\s+wish/,
+  /more\s+wishes/,
+  /infinite\s+wishes/,
+  /\bkill\b/,
+  /\bdead\b/,
+  /\bdie\b/,
+  /\bdeath\b/,
+  /fall\s+in\s+love/,
+];
 
 type WishBarrier = {
   key: number;
@@ -76,6 +87,7 @@ export default function Home() {
 const [wishPrompt, setWishPrompt] = useState(false);
 const [wish, setWish] = useState("");
 const [wishPoof, setWishPoof] = useState(0);
+const [wishRulesKey, setWishRulesKey] = useState(0);
 const [pongWish, setPongWish] = useState<{ key: number; x: number } | null>(null);
 
 const catchShootingStar = (e: React.PointerEvent<HTMLSpanElement>) => {
@@ -84,6 +96,7 @@ const catchShootingStar = (e: React.PointerEvent<HTMLSpanElement>) => {
 
   setWish("");
   setWishPoof(0);
+  setWishRulesKey(0);
   setPongWish(null);
   wishBarrierRef.current = null;
   setWishPrompt(true);
@@ -93,8 +106,26 @@ const closeWishPrompt = () => {
   const key = Date.now();
   const wishcode = wish.trim().toLowerCase();
   const isPongWish = wishcode === "pong";
+  const isRulesWish = WISH_RULE_TRIGGERS.some((trigger) =>
+    trigger.test(wishcode)
+  );
 
   setWishPrompt(false);
+
+  if (isRulesWish) {
+    setWishPoof(0);
+    setPongWish(null);
+    setWishRulesKey(key);
+    wishBarrierRef.current = null;
+
+    setTimeout(() => {
+      setWishRulesKey((current) => (current === key ? 0 : current));
+    }, WISH_RULE_DURATION);
+
+    return;
+  }
+
+  setWishRulesKey(0);
   setWishPoof(key);
   setPongWish(isPongWish ? { key, x: 0 } : null);
   wishBarrierRef.current = {
@@ -1080,7 +1111,7 @@ return (
         </div>
 
 
-{(wishPrompt || wishPoof > 0) && (
+{(wishPrompt || wishPoof > 0 || wishRulesKey > 0) && (
   <div className="relative flex min-h-[72px] justify-center mb-0">
     {wishPrompt && (
       <form
@@ -1104,6 +1135,15 @@ return (
           className="pink-border-glow border border-white bg-[#00082d] focus:bg-[#00082d] px-3 py-2 text-white placeholder:text-white/70 outline-none focus:border-[#7fffd4]"
         />
       </form>
+    )}
+
+    {wishRulesKey > 0 && (
+      <div key={wishRulesKey} className="wish-rules-box">
+        <p>Rule 1: Can&apos;t kill anybody.</p>
+        <p>Rule 2: Can&apos;t make anyone fall in love.</p>
+        <p>Rule 3: Can&apos;t bring people back from the dead.</p>
+        <p>And no wishing for more wishes!</p>
+      </div>
     )}
 
     {wishPoof > 0 && (
