@@ -12,7 +12,7 @@ import {
 
 const ZAP_STUN_DURATION = 3000;
 const WISH_BURST_DURATION = 900;
-const WISH_RULE_DURATION = 6000;
+const WISH_RULE_DURATION = 8000;
 const WISH_BOUNCE_COOLDOWN = 140;
 const FOOTER_BOUNCE_COOLDOWN = 140;
 const WISH_STAR_OFFSETS = [-120, -92, -66, -38, -14, 14, 38, 66, 92, 120];
@@ -1229,7 +1229,7 @@ return (
               />
 
               <button
-                className="pink-border-glow border border-white p-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] active:bg-[#6ee7b7] active:border-[#6ee7b7] active:text-[#00082d] transition-all duration-200 disabled:opacity-50"
+                className="pink-border-glow pink-text-glow border border-white p-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] active:bg-[#6ee7b7] active:border-[#6ee7b7] active:text-[#00082d] transition-all duration-200 disabled:opacity-50"
                 disabled={status === "loading"}
               >
                 {status === "loading" ? "MATING..." : "BECOME A MATE"}
