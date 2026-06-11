@@ -158,7 +158,7 @@ const closeWishPrompt = () => {
 const orbitRef = useRef<HTMLSpanElement | null>(null);
   const ufoOrbitingRef = useRef(false);
   const [ufoOrbiting, setUfoOrbiting] = useState(false);
-  const [heartPulseKey, setHeartPulseKey] = useState(0);
+  
   const [heartPulse, setHeartPulse] = useState({
   x: -100,
   y: -100,
@@ -662,17 +662,13 @@ useEffect(() => {
             }
 
             const key = Date.now();
-            const wasUfoOrbiting = ufoOrbitingRef.current;
+            
 
             setRingBlinking(true);
             ufoOrbitingRef.current = false;
             setUfoOrbiting(false);
             setHideCursorUfo(true);
-            if (wasUfoOrbiting) {
-              triggerUfoSpiral(heartX, heartY, key);
-            }
-            triggerHeartPulse(heartX, heartY, key);
-
+            
             window.setTimeout(() => {
               setRingBlinking(false);
             }, 420);
