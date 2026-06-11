@@ -635,7 +635,7 @@ useEffect(() => {
               
               triggerFlashbang(key, "black");
               triggerWomboCombo(key);
-              triggerHeartPulse(heartX, heartY, key);
+              
 
               window.setTimeout(() => {
                 setRingBlinking(false);
@@ -652,7 +652,7 @@ useEffect(() => {
               setUfoOrbiting(false);
               setHideCursorUfo(true);
               triggerFlashbang(key, "white");
-              triggerHeartPulse(heartX, heartY, key);
+              
 
               window.setTimeout(() => {
                 setRingBlinking(false);
@@ -668,7 +668,8 @@ useEffect(() => {
             ufoOrbitingRef.current = false;
             setUfoOrbiting(false);
             setHideCursorUfo(true);
-            
+            triggerHeartPulse(heartX, heartY, key);
+
             window.setTimeout(() => {
               setRingBlinking(false);
             }, 420);
