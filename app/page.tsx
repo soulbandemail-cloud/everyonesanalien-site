@@ -70,6 +70,7 @@ export default function Home() {
   const womboComboTimeoutRef = useRef<number | null>(null);
   const heartPulseTimeoutRef = useRef<number | null>(null);
   const ufoSpiralTimeoutRef = useRef<number | null>(null);
+  const ufoSpiralActiveRef = useRef(false);
   const wishBarrierRef = useRef<WishBarrier | null>(null);
   const [tvPos, setTvPos] = useState<{ x: number; y: number } | null>(null);
   const [tvExpanded, setTvExpanded] = useState(false);
@@ -192,16 +193,15 @@ const triggerWomboCombo = (key: number) => {
 };
 
 const triggerUfoSpiral = (x: number, y: number, key: number) => {
+  if (ufoSpiralActiveRef.current) return;
+
+  ufoSpiralActiveRef.current = true;
   setUfoSpiral({ x, y, key });
-
-  if (ufoSpiralTimeoutRef.current) {
-    window.clearTimeout(ufoSpiralTimeoutRef.current);
-  }
-
   ufoSpiralTimeoutRef.current = window.setTimeout(() => {
     setUfoSpiral((current) => (current?.key === key ? null : current));
+    ufoSpiralActiveRef.current = false;
     ufoSpiralTimeoutRef.current = null;
-  }, 1700);
+  }, 1500);
 };
 
 const triggerHeartPulse = (x: number, y: number, key: number) => {
@@ -548,6 +548,7 @@ useEffect(() => {
 
     if (ufoSpiralTimeoutRef.current) {
       window.clearTimeout(ufoSpiralTimeoutRef.current);
+      ufoSpiralActiveRef.current = false;
     }
   };
 }, []);
