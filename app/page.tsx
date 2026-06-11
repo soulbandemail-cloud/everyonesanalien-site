@@ -66,8 +66,8 @@ export default function Home() {
   const tvSparkTimeoutRef = useRef<number | null>(null);
   const hideWishLayerTimeoutRef = useRef<number | null>(null);
   const womboComboTimeoutRef = useRef<number | null>(null);
-  const ufoFlyawayTimeoutRef = useRef<number | null>(null);
   const heartPulseTimeoutRef = useRef<number | null>(null);
+  const ufoFlyawayActiveRef = useRef(false);
   const wishBarrierRef = useRef<WishBarrier | null>(null);
   const [tvPos, setTvPos] = useState<{ x: number; y: number } | null>(null);
   const [tvExpanded, setTvExpanded] = useState(false);
@@ -177,15 +177,14 @@ const toggleUfoOrbit = () => {
 };
 
 const triggerUfoFlyaway = (x: number, y: number, key = Date.now()) => {
+  if (ufoFlyawayActiveRef.current) return;
+
+  ufoFlyawayActiveRef.current = true;
   setUfoFlyaway({ x, y, key });
 
-  if (ufoFlyawayTimeoutRef.current) {
-    window.clearTimeout(ufoFlyawayTimeoutRef.current);
-  }
-
-  ufoFlyawayTimeoutRef.current = window.setTimeout(() => {
-    setUfoFlyaway((current) => (current?.key === key ? null : current));
-    ufoFlyawayTimeoutRef.current = null;
+  window.setTimeout(() => {
+    ufoFlyawayActiveRef.current = false;
+    setUfoFlyaway(null);
   }, 2600);
 };
 
@@ -520,10 +519,6 @@ useEffect(() => {
 
     if (womboComboTimeoutRef.current) {
       window.clearTimeout(womboComboTimeoutRef.current);
-    }
-
-    if (ufoFlyawayTimeoutRef.current) {
-      window.clearTimeout(ufoFlyawayTimeoutRef.current);
     }
 
     if (heartPulseTimeoutRef.current) {
