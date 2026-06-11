@@ -196,21 +196,6 @@ const triggerWomboCombo = (key: number) => {
   }, 1700);
 };
 
-const triggerUfoSpiral = (x: number, y: number, key: number) => {
-  if (ufoSpiralActiveRef.current) return;
-
-  ufoSpiralActiveRef.current = true;
-  setUfoSpiral({
-    x,
-    y,
-    vx: -5,
-    vy: 10,
-    spin: -1,
-    angle: 0,
-    startedAt: key,
-    key,
-  });
-};
 
 const triggerHeartPulse = (x: number, y: number, key: number) => {
   setHeartPulse({ x, y, key });
