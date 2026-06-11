@@ -195,7 +195,7 @@ const triggerFlashbang = (key: number, type: "white" | "black") => {
   hideWishLayerTimeoutRef.current = window.setTimeout(() => {
     setHideWishLayerForFlash(false);
     hideWishLayerTimeoutRef.current = null;
-  }, 1200);
+  }, 500);
 
   setFlashbang({ key, type });
 };
@@ -495,6 +495,8 @@ useEffect(() => {
 
   const clearFlashTimeout = window.setTimeout(() => {
     flashbangActiveRef.current = false;
+    setWomboComboKey(0);
+    setUfoFlyaway(null);
     setFlashbang(null);
   }, 2800);
 
@@ -807,13 +809,13 @@ return (
   />
 )}
 
-{womboComboKey > 0 && (
+{womboComboKey > 0 && !flashbang && (
   <div key={womboComboKey} className="wombo-combo-callout" aria-hidden="true">
     WOMBO<br />COMBO
   </div>
 )}
 
-{ufoFlyaway && (
+{ufoFlyaway && !flashbang && (
   <div
     key={ufoFlyaway.key}
     className="ufo-flashbang-flyaway fixed pointer-events-none z-[10001]"
@@ -1200,10 +1202,12 @@ return (
       </div>
     )}
 
-    {wishPoof > 0 && !hideWishLayerForFlash && (
+    {wishPoof > 0 && (
       <div
         key={wishPoof}
-        className={`wish-burst-layer ${pongWish ? "wish-pong-layer" : ""}`}
+        className={`wish-burst-layer ${pongWish ? "wish-pong-layer" : ""} ${
+          hideWishLayerForFlash ? "wish-flash-hidden" : ""
+        }`}
         style={
           {
             "--wish-paddle-x": `${pongWish?.x ?? 0}px`,
