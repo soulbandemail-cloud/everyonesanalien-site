@@ -12,7 +12,6 @@ import {
 
 const ZAP_STUN_DURATION = 3000;
 const ZAP_RECATCH_COOLDOWN = 700;
-const HEART_HIT_EFFECT_COOLDOWN = 3200;
 const WISH_BURST_DURATION = 900;
 const WISH_RULE_DURATION = 8000;
 const WISH_BOUNCE_COOLDOWN = 140;
@@ -66,8 +65,6 @@ export default function Home() {
   const tvSparkActiveRef = useRef(false);
   const tvSparkTimeoutRef = useRef<number | null>(null);
   const hideWishLayerTimeoutRef = useRef<number | null>(null);
-  const lastHeartHitEffectAtRef = useRef(0);
-  const flashbangActiveRef = useRef(false);
   const wishBarrierRef = useRef<WishBarrier | null>(null);
   const [tvPos, setTvPos] = useState<{ x: number; y: number } | null>(null);
   const [tvExpanded, setTvExpanded] = useState(false);
@@ -185,7 +182,6 @@ const triggerUfoFlyaway = (x: number, y: number, key = Date.now()) => {
 };
 
 const triggerFlashbang = (key: number, type: "white" | "black") => {
-  flashbangActiveRef.current = true;
   setHideWishLayerForFlash(true);
 
   if (hideWishLayerTimeoutRef.current) {
@@ -489,12 +485,9 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
-  flashbangActiveRef.current = Boolean(flashbang);
-
   if (!flashbang) return;
 
   const clearFlashTimeout = window.setTimeout(() => {
-    flashbangActiveRef.current = false;
     setFlashbang(null);
   }, 2800);
 
@@ -572,15 +565,6 @@ useEffect(() => {
           const hitHeart = Math.hypot(next.x - heartX, next.y - heartY) < 42;
 
           if (hitHeart) {
-            if (
-              flashbangActiveRef.current ||
-              now - lastHeartHitEffectAtRef.current < HEART_HIT_EFFECT_COOLDOWN
-            ) {
-              return null;
-            }
-
-            lastHeartHitEffectAtRef.current = now;
-
             if (next.isBlackSkull) {
               const key = Date.now();
               const wasUfoOrbiting = ufoOrbitingRef.current;
@@ -816,7 +800,7 @@ return (
 {ufoFlyaway && (
   <div
     key={ufoFlyaway.key}
-    className="ufo-flashbang-flyaway fixed pointer-events-none z-[9999]"
+    className="ufo-flashbang-flyaway fixed pointer-events-none z-[10001]"
     style={{
       left: `${ufoFlyaway.x}px`,
       top: `${ufoFlyaway.y}px`,
