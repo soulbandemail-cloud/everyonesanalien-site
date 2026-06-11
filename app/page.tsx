@@ -201,7 +201,7 @@ const triggerUfoSpiral = (x: number, y: number, key: number) => {
   setUfoSpiral({
     x,
     y,
-    vx: -3.4,
+    vx: -3.5,
     vy: 6.2,
     spin: -1,
     key,
