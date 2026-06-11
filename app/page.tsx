@@ -89,6 +89,8 @@ export default function Home() {
     vx: number;
     vy: number;
     spin: number;
+    angle: number;
+    startedAt: number;
     key: number;
   } | null>(null);
   const [ufoPos, setUfoPos] = useState({ x: -100, y: -100 });
@@ -204,6 +206,8 @@ const triggerUfoSpiral = (x: number, y: number, key: number) => {
     vx: -3.5,
     vy: 6.2,
     spin: -1,
+    angle: 0,
+    startedAt: key,
     key,
   });
 };
@@ -575,14 +579,16 @@ useEffect(() => {
         ...current,
         x: current.x + current.vx,
         y: current.y + current.vy,
+        angle: current.angle + current.spin * 8.25,
       };
       const offscreen =
         next.x < -80 ||
         next.x > window.innerWidth + 80 ||
         next.y < -80 ||
         next.y > window.innerHeight + 80;
+      const expired = Date.now() - current.startedAt > 1400;
 
-      if (offscreen) {
+      if (offscreen || expired) {
         ufoSpiralActiveRef.current = false;
         return null;
       }
@@ -888,12 +894,12 @@ return (
   <svg
     key={ufoSpiral.key}
     viewBox="0 0 120 80"
-    className="ufo-heart-spiral flying-alien-head fixed pointer-events-none z-[10001] w-8 h-8"
+    className="ufo-heart-spiral fixed pointer-events-none z-[10001] w-8 h-8"
     style={
       {
         left: `${ufoSpiral.x}px`,
         top: `${ufoSpiral.y}px`,
-        "--spin": `${ufoSpiral.spin}`,
+        transform: `translate(-50%, -50%) rotate(${ufoSpiral.angle}deg)`,
       } as React.CSSProperties
     }
     aria-hidden="true"
