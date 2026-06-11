@@ -1017,7 +1017,7 @@ svg {
   z-index: 99999;
   pointer-events: none;
   opacity: 1;
-  transition: opacity 220ms ease-out;
+  transition: opacity 1s ease-out;
 }
 
 .wish-flash-hidden {
