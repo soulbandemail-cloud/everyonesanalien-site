@@ -65,6 +65,9 @@ export default function Home() {
   const tvSparkActiveRef = useRef(false);
   const tvSparkTimeoutRef = useRef<number | null>(null);
   const hideWishLayerTimeoutRef = useRef<number | null>(null);
+  const womboComboTimeoutRef = useRef<number | null>(null);
+  const ufoFlyawayTimeoutRef = useRef<number | null>(null);
+  const heartPulseTimeoutRef = useRef<number | null>(null);
   const wishBarrierRef = useRef<WishBarrier | null>(null);
   const [tvPos, setTvPos] = useState<{ x: number; y: number } | null>(null);
   const [tvExpanded, setTvExpanded] = useState(false);
@@ -176,9 +179,42 @@ const toggleUfoOrbit = () => {
 const triggerUfoFlyaway = (x: number, y: number, key = Date.now()) => {
   setUfoFlyaway({ x, y, key });
 
-  window.setTimeout(() => {
-    setUfoFlyaway(null);
+  if (ufoFlyawayTimeoutRef.current) {
+    window.clearTimeout(ufoFlyawayTimeoutRef.current);
+  }
+
+  ufoFlyawayTimeoutRef.current = window.setTimeout(() => {
+    setUfoFlyaway((current) => (current?.key === key ? null : current));
+    ufoFlyawayTimeoutRef.current = null;
   }, 2600);
+};
+
+const triggerWomboCombo = (key: number) => {
+  setWomboComboKey(key);
+
+  if (womboComboTimeoutRef.current) {
+    window.clearTimeout(womboComboTimeoutRef.current);
+  }
+
+  womboComboTimeoutRef.current = window.setTimeout(() => {
+    setWomboComboKey((current) => (current === key ? 0 : current));
+    womboComboTimeoutRef.current = null;
+  }, 1700);
+};
+
+const triggerHeartPulse = (x: number, y: number, key: number) => {
+  setHeartPulse({ x, y, key });
+
+  if (heartPulseTimeoutRef.current) {
+    window.clearTimeout(heartPulseTimeoutRef.current);
+  }
+
+  heartPulseTimeoutRef.current = window.setTimeout(() => {
+    setHeartPulse((current) =>
+      current.key === key ? { x: -100, y: -100, key: 0 } : current
+    );
+    heartPulseTimeoutRef.current = null;
+  }, 3000);
 };
 
 const triggerFlashbang = (key: number, type: "white" | "black") => {
@@ -481,6 +517,18 @@ useEffect(() => {
     if (hideWishLayerTimeoutRef.current) {
       window.clearTimeout(hideWishLayerTimeoutRef.current);
     }
+
+    if (womboComboTimeoutRef.current) {
+      window.clearTimeout(womboComboTimeoutRef.current);
+    }
+
+    if (ufoFlyawayTimeoutRef.current) {
+      window.clearTimeout(ufoFlyawayTimeoutRef.current);
+    }
+
+    if (heartPulseTimeoutRef.current) {
+      window.clearTimeout(heartPulseTimeoutRef.current);
+    }
   };
 }, []);
 
@@ -577,12 +625,8 @@ useEffect(() => {
                 triggerUfoFlyaway(heartX, heartY, key);
               }
               triggerFlashbang(key, "black");
-              setWomboComboKey(key);
-              setHeartPulse({
-                x: heartX,
-                y: heartY,
-                key,
-              });
+              triggerWomboCombo(key);
+              triggerHeartPulse(heartX, heartY, key);
 
               window.setTimeout(() => {
                 setRingBlinking(false);
@@ -603,11 +647,7 @@ useEffect(() => {
                 triggerUfoFlyaway(heartX, heartY, key);
               }
               triggerFlashbang(key, "white");
-              setHeartPulse({
-                x: heartX,
-                y: heartY,
-                key,
-              });
+              triggerHeartPulse(heartX, heartY, key);
 
               window.setTimeout(() => {
                 setRingBlinking(false);
@@ -626,11 +666,7 @@ useEffect(() => {
             if (wasUfoOrbiting) {
               triggerUfoFlyaway(heartX, heartY, key);
             }
-            setHeartPulse({
-              x: heartX,
-              y: heartY,
-              key,
-            });
+            triggerHeartPulse(heartX, heartY, key);
 
             window.setTimeout(() => {
               setRingBlinking(false);
