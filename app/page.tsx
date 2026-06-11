@@ -51,6 +51,7 @@ type FlyingAlien = {
   turningBlack?: boolean;
   stunnedUntil?: number;
   lastSparkCatch?: number;
+  needsSparkExit?: boolean;
   lastWishBounce?: number;
   lastFooterBounce?: number;
 };
@@ -563,11 +564,22 @@ useEffect(() => {
           next = reflectAlienOffWishStars(activeAlien, next, now);
           next = reflectAlienOffFooterLine(activeAlien, next, now);
 
+          const nearSpark = Boolean(
+            sparkPoint &&
+              Math.hypot(next.x - sparkX, next.y - sparkY) < sparkRadius
+          );
+          const needsSparkExit = Boolean(activeAlien.needsSparkExit && sparkPoint && nearSpark);
+
+          if (activeAlien.needsSparkExit !== needsSparkExit) {
+            next = { ...next, needsSparkExit };
+          }
+
           const hitSpark =
             sparkPoint &&
             !activeAlien.stunnedUntil &&
+            !needsSparkExit &&
             now - (activeAlien.lastSparkCatch ?? 0) > ZAP_RECATCH_COOLDOWN &&
-            Math.hypot(next.x - sparkX, next.y - sparkY) < sparkRadius;
+            nearSpark;
 
           if (hitSpark) {
             const stunnedUntil = now + ZAP_STUN_DURATION;
@@ -583,6 +595,7 @@ useEffect(() => {
               turningBlack: next.isSkull || next.isBlackSkull,
               stunnedUntil,
               lastSparkCatch: now,
+              needsSparkExit: true,
             };
           }
 
