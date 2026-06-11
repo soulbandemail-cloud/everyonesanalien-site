@@ -495,8 +495,6 @@ useEffect(() => {
 
   const clearFlashTimeout = window.setTimeout(() => {
     flashbangActiveRef.current = false;
-    setWomboComboKey(0);
-    setUfoFlyaway(null);
     setFlashbang(null);
   }, 2800);
 
@@ -809,16 +807,16 @@ return (
   />
 )}
 
-{womboComboKey > 0 && !flashbang && (
+{womboComboKey > 0 && (
   <div key={womboComboKey} className="wombo-combo-callout" aria-hidden="true">
     WOMBO<br />COMBO
   </div>
 )}
 
-{ufoFlyaway && !flashbang && (
+{ufoFlyaway && (
   <div
     key={ufoFlyaway.key}
-    className="ufo-flashbang-flyaway fixed pointer-events-none z-[10001]"
+    className="ufo-flashbang-flyaway fixed pointer-events-none z-[9999]"
     style={{
       left: `${ufoFlyaway.x}px`,
       top: `${ufoFlyaway.y}px`,
