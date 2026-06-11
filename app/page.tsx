@@ -11,6 +11,8 @@ import {
 } from "react-icons/fa";
 
 const ZAP_STUN_DURATION = 3000;
+const ZAP_RECATCH_COOLDOWN = 700;
+const HEART_HIT_EFFECT_COOLDOWN = 3200;
 const WISH_BURST_DURATION = 900;
 const WISH_RULE_DURATION = 8000;
 const WISH_BOUNCE_COOLDOWN = 140;
@@ -49,6 +51,7 @@ type FlyingAlien = {
   isBlackSkull?: boolean;
   turningBlack?: boolean;
   stunnedUntil?: number;
+  lastSparkCatch?: number;
   lastWishBounce?: number;
   lastFooterBounce?: number;
 };
@@ -62,6 +65,9 @@ export default function Home() {
   const footerRef = useRef<HTMLDivElement | null>(null);
   const tvSparkActiveRef = useRef(false);
   const tvSparkTimeoutRef = useRef<number | null>(null);
+  const hideWishLayerTimeoutRef = useRef<number | null>(null);
+  const lastHeartHitEffectAtRef = useRef(0);
+  const flashbangActiveRef = useRef(false);
   const wishBarrierRef = useRef<WishBarrier | null>(null);
   const [tvPos, setTvPos] = useState<{ x: number; y: number } | null>(null);
   const [tvExpanded, setTvExpanded] = useState(false);
@@ -72,6 +78,7 @@ export default function Home() {
     key: number;
     type: "white" | "black";
   } | null>(null);
+  const [hideWishLayerForFlash, setHideWishLayerForFlash] = useState(false);
   const [womboComboKey, setWomboComboKey] = useState(0);
   const [ufoFlyaway, setUfoFlyaway] = useState<{
     x: number;
@@ -175,6 +182,22 @@ const triggerUfoFlyaway = (x: number, y: number, key = Date.now()) => {
   window.setTimeout(() => {
     setUfoFlyaway(null);
   }, 2600);
+};
+
+const triggerFlashbang = (key: number, type: "white" | "black") => {
+  flashbangActiveRef.current = true;
+  setHideWishLayerForFlash(true);
+
+  if (hideWishLayerTimeoutRef.current) {
+    window.clearTimeout(hideWishLayerTimeoutRef.current);
+  }
+
+  hideWishLayerTimeoutRef.current = window.setTimeout(() => {
+    setHideWishLayerForFlash(false);
+    hideWishLayerTimeoutRef.current = null;
+  }, 1200);
+
+  setFlashbang({ key, type });
 };
 
 const launchAlien = (e: React.PointerEvent<SVGSVGElement>) => {
@@ -458,17 +481,26 @@ useEffect(() => {
     if (tvSparkTimeoutRef.current) {
       window.clearTimeout(tvSparkTimeoutRef.current);
     }
+
+    if (hideWishLayerTimeoutRef.current) {
+      window.clearTimeout(hideWishLayerTimeoutRef.current);
+    }
   };
 }, []);
 
 useEffect(() => {
+  flashbangActiveRef.current = Boolean(flashbang);
+
   if (!flashbang) return;
 
-  const timeout = window.setTimeout(() => {
+  const clearFlashTimeout = window.setTimeout(() => {
+    flashbangActiveRef.current = false;
     setFlashbang(null);
   }, 2800);
 
-  return () => window.clearTimeout(timeout);
+  return () => {
+    window.clearTimeout(clearFlashTimeout);
+  };
 }, [flashbang]);
 
 useEffect(() => {
@@ -517,6 +549,7 @@ useEffect(() => {
           const hitSpark =
             sparkPoint &&
             !activeAlien.stunnedUntil &&
+            now - (activeAlien.lastSparkCatch ?? 0) > ZAP_RECATCH_COOLDOWN &&
             Math.hypot(next.x - sparkX, next.y - sparkY) < sparkRadius;
 
           if (hitSpark) {
@@ -532,12 +565,22 @@ useEffect(() => {
               isBlackSkull: next.isSkull ? false : next.isBlackSkull,
               turningBlack: next.isSkull || next.isBlackSkull,
               stunnedUntil,
+              lastSparkCatch: now,
             };
           }
 
           const hitHeart = Math.hypot(next.x - heartX, next.y - heartY) < 42;
 
           if (hitHeart) {
+            if (
+              flashbangActiveRef.current ||
+              now - lastHeartHitEffectAtRef.current < HEART_HIT_EFFECT_COOLDOWN
+            ) {
+              return null;
+            }
+
+            lastHeartHitEffectAtRef.current = now;
+
             if (next.isBlackSkull) {
               const key = Date.now();
               const wasUfoOrbiting = ufoOrbitingRef.current;
@@ -549,7 +592,7 @@ useEffect(() => {
                 setHideCursorUfo(true);
                 triggerUfoFlyaway(heartX, heartY, key);
               }
-              setFlashbang({ key, type: "black" });
+              triggerFlashbang(key, "black");
               setWomboComboKey(key);
               setHeartPulse({
                 x: heartX,
@@ -575,7 +618,7 @@ useEffect(() => {
               if (wasUfoOrbiting) {
                 triggerUfoFlyaway(heartX, heartY, key);
               }
-              setFlashbang({ key, type: "white" });
+              triggerFlashbang(key, "white");
               setHeartPulse({
                 x: heartX,
                 y: heartY,
@@ -1157,7 +1200,7 @@ return (
       </div>
     )}
 
-    {wishPoof > 0 && !flashbang && (
+    {wishPoof > 0 && !hideWishLayerForFlash && (
       <div
         key={wishPoof}
         className={`wish-burst-layer ${pongWish ? "wish-pong-layer" : ""}`}
