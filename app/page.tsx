@@ -67,7 +67,6 @@ export default function Home() {
   const hideWishLayerTimeoutRef = useRef<number | null>(null);
   const womboComboTimeoutRef = useRef<number | null>(null);
   const heartPulseTimeoutRef = useRef<number | null>(null);
-  const ufoFlyawayActiveRef = useRef(false);
   const wishBarrierRef = useRef<WishBarrier | null>(null);
   const [tvPos, setTvPos] = useState<{ x: number; y: number } | null>(null);
   const [tvExpanded, setTvExpanded] = useState(false);
@@ -80,12 +79,6 @@ export default function Home() {
   } | null>(null);
   const [hideWishLayerForFlash, setHideWishLayerForFlash] = useState(false);
   const [womboComboKey, setWomboComboKey] = useState(0);
-  const [ufoFlyaway, setUfoFlyaway] = useState<{
-    x: number;
-    y: number;
-    key: number;
-  } | null>(null);
-
   const [ufoPos, setUfoPos] = useState({ x: -100, y: -100 });
   const [hideCursorUfo, setHideCursorUfo] = useState(false);
   const [ringBlinking, setRingBlinking] = useState(false);
@@ -174,18 +167,6 @@ const toggleUfoOrbit = () => {
 
     return nextOrbiting;
   });
-};
-
-const triggerUfoFlyaway = (x: number, y: number, key = Date.now()) => {
-  if (ufoFlyawayActiveRef.current) return;
-
-  ufoFlyawayActiveRef.current = true;
-  setUfoFlyaway({ x, y, key });
-
-  window.setTimeout(() => {
-    ufoFlyawayActiveRef.current = false;
-    setUfoFlyaway(null);
-  }, 2600);
 };
 
 const triggerWomboCombo = (key: number) => {
@@ -617,7 +598,6 @@ useEffect(() => {
                 ufoOrbitingRef.current = false;
                 setUfoOrbiting(false);
                 setHideCursorUfo(true);
-                triggerUfoFlyaway(heartX, heartY, key);
               }
               triggerFlashbang(key, "black");
               triggerWomboCombo(key);
@@ -632,15 +612,11 @@ useEffect(() => {
 
             if (next.isSkull) {
               const key = Date.now();
-              const wasUfoOrbiting = ufoOrbitingRef.current;
 
               setRingBlinking(true);
               ufoOrbitingRef.current = false;
               setUfoOrbiting(false);
               setHideCursorUfo(true);
-              if (wasUfoOrbiting) {
-                triggerUfoFlyaway(heartX, heartY, key);
-              }
               triggerFlashbang(key, "white");
               triggerHeartPulse(heartX, heartY, key);
 
@@ -652,15 +628,11 @@ useEffect(() => {
             }
 
             const key = Date.now();
-            const wasUfoOrbiting = ufoOrbitingRef.current;
 
             setRingBlinking(true);
             ufoOrbitingRef.current = false;
             setUfoOrbiting(false);
             setHideCursorUfo(true);
-            if (wasUfoOrbiting) {
-              triggerUfoFlyaway(heartX, heartY, key);
-            }
             triggerHeartPulse(heartX, heartY, key);
 
             window.setTimeout(() => {
@@ -825,55 +797,6 @@ return (
 {womboComboKey > 0 && (
   <div key={womboComboKey} className="wombo-combo-callout" aria-hidden="true">
     WOMBO<br />COMBO
-  </div>
-)}
-
-{ufoFlyaway && (
-  <div
-    key={ufoFlyaway.key}
-    className="ufo-flashbang-flyaway fixed pointer-events-none z-[10001]"
-    style={{
-      left: `${ufoFlyaway.x}px`,
-      top: `${ufoFlyaway.y}px`,
-    }}
-    aria-hidden="true"
-  >
-    <svg viewBox="0 0 120 80" className="pink-svg-glow w-10 h-10 opacity-95">
-      <ellipse cx="60" cy="42" rx="42" ry="12" fill="#ffffff" />
-      <ellipse
-        cx="60"
-        cy="35"
-        rx="22"
-        ry="17"
-        fill="none"
-        stroke="#ffffff"
-        strokeWidth="5"
-      />
-      <circle cx="38" cy="44" r="3" fill="black" />
-      <circle cx="60" cy="46" r="3" fill="black" />
-      <circle cx="82" cy="44" r="3" fill="black" />
-      <path
-        d="M46 56 L34 74"
-        stroke="#7fffd4"
-        strokeWidth="3"
-        strokeLinecap="round"
-        opacity="0.55"
-      />
-      <path
-        d="M60 58 L60 78"
-        stroke="#7fffd4"
-        strokeWidth="3"
-        strokeLinecap="round"
-        opacity="0.4"
-      />
-      <path
-        d="M74 56 L86 74"
-        stroke="#7fffd4"
-        strokeWidth="3"
-        strokeLinecap="round"
-        opacity="0.55"
-      />
-    </svg>
   </div>
 )}
 
