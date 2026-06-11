@@ -462,6 +462,16 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
+  if (!flashbang) return;
+
+  const timeout = window.setTimeout(() => {
+    setFlashbang(null);
+  }, 2800);
+
+  return () => window.clearTimeout(timeout);
+}, [flashbang]);
+
+useEffect(() => {
   const interval = window.setInterval(() => {
     setFlyingAliens((aliens) => {
       if (!orbitRef.current) return aliens;
@@ -1147,7 +1157,7 @@ return (
       </div>
     )}
 
-    {wishPoof > 0 && (
+    {wishPoof > 0 && !flashbang && (
       <div
         key={wishPoof}
         className={`wish-burst-layer ${pongWish ? "wish-pong-layer" : ""}`}

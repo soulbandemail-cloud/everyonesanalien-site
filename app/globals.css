@@ -632,83 +632,83 @@ body {
   filter: drop-shadow(0 0 8px #6ee7b7);
 }
 
-/* guaranteed launch star: appears after 5 seconds */
+/* guaranteed launch star: appears after 3 seconds */
 .shooting-star-launch {
   top: 24%;
   left: -35%;
   opacity: 1;
-  animation: shooting-star-launch 2.2s ease-out 5s forwards;
+  animation: shooting-star-launch 2.2s ease-out 3s forwards;
 }
 
 /* sparse background stars */
 .shooting-star-1 {
   top: 18%;
   left: -30%;
-  animation: shooting-star-one 19s ease-in-out infinite;
-  animation-delay: 12s;
+  animation: shooting-star-one 14s ease-in-out infinite;
+  animation-delay: 5s;
 }
 
 .shooting-star-2 {
   top: 45%;
   left: -30%;
-  animation: shooting-star-two 23s ease-in-out infinite;
-  animation-delay: 22s;
+  animation: shooting-star-two 16s ease-in-out infinite;
+  animation-delay: 7s;
 }
 
 .shooting-star-3 {
   top: 72%;
   right: -30%;
-  animation: shooting-star-three 29s ease-in-out infinite;
-  animation-delay: 33s;
+  animation: shooting-star-three 18s ease-in-out infinite;
+  animation-delay: 9s;
 }
 
 .shooting-star-4 {
   top: -20%;
   left: 22%;
-  animation: shooting-star-four 31s ease-in-out infinite;
-  animation-delay: 44s;
+  animation: shooting-star-four 19s ease-in-out infinite;
+  animation-delay: 11s;
 }
 
 .shooting-star-5 {
   bottom: -20%;
   left: 66%;
-  animation: shooting-star-five 37s ease-in-out infinite;
-  animation-delay: 55s;
+  animation: shooting-star-five 21s ease-in-out infinite;
+  animation-delay: 13s;
 }
 
 .shooting-star-6 {
   top: 58%;
   right: -35%;
-  animation: shooting-star-six 41s ease-in-out infinite;
-  animation-delay: 66s;
+  animation: shooting-star-six 22s ease-in-out infinite;
+  animation-delay: 15s;
 }
 
 .shooting-star-7 {
   bottom: -20%;
   left: 12%;
-  animation: shooting-star-seven 43s ease-in-out infinite;
-  animation-delay: 77s;
+  animation: shooting-star-seven 23s ease-in-out infinite;
+  animation-delay: 17s;
 }
 
 .shooting-star-8 {
   top: -25%;
   left: 78%;
-  animation: shooting-star-eight 47s ease-in-out infinite;
-  animation-delay: 88s;
+  animation: shooting-star-eight 24s ease-in-out infinite;
+  animation-delay: 19s;
 }
 
 .shooting-star-9 {
   top: 48%;
   left: -25%;
-  animation: shooting-star-nine 53s ease-in-out infinite;
-  animation-delay: 99s;
+  animation: shooting-star-nine 25s ease-in-out infinite;
+  animation-delay: 21s;
 }
 
 .shooting-star-10 {
   top: 90%;
   right: -20%;
-  animation: shooting-star-ten 59s ease-in-out infinite;
-  animation-delay: 110s;
+  animation: shooting-star-ten 26s ease-in-out infinite;
+  animation-delay: 23s;
 }
 
 @keyframes shooting-star-launch {
