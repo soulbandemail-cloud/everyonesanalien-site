@@ -69,7 +69,6 @@ export default function Home() {
   const wishLayerReturnTimeoutRef = useRef<number | null>(null);
   const womboComboTimeoutRef = useRef<number | null>(null);
   const heartPulseTimeoutRef = useRef<number | null>(null);
-  const ufoSpiralTimeoutRef = useRef<number | null>(null);
   const ufoSpiralActiveRef = useRef(false);
   const wishBarrierRef = useRef<WishBarrier | null>(null);
   const [tvPos, setTvPos] = useState<{ x: number; y: number } | null>(null);
@@ -87,6 +86,9 @@ export default function Home() {
   const [ufoSpiral, setUfoSpiral] = useState<{
     x: number;
     y: number;
+    vx: number;
+    vy: number;
+    spin: number;
     key: number;
   } | null>(null);
   const [ufoPos, setUfoPos] = useState({ x: -100, y: -100 });
@@ -196,12 +198,14 @@ const triggerUfoSpiral = (x: number, y: number, key: number) => {
   if (ufoSpiralActiveRef.current) return;
 
   ufoSpiralActiveRef.current = true;
-  setUfoSpiral({ x, y, key });
-  ufoSpiralTimeoutRef.current = window.setTimeout(() => {
-    setUfoSpiral((current) => (current?.key === key ? null : current));
-    ufoSpiralActiveRef.current = false;
-    ufoSpiralTimeoutRef.current = null;
-  }, 1500);
+  setUfoSpiral({
+    x,
+    y,
+    vx: -3.4,
+    vy: 6.2,
+    spin: -1,
+    key,
+  });
 };
 
 const triggerHeartPulse = (x: number, y: number, key: number) => {
@@ -546,10 +550,7 @@ useEffect(() => {
       window.clearTimeout(heartPulseTimeoutRef.current);
     }
 
-    if (ufoSpiralTimeoutRef.current) {
-      window.clearTimeout(ufoSpiralTimeoutRef.current);
-      ufoSpiralActiveRef.current = false;
-    }
+    ufoSpiralActiveRef.current = false;
   };
 }, []);
 
@@ -567,6 +568,28 @@ useEffect(() => {
 
 useEffect(() => {
   const interval = window.setInterval(() => {
+    setUfoSpiral((current) => {
+      if (!current) return current;
+
+      const next = {
+        ...current,
+        x: current.x + current.vx,
+        y: current.y + current.vy,
+      };
+      const offscreen =
+        next.x < -80 ||
+        next.x > window.innerWidth + 80 ||
+        next.y < -80 ||
+        next.y > window.innerHeight + 80;
+
+      if (offscreen) {
+        ufoSpiralActiveRef.current = false;
+        return null;
+      }
+
+      return next;
+    });
+
     setFlyingAliens((aliens) => {
       if (!orbitRef.current) return aliens;
 
@@ -862,31 +885,33 @@ return (
 )}
 
 {ufoSpiral && (
-  <div
+  <svg
     key={ufoSpiral.key}
-    className="ufo-heart-spiral fixed pointer-events-none z-[10001]"
-    style={{
-      left: `${ufoSpiral.x}px`,
-      top: `${ufoSpiral.y}px`,
-    }}
+    viewBox="0 0 120 80"
+    className="ufo-heart-spiral flying-alien-head fixed pointer-events-none z-[10001] w-8 h-8"
+    style={
+      {
+        left: `${ufoSpiral.x}px`,
+        top: `${ufoSpiral.y}px`,
+        "--spin": `${ufoSpiral.spin}`,
+      } as React.CSSProperties
+    }
     aria-hidden="true"
   >
-    <svg viewBox="0 0 120 80" className="pink-svg-glow w-10 h-10 opacity-95">
-      <ellipse cx="60" cy="42" rx="42" ry="12" fill="#ffffff" />
-      <ellipse
-        cx="60"
-        cy="35"
-        rx="22"
-        ry="17"
-        fill="none"
-        stroke="#ffffff"
-        strokeWidth="5"
-      />
-      <circle cx="38" cy="44" r="3" fill="black" />
-      <circle cx="60" cy="46" r="3" fill="black" />
-      <circle cx="82" cy="44" r="3" fill="black" />
-    </svg>
-  </div>
+    <ellipse cx="60" cy="42" rx="42" ry="12" fill="#ffffff" />
+    <ellipse
+      cx="60"
+      cy="35"
+      rx="22"
+      ry="17"
+      fill="none"
+      stroke="#ffffff"
+      strokeWidth="5"
+    />
+    <circle cx="38" cy="44" r="3" fill="black" />
+    <circle cx="60" cy="46" r="3" fill="black" />
+    <circle cx="82" cy="44" r="3" fill="black" />
+  </svg>
 )}
 
 {heartPulse.key > 0 && (
