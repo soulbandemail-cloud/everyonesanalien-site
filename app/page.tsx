@@ -203,8 +203,8 @@ const triggerUfoSpiral = (x: number, y: number, key: number) => {
   setUfoSpiral({
     x,
     y,
-    vx: -3.5,
-    vy: 6.2,
+    vx: -5,
+    vy: 10,
     spin: -1,
     angle: 0,
     startedAt: key,
@@ -586,7 +586,7 @@ useEffect(() => {
         next.x > window.innerWidth + 80 ||
         next.y < -80 ||
         next.y > window.innerHeight + 80;
-      const expired = Date.now() - current.startedAt > 1400;
+      const expired = Date.now() - current.startedAt > 1800;
 
       if (offscreen || expired) {
         ufoSpiralActiveRef.current = false;
