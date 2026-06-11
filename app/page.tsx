@@ -66,8 +66,10 @@ export default function Home() {
   const tvSparkActiveRef = useRef(false);
   const tvSparkTimeoutRef = useRef<number | null>(null);
   const hideWishLayerTimeoutRef = useRef<number | null>(null);
+  const wishLayerReturnTimeoutRef = useRef<number | null>(null);
   const womboComboTimeoutRef = useRef<number | null>(null);
   const heartPulseTimeoutRef = useRef<number | null>(null);
+  const ufoSpiralTimeoutRef = useRef<number | null>(null);
   const wishBarrierRef = useRef<WishBarrier | null>(null);
   const [tvPos, setTvPos] = useState<{ x: number; y: number } | null>(null);
   const [tvExpanded, setTvExpanded] = useState(false);
@@ -79,7 +81,13 @@ export default function Home() {
     type: "white" | "black";
   } | null>(null);
   const [hideWishLayerForFlash, setHideWishLayerForFlash] = useState(false);
+  const [slowWishLayerReturn, setSlowWishLayerReturn] = useState(false);
   const [womboComboKey, setWomboComboKey] = useState(0);
+  const [ufoSpiral, setUfoSpiral] = useState<{
+    x: number;
+    y: number;
+    key: number;
+  } | null>(null);
   const [ufoPos, setUfoPos] = useState({ x: -100, y: -100 });
   const [hideCursorUfo, setHideCursorUfo] = useState(false);
   const [ringBlinking, setRingBlinking] = useState(false);
@@ -183,6 +191,19 @@ const triggerWomboCombo = (key: number) => {
   }, 1700);
 };
 
+const triggerUfoSpiral = (x: number, y: number, key: number) => {
+  setUfoSpiral({ x, y, key });
+
+  if (ufoSpiralTimeoutRef.current) {
+    window.clearTimeout(ufoSpiralTimeoutRef.current);
+  }
+
+  ufoSpiralTimeoutRef.current = window.setTimeout(() => {
+    setUfoSpiral((current) => (current?.key === key ? null : current));
+    ufoSpiralTimeoutRef.current = null;
+  }, 1700);
+};
+
 const triggerHeartPulse = (x: number, y: number, key: number) => {
   setHeartPulse({ x, y, key });
 
@@ -199,13 +220,27 @@ const triggerHeartPulse = (x: number, y: number, key: number) => {
 };
 
 const triggerFlashbang = (key: number, type: "white" | "black") => {
+  setSlowWishLayerReturn(false);
   setHideWishLayerForFlash(true);
 
   if (hideWishLayerTimeoutRef.current) {
     window.clearTimeout(hideWishLayerTimeoutRef.current);
   }
 
+  if (wishLayerReturnTimeoutRef.current) {
+    window.clearTimeout(wishLayerReturnTimeoutRef.current);
+  }
+
   hideWishLayerTimeoutRef.current = window.setTimeout(() => {
+    if (type === "black") {
+      setSlowWishLayerReturn(true);
+
+      wishLayerReturnTimeoutRef.current = window.setTimeout(() => {
+        setSlowWishLayerReturn(false);
+        wishLayerReturnTimeoutRef.current = null;
+      }, 2000);
+    }
+
     setHideWishLayerForFlash(false);
     hideWishLayerTimeoutRef.current = null;
   }, 500);
@@ -499,12 +534,20 @@ useEffect(() => {
       window.clearTimeout(hideWishLayerTimeoutRef.current);
     }
 
+    if (wishLayerReturnTimeoutRef.current) {
+      window.clearTimeout(wishLayerReturnTimeoutRef.current);
+    }
+
     if (womboComboTimeoutRef.current) {
       window.clearTimeout(womboComboTimeoutRef.current);
     }
 
     if (heartPulseTimeoutRef.current) {
       window.clearTimeout(heartPulseTimeoutRef.current);
+    }
+
+    if (ufoSpiralTimeoutRef.current) {
+      window.clearTimeout(ufoSpiralTimeoutRef.current);
     }
   };
 }, []);
@@ -641,11 +684,15 @@ useEffect(() => {
             }
 
             const key = Date.now();
+            const wasUfoOrbiting = ufoOrbitingRef.current;
 
             setRingBlinking(true);
             ufoOrbitingRef.current = false;
             setUfoOrbiting(false);
             setHideCursorUfo(true);
+            if (wasUfoOrbiting) {
+              triggerUfoSpiral(heartX, heartY, key);
+            }
             triggerHeartPulse(heartX, heartY, key);
 
             window.setTimeout(() => {
@@ -810,6 +857,34 @@ return (
 {womboComboKey > 0 && (
   <div key={womboComboKey} className="wombo-combo-callout" aria-hidden="true">
     WOMBO<br />COMBO
+  </div>
+)}
+
+{ufoSpiral && (
+  <div
+    key={ufoSpiral.key}
+    className="ufo-heart-spiral fixed pointer-events-none z-[10001]"
+    style={{
+      left: `${ufoSpiral.x}px`,
+      top: `${ufoSpiral.y}px`,
+    }}
+    aria-hidden="true"
+  >
+    <svg viewBox="0 0 120 80" className="pink-svg-glow w-10 h-10 opacity-95">
+      <ellipse cx="60" cy="42" rx="42" ry="12" fill="#ffffff" />
+      <ellipse
+        cx="60"
+        cy="35"
+        rx="22"
+        ry="17"
+        fill="none"
+        stroke="#ffffff"
+        strokeWidth="5"
+      />
+      <circle cx="38" cy="44" r="3" fill="black" />
+      <circle cx="60" cy="46" r="3" fill="black" />
+      <circle cx="82" cy="44" r="3" fill="black" />
+    </svg>
   </div>
 )}
 
@@ -1156,6 +1231,8 @@ return (
         key={wishPoof}
         className={`wish-burst-layer ${pongWish ? "wish-pong-layer" : ""} ${
           hideWishLayerForFlash ? "wish-flash-hidden" : ""
+        } ${
+          slowWishLayerReturn ? "wish-flash-blackout-return" : ""
         }`}
         style={
           {
