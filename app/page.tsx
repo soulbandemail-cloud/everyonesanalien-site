@@ -55,6 +55,8 @@ type FlyingAlien = {
   tractorCaptured?: boolean;
   tractorTargetX?: number;
   tractorTargetY?: number;
+  tractorStartDistance?: number;
+  tractorScale?: number;
   lastWishBounce?: number;
   lastFooterBounce?: number;
 };
@@ -665,15 +667,25 @@ useEffect(() => {
             const targetY = alien.tractorTargetY ?? alien.y;
             const dx = targetX - alien.x;
             const dy = targetY - alien.y;
+            const distance = Math.hypot(dx, dy);
 
-            if (Math.hypot(dx, dy) < 12) return null;
+            if (distance < 1.5) return null;
+
+            const nextX = alien.x + dx * 0.2;
+            const nextY = alien.y + dy * 0.2;
+            const startDistance = Math.max(
+              alien.tractorStartDistance ?? distance,
+              1
+            );
+            const nextDistance = Math.hypot(targetX - nextX, targetY - nextY);
 
             return {
               ...alien,
-              x: alien.x + dx * 0.2,
-              y: alien.y + dy * 0.2,
+              x: nextX,
+              y: nextY,
               vx: 0,
               vy: 0,
+              tractorScale: Math.max(0.18, nextDistance / startDistance),
             };
           }
 
@@ -705,11 +717,19 @@ useEffect(() => {
           next = reflectAlienOffFooterLine(activeAlien, next, now);
 
           if (touchesTractorBeam(next)) {
+            const tractorTargetX = ufoPosRef.current.x;
+            const tractorTargetY = ufoPosRef.current.y;
+
             return {
               ...next,
               tractorCaptured: true,
-              tractorTargetX: ufoPosRef.current.x,
-              tractorTargetY: ufoPosRef.current.y,
+              tractorTargetX,
+              tractorTargetY,
+              tractorStartDistance: Math.max(
+                Math.hypot(tractorTargetX - next.x, tractorTargetY - next.y),
+                1
+              ),
+              tractorScale: 1,
               vx: 0,
               vy: 0,
             };
@@ -899,6 +919,7 @@ return (
         left: `${alien.x}px`,
         top: `${alien.y}px`,
         "--spin": `${alien.spin}`,
+        "--tractor-scale": `${alien.tractorScale ?? 1}`,
       } as React.CSSProperties
     }
   >

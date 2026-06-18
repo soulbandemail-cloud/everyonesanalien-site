@@ -1139,16 +1139,16 @@ svg {
 
 @keyframes flying-alien-spin {
   from {
-    transform: translate(-50%, -50%) rotate(0deg);
+    transform: translate(-50%, -50%) rotate(0deg) scale(var(--tractor-scale, 1));
   }
 
   to {
-    transform: translate(-50%, -50%) rotate(calc(var(--spin) * 360deg));
+    transform: translate(-50%, -50%) rotate(calc(var(--spin) * 360deg)) scale(var(--tractor-scale, 1));
   }
 }
 
 .flying-alien-head {
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) scale(var(--tractor-scale, 1));
   animation: flying-alien-spin 700ms linear infinite;
 }
 
