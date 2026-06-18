@@ -43,6 +43,41 @@ body {
     drop-shadow(0 0 14px rgba(255, 176, 255, 0.28));
 }
 
+.ufo-tractor-beam {
+  position: absolute;
+  z-index: -1;
+  top: 28px;
+  left: 50%;
+  width: clamp(120px, 15vw, 190px);
+  height: min(42vh, 340px);
+  transform: translateX(-50%);
+  clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%);
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 18px,
+      rgba(255, 255, 255, 0.16) 18px 20px
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.72),
+      rgba(127, 255, 212, 0.4) 42%,
+      rgba(127, 255, 212, 0.06)
+    );
+  opacity: 0.88;
+  animation: ufo-tractor-beam-pulse 520ms ease-in-out infinite alternate;
+}
+
+@keyframes ufo-tractor-beam-pulse {
+  from {
+    opacity: 0.68;
+  }
+
+  to {
+    opacity: 0.96;
+  }
+}
+
 .pink-icon-glow {
   filter:
     drop-shadow(0 0 5px rgba(255, 176, 255, 0.78))

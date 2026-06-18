@@ -86,6 +86,7 @@ export default function Home() {
   
   const [ufoPos, setUfoPos] = useState({ x: -100, y: -100 });
   const [hideCursorUfo, setHideCursorUfo] = useState(false);
+  const [tractorBeamActive, setTractorBeamActive] = useState(false);
   const [ringBlinking, setRingBlinking] = useState(false);
 
   const [flyingAliens, setFlyingAliens] = useState<FlyingAlien[]>([]);
@@ -487,6 +488,42 @@ useEffect(() => {
 }, [hideCursorUfo]);
 
 useEffect(() => {
+  const startTractorBeam = (e: PointerEvent) => {
+    const supportsDesktopPointer = window.matchMedia(
+      "(hover: hover) and (pointer: fine)"
+    ).matches;
+
+    if (
+      e.pointerType !== "mouse" ||
+      e.button !== 0 ||
+      !supportsDesktopPointer ||
+      ufoOrbitingRef.current ||
+      hideCursorUfo
+    ) {
+      return;
+    }
+
+    setTractorBeamActive(true);
+  };
+
+  const stopTractorBeam = () => {
+    setTractorBeamActive(false);
+  };
+
+  window.addEventListener("pointerdown", startTractorBeam);
+  window.addEventListener("pointerup", stopTractorBeam);
+  window.addEventListener("pointercancel", stopTractorBeam);
+  window.addEventListener("blur", stopTractorBeam);
+
+  return () => {
+    window.removeEventListener("pointerdown", startTractorBeam);
+    window.removeEventListener("pointerup", stopTractorBeam);
+    window.removeEventListener("pointercancel", stopTractorBeam);
+    window.removeEventListener("blur", stopTractorBeam);
+  };
+}, [hideCursorUfo]);
+
+useEffect(() => {
   const placeTv = () => {
     setTvPos((current) => {
       const isMobile = window.innerWidth < 640;
@@ -704,6 +741,9 @@ return (
         transform: "translate(-50%, -50%)",
       }}
     >
+      {tractorBeamActive && !ufoOrbiting && !hideCursorUfo && (
+        <div className="ufo-tractor-beam" aria-hidden="true" />
+      )}
       <svg viewBox="0 0 120 80" className="pink-svg-glow w-10 h-10 opacity-95">
         <ellipse cx="60" cy="42" rx="42" ry="12" fill="#ffffff" />
 
