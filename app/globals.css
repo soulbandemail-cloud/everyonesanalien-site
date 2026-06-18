@@ -70,12 +70,13 @@ body {
 }
 
 .tractor-counter-stack {
-  position: fixed;
-  z-index: 10002;
-  top: max(8px, env(safe-area-inset-top));
-  right: max(8px, env(safe-area-inset-right));
+  position: relative;
+  z-index: 30;
   display: flex;
+  justify-content: center;
   gap: 4px;
+  margin-top: -2px;
+  margin-bottom: 4px;
   pointer-events: none;
 }
 

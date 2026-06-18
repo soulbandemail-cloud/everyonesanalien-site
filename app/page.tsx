@@ -885,24 +885,6 @@ useEffect(() => {
 
 return (
   <>
-    {TRACTOR_COLLECTION_TYPES.some((type) => tractorCounts[type] > 0) && (
-      <div className="tractor-counter-stack" aria-live="polite">
-        {TRACTOR_COLLECTION_TYPES.map((type) =>
-          tractorCounts[type] > 0 ? (
-            <div
-              key={type}
-              className="tractor-counter"
-              aria-label={`${TRACTOR_COLLECTION_LABELS[type]}: ${tractorCounts[type]}`}
-            >
-              <TractorCounterIcon type={type} />
-              <span className="tractor-counter-x" aria-hidden="true">X</span>
-              <span>{tractorCounts[type]}</span>
-            </div>
-          ) : null
-        )}
-      </div>
-    )}
-
     <div
       className={`fixed z-[9999] pointer-events-none ${
         ufoOrbiting || hideCursorUfo ? "opacity-0" : "opacity-100"
@@ -1350,6 +1332,24 @@ return (
             <div className="pink-line-glow h-[4px] bg-white flex-1 ml-2" />
           </div>
         </div>
+
+        {TRACTOR_COLLECTION_TYPES.some((type) => tractorCounts[type] > 0) && (
+          <div className="tractor-counter-stack" aria-live="polite">
+            {TRACTOR_COLLECTION_TYPES.map((type) =>
+              tractorCounts[type] > 0 ? (
+                <div
+                  key={type}
+                  className="tractor-counter"
+                  aria-label={`${TRACTOR_COLLECTION_LABELS[type]}: ${tractorCounts[type]}`}
+                >
+                  <TractorCounterIcon type={type} />
+                  <span className="tractor-counter-x" aria-hidden="true">X</span>
+                  <span>{tractorCounts[type]}</span>
+                </div>
+              ) : null
+            )}
+          </div>
+        )}
 
 
 {(wishPrompt || wishPoof > 0 || wishRulesKey > 0) && (
