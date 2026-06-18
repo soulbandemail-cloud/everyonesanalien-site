@@ -52,6 +52,9 @@ type FlyingAlien = {
   stunnedUntil?: number;
   lastSparkCatch?: number;
   needsSparkExit?: boolean;
+  tractorCaptured?: boolean;
+  tractorTargetX?: number;
+  tractorTargetY?: number;
   lastWishBounce?: number;
   lastFooterBounce?: number;
 };
@@ -69,6 +72,8 @@ export default function Home() {
   const wishLayerReturnTimeoutRef = useRef<number | null>(null);
   const womboComboTimeoutRef = useRef<number | null>(null);
   const heartPulseTimeoutRef = useRef<number | null>(null);
+  const ufoPosRef = useRef({ x: -100, y: -100 });
+  const tractorBeamActiveRef = useRef(false);
   
   const wishBarrierRef = useRef<WishBarrier | null>(null);
   const [tvPos, setTvPos] = useState<{ x: number; y: number } | null>(null);
@@ -170,6 +175,11 @@ const toggleUfoOrbit = () => {
     const nextOrbiting = !orbiting;
 
     ufoOrbitingRef.current = nextOrbiting;
+
+    if (nextOrbiting) {
+      tractorBeamActiveRef.current = false;
+      setTractorBeamActive(false);
+    }
 
     return nextOrbiting;
   });
@@ -453,10 +463,13 @@ const sparkTvAntenna = (e: React.PointerEvent<HTMLSpanElement>) => {
 
   useEffect(() => {
   const moveUfo = (e: PointerEvent) => {
-    setUfoPos({
+    const nextPosition = {
       x: e.clientX,
       y: e.clientY,
-    });
+    };
+
+    ufoPosRef.current = nextPosition;
+    setUfoPos(nextPosition);
   };
 
   window.addEventListener("pointermove", moveUfo);
@@ -472,10 +485,13 @@ useEffect(() => {
   const respawnUfo = (e: PointerEvent) => {
     if (!hideCursorUfo) return;
 
-    setUfoPos({
+    const nextPosition = {
       x: e.clientX,
       y: e.clientY,
-    });
+    };
+
+    ufoPosRef.current = nextPosition;
+    setUfoPos(nextPosition);
 
     setHideCursorUfo(false);
   };
@@ -503,10 +519,12 @@ useEffect(() => {
       return;
     }
 
+    tractorBeamActiveRef.current = true;
     setTractorBeamActive(true);
   };
 
   const stopTractorBeam = () => {
+    tractorBeamActiveRef.current = false;
     setTractorBeamActive(false);
   };
 
@@ -522,6 +540,27 @@ useEffect(() => {
     window.removeEventListener("blur", stopTractorBeam);
   };
 }, [hideCursorUfo]);
+
+const isFullyInsideTractorBeam = (alien: FlyingAlien) => {
+  if (!tractorBeamActiveRef.current || ufoOrbitingRef.current) return false;
+
+  const beamWidth = Math.min(47.5, Math.max(30, window.innerWidth * 0.0375));
+  const beamHeight = Math.min(85, window.innerHeight * 0.105);
+  const beamTop = ufoPosRef.current.y + 8;
+  const headRadius = 11;
+  const alienTop = alien.y - headRadius;
+  const alienBottom = alien.y + headRadius;
+
+  if (alienTop < beamTop || alienBottom > beamTop + beamHeight) return false;
+
+  const topProgress = (alienTop - beamTop) / beamHeight;
+  const halfWidthAtAlienTop = beamWidth * (0.06 + 0.44 * topProgress);
+
+  return (
+    Math.abs(alien.x - ufoPosRef.current.x) + headRadius <=
+    halfWidthAtAlienTop
+  );
+};
 
 useEffect(() => {
   const placeTv = () => {
@@ -599,6 +638,23 @@ useEffect(() => {
 
       return aliens
         .map((alien) => {
+          if (alien.tractorCaptured) {
+            const targetX = alien.tractorTargetX ?? alien.x;
+            const targetY = alien.tractorTargetY ?? alien.y;
+            const dx = targetX - alien.x;
+            const dy = targetY - alien.y;
+
+            if (Math.hypot(dx, dy) < 12) return null;
+
+            return {
+              ...alien,
+              x: alien.x + dx * 0.2,
+              y: alien.y + dy * 0.2,
+              vx: 0,
+              vy: 0,
+            };
+          }
+
           if (alien.stunnedUntil && now < alien.stunnedUntil) {
             const circuitPoint = getAntennaCircuitPoint();
 
@@ -625,6 +681,17 @@ useEffect(() => {
 
           next = reflectAlienOffWishStars(activeAlien, next, now);
           next = reflectAlienOffFooterLine(activeAlien, next, now);
+
+          if (isFullyInsideTractorBeam(next)) {
+            return {
+              ...next,
+              tractorCaptured: true,
+              tractorTargetX: ufoPosRef.current.x,
+              tractorTargetY: ufoPosRef.current.y,
+              vx: 0,
+              vy: 0,
+            };
+          }
 
           const nearSpark = Boolean(
             sparkPoint &&
@@ -687,6 +754,8 @@ useEffect(() => {
               setRingBlinking(true);
               ufoOrbitingRef.current = false;
               setUfoOrbiting(false);
+              tractorBeamActiveRef.current = false;
+              setTractorBeamActive(false);
               setHideCursorUfo(true);
               triggerFlashbang(key, "white");
               
@@ -704,6 +773,8 @@ useEffect(() => {
             setRingBlinking(true);
             ufoOrbitingRef.current = false;
             setUfoOrbiting(false);
+            tractorBeamActiveRef.current = false;
+            setTractorBeamActive(false);
             setHideCursorUfo(true);
             triggerHeartPulse(heartX, heartY, key);
 
