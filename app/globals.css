@@ -43,9 +43,21 @@ body {
     drop-shadow(0 0 14px rgba(255, 176, 255, 0.28));
 }
 
+.ufo-cursor {
+  pointer-events: none;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .ufo-cursor {
+    pointer-events: auto;
+    touch-action: none;
+  }
+}
+
 .ufo-tractor-beam {
   position: absolute;
   z-index: -1;
+  pointer-events: none;
   top: 28px;
   left: 50%;
   width: clamp(30px, 3.75vw, 47.5px);

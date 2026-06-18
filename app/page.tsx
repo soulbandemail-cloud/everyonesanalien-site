@@ -541,24 +541,46 @@ useEffect(() => {
   };
 }, [hideCursorUfo]);
 
-const isFullyInsideTractorBeam = (alien: FlyingAlien) => {
+const startTouchTractorBeam = (e: React.PointerEvent<HTMLDivElement>) => {
+  if (
+    e.pointerType === "mouse" ||
+    ufoOrbitingRef.current ||
+    hideCursorUfo
+  ) {
+    return;
+  }
+
+  e.preventDefault();
+  e.stopPropagation();
+  tractorBeamActiveRef.current = true;
+  setTractorBeamActive(true);
+};
+
+const stopTouchTractorBeam = () => {
+  tractorBeamActiveRef.current = false;
+  setTractorBeamActive(false);
+};
+
+const touchesTractorBeam = (alien: FlyingAlien) => {
   if (!tractorBeamActiveRef.current || ufoOrbitingRef.current) return false;
 
   const beamWidth = Math.min(47.5, Math.max(30, window.innerWidth * 0.0375));
   const beamHeight = Math.min(85, window.innerHeight * 0.105);
   const beamTop = ufoPosRef.current.y + 8;
-  const headRadius = 11;
-  const alienTop = alien.y - headRadius;
-  const alienBottom = alien.y + headRadius;
+  const beamBottom = beamTop + beamHeight;
+  const headRadius = 12;
 
-  if (alienTop < beamTop || alienBottom > beamTop + beamHeight) return false;
+  if (alien.y + headRadius < beamTop || alien.y - headRadius > beamBottom) {
+    return false;
+  }
 
-  const topProgress = (alienTop - beamTop) / beamHeight;
-  const halfWidthAtAlienTop = beamWidth * (0.06 + 0.44 * topProgress);
+  const contactY = Math.min(beamBottom, Math.max(beamTop, alien.y));
+  const contactProgress = (contactY - beamTop) / beamHeight;
+  const halfWidthAtContact = beamWidth * (0.06 + 0.44 * contactProgress);
 
   return (
-    Math.abs(alien.x - ufoPosRef.current.x) + headRadius <=
-    halfWidthAtAlienTop
+    Math.abs(alien.x - ufoPosRef.current.x) <=
+    halfWidthAtContact + headRadius
   );
 };
 
@@ -682,7 +704,7 @@ useEffect(() => {
           next = reflectAlienOffWishStars(activeAlien, next, now);
           next = reflectAlienOffFooterLine(activeAlien, next, now);
 
-          if (isFullyInsideTractorBeam(next)) {
+          if (touchesTractorBeam(next)) {
             return {
               ...next,
               tractorCaptured: true,
@@ -803,7 +825,7 @@ useEffect(() => {
 return (
   <>
     <div
-      className={`fixed z-[9999] pointer-events-none ${
+      className={`ufo-cursor fixed z-[9999] ${
         ufoOrbiting || hideCursorUfo ? "opacity-0" : "opacity-100"
       } transition-opacity duration-300`}
       style={{
@@ -811,6 +833,9 @@ return (
         top: `${ufoPos.y}px`,
         transform: "translate(-50%, -50%)",
       }}
+      onPointerDown={startTouchTractorBeam}
+      onPointerUp={stopTouchTractorBeam}
+      onPointerCancel={stopTouchTractorBeam}
     >
       {tractorBeamActive && !ufoOrbiting && !hideCursorUfo && (
         <div className="ufo-tractor-beam" aria-hidden="true" />
