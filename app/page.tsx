@@ -53,9 +53,7 @@ type FlyingAlien = {
   lastSparkCatch?: number;
   needsSparkExit?: boolean;
   tractorCaptured?: boolean;
-  tractorTargetX?: number;
-  tractorTargetY?: number;
-  tractorStartDistance?: number;
+  tractorCapturedAt?: number;
   tractorScale?: number;
   lastWishBounce?: number;
   lastFooterBounce?: number;
@@ -663,21 +661,17 @@ useEffect(() => {
       return aliens
         .map((alien) => {
           if (alien.tractorCaptured) {
-            const targetX = alien.tractorTargetX ?? alien.x;
-            const targetY = alien.tractorTargetY ?? alien.y;
+            const targetX = ufoPosRef.current.x;
+            const targetY = ufoPosRef.current.y;
             const dx = targetX - alien.x;
             const dy = targetY - alien.y;
-            const distance = Math.hypot(dx, dy);
+            const elapsed = now - (alien.tractorCapturedAt ?? now);
+            const shrinkDuration = 360;
 
-            if (distance < 1.5) return null;
+            if (elapsed >= shrinkDuration) return null;
 
-            const nextX = alien.x + dx * 0.2;
-            const nextY = alien.y + dy * 0.2;
-            const startDistance = Math.max(
-              alien.tractorStartDistance ?? distance,
-              1
-            );
-            const nextDistance = Math.hypot(targetX - nextX, targetY - nextY);
+            const nextX = alien.x + dx * 0.3;
+            const nextY = alien.y + dy * 0.3;
 
             return {
               ...alien,
@@ -685,7 +679,7 @@ useEffect(() => {
               y: nextY,
               vx: 0,
               vy: 0,
-              tractorScale: Math.max(0.18, nextDistance / startDistance),
+              tractorScale: Math.max(0, 1 - elapsed / shrinkDuration),
             };
           }
 
@@ -717,18 +711,10 @@ useEffect(() => {
           next = reflectAlienOffFooterLine(activeAlien, next, now);
 
           if (touchesTractorBeam(next)) {
-            const tractorTargetX = ufoPosRef.current.x;
-            const tractorTargetY = ufoPosRef.current.y;
-
             return {
               ...next,
               tractorCaptured: true,
-              tractorTargetX,
-              tractorTargetY,
-              tractorStartDistance: Math.max(
-                Math.hypot(tractorTargetX - next.x, tractorTargetY - next.y),
-                1
-              ),
+              tractorCapturedAt: now,
               tractorScale: 1,
               vx: 0,
               vy: 0,
