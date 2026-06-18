@@ -39,6 +39,53 @@ type WishBarrier = {
   starOffsets: number[];
 };
 
+type TractorCollectionType = "alien" | "whiteSkull" | "blackSkull";
+
+const TRACTOR_COLLECTION_TYPES: TractorCollectionType[] = [
+  "alien",
+  "whiteSkull",
+  "blackSkull",
+];
+
+const TRACTOR_COLLECTION_LABELS: Record<TractorCollectionType, string> = {
+  alien: "Alien heads",
+  whiteSkull: "White skulls",
+  blackSkull: "Black skulls",
+};
+
+const TractorCounterIcon = ({ type }: { type: TractorCollectionType }) => {
+  if (type === "alien") {
+    return (
+      <svg viewBox="0 0 100 100" className="tractor-counter-icon" aria-hidden="true">
+        <path
+          fill="#7fffd4"
+          d="M50 10 C27 10 15 30 18 52 C21 75 38 90 50 90 C62 90 79 75 82 52 C85 30 73 10 50 10 Z"
+        />
+        <ellipse cx="36" cy="48" rx="9" ry="15" fill="black" transform="rotate(-22 36 48)" />
+        <ellipse cx="64" cy="48" rx="9" ry="15" fill="black" transform="rotate(22 64 48)" />
+      </svg>
+    );
+  }
+
+  const isBlack = type === "blackSkull";
+  const skullColor = isBlack ? "#050505" : "#ffffff";
+  const faceColor = isBlack ? "#ffffff" : "#050505";
+
+  return (
+    <svg viewBox="0 0 100 100" className="tractor-counter-icon" aria-hidden="true">
+      <path
+        fill={skullColor}
+        stroke={isBlack ? "#ffffff" : "none"}
+        strokeWidth={isBlack ? 3 : 0}
+        d="M50 10 C27 10 15 30 18 52 C21 75 38 90 50 90 C62 90 79 75 82 52 C85 30 73 10 50 10 Z"
+      />
+      <ellipse cx="36" cy="45" rx="9" ry="13" fill={faceColor} transform="rotate(-14 36 45)" />
+      <ellipse cx="64" cy="45" rx="9" ry="13" fill={faceColor} transform="rotate(14 64 45)" />
+      <path d="M41 68 H59" stroke={faceColor} strokeWidth="4" strokeLinecap="round" />
+    </svg>
+  );
+};
+
 type FlyingAlien = {
   id: number;
   x: number;
@@ -74,6 +121,7 @@ export default function Home() {
   const heartPulseTimeoutRef = useRef<number | null>(null);
   const ufoPosRef = useRef({ x: -100, y: -100 });
   const tractorBeamActiveRef = useRef(false);
+  const collectedTractorIdsRef = useRef(new Set<number>());
   
   const wishBarrierRef = useRef<WishBarrier | null>(null);
   const [tvPos, setTvPos] = useState<{ x: number; y: number } | null>(null);
@@ -92,6 +140,11 @@ export default function Home() {
   const [ufoPos, setUfoPos] = useState({ x: -100, y: -100 });
   const [hideCursorUfo, setHideCursorUfo] = useState(false);
   const [tractorBeamActive, setTractorBeamActive] = useState(false);
+  const [tractorCounts, setTractorCounts] = useState<Record<TractorCollectionType, number>>({
+    alien: 0,
+    whiteSkull: 0,
+    blackSkull: 0,
+  });
   const [ringBlinking, setRingBlinking] = useState(false);
 
   const [flyingAliens, setFlyingAliens] = useState<FlyingAlien[]>([]);
@@ -567,6 +620,23 @@ const touchesTractorBeam = (alien: FlyingAlien) => {
   );
 };
 
+const recordTractorCapture = (alien: FlyingAlien) => {
+  if (collectedTractorIdsRef.current.has(alien.id)) return;
+
+  collectedTractorIdsRef.current.add(alien.id);
+
+  const type: TractorCollectionType = alien.isBlackSkull
+    ? "blackSkull"
+    : alien.isSkull
+      ? "whiteSkull"
+      : "alien";
+
+  setTractorCounts((current) => ({
+    ...current,
+    [type]: current[type] + 1,
+  }));
+};
+
 useEffect(() => {
   const placeTv = () => {
     setTvPos((current) => {
@@ -694,6 +764,8 @@ useEffect(() => {
           next = reflectAlienOffFooterLine(activeAlien, next, now);
 
           if (touchesTractorBeam(next)) {
+            recordTractorCapture(next);
+
             return {
               ...next,
               tractorCaptured: true,
@@ -813,6 +885,24 @@ useEffect(() => {
 
 return (
   <>
+    {TRACTOR_COLLECTION_TYPES.some((type) => tractorCounts[type] > 0) && (
+      <div className="tractor-counter-stack" aria-live="polite">
+        {TRACTOR_COLLECTION_TYPES.map((type) =>
+          tractorCounts[type] > 0 ? (
+            <div
+              key={type}
+              className="tractor-counter"
+              aria-label={`${TRACTOR_COLLECTION_LABELS[type]}: ${tractorCounts[type]}`}
+            >
+              <TractorCounterIcon type={type} />
+              <span className="tractor-counter-x" aria-hidden="true">X</span>
+              <span>{tractorCounts[type]}</span>
+            </div>
+          ) : null
+        )}
+      </div>
+    )}
+
     <div
       className={`fixed z-[9999] pointer-events-none ${
         ufoOrbiting || hideCursorUfo ? "opacity-0" : "opacity-100"

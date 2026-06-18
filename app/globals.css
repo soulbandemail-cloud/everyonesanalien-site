@@ -69,6 +69,58 @@ body {
   animation: ufo-tractor-beam-pulse 520ms ease-in-out infinite alternate;
 }
 
+.tractor-counter-stack {
+  position: fixed;
+  z-index: 10002;
+  top: max(8px, env(safe-area-inset-top));
+  right: max(8px, env(safe-area-inset-right));
+  display: flex;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.tractor-counter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 46px;
+  height: 24px;
+  padding: 2px 6px 2px 4px;
+  border: 1px solid rgba(255, 255, 255, 0.52);
+  border-radius: 4px;
+  background: rgba(0, 8, 45, 0.82);
+  box-shadow: 0 0 8px rgba(255, 176, 255, 0.2);
+  color: #ffffff;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0;
+  animation: tractor-counter-pop 180ms ease-out both;
+}
+
+.tractor-counter-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+.tractor-counter-x {
+  font-size: 8px;
+  opacity: 0.62;
+}
+
+@keyframes tractor-counter-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.78);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @keyframes ufo-tractor-beam-pulse {
   from {
     opacity: 0.68;
