@@ -508,11 +508,14 @@ useEffect(() => {
     const supportsDesktopPointer = window.matchMedia(
       "(hover: hover) and (pointer: fine)"
     ).matches;
+    const supportsTouchPointer = window.matchMedia("(pointer: coarse)").matches;
+    const isDesktopActivation =
+      e.pointerType === "mouse" && e.button === 0 && supportsDesktopPointer;
+    const isTouchActivation =
+      e.pointerType === "touch" && supportsTouchPointer;
 
     if (
-      e.pointerType !== "mouse" ||
-      e.button !== 0 ||
-      !supportsDesktopPointer ||
+      (!isDesktopActivation && !isTouchActivation) ||
       ufoOrbitingRef.current ||
       hideCursorUfo
     ) {
@@ -540,26 +543,6 @@ useEffect(() => {
     window.removeEventListener("blur", stopTractorBeam);
   };
 }, [hideCursorUfo]);
-
-const startTouchTractorBeam = (e: React.PointerEvent<HTMLDivElement>) => {
-  if (
-    e.pointerType === "mouse" ||
-    ufoOrbitingRef.current ||
-    hideCursorUfo
-  ) {
-    return;
-  }
-
-  e.preventDefault();
-  e.stopPropagation();
-  tractorBeamActiveRef.current = true;
-  setTractorBeamActive(true);
-};
-
-const stopTouchTractorBeam = () => {
-  tractorBeamActiveRef.current = false;
-  setTractorBeamActive(false);
-};
 
 const touchesTractorBeam = (alien: FlyingAlien) => {
   if (!tractorBeamActiveRef.current || ufoOrbitingRef.current) return false;
@@ -831,7 +814,7 @@ useEffect(() => {
 return (
   <>
     <div
-      className={`ufo-cursor fixed z-[9999] ${
+      className={`fixed z-[9999] pointer-events-none ${
         ufoOrbiting || hideCursorUfo ? "opacity-0" : "opacity-100"
       } transition-opacity duration-300`}
       style={{
@@ -839,9 +822,6 @@ return (
         top: `${ufoPos.y}px`,
         transform: "translate(-50%, -50%)",
       }}
-      onPointerDown={startTouchTractorBeam}
-      onPointerUp={stopTouchTractorBeam}
-      onPointerCancel={stopTouchTractorBeam}
     >
       {tractorBeamActive && !ufoOrbiting && !hideCursorUfo && (
         <div className="ufo-tractor-beam" aria-hidden="true" />
