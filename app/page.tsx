@@ -16,6 +16,7 @@ const WISH_BURST_DURATION = 900;
 const WISH_RULE_DURATION = 8000;
 const WISH_BOUNCE_COOLDOWN = 140;
 const FOOTER_BOUNCE_COOLDOWN = 140;
+const TV_BOUNCE_COOLDOWN = 100;
 const WISH_STAR_OFFSETS = [-120, -92, -66, -38, -14, 14, 38, 66, 92, 120];
 const PONG_STAR_OFFSETS = [-120, -92, -66, -38, -14];
 const PONG_PADDLE_CENTER_OFFSET = -67;
@@ -104,6 +105,7 @@ type FlyingAlien = {
   tractorScale?: number;
   lastWishBounce?: number;
   lastFooterBounce?: number;
+  lastTvBounce?: number;
 };
 
 export default function Home() {
@@ -111,6 +113,7 @@ export default function Home() {
     "idle" | "loading" | "success" | "already" | "error"
   >("idle");
   const tvRef = useRef<HTMLElement | null>(null);
+  const tvBodyRef = useRef<HTMLDivElement | null>(null);
   const antennaRef = useRef<HTMLSpanElement | null>(null);
   const footerRef = useRef<HTMLDivElement | null>(null);
   const tvSparkActiveRef = useRef(false);
@@ -476,6 +479,91 @@ const reflectAlienOffFooterLine = (
   };
 };
 
+const reflectAlienOffTvBody = (
+  alien: FlyingAlien,
+  next: FlyingAlien,
+  now: number
+) => {
+  const rect = tvBodyRef.current?.getBoundingClientRect();
+
+  if (
+    !rect ||
+    tvRef.current?.classList.contains("space-tv-expanded") ||
+    now - (alien.lastTvBounce ?? 0) < TV_BOUNCE_COOLDOWN
+  ) {
+    return next;
+  }
+
+  const headRadius = 16;
+  const left = rect.left - headRadius;
+  const right = rect.right + headRadius;
+  const top = rect.top - headRadius;
+  const bottom = rect.bottom + headRadius;
+  const travelX = next.x - alien.x;
+  const travelY = next.y - alien.y;
+  const collisions: Array<{ t: number; flipX: boolean; flipY: boolean }> = [];
+
+  if (travelX > 0 && alien.x <= left && next.x >= left) {
+    const t = (left - alien.x) / travelX;
+    const hitY = alien.y + travelY * t;
+
+    if (hitY >= top && hitY <= bottom) {
+      collisions.push({ t, flipX: true, flipY: false });
+    }
+  }
+
+  if (travelX < 0 && alien.x >= right && next.x <= right) {
+    const t = (right - alien.x) / travelX;
+    const hitY = alien.y + travelY * t;
+
+    if (hitY >= top && hitY <= bottom) {
+      collisions.push({ t, flipX: true, flipY: false });
+    }
+  }
+
+  if (travelY > 0 && alien.y <= top && next.y >= top) {
+    const t = (top - alien.y) / travelY;
+    const hitX = alien.x + travelX * t;
+
+    if (hitX >= left && hitX <= right) {
+      collisions.push({ t, flipX: false, flipY: true });
+    }
+  }
+
+  if (travelY < 0 && alien.y >= bottom && next.y <= bottom) {
+    const t = (bottom - alien.y) / travelY;
+    const hitX = alien.x + travelX * t;
+
+    if (hitX >= left && hitX <= right) {
+      collisions.push({ t, flipX: false, flipY: true });
+    }
+  }
+
+  if (collisions.length === 0) return next;
+
+  collisions.sort((a, b) => a.t - b.t);
+  const firstHit = collisions[0];
+  const cornerHits = collisions.filter(
+    (collision) => Math.abs(collision.t - firstHit.t) < 0.02
+  );
+  const flipX = cornerHits.some((collision) => collision.flipX);
+  const flipY = cornerHits.some((collision) => collision.flipY);
+  const reflectedVx = flipX ? -next.vx : next.vx;
+  const reflectedVy = flipY ? -next.vy : next.vy;
+  const remainingTravel = Math.max(0, 1 - firstHit.t);
+  const hitX = alien.x + travelX * firstHit.t;
+  const hitY = alien.y + travelY * firstHit.t;
+
+  return {
+    ...next,
+    x: hitX + reflectedVx * remainingTravel,
+    y: hitY + reflectedVy * remainingTravel,
+    vx: reflectedVx,
+    vy: reflectedVy,
+    lastTvBounce: now,
+  };
+};
+
 const dragWishPaddle = (e: React.PointerEvent<HTMLDivElement>) => {
   if (!pongWish) return;
 
@@ -762,6 +850,7 @@ useEffect(() => {
 
           next = reflectAlienOffWishStars(activeAlien, next, now);
           next = reflectAlienOffFooterLine(activeAlien, next, now);
+          next = reflectAlienOffTvBody(activeAlien, next, now);
 
           if (touchesTractorBeam(next)) {
             recordTractorCapture(next);
@@ -1148,7 +1237,7 @@ return (
       </span>
     </div>
 
-    <div className="space-tv-body">
+    <div ref={tvBodyRef} className="space-tv-body">
       <div
         className="space-tv-screen"
         onPointerDownCapture={() => {
