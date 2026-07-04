@@ -1597,12 +1597,12 @@ return (
             <ul className="space-y-2">
               <li>
                 <a
-                  href="https://link.dice.fm/Md31a985f532?dice_id=Md31a985f532"
+                  href="https://www.fatsoma.com/e/bfdldenk/aerial-club-soul-tba-and-millie-turner?utm_campaign=prom_ss&utm_medium=social&utm_source=dynamic"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="pink-border-glow inline-block border border-white px-3 py-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] active:bg-[#6ee7b7] active:border-[#6ee7b7] active:text-[#00082d] transition-all duration-200"
                 >
-                  LONDON 25th June
+                  The Troubadour, LONDON, Sat 18th July
                 </a>
               </li>
             </ul>
