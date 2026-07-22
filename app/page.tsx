@@ -1602,7 +1602,7 @@ return (
                   rel="noopener noreferrer"
                   className="pink-border-glow inline-block border border-white px-3 py-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] active:bg-[#6ee7b7] active:border-[#6ee7b7] active:text-[#00082d] transition-all duration-200"
                 >
-                  The George Tavern, LONDON, Monday 3rd August
+                  The George Tavern, LONDON, Mon 3rd Aug
                 </a>
               </li>
             </ul>
@@ -1615,7 +1615,7 @@ return (
                   rel="noopener noreferrer"
                   className="pink-border-glow inline-block border border-white px-3 py-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] active:bg-[#6ee7b7] active:border-[#6ee7b7] active:text-[#00082d] transition-all duration-200"
                 >
-                  Old Blue Last, LONDON, Friday 7th August
+                  Old Blue Last, LONDON, Fri 7th Aug
                 </a>
               </li>
             </ul>
