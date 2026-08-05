@@ -1594,18 +1594,6 @@ return (
           <section className="mt-4 md:mt-0 md:max-w-sm md:mx-auto">
             <h2 className="text-2xl mb-4">UPCOMING SHOWS</h2>
 
-<ul className="space-y-2">
-              <li>
-                <a
-                  href="https://link.dice.fm/L858e8908a5c?dice_id=L858e8908a5c"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="pink-border-glow inline-block border border-white px-3 py-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] active:bg-[#6ee7b7] active:border-[#6ee7b7] active:text-[#00082d] transition-all duration-200"
-                >
-                  George Tavern, LONDON, Mon 3rd Aug
-                </a>
-              </li>
-            </ul>
 
             <ul className="space-y-2">
               <li>
