@@ -1595,10 +1595,18 @@ return (
             <h2 className="text-2xl mb-4">UPCOMING SHOWS</h2>
 
 
-            <p>
-              Coming soon
-              <span className="animate-pulse">_</span>
-            </p>
+           <ul className="space-y-2">
+              <li>
+                <a
+                  href="https://link.dice.fm/s86e86697bbd?dice_id=s86e86697bbd"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pink-border-glow inline-block border border-white px-3 py-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] active:bg-[#6ee7b7] active:border-[#6ee7b7] active:text-[#00082d] transition-all duration-200"
+                >
+                  The George Tavern, LONDON, Mon 5th Oct
+                </a>
+              </li>
+            </ul>
 
           </section>
 
