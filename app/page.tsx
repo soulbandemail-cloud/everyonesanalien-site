@@ -1518,7 +1518,7 @@ return (
           <section className="md:max-w-sm md:mx-auto">
             <h2 className="text-2xl mb-4">GET YOUR HYPER-FIX</h2>
             <p className="mb-4">
-              Sign up to SOUL&apos;s newsletter for discounts on merch and tickets to self-promoted shows!
+              Sign up to SOUL&apos;s newsletter for discounts on merch and tickets!
             </p>
 
             <form
