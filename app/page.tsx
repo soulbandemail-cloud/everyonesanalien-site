@@ -1518,7 +1518,7 @@ return (
           <section className="md:max-w-sm md:mx-auto">
             <h2 className="text-2xl mb-4">GET YOUR HYPER-FIX</h2>
             <p className="mb-4">
-              Sign up to SOUL&apos;s newsletter for discounts on merch and tickets to headline shows!
+              Sign up to SOUL&apos;s newsletter for discounts on merch and tickets to self-promoted shows!
             </p>
 
             <form
@@ -1603,7 +1603,7 @@ return (
                   rel="noopener noreferrer"
                   className="pink-border-glow inline-block border border-white px-3 py-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] active:bg-[#6ee7b7] active:border-[#6ee7b7] active:text-[#00082d] transition-all duration-200"
                 >
-                  The George Tavern, LONDON, Mon 5th Oct
+                  The George Tavern, LONDON, 5th Oct
                 </a>
               </li>
             </ul>
