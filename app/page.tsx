@@ -1625,7 +1625,7 @@ return (
 
 
 
-               <div ref={footerRef} className="pink-line-glow fixed bottom-0 inset-x-0 z-40 overflow-hidden border-t border-white bg-[#00082d]/80 py-2">
+               <div ref={footerRef} className="saucer-hull-strip fixed bottom-0 inset-x-0 z-40 overflow-hidden py-2">
   <div className="alien-footer-marquee flex w-max items-center">
     {[0, 1].map((track) => (
       <div key={track} className="flex items-center gap-8 px-4 shrink-0">
@@ -1662,7 +1662,7 @@ return (
         <button
           type="button"
           onClick={() => window.location.reload()}
-          className="shrink-0 mx-2 px-4 py-1 border border-[#6ee7b7] text-[#6ee7b7] text-sm md:text-base font-bold tracking-[0.25em] pointer-events-auto transition-all duration-200 hover:bg-[#6ee7b7] hover:text-[#00082d] active:bg-white active:border-white active:text-[#00082d]"
+          className="saucer-name-plate shrink-0 mx-2 px-4 py-1 border border-[#6ee7b7] text-[#6ee7b7] text-sm md:text-base font-bold tracking-[0.25em] pointer-events-auto transition-all duration-200 hover:bg-[#6ee7b7] hover:text-[#00082d] active:bg-white active:border-white active:text-[#00082d]"
         >
           everyonesanalien.com
         </button>
