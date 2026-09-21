@@ -8,16 +8,15 @@ type PilotMezzanineProps = {
  attention: Attention;
  config: DomeConfig;
  view: Viewport;
- /** Future room-object entry point from cockpit view into domepage view. */
- onActivate?: () => void;
+
 };
-export function PilotMezzanine({ attention, config, view, onActivate }: PilotMezzanineProps) {
+export function PilotMezzanine({ attention, config, view }: PilotMezzanineProps) {
  const floorAnchor = project(pilotPosition, config, view);
- const pilot = project({ ...pilotPosition, y: pilotPosition.y + .18 }, config, view);
- const consoleBase = project({ x: 0, y: .3, z: ROOM.pilotZ + .45 }, config, view);
+ const pilot = project({ ...pilotPosition, y: pilotPosition.y + ROOM.pilotSeatLift }, config, view);
+ const consoleBase = project({ x: 0, y: ROOM.consoleAnchorY, z: ROOM.pilotZ + .45 }, config, view);
  const consoleWidth = ROOM.consoleWidth * consoleBase.scale;
  const consoleTop = consoleBase.y - consoleWidth * 210 / 600;
- // The existing control surface stays fixed. Its new opaque fascia terminates
+ // The calibrated control surface is lower. Its opaque fascia still terminates
  // on a curved footprint in the actual raised-floor plane.
  const floorEdge = Array.from({ length: 33 }, (_, i) => {
   const fraction = i / 32 * 2 - 1;
@@ -43,7 +42,7 @@ export function PilotMezzanine({ attention, config, view, onActivate }: PilotMez
    </g>;
   })}
  </svg>
- <button type="button" className={styles.consoleObject} style={{ left: consoleBase.x, top: consoleTop, width: consoleWidth, visibility: consoleBase.visible ? 'visible' : 'hidden' }} data-room-object="pilot-console" aria-label="Pilot controls — future domepage view entry" title={onActivate ? 'Enter domepage view' : 'Pilot controls — domepage view entry in a future build'} disabled={!onActivate} onClick={onActivate}>
+ <button type="button" className={styles.consoleObject} style={{ left: consoleBase.x, top: consoleTop, width: consoleWidth, visibility: consoleBase.visible ? 'visible' : 'hidden' }} data-room-object="pilot-console" aria-label="Pilot controls — reserved for future spacecraft travel" title="Pilot controls — future spacecraft travel" disabled>
  <svg viewBox={`0 0 600 ${consoleHeight}`} className={styles.console} role="img" aria-label="Physical pilot controls with switches and dials">
  <defs><linearGradient id="console" x2="0" y2="1"><stop stopColor="#6b7777" /><stop offset="1" stopColor="#2a393f" /></linearGradient></defs>
  <path d={fascia} fill="#1c2a33" stroke="#546666" strokeWidth="2" />

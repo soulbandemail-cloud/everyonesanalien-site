@@ -49,9 +49,9 @@ export function GeometryProfile({ config: c, view, hull }: { config: DomeConfig;
         <circle cx={x(c.centre.z)} cy={y(c.centre.y)} r="3" fill="white" />
         <path d={`M${x(ROOM.stepStartZ + 2 * ROOM.stepRun)},${y(platformY)} H${x(ROOM.platformBackZ)}`} stroke="#a4c9ff" strokeWidth="3" />
         {[0, 1, 2].map(i => <path key={i} d={`M${x(ROOM.stepStartZ + i * ROOM.stepRun)},${y(ROOM.floorY + i * ROOM.stepRise)} V${y(ROOM.floorY + (i + 1) * ROOM.stepRise)} H${x(ROOM.stepStartZ + (i + 1) * ROOM.stepRun)}`} fill="none" stroke="#a4c9ff" />)}
-        <line x1={x(ROOM.pilotZ)} x2={x(ROOM.pilotZ)} y1={y(platformY)} y2={y(platformY + ROOM.alienHeight + .18)} stroke="#a4c9ff" strokeWidth="3" />
+        <line x1={x(ROOM.pilotZ)} x2={x(ROOM.pilotZ)} y1={y(platformY)} y2={y(platformY + ROOM.alienHeight + ROOM.pilotSeatLift)} stroke="#a4c9ff" strokeWidth="3" />
         <line x1={x(ROOM.pilotZ)} x2={x(ROOM.pilotZ) - 60} y1={y(platformY + 1)} y2={y(platformY + 2.6)} stroke="#a4c9ff" />
-        <circle cx={x(ROOM.pilotZ)} cy={y(platformY + ROOM.alienHeight - .3 + .18)} r="3" fill="#a4c9ff" />
+        <circle cx={x(ROOM.pilotZ)} cy={y(platformY + ROOM.alienHeight - .3 + ROOM.pilotSeatLift)} r="3" fill="#a4c9ff" />
         <text x={x(ROOM.pilotZ)-95} y={y(platformY + ROOM.alienHeight + .7)} fill="#a4c9ff">Pilot eye / chair</text>
         <text x={x(ROOM.pilotZ) - 140} y={y(platformY + 2.6)} fill="#a4c9ff">Pilot mezzanine</text>
       </g>

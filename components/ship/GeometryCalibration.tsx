@@ -16,7 +16,7 @@ export function GeometryCalibration({ config, view, onChange, grid, onGridChange
   ];
   const inside = Math.hypot(config.camera.x - config.centre.x, config.camera.y - config.centre.y, config.camera.z - config.centre.z) < config.radius;
   return <aside className={styles.settings} aria-label="Geometry calibration">
-    <strong>GEOMETRY CALIBRATION</strong><p>Saved dome baseline · provisional exterior hull.</p>
+    <strong>GEOMETRY CALIBRATION</strong><p>Locked cockpit baseline · diagnostic controls.</p>
     <GeometryProfile config={config} hull={hull} view={view} />
     <div className={styles.calibrationControls}>{controls.map(control => <label key={control.label}>{control.label}<output>{control.value.toFixed(control.step === .005 ? 3 : 2)} {control.unit}</output><input type="range" aria-label={control.label} min={control.min} max={control.max} step={control.step} value={control.value} onChange={event => onChange(control.update(Number(event.target.value)))} /></label>)}</div>
     <div className={styles.calibrationControls}>{([

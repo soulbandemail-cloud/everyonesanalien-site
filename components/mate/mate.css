@@ -1,0 +1,35 @@
+/* The canonical homepage's live elements are laid out on glass; no copied content. */
+.mate-experience { min-height: 100svh; outline: none; }
+.canonical-home { position: relative; z-index: 1; }
+.on-glass { height: 100svh; overflow: hidden; }
+.on-glass [data-dome-slot] { text-align: center; }
+.on-glass [data-dome-slot="brand"] .pink-line-glow { visibility: hidden; }
+.on-glass [data-dome-slot="brand"] { overflow: visible; }
+.on-glass main { min-height: 0; }
+.on-glass [data-dome-slot="mate"] h2 { font-size: 20px; margin-bottom: 8px; }
+.on-glass [data-dome-slot="mate"] p { font-size: 14px; margin-bottom: 10px; }
+.on-glass [data-dome-slot="mate"] input,.on-glass [data-dome-slot="mate"] button { font-size: 14px; }
+.mate-login-link { display: block; margin: 12px auto 0; color: #7fffd4; cursor: pointer; letter-spacing: .15em; }
+.mate-login-dialog { margin: auto; width: min(420px, calc(100vw - 32px)); padding: 24px; border: 1px solid #7fffd4; background: #00082d; color: white; text-align: left; text-shadow: none; }
+.mate-login-dialog::backdrop { background: #00082dc9; }
+.mate-login-dialog form { display: grid; gap: 16px; }
+.mate-login-dialog input { display: block; width: 100%; padding: 10px; border: 1px solid white; margin-top: 6px; }
+.mate-login-dialog button { border: 1px solid #7fffd4; padding: 10px; cursor: pointer; }
+.mate-login-dialog button:disabled { opacity: .5; }
+.mate-login-dialog :focus-visible,.mate-login-link:focus-visible { outline: 2px solid #7fffd4; outline-offset: 4px; }
+.mate-notice { position: fixed; z-index: 10001; bottom: 70px; left: 50%; transform: translateX(-50%); padding: 14px; width: min(460px,90vw); background: #00082d; border: 1px solid #7fffd4; color: white; font-size: 14px; }
+.mate-notice button { margin-left: 12px; cursor: pointer; }
+@media (max-width: 759px) {
+  .on-glass { position: fixed; top: 64px; left: 4%; width: 92%; height: 48svh; overflow: auto; overscroll-behavior: contain; scrollbar-color: #7fffd4 #00082d; }
+  .on-glass main { padding: 12px; }
+  .on-glass [data-dome-slot="socials"] { gap: 20px; }
+  .on-glass [data-dome-slot="socials"] svg { width: 24px; height: 24px; }
+  .on-glass [data-dome-slot="brand"] { margin-top: 10px; }
+  .on-glass h2 { font-size: 20px; }
+}
+.mate-welcome { margin-bottom: 12px; }
+.mate-video-dialog { margin: auto; width: min(90vw, 1000px); height: min(80vh, 720px); background: #00082d; color: white; border: 1px solid #7fffd4; padding: 20px; }
+.mate-video-dialog::backdrop { background: #00082dcc; }
+.mate-video-dialog > button { position: relative; z-index: 100; border: 1px solid #7fffd4; padding: 8px; cursor: pointer; }
+.mate-video-dialog .space-tv.space-tv-expanded { position: absolute; width: 100%; height: 100%; }
+.mate-video-dialog .space-tv.space-tv-expanded .space-tv-body { width: min(80vw, 800px); }

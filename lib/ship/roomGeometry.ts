@@ -12,6 +12,10 @@ export const ROOM = {
   platformBackWidth: 5.8,
   platformFrontWidth: 3.5,
   consoleWidth: 4.8,
+  // Locked calibration: lower the surface while its fascia stays anchored to platformY.
+  consoleAnchorY: -.45,
+  pilotSeatLift: .18,
+  furnitureWallClearance: .55,
   alienWidth: 1.45,
   alienHeight: 2.1,
   // One standing alien's shoulder/body clearance, distinct from its oversized head.

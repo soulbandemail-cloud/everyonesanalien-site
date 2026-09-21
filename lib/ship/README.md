@@ -1,14 +1,14 @@
 # Ship — geometry / architecture calibration
 
-`/ship` is a separate prototype. The actual homepage at `/` now uses its existing footer as a flat illustrated silver saucer strip, retaining its animated interactive heads and nameplate. Only footer styling changed; gameplay, collision refs, links and mailing-list logic are untouched. The canonical homepage remains `app/page.tsx`; no shared-page refactor was performed. No runtime dependency was added.
+The canonical homepage now lives in `components/home/CanonicalHomepage.tsx`, shared by the public view and authenticated cockpit at `/`. `/ship` is a development-only geometry preview. See `docs/mate-entry.md` for the gated Supabase session foundation and transition. The silver public rim/head belt and locked cockpit architecture are preserved.
 
 ## Terminology
 
 - **Cockpit view:** the entire inhabited saucer room.
-- **Domepage view:** the future close, pilot-position website interface.
+- **Domepage view:** the canonical public homepage, conceptually the pilot-position viewpoint.
 - **Pilot mezzanine:** the shallow platform, chair, seated alien and physical pilot controls.
 
-The console has an optional `PilotMezzanine.onActivate` room-object callback for the future cockpit-view → domepage-view transition. The button is disabled until that transition exists. There is no transition in this build.
+The console is disabled and reserved for future spacecraft travel. It is not a view switch. Authentication chooses the view and LOG OUT ends the Mate session before the inverse transition.
 
 ## Shared physical model
 
@@ -38,14 +38,14 @@ The physical console and alien are provisional SVG billboards anchored and scale
 
 `node --test tests/ship-geometry.test.mjs` checks spherical membership, constant-latitude planes, the tuned baseline, perspective scale, pitched look-axis projection, actual viewport cone rays, independent height/pitch, common centreline, shallow rise, port clearance and finite near-plane clipping on desktop and portrait viewports.
 
-Out of scope: final art, accounts, persistence, inventory, manifestation, walking, multiplayer and domepage-view transition.
+Out of scope: final art, inventory, manifestation, walking, multiplayer and spacecraft travel.
 
-The pilot controls now have a continuous opaque curved fascia down to their projected mezzanine-floor footprint; there are no legs or under-console gaps. The console top is lowered 0.20 units and the chair / alien raised 0.18 units, with its base remaining on the platform. The radio follows the console vertically.
+The pilot controls now have a continuous opaque curved fascia down to their projected mezzanine-floor footprint; there are no legs or under-console gaps. The console anchor is Y=-0.45 (another 0.75 units lower), and the chair / alien remains raised 0.18 units, with its base remaining on the platform. The radio follows the console vertically.
 
 
 ## Current floor-plan blocking
 
-`fixtureLayout.ts` places sofa, cabinet and rail against the circular perimeter using their rear-corner clearance, with 0.07 units of wall clearance. Their local fronts face radially inward and their long axes follow the local tangent. The rail is farther around the right side and nearer the camera than the cabinet, leaving them as separated neighbours. The larger cabinet retains exactly its previous compact world width while increasing height and depth. The sofa is sized for 2–3 aliens and the rail grows to alien clothing scale.
+`fixtureLayout.ts` places sofa, cabinet and rail against the circular perimeter using their rear-corner clearance, with 0.55 units of wall clearance. Their local fronts face radially inward and their long axes follow the local tangent. The rail is farther around the right side and nearer the camera than the cabinet, leaving them as separated neighbours. The larger cabinet retains exactly its previous compact world width while increasing height and depth. The sofa is sized for 2–3 aliens and the rail grows to alien clothing scale.
 
 The low circular coffee table is placed 1.79 units inward of the sofa, leaving a short reachable gap. Its current Hyper-Fix lies on the tabletop and follows the surface perspective. Sofa, cabinet and rail remain on the main floor, beside the compact pilot footprint. The hatch and camera remain fixed; pilot adjustments are vertical only.
 
@@ -63,3 +63,10 @@ Side-art faces are depth-sorted. Tabletop artwork follows its projected horizont
 ## Exterior upper hull
 
 `hullGeometry.ts` defines a surface of revolution outside the glass footprint, sharing its vertical axis. For normalized radial distance t from dome radius to outer rim, Y = centreY − drop × t^profile. Defaults: outer radius 14.5, drop 1.8, exponent 2. The dome radius and locked camera are unchanged. `ExteriorHull` projects sampled quads through the same camera with near-plane clipping and depth ordering. The dark inhabited floor renders separately in front of this exterior surface. The belt beneath the rim is intentionally not rendered. The side profile shows the upper surface, rim and symbolic hidden belt.
+
+
+## Approved geometry lock — 21 September 2026
+
+The dome/camera, upper hull, interior boundary, pilot deck/steps, console, raised pilot/chair, floor port and all fixture positions/scales are now locked. Change these only on explicit user instruction. Debug controls remain diagnostic; initial load and Reset baseline use DEFAULT_DOME / DEFAULT_HULL and the fixed ROOM / fixtureLayout values. No local-storage override is used.
+
+Final calibration lowers the control surface to the seated pilot's hand area while recalculating its solid fascia to the unchanged platform floor. The radio uses the console anchor plus its existing 1.05-unit surface offset. All perimeter furniture moves inward 0.48 units with unchanged angles/scales. The table follows the sofa by the same displacement, preserving the 1.79-unit lounge spacing. No new interactions are added.

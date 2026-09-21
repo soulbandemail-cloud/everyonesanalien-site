@@ -143,7 +143,7 @@ test('perimeter fixtures fit the circle and the lounge table remains reachable',
   for (const key of ['sofa','musicStation','clothesRail']) {
     const f = FIXTURES[key];
     assert.ok(Math.hypot(f.x,f.z) < radius);
-    assert.ok(Math.hypot(f.x,f.z) > radius - 1);
+    assert.ok(Math.hypot(f.x,f.z) > radius - 1.5);
   }
   close(Math.hypot(FIXTURES.sofa.x-FIXTURES.coffeeTable.x,FIXTURES.sofa.z-FIXTURES.coffeeTable.z),1.79);
   assert.ok(FIXTURES.coffeeTable.z < FIXTURES.sofa.z);
@@ -184,4 +184,47 @@ test('exterior upper hull joins the dome and descends smoothly outside its footp
     for(const view of [desktop,portrait]) assert.doesNotMatch(polygonPath(patch.points,DEFAULT_DOME,view),/NaN|Infinity/);
   }
   assert.ok(Math.hypot(...Object.values(DEFAULT_DOME.camera))<DEFAULT_DOME.radius);
+});
+
+
+test('locked furniture has floor clearance and stays within the glass envelope', () => {
+ const { FIXTURES } = load('fixtureLayout');
+ for(const [key,halfWidth,backDepth,height] of [
+  ['sofa',1.45*1.15,.515*1.15,1.17*1.15],
+  ['musicStation',1.5*.72*.77,.45*1.05,2.8],
+  ['clothesRail',1.05*1.05,.38*1.05,2.1*1.05],
+ ]) {
+  const f=FIXTURES[key];
+  const outerRadius=Math.hypot(Math.hypot(f.x,f.z)+backDepth,halfWidth);
+  assert.ok(DEFAULT_DOME.radius-outerRadius>.5);
+  assert.ok(Math.hypot(outerRadius,Math.max(0,f.y+height))<DEFAULT_DOME.radius);
+ }
+ const table=FIXTURES.coffeeTable;
+ assert.ok(Math.hypot(table.x,table.z)+1.05*table.scale<DEFAULT_DOME.radius-.5);
+ close(ROOM.consoleAnchorY,-.45);
+ close(ROOM.pilotSeatLift,.18);
+ close(FIXTURES.radio.y-ROOM.consoleAnchorY,1.05);
+});
+
+test('camera reveal ends exactly at locked calibration and starts at raised pilot eye',()=>{
+ const {transitionCamera}=load('cameraTransition');
+ assert.deepEqual(transitionCamera(DEFAULT_DOME,1),DEFAULT_DOME);
+ const start=transitionCamera(DEFAULT_DOME,0);
+ assert.ok(start.camera.z>ROOM.pilotZ && start.camera.y>platformY+1);
+ assert.equal(start.radius,DEFAULT_DOME.radius);
+ assert.equal(start.fov,DEFAULT_DOME.fov);
+ for(const t of [0,.1,.5,.9,1]) {
+  const config=transitionCamera(DEFAULT_DOME,t);
+  assert.ok(Math.hypot(config.camera.x,config.camera.y,config.camera.z)<config.radius);
+  assert.doesNotMatch(polygonPath(pilotDeck(2,platformY),config,desktop),/NaN|Infinity/);
+ }
+});
+
+test('reduced-motion and hidden-tab transitions resolve immediately without changing the target camera',()=>{
+ const {cameraDuration,transitionCamera}=load('cameraTransition');
+ for(const [reduced,hidden] of [[true,false],[false,true],[true,true]]) {
+  assert.equal(cameraDuration(reduced,hidden),0);
+  assert.deepEqual(transitionCamera(DEFAULT_DOME,1),DEFAULT_DOME);
+ }
+ assert.ok(cameraDuration(false,false)>0);
 });

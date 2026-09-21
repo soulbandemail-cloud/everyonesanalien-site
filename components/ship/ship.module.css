@@ -1,6 +1,6 @@
-.ship { position: relative; isolation: isolate; width: 100%; height: 100svh; min-height: 650px; overflow: hidden; background: #00082d; color: #f9edff; font-family: inherit; }
+.ship { position: fixed; inset: 0; z-index: 2; pointer-events: none; isolation: isolate; width: 100%; height: 100svh; overflow: hidden; background: transparent; color: #f9edff; font-family: inherit; }
 .space,.domePage,.dome { position: absolute; inset: 0; }
-.space { z-index: 0; background: radial-gradient(ellipse at 50% 35%, #18214277, transparent 65%); }
+.space { z-index: 0; }
 .space i { position: absolute; width: 2px; height: 2px; background: #ffe4ff; box-shadow: 0 0 5px #ffb0ff; }
 .domePage { z-index: 1; text-shadow: 0 0 12px #ffb0ff88; }
 .dome { z-index: 2; pointer-events: none; }
@@ -35,10 +35,10 @@
 .alienFront { transform: rotateY(180deg) translateZ(1px); }
 .alienBack { transform: translateZ(1px); }
 .chairBase { position: absolute; width: 40%; height: 8%; border-radius: 50%; background: #0a141b; border: 2px solid #536367; left: 30%; top: calc(95% + var(--seat-lift, 0px)); box-shadow: 0 3px 4px #0005; }
-.toolbar { position: absolute; z-index: 8; top: 22px; left: 28px; right: 28px; display: flex; align-items: center; gap: 18px; font-size: 10px; letter-spacing: .12em; color: #afc4cd; }
+.toolbar { pointer-events: auto; position: absolute; z-index: 8; top: 22px; left: 28px; right: 28px; display: flex; align-items: center; gap: 18px; font-size: 10px; letter-spacing: .12em; color: #afc4cd; }
 .toolbar span { margin-right: auto; }
 .ship button { cursor: pointer; border: 1px solid #718b8955; background: #081327cc; color: #cce1dc; padding: 8px 10px; font: inherit; }
-.settings { position: absolute; z-index: 9; top: 65px; right: 20px; width: 390px; max-height: calc(100% - 135px); overflow: auto; overscroll-behavior: contain; background: #071121f5; border: 1px solid #7fffd455; padding: 14px; font-size: 11px; }
+.settings { pointer-events: auto; position: absolute; z-index: 9; top: 65px; right: 20px; width: 390px; max-height: calc(100% - 135px); overflow: auto; overscroll-behavior: contain; background: #071121f5; border: 1px solid #7fffd455; padding: 14px; font-size: 11px; }
 .settings p { color: #a0b5b5; margin: 8px 0 12px; line-height: 1.5; }
 .calibrationControls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; }
 .settings label { display: block; }
@@ -52,7 +52,7 @@
 .profile p { font-size: 9px; margin: 4px 0; }
 .caption { position: absolute; z-index: 5; bottom: 25px; left: 28px; right: 28px; display: flex; align-items: center; justify-content: space-between; color: #95aaa9; font-size: 10px; letter-spacing: .12em; }
 .caption p { color: #b8c7c5; letter-spacing: .04em; }
-@media (max-width: 650px) { .ship { min-height: 700px; } .toolbar { left: 12px; right: 12px; gap: 9px; font-size: 9px; } .toolbar button { padding: 7px; } .caption { left: 15px; right: 15px; flex-direction: column; gap: 10px; bottom: 20px; } .caption span:last-child { display: none; } .navItem { gap: 8px; } .navItem a { font-size: 21px; } .navItem small { font-size: 11px; } .settings { right: 12px; left: 12px; width: auto; max-height: calc(100% - 130px); } }
+@media (max-width: 650px) {  .toolbar { left: 12px; right: 12px; gap: 9px; font-size: 9px; } .toolbar button { padding: 7px; } .caption { left: 15px; right: 15px; flex-direction: column; gap: 10px; bottom: 20px; } .caption span:last-child { display: none; } .navItem { gap: 8px; } .navItem a { font-size: 21px; } .navItem small { font-size: 11px; } .settings { right: 12px; left: 12px; width: auto; max-height: calc(100% - 130px); } }
 
 .fixtures { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
 
