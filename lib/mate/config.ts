@@ -23,5 +23,19 @@ export function isMate(user: { email_confirmed_at?: string; app_metadata?: Recor
   return Boolean(user?.email_confirmed_at && user.app_metadata?.mate === true);
 }
 export function sameOrigin(request: Request) {
-  return request.headers.get('origin') === mateConfig().origin;
+  const origin = request.headers.get('origin');
+  const config = mateConfig();
+
+  if (!origin) return false;
+
+  if (origin === config.origin) return true;
+
+  if (process.env.NODE_ENV === 'production') {
+    return (
+      origin === 'https://everyonesanalien.com' ||
+      origin === 'https://www.everyonesanalien.com'
+    );
+  }
+
+  return false;
 }
