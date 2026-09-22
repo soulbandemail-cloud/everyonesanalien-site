@@ -20,7 +20,7 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
     const layout = domePageLayout(config);
     const positions: Record<string, [number, number]> = {
       socials: [0,layout.socials], brand: [0,layout.brand],
-      mate: [-.67,layout.information], live: [.67,layout.information], merch: [0,layout.merch],
+      mate: [-.67,layout.information], live: [0,layout.information], merch: [.67,layout.information],
     };
     const desktop = view.width >= 760;
     if (cockpit && desktop) slots.forEach(el => {

@@ -1548,7 +1548,6 @@ return (
               Sign up to SOUL&apos;s newsletter for Mates Rate discounts on merch and tickets!
             </p>
 
-            <p className="mate-welcome">EVERYONE&apos;S AN ALIEN</p>
             <form
               className="flex flex-col gap-3 max-w-md md:mx-auto"
               onSubmit={async (e) => {
