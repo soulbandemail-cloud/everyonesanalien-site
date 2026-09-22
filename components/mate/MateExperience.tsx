@@ -3,16 +3,22 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import './mate.css';
 import CanonicalHomepage from '@/components/home/CanonicalHomepage';
 import Ship from '@/components/ship/Ship';
+import dynamic from 'next/dynamic';
 import { DEFAULT_DOME } from '@/lib/ship/domeGeometry';
 import { DEFAULT_HULL } from '@/lib/ship/hullGeometry';
 import { cameraDuration, transitionCamera } from '@/lib/ship/cameraTransition';
 
+const ArcadeDialog = dynamic(() => import('@/components/arcade/ArcadeDialog'), { ssr: false });
+
 export default function MateExperience({ initialAuthenticated = false, loginEnabled = false, entry = false, error = false, development = false, preview = false }: {
   initialAuthenticated?: boolean; loginEnabled?: boolean; entry?: boolean; error?: boolean; development?: boolean; preview?: boolean;
 }) {
+  const [arcadeOpen,setArcadeOpen] = useState(false);
   const [authenticated,setAuthenticated] = useState(initialAuthenticated);
   const [entryReady,setEntryReady] = useState(!entry);
   const cockpit = preview || (authenticated && entryReady);
+  // Losing access must also discard the open game before any later login.
+  if (!cockpit && arcadeOpen) setArcadeOpen(false);
   const [progress,setProgress] = useState(cockpit && !entry ? 1 : 0);
   const progressRef = useRef(progress);
   const [view,setView] = useState({width:1440,height:900});
@@ -89,6 +95,7 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
       const response=await fetch('/api/mate/logout',{method:'POST',signal:AbortSignal.timeout(15000)});
       if(!response.ok) throw new Error('logout');
       // Session ends first. Motion is cosmetic and can never hold a session open.
+      setArcadeOpen(false);
       setAuthenticated(false);
       const channel=typeof BroadcastChannel!=='undefined' ? new BroadcastChannel('eaa-mate-session') : null;
       channel?.postMessage('changed');channel?.close();
@@ -99,8 +106,9 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
 
   const camera=transitionCamera(config,progress);
   return <div className={`mate-experience ${cockpit ? 'mate-cockpit' : ''}`} ref={focusTarget} tabIndex={-1}>
-    <CanonicalHomepage minigameEnabled={!authenticated && !preview && progress===0} animateEntry={entry} cockpit={cockpit} loginEnabled={loginEnabled && !preview} config={config} view={view} />
-    {(cockpit || progress>0) && <Ship config={camera} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={authenticated ? logout : undefined} busy={busy} />}
+    <CanonicalHomepage animateEntry={entry} cockpit={cockpit} loginEnabled={loginEnabled && !preview} config={config} view={view} />
+    {(cockpit || progress>0) && <Ship config={camera} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
+    {cockpit && arcadeOpen && <ArcadeDialog onExit={() => setArcadeOpen(false)} />}
     {notice && <div role="status" className="mate-notice">{notice}<button onClick={()=>setNotice('')} aria-label="Dismiss message">×</button></div>}
   </div>;
 }

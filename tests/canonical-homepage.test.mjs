@@ -12,8 +12,12 @@ function component(file,deps={}) {
  new Function('module','exports','require',outputText)(loaded,loaded.exports,name=>name in deps?deps[name]:require(name));
  return loaded.exports;
 }
+const lifecycle=component('components/home/useScopedLifecycle.ts');
+const tvHook=component('components/home/usePortableTv.ts',{'./useScopedLifecycle':lifecycle});
+const tv=component('components/home/PortableTV.tsx',{'./usePortableTv':tvHook});
+const heart=component('components/home/PlanetHeart.tsx');
 const panel=component('components/mate/MatePanel.tsx');
-const page=component('components/home/CanonicalHomepage.tsx',{'./useDomeProjection':{useDomeProjection:()=>{}},'@/components/mate/MatePanel':panel});
+const page=component('components/home/CanonicalHomepage.tsx',{'./PortableTV':tv,'./PlanetHeart':heart,'./useDomeProjection':{useDomeProjection:()=>{}},'@/components/mate/MatePanel':panel});
 const render=cockpit=>renderToStaticMarkup(React.createElement(page.default,{cockpit,loginEnabled:true,config:{},view:{width:1440,height:900}}));
 const links=html=>[...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/gs)].map(m=>[m[1],m[2]]);
 test('one canonical content tree: public SHOWS/MATES/THE MERCH, cockpit SHOWS/empty/THE MERCH',()=>{
@@ -27,7 +31,10 @@ test('one canonical content tree: public SHOWS/MATES/THE MERCH, cockpit SHOWS/em
   assert.match(html,/data-dome-slot="live" class="md:col-start-1/);
   assert.match(html,/data-dome-slot="merch" class="md:col-start-3/);
  }
- assert.match(publicPage,/footer-alien-head/);assert.doesNotMatch(cockpit,/footer-alien-head|flying-alien-head/);
+ for (const html of [publicPage,cockpit]) assert.doesNotMatch(html,/footer-alien-head|flying-alien-head|ufo-tractor-beam|wish-box|saucer-hull-strip|flashbang|wombo-combo/);
+ assert.match(publicPage,/shooting-star-launch/); assert.match(publicPage,/star-5/);
+ const source=fs.readFileSync('components/home/CanonicalHomepage.tsx','utf8');
+ assert.doesNotMatch(source,/useState|setInterval|addEventListener|ArcadeGame|minigameEnabled/);
 });
 test('inline mode selectors persist and expose only the selected form',()=>{
  for(const mode of ['signup','login']) {

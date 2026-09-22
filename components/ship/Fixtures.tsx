@@ -4,10 +4,10 @@ import { polygonPath } from '@/lib/ship/roomGeometry';
 import { FIXTURES, orientedFixtures, type FixturePlacement } from '@/lib/ship/fixtureLayout';
 import styles from './ship.module.css';
 
-type Props = { config: DomeConfig; view: Viewport };
+type Props = { config: DomeConfig; view: Viewport; onArcade?: () => void };
 
 /** Crude world-space solids: no owned items, controls, playback or inventory state. */
-export const Fixtures = memo(function Fixtures({ config, view }: Props) {
+export const Fixtures = memo(function Fixtures({ config, view, onArcade }: Props) {
   const path = (points: Vec3[]) => polygonPath(points, config, view);
   const local = (f: FixturePlacement, x: number, y: number, z: number): Vec3 => ({
     x: f.x + f.scale * (x * (f.widthScale ?? 1) * Math.cos(f.yaw) + z * Math.sin(f.yaw)),
@@ -52,7 +52,7 @@ export const Fixtures = memo(function Fixtures({ config, view }: Props) {
   const fixtures = orientedFixtures(config.centre, config.radius);
 const radio = fixtures.radio, music = fixtures.musicStation, sofa = fixtures.sofa;
 const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtures.arcade;
-  return <svg className={styles.fixtures} width={view.width} height={view.height} role="img" aria-label="Empty base ship fixtures: radio left, gramophone and empty record cabinet right, empty sofa left, empty clothes rail right, coffee table with current Hyper-Fix foremost">
+  return <svg className={styles.fixtures} width={view.width} height={view.height} role="group" aria-label="Empty base ship fixtures: radio left, gramophone and empty record cabinet right, empty sofa left, empty clothes rail right, coffee table with current Hyper-Fix foremost">
     <g aria-label="Portable TV placed on the left side of the pilot console">
   {box(radio,0,0,0,1.05,.58,.38,'#655f5c')}
 
@@ -119,7 +119,10 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
       {box(sofa,-.58,.55,-.12,1.08,.12,.86,'#748083')}
       {box(sofa,.58,.55,-.12,1.08,.12,.86,'#748083')}
     </g>
-    <g aria-label="Standing arcade cabinet beside the sofa">
+    <g role="button" tabIndex={onArcade ? 0 : -1} aria-label="Play SOUL arcade" aria-disabled={!onArcade}
+      style={{pointerEvents:onArcade ? 'auto' : 'none', cursor:'pointer'}} onClick={onArcade}
+      onKeyDown={event => { if (onArcade && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); onArcade(); } }}>
+      <title>SOUL arcade — play</title>
   {/* main upright cabinet */}
   {box(arcade,0,0,0,1.15,2.25,.72,'#303d46')}
 
@@ -156,14 +159,18 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
         strokeWidth="2"
       />
 
+      <ellipse cx="0" cy="-10" rx="22" ry="8" fill="none" stroke="#7fffd4" strokeWidth="2" />
+      <path d="M0 0 C-22 -15 -8 -29 0 -17 C8 -29 22 -15 0 0Z" fill="#7fffd4" />
+      <ellipse cx="-26" cy="20" rx="5" ry="7" fill="#7fffd4" />
+      <ellipse cx="26" cy="20" rx="5" ry="7" fill="#7fffd4" />
       <text
-        y="5"
+        y="23"
         textAnchor="middle"
         fill="#bdccc7"
         fontSize="10"
         letterSpacing="2"
       >
-        SOUL
+        PLAY
       </text>
     </g>
   )}
