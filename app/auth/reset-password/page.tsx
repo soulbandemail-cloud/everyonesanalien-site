@@ -70,7 +70,7 @@ export default function ResetPasswordPage() {
   return (
     <main className="min-h-screen bg-[#00082d] text-white flex items-center justify-center p-6">
       <section className="w-full max-w-sm">
-        <h1 className="text-2xl mb-4">MATES</h1>
+        <h1 className="text-2xl mb-4">THE MATES</h1>
 
         <p className="mb-4">RESET PASSWORD</p>
 

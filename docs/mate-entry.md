@@ -37,7 +37,7 @@ Provider references: https://supabase.com/docs/reference/javascript/auth-resetpa
 
 ## Layout and validation
 
-The canonical live DOM shows UPCOMING SHOWS | MATES | MERCH publicly. SIGN UP and LOG IN remain inline mode selectors; no modal login exists. In cockpit mode the entire MATES component unmounts, including title/text/forms. SHOWS retains the left grid column and negative glass longitude; MERCH retains the right column and positive longitude. The centre stays empty. No copied DOM, screenshots or geometry changes are involved.
+The canonical live DOM shows THE SHOWS | THE MATES | THE MERCH publicly. SIGN UP and LOG IN remain inline mode selectors; no modal login exists. In cockpit mode the entire MATES component unmounts, including title/text/forms. SHOWS retains the left grid column and negative glass longitude; THE MERCH retains the right column and positive longitude. The centre stays empty. No copied DOM, screenshots or geometry changes are involved.
 
 Run `npm run lint`, `npm run build`, `npm run mate:check`, `node --test tests/*.test.mjs`, and `npx tsc --noEmit`. Tests cover recovery isolation, single exchange under repeated effects, form readiness, invalid/replayed/non-recovery codes, rejected non-Mates, CSRF, password confirmation, save-before-login ordering, failure paths, generic recovery responses, membership/provisioning, password login/logout, layout and locked geometry. Mocked provider tests send no real email. Complete a fresh Safari recovery test locally to verify provider delivery and browser-specific behaviour.
 
@@ -53,7 +53,7 @@ Application changes:
 - `app/auth/reset-password/page.tsx`: one exchange, resumable form, navigation only after successful save.
 - `app/dev/mate/page.tsx`: password-flow setup guidance.
 - `components/mate/MatePanel.tsx` (new): inline SIGN UP/LOG IN/password-reset controls extracted from the canonical page.
-- `components/home/CanonicalHomepage.tsx`: SHOWS/MATES/MERCH order and complete cockpit removal of MATES.
+- `components/home/CanonicalHomepage.tsx`: THE SHOWS/THE MATES/THE MERCH order and complete cockpit removal of MATES.
 - `components/home/useDomeProjection.ts`: move SHOWS to left longitude and reserve centre.
 - `components/mate/MateExperience.tsx`: replace obsolete login-link error wording with password-reset wording; transition/session logic unchanged.
 - `components/mate/mate.css`: remove unused modal/MATES-on-glass styles.

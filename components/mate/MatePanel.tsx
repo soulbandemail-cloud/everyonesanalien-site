@@ -47,7 +47,7 @@ export default function MatePanel({ enabled }: { enabled: boolean }) {
     finally { setBusy(false); }
   }
   return <section data-dome-slot="mate" className="md:col-start-2 md:max-w-sm md:mx-auto">
-    <h2 className="text-2xl mb-4">MATES</h2>
+    <h2 className="text-2xl mb-4">THE MATES</h2>
     <p className="mb-4">Get The Hyper-Fix, MATES RATE discounts on merch and tickets!</p>
     <div className="flex flex-col gap-3 max-w-md md:mx-auto">
       <div className="grid grid-cols-2 gap-3">
