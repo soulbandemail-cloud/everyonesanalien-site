@@ -12,15 +12,24 @@ function wallPosition(radius: number, centre: Vec3, angle: number, halfWidth: nu
   return { x: centre.x + radial * Math.sin(angle), z: centre.z + radial * Math.cos(angle) };
 }
 export function perimeterFixtures(radius: number, centre: Vec3) {
-  const sofaPos = wallPosition(radius, centre, -.90, 1.45 * 1.15, .515 * 1.15);
-  const musicPos = wallPosition(radius, centre, .62, 1.5 * .72 * .77, .45 * 1.05);
-  const railPos = wallPosition(radius, centre, .91, 1.05 * 1.05, .38 * 1.05);
-  const sofaYaw = inwardYaw(sofaPos, centre);
+  const sofaPos = wallPosition(radius, centre, -1.04, 1.45 * 1.15, .515 * 1.15);
+const arcadePos = wallPosition(radius, centre, -.68, .72, .42);
+const musicPos = wallPosition(radius, centre, .62, 1.5 * .72 * .77, .45 * 1.05);
+const railPos = wallPosition(radius, centre, .91, 1.05 * 1.05, .38 * 1.05);
+
+const sofaYaw = inwardYaw(sofaPos, centre);
+const arcadeYaw = inwardYaw(arcadePos, centre);
   return {
     radio: { x: 1.65, y: ROOM.consoleAnchorY + 1.05, z: 7.65, scale: .85, yaw: .12 },
     sofa: { ...sofaPos, y: ROOM.floorY, scale: 1.15, yaw: sofaYaw },
     // Directly inward of the seat, with a short reachable gap to the circular tabletop.
     coffeeTable: { x: sofaPos.x - 1.79 * Math.sin(sofaYaw), z: sofaPos.z - 1.79 * Math.cos(sofaYaw), y: ROOM.floorY, scale: .9, yaw: sofaYaw },
+    arcade: {
+  ...arcadePos,
+  y: ROOM.floorY,
+  scale: 1,
+  yaw: arcadeYaw,
+},
     musicStation: { ...musicPos, y: ROOM.floorY, scale: 1.05, widthScale: .72 * .77 / 1.05, yaw: inwardYaw(musicPos, centre) },
     clothesRail: { ...railPos, y: ROOM.floorY, scale: 1.05, yaw: inwardYaw(railPos, centre) },
   } satisfies Record<string, FixturePlacement>;

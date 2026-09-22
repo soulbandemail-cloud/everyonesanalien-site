@@ -50,8 +50,8 @@ export const Fixtures = memo(function Fixtures({ config, view }: Props) {
     return <g transform={`matrix(${matrix})`}>{children}</g>;
   }
   const fixtures = orientedFixtures(config.centre, config.radius);
-  const radio = fixtures.radio, music = fixtures.musicStation, sofa = fixtures.sofa;
-  const rail = fixtures.clothesRail, table = fixtures.coffeeTable;
+const radio = fixtures.radio, music = fixtures.musicStation, sofa = fixtures.sofa;
+const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtures.arcade;
   return <svg className={styles.fixtures} width={view.width} height={view.height} role="img" aria-label="Empty base ship fixtures: radio left, gramophone and empty record cabinet right, empty sofa left, empty clothes rail right, coffee table with current Hyper-Fix foremost">
     <g aria-label="Portable TV placed on the left side of the pilot console">
   {box(radio,0,0,0,1.05,.58,.38,'#655f5c')}
@@ -119,6 +119,84 @@ export const Fixtures = memo(function Fixtures({ config, view }: Props) {
       {box(sofa,-.58,.55,-.12,1.08,.12,.86,'#748083')}
       {box(sofa,.58,.55,-.12,1.08,.12,.86,'#748083')}
     </g>
+    <g aria-label="Standing arcade cabinet beside the sofa">
+  {/* main upright cabinet */}
+  {box(arcade,0,0,0,1.15,2.25,.72,'#303d46')}
+
+  {/* slightly projecting control deck */}
+  {box(arcade,0,1.02,-.43,1.12,.18,.34,'#46565e')}
+
+  {/* recessed arcade screen */}
+  {flatArt(
+    arcade,
+    0,
+    1.58,
+    -.37,
+    .92,
+    <g>
+      <rect
+        x="-46"
+        y="-39"
+        width="92"
+        height="78"
+        rx="5"
+        fill="#111a22"
+        stroke="#849396"
+        strokeWidth="3"
+      />
+
+      <rect
+        x="-40"
+        y="-33"
+        width="80"
+        height="66"
+        rx="3"
+        fill="#00082d"
+        stroke="#7fffd4"
+        strokeWidth="2"
+      />
+
+      <text
+        y="5"
+        textAnchor="middle"
+        fill="#bdccc7"
+        fontSize="10"
+        letterSpacing="2"
+      >
+        SOUL
+      </text>
+    </g>
+  )}
+
+  {/* simple controls for now */}
+  {flatArt(
+    arcade,
+    0,
+    1.12,
+    -.62,
+    .82,
+    <g>
+      <circle
+        cx="-21"
+        cy="0"
+        r="7"
+        fill="#7fffd4"
+        stroke="#263640"
+        strokeWidth="2"
+      />
+
+      <circle
+        cx="20"
+        cy="0"
+        r="6"
+        fill="#b0bcb4"
+        stroke="#263640"
+        strokeWidth="2"
+      />
+    </g>,
+    'horizontal'
+  )}
+</g>
     <g aria-label="Empty clothes rail on right main floor; no hangers or clothes">
       {[-1.05,1.05].map(x=><g key={x}>{line(rail,[x,.04,-.38],[x,.04,.38],'#879c9c',4)}{line(rail,[x,0,0],[x,2.1,0],'#879c9c',4)}</g>)}
       {line(rail,[-1.05,2.1,0],[1.05,2.1,0],'#b0bcb4',5)}
