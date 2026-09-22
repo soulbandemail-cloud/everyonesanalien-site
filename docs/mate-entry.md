@@ -1,41 +1,72 @@
-# Mate entry — MailerLite membership, Supabase authentication
+# MATES password authentication
+
+## Membership and sessions
+
+MailerLite is the membership source. An eligible Mate is an active subscriber in group `189432463968175126`. Only server-side code checks membership and provisions Supabase users with `app_metadata.mate=true`. Missing, unconfirmed, unsubscribed, bounced, junk and wrong-group records cannot be provisioned by these entry points. Signup retains MailerLite's non-destructive upsert and does not force consent or subscription status.
+
+Supabase supplies identity and sessions. Cockpit access requires `getUser()` verification, a confirmed email and admin-controlled Mate metadata. Browser-editable user metadata never grants access. Existing sessions do not call MailerLite; ongoing revocation/synchronisation remains deferred. Protected data endpoints must independently use `currentMate()`.
+
+## SIGN UP, LOG IN and RESET PASSWORD
+
+- **SIGN UP:** `/api/subscribe` saves MailerLite membership, then `requestMateRecovery()` rechecks eligibility, provisions an unconfirmed Supabase account if necessary, and sends a recovery email. Existing accounts and metadata are preserved. Success does not create a cockpit session. Email/provisioning failure after successful signup retains the subscription and offers retry through RESET PASSWORD. Inactive/pending memberships must complete MailerLite confirmation or reactivation first. Newsletter-only mode still works with the authentication gate off.
+- **LOG IN:** `/api/mate/login` calls `signInWithPassword` with email/password and requires confirmed Mate identity. A random Supabase account cannot enter. Incorrect credentials and non-Mates get the same response; any non-Mate session created during authentication is signed out. No login email is sent. A legacy MailerLite-only Mate first uses LOG IN → RESET PASSWORD to provision their account and establish a password.
+- **RESET PASSWORD:** `/api/mate/recovery` checks membership and provisions if needed, without subscribing anyone, then requests the recovery email. It uses a generic public response for eligible/ineligible addresses and provider failures. Open the link in the requesting browser. It reaches `/auth/reset-password?code=...` (the SDK may also add `sb_flow_id`). The page POSTs the code to `/api/mate/recovery/session` once, including under React Strict Mode. That route performs the only exchange and requires a recovery flow and verified Mate identity. It returns readiness, never a redirect or cockpit session. The page removes the code from its URL and shows PASSWORD and CONFIRM PASSWORD; refreshing resumes the isolated recovery session.
+- **Save password:** `/api/mate/password` validates origin, matching passwords, length and the verified recovery identity before calling `updateUser`. Only after a successful update does it sign in using the new password to establish the ordinary session. Only a successful response navigates to `/?mate_entry=1`, triggering the existing cockpit transition. Update failure stays on the form. If saving succeeds but subsequent login fails, the message tells the user to use normal LOG IN.
+
+## Recovery defect and repair
+
+The previous browser client used the same `eaa-mate` cookie namespace as cockpit login. As soon as recovery exchanged a code, `currentMate()` could accept it as normal cockpit identity, and the homepage's focus/pageshow/poll session checks could activate the cockpit before password saving. The browser writer also conflicted with the server's HttpOnly cookie handling.
+
+Separately, `createBrowserClient` defaults to automatic URL-code exchange, while the reset page explicitly exchanged the same single-use code. Client initialisation could therefore consume the code before the explicit call; Strict Mode added another repeated-effect risk. The form's readiness depended on that explicit call succeeding.
+
+There was **no pre-submit redirect to `/` in the checked-in reset page**. Its only such navigation was in the successful submit handler. The proxy only matches `/` and `/ship`, refreshes cookies and does not redirect; MateExperience is not mounted on the reset page. These code defects explain premature cockpit eligibility and a missing form, but the exact navigation observed in the earlier Safari session was not captured in a browser trace. Do not claim that a nonexistent middleware redirect caused it.
+
+Recovery is now entirely server-side, using separate `eaa-mate-recovery` HttpOnly cookies with a one-hour browser lifetime. Normal access reads only `eaa-mate`. An ordinary previously authenticated session remains independent. The unused browser Supabase client and old modal login component were removed; no browser SDK is instantiated to race the exchange. Recovery cookies are cleared after completion and on logout. Passwords/tokens are never logged or returned in API responses.
 
 ## Configuration
 
-The existing Supabase SSR/PKCE flow, HttpOnly cookies, callback, session verification, logout and cockpit transition are unchanged. Copy variable names from `docs/mate.env.example`; never commit credentials. `SUPABASE_PUBLISHABLE_KEY` remains the session client's key. The separate `SUPABASE_SERVICE_ROLE_KEY` is used only by the server-only admin module, with session persistence disabled. `MAILERLITE_API_TOKEN` is also server-only.
+See `docs/mate.env.example`. Required server configuration: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `MAILERLITE_API_TOKEN`, and exact `MATE_APP_ORIGIN` without trailing slash. No browser Supabase environment variables are required. Never prefix server secrets with NEXT_PUBLIC_. Admin client persistence is disabled; session and recovery cookies are HttpOnly, SameSite=Lax and Secure on HTTPS.
 
-`MATE_APP_ORIGIN` must be the exact origin without trailing slash (HTTPS in production). Development requires `MATE_AUTH_ENABLED=true`. Vercel Preview also requires `MATE_PREVIEW_LOGIN_ENABLED=true`; production requires `MATE_PUBLIC_LOGIN_ENABLED=true`. Preview cannot enable the real production hostname. Existing flags and origins are not changed by this implementation.
+Development entry requires `MATE_AUTH_ENABLED=true`. Vercel Preview also requires `MATE_PREVIEW_LOGIN_ENABLED=true` and cannot enable the production hostname. Production requires `MATE_PUBLIC_LOGIN_ENABLED=true`. `npm run mate:check` and `/dev/mate` report only configuration presence, not secret values. Missing provisioning credentials do not disable existing sessions.
 
-`npm run mate:check` and `/dev/mate` report configuration presence only. Provisioning readiness is separate from the session gate: missing MailerLite/admin credentials must not disable existing authenticated sessions. No environment files or dashboard settings are modified by the implementation.
+Supabase must allow the exact `<MATE_APP_ORIGIN>/auth/reset-password` redirect. Configure the **Reset Password** email template with `{{ .ConfirmationURL }}` so Supabase verifies the token before returning the PKCE code. Email delivery must be configured. No magic-link signup setting change is required by this recovery-based implementation. Dashboard settings, environment values and deployment flags are not changed by this pass. Previously requested browser-based reset links should be replaced with a fresh request because their verifier used the old cookie namespace.
 
-## Entry flows
+Configure hosting/provider request and email rate limits before public launch. Origin checks do not replace rate limiting. Paginated admin user lookup avoids a migration; an indexed lookup can replace it at larger scale.
 
-LOG IN normalises and validates email, checks the request origin, and reads the subscriber from MailerLite. Eligibility in this version means **active** status and membership in group **189432463968175126**. Missing, wrong-group, unconfirmed, unsubscribed, bounced and junk subscribers are ineligible. Login never writes to MailerLite and never provisions or emails an ineligible address.
+Provider references: https://supabase.com/docs/reference/javascript/auth-resetpasswordforemail and https://supabase.com/docs/reference/javascript/auth-exchangecodeforsession .
 
-For eligible subscribers the server finds the Supabase account using paginated admin listing, or creates an unconfirmed account. It sets `app_metadata.mate=true` while preserving other metadata, handles concurrent creation, and never resets passwords or marks email ownership confirmed. Existing authorised accounts are reused. This listing approach avoids a database migration; a dedicated indexed lookup can replace it as account volume grows.
+## Layout and validation
 
-The existing cookie-bound client then calls `signInWithOtp` with `shouldCreateUser:false` and the fixed `/auth/callback` redirect. All valid login submissions receive identical public status/message, including provider failures. Server logs contain generic failure notices, not submitted emails, provider bodies, credentials or tokens. Provider failures do not grant access. Configure provider/hosting request and email rate limits before enabling public login; origin checks are not abuse-rate limiting.
+The canonical live DOM shows UPCOMING SHOWS | MATES | MERCH publicly. SIGN UP and LOG IN remain inline mode selectors; no modal login exists. In cockpit mode the entire MATES component unmounts, including title/text/forms. SHOWS retains the left grid column and negative glass longitude; MERCH retains the right column and positive longitude. The centre stays empty. No copied DOM, screenshots or geometry changes are involved.
 
-BECOME A MATE performs the existing non-destructive MailerLite upsert into the Mate group. It does not force subscription status, resubscribe suppressed addresses, or fabricate consent. When the returned subscriber is active and eligible and entry is enabled, the shared entry service rechecks membership and starts authentication. A successful MailerLite write followed by authentication failure returns a retry state: membership is retained and LOG IN can retry. Pending/inactive membership does not trigger provisioning or email. With authentication disabled, newsletter signup continues independently.
+Run `npm run lint`, `npm run build`, `npm run mate:check`, `node --test tests/*.test.mjs`, and `npx tsc --noEmit`. Tests cover recovery isolation, single exchange under repeated effects, form readiness, invalid/replayed/non-recovery codes, rejected non-Mates, CSRF, password confirmation, save-before-login ordering, failure paths, generic recovery responses, membership/provisioning, password login/logout, layout and locked geometry. Mocked provider tests send no real email. Complete a fresh Safari recovery test locally to verify provider delivery and browser-specific behaviour.
 
-If MailerLite API double opt-in is enabled, an unconfirmed member must complete MailerLite's confirmation first and then use LOG IN. This version does not add webhooks or automate that second step. No API success alone establishes a browser session.
+## Files changed in this repair
 
-## Supabase email setting — manual verification required
+Application changes:
+- `lib/mate/server.ts`: separate recovery cookie client and complete cookie cleanup.
+- `lib/mate/recovery.ts` (new): membership-gated provisioning and recovery-email service.
+- `app/api/mate/recovery/route.ts` (new): generic server-side recovery requests.
+- `app/api/mate/recovery/session/route.ts` (new): isolated code exchange and form-session checks.
+- `app/api/mate/password/route.ts`: validate recovery and password confirmation; save before password login.
+- `app/api/subscribe/route.ts`: request setup email server-side and preserve partial signup success.
+- `app/auth/reset-password/page.tsx`: one exchange, resumable form, navigation only after successful save.
+- `app/dev/mate/page.tsx`: password-flow setup guidance.
+- `components/mate/MatePanel.tsx` (new): inline SIGN UP/LOG IN/password-reset controls extracted from the canonical page.
+- `components/home/CanonicalHomepage.tsx`: SHOWS/MATES/MERCH order and complete cockpit removal of MATES.
+- `components/home/useDomeProjection.ts`: move SHOWS to left longitude and reserve centre.
+- `components/mate/MateExperience.tsx`: replace obsolete login-link error wording with password-reset wording; transition/session logic unchanged.
+- `components/mate/mate.css`: remove unused modal/MATES-on-glass styles.
 
-Keep email confirmation enabled, SMTP working, and the exact app callback allowlisted. Use the standard `{{ .ConfirmationURL }}` template for both confirmation and magic-link email so verification returns the existing PKCE code. Open links in the browser that requested them.
+Removed `components/mate/MateLogin.tsx` (unused email-link modal) and the untracked `lib/mate/browser.ts` (competing browser auth/cookie writer). The earlier local deletions of `app/auth/callback/route.ts` and `lib/mate/entry.ts` were retained. The password-based `app/api/mate/login/route.ts` was already present at the start of this repair and was retained. `proxy.ts`, config/admin/MailerLite eligibility, `/api/mate/session`, geometry, swivel and rendering code were inspected and preserved.
 
-Supabase's magic-link flow for an unconfirmed account uses its signup-confirmation path. If the dashboard globally disables new signups, first-time accounts can therefore fail to receive their confirmation email even though admin creation succeeded. The earlier recommendation to disable all signups is incompatible with this first-time flow. Verify that setting manually before real first-time testing; no dashboard setting has been changed here. Allowing provider signup does not grant Mate authorisation: direct browser-created accounts cannot set `app_metadata.mate`, and the confirmed-email plus metadata check remains mandatory.
+Tests/docs changed: `tests/mate-auth.test.mjs`, `tests/mate-membership.test.mjs`, `tests/newsletter.test.mjs`, `tests/canonical-homepage.test.mjs`, new `tests/mate-recovery.test.mjs`, `docs/mate-entry.md`, and `docs/domepage-verification.md`.
 
-References: https://supabase.com/docs/reference/javascript/auth-admin-createuser and https://github.com/supabase/auth/blob/master/internal/api/magic_link.go .
+Verification: all 41 Node tests pass; lint, TypeScript and Mate configuration check pass. Production build passes after retrying with network access for the existing Google Font (the first sandboxed attempt failed to download it). Browser inspection verified public inline controls, the empty cockpit centre in development preview, and that an invalid reset session stays on the reset page. Real Safari email delivery/password completion still needs a fresh recovery request. No deployment, push, real emails, password changes or dashboard changes were performed.
 
-## Ongoing sessions
 
-`currentMate()` and the callback still require a Supabase-verified user, confirmed email and admin-controlled `app_metadata.mate === true`. They do not call MailerLite. A MailerLite outage cannot interrupt an existing Mate session. Membership revocation/synchronisation is explicitly deferred: removing someone from MailerLite does not yet revoke an existing Supabase grant. Future protected data endpoints must use the same server-side access checks.
+## Recovery delivery diagnostics
 
-No cockpit geometry, links, projection, rendering, swivel, transition, logout or cookie-refresh code is changed for membership provisioning. `/ship` remains development-only preview, not a session bypass in production.
+The browser always receives the same generic recovery response. That response is not proof that an email was accepted or delivered. Server logs now report `supabase-accepted`, `not-eligible`, or a failure stage (`configuration`, `membership`, `provisioning`, `recovery-client`, `supabase-recovery`) with a safe numeric provider status and machine error code when available. Raw provider messages, addresses, credentials, tokens and request URLs are excluded. MailerLite/admin wrappers preserve their underlying error only for extracting this server-side diagnostic. Existing confirmed Mate accounts need no migration; being confirmed alone does not bypass the active Mate-group eligibility check for recovery.
 
-## Validation
-
-Run `node --test tests/*.test.mjs`, `npx tsc --noEmit`, `npm run lint`, and `npm run build`. Tests mock external providers and send no emails. Coverage includes eligibility, non-Mate side-effect prevention, provider outages, metadata preservation, pagination, concurrent provisioning, unconfirmed creation, first-stage signup failure and partial success, generic login responses, session independence, callback/logout security and the existing canonical-content/geometry regressions.
-
-Real delivery and first-time confirmation still require manual testing after secrets and dashboard configuration are ready. Test an active existing MailerLite-only Mate, a new signup, an ineligible address, returning sessions and logout. No bulk import or database migration is required.
+On 22 September 2026, Supabase Auth logs confirmed that the failed recovery attempts at 17:14:50 and 17:21:06 Europe/London reached `/recover` but were rejected with HTTP 429, “email rate limit exceeded.” The project's dashboard limit was 2 authentication emails per hour across the project. Required local credentials, active Mate membership, confirmed account metadata, and the exact local reset redirect allowlist were valid. No account migration was needed. Diagnostic fields are JSON-encoded into the log line because Next's development log capture otherwise reduced an object argument to `{}`. No provider limits or dashboard settings were changed.

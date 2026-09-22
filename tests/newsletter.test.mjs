@@ -9,7 +9,7 @@ function route({token='test',enabled=false,eligible=true,entry=true,signupError=
   '@/lib/mate/config':{mateConfig:()=>({enabled,validOrigin:true,origin:'http://localhost'})},
   '@/lib/mate/server':{privateJson:(data,status=200)=>Response.json(data,{status})},
   '@/lib/mate/mailerlite':{normaliseEmail:value=>typeof value==='string'&&value.includes('@')?value:null,eligibleSubscriber:()=>eligible,subscribeMate:async()=>{calls.push('subscribe');if(signupError)throw Error();return {subscriber:{},alreadySubscribed};}},
-  '@/lib/mate/entry':{requestMateEntry:async()=>{calls.push('entry');if(entryError)throw Error();return entry;}},
+  '@/lib/mate/recovery':{recoveryFailureDetails:()=>({stage:'fixture'}),requestMateRecovery:async()=>{calls.push('entry');if(entryError)throw Error();return entry;}},
  };
  new Function('module','exports','require','process',outputText)(loaded,loaded.exports,name=>deps[name],{env:{MAILERLITE_API_TOKEN:token}});
  return {...loaded.exports,calls};

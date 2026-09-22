@@ -23,7 +23,7 @@ async function mailerlite(path: string, body?: object) {
 export async function findSubscriber(email: string): Promise<Subscriber | null> {
   const response = await mailerlite(`/${encodeURIComponent(email)}`);
   if (response.status === 404) return null;
-  if (!response.ok) throw new Error('MailerLite lookup failed');
+  if (!response.ok) throw new Error('MailerLite lookup failed', { cause: { status: response.status } });
   return (await response.json()).data;
 }
 export async function subscribeMate(email: string, name?: string) {

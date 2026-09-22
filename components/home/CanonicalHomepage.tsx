@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-
+import MatePanel from '@/components/mate/MatePanel';
 import { useDomeProjection } from './useDomeProjection';
 import type { DomeConfig, Viewport } from '@/lib/ship/domeGeometry';
 
@@ -116,14 +116,6 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
   const [videoOpen,setVideoOpen] = useState(false);
   const homeRoot = useRef<HTMLDivElement>(null);
   useDomeProjection(homeRoot,cockpit,config,view,animateEntry);
-  const [signupNotice, setSignupNotice] = useState("");
-  const [email, setEmail] = useState("");
-const [loginBusy, setLoginBusy] = useState(false);
-const [loginMessage, setLoginMessage] = useState("");
-  const [signupError, setSignupError] = useState("Mating failed, please try again.");
-  const [status, setStatus] = useState<
-    "idle" | "loading" | "success" | "already" | "error" | "notice"
-  >("idle");
   const tvRef = useRef<HTMLElement | null>(null);
   const tvBodyRef = useRef<HTMLDivElement | null>(null);
   const antennaRef = useRef<HTMLSpanElement | null>(null);
@@ -1542,139 +1534,7 @@ return (
 )}
 
         <div className="grid gap-8 md:gap-16 md:grid-cols-3 mt-2 mb-4 md:mb-16">
-          <section data-dome-slot="mate" className="md:max-w-sm md:mx-auto">
-            <h2 className="text-2xl mb-4">GET YOUR THE HYPER-FIX</h2>
-            <p className="mb-4">
-              Sign up to SOUL&apos;s newsletter for Mates Rate discounts on merch and tickets!
-            </p>
-
-            <form
-              className="flex flex-col gap-3 max-w-md md:mx-auto"
-              onSubmit={async (e) => {
-                e.preventDefault();
-                setStatus("loading");
-                setSignupError("Mating failed, please try again.");
-
-                const form = e.target as HTMLFormElement;
-                const formData = new FormData(form);
-
-                const email = formData.get("email");
-
-                try {
-                const res = await fetch("/api/subscribe", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({ email }),
-                });
-
-                if (res.ok) {
-                  const data = await res.json();
-                  form.reset();
-
-                  if (data.entry) {
-                    setSignupNotice(data.entry === "email" ? "Check your email to finish entering the cockpit. Open the link in this browser." : data.entry === "retry" ? "Your Mate signup is saved. We could not send your entry email just now. Please try LOG IN again shortly." : "Your subscription needs confirmation or reactivation before cockpit entry. Check your email for any confirmation instructions, then try LOG IN. If none arrive, contact SOUL.");
-                    setStatus("notice");
-                  } else if (data.alreadySubscribed) {
-                    setStatus("already");
-                  } else {
-                    setStatus("success");
-                  }
-                } else {
-                  const data = await res.json().catch(() => ({}));
-                  if (data.code === "SIGNUP_UNAVAILABLE") setSignupError("Newsletter signup is temporarily unavailable. Please try again later.");
-                  setStatus("error");
-                }
-                } catch { setStatus("error"); }
-              }}
-            >
-              <input
-  name="email"
-  type="email"
-  placeholder="EMAIL"
-  autoComplete="email"
-  maxLength={254}
-  value={email}
-  onChange={(e) => setEmail(e.target.value)}
-  className="pink-border-glow border border-white bg-[#00082d] p-2"
-  required
-/>
-
-              <button
-                className="pink-border-glow pink-text-glow border border-white p-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] active:bg-[#6ee7b7] active:border-[#6ee7b7] active:text-[#00082d] transition-all duration-200 disabled:opacity-50"
-                disabled={status === "loading"}
-              >
-                {status === "loading" ? "MATING..." : "BECOME A MATE"}
-              </button>
-              <button
-  type="button"
-  className="pink-border-glow pink-text-glow border border-white p-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] active:bg-[#6ee7b7] active:border-[#6ee7b7] active:text-[#00082d] transition-all duration-200 disabled:opacity-50"
-  disabled={loginBusy}
-  onClick={async () => {
-  const input = document.querySelector<HTMLInputElement>('input[name="email"]');
-
-  if (!input?.reportValidity()) return;
-
-  setLoginBusy(true);
-    setLoginMessage("");
-
-    try {
-      const response = await fetch("/api/mate/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-        signal: AbortSignal.timeout(15000),
-      });
-
-      const data = await response.json();
-
-      setLoginMessage(
-        data.message ?? data.error ?? "Please try again."
-      );
-    } catch {
-      setLoginMessage("Unable to connect. Please try again.");
-    } finally {
-      setLoginBusy(false);
-    }
-  }}
->
-  {loginBusy ? "SENDING…" : "LOG IN"}
-</button>
-            </form>
-{loginMessage && (
-  <div className="pink-border-glow mt-4 border border-white p-3">
-    {loginMessage}
-  </div>
-)}
-            
-
-            {status === "notice" && <div className="pink-border-glow mt-4 border border-white p-3">{signupNotice}</div>}
-
-            {status === "success" && (
-              <div className="pink-border-glow mt-4 border border-white p-3">
-                WELCOME ABOARD.
-                <br />
-                You are now a Mate of the Band!
-              </div>
-            )}
-
-            {status === "error" && (
-              <div className="mt-4 border border-red-500 p-3 text-red-400">
-                {signupError}
-              </div>
-            )}
-
-            {status === "already" && (
-              <div className="pink-border-glow mt-4 border border-white p-3">
-                You&apos;re already a Mate, mate.
-              </div>
-            )}
-          </section>
-
-          <section data-dome-slot="live" className="mt-4 md:mt-0 md:max-w-sm md:mx-auto">
+          <section data-dome-slot="live" className="md:col-start-1 mt-4 md:mt-0 md:max-w-sm md:mx-auto">
             <h2 className="text-2xl mb-4">UPCOMING SHOWS</h2>
 
 
@@ -1693,7 +1553,9 @@ return (
 
           </section>
 
-          <section data-dome-slot="merch" className="md:max-w-sm md:mx-auto">
+          {!cockpit && <MatePanel enabled={loginEnabled} />}
+
+          <section data-dome-slot="merch" className="md:col-start-3 md:max-w-sm md:mx-auto">
             <h2 className="text-2xl mb-4">MERCH</h2>
 
             <p>

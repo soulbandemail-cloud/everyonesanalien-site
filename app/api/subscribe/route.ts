@@ -1,7 +1,7 @@
 import { mateConfig } from '@/lib/mate/config';
 import { privateJson } from '@/lib/mate/server';
 import { normaliseEmail, subscribeMate, eligibleSubscriber } from '@/lib/mate/mailerlite';
-import { requestMateEntry } from '@/lib/mate/entry';
+import { requestMateRecovery, recoveryFailureDetails } from '@/lib/mate/recovery';
 
 export async function POST(request: Request) {
   const config = mateConfig();
@@ -16,8 +16,8 @@ export async function POST(request: Request) {
     if (!eligibleSubscriber(result.subscriber, email)) return privateJson({ success: true, alreadySubscribed: result.alreadySubscribed, entry: 'pending' });
     if (!config.enabled) return privateJson({ success: true, alreadySubscribed: result.alreadySubscribed });
     let entry = 'retry';
-    try { entry = await requestMateEntry(email) ? 'email' : 'pending'; }
-    catch { console.error('Mate signup saved; authentication email request failed.'); }
+    try { entry = await requestMateRecovery(email) ? 'email' : 'pending'; }
+    catch (error) { console.error('Mate signup saved; password setup email request failed', JSON.stringify(recoveryFailureDetails(error))); }
     return privateJson({ success: true, alreadySubscribed: result.alreadySubscribed, entry });
   } catch {
     return privateJson({ error: 'Signup is temporarily unavailable. Please try again later.' }, 503);

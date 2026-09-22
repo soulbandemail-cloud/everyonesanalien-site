@@ -26,56 +26,38 @@ test('Mate access requires confirmed identity and admin-controlled membership',(
 const request=(body,origin='https://example.com')=>new Request('https://example.com/api/mate/login',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(body)});
 function routes(file,{enabled=true,providerError=null,mate=true,fail=false}={}) {
  const calls=[];
- const client={auth:{signInWithOtp:async args=>{calls.push(args);return {error:providerError};},signOut:async()=>{if(fail)throw Error('network');return {error:providerError};}}};
+ const client={auth:{signInWithPassword:async args=>{calls.push(args);return {data:{user:{email_confirmed_at:'today',app_metadata:{mate}},session:providerError?null:{}},error:providerError};},signOut:async()=>{if(fail)throw Error('network');calls.push('signed-out');return {error:providerError};}}};
  const deps={
   '@/lib/mate/mailerlite':{normaliseEmail:value=>typeof value==='string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()) ? value.trim().toLowerCase() : null},
-  '@/lib/mate/entry':{requestMateEntry:async email=>{calls.push(email);if(providerError)throw Error('provider');return mate;}},
-  '@/lib/mate/config':{mateConfig:()=>({enabled,origin:'https://example.com'}),sameOrigin:req=>req.headers.get('Origin')==='https://example.com'},
+  '@/lib/mate/config':{mateConfig:()=>({enabled,origin:'https://example.com'}),isMate,sameOrigin:req=>req.headers.get('Origin')==='https://example.com'},
   '@/lib/mate/server':{mateClient:async()=>client,privateJson:(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'private, no-store'}}),clearMateCookies:async()=>calls.push('cleared'),currentMate:async()=>{if(fail)throw Error('network');return mate;}},
  };
  return {...load(file,deps),calls};
 }
-test('login is gated, validates origin/email, does not sign up users or enumerate accounts',async()=>{
+test('password login validates inputs, rejects non-Mates and never sends an email',async()=>{
  const file='app/api/mate/login/route.ts';
- assert.equal((await routes(file,{enabled:false}).POST(request({email:'mate@example.com'}))).status,404);
- assert.equal((await routes(file).POST(request({email:'mate@example.com'},'https://evil.test'))).status,403);
- assert.equal((await routes(file).POST(request({email:'invalid'}))).status,400);
- const known=routes(file),unknown=routes(file,{providerError:{status:400}});
- const a=await known.POST(request({email:'mate@example.com'})),b=await unknown.POST(request({email:'unknown@example.com'}));
- assert.deepEqual(await a.json(),await b.json());
- assert.equal(known.calls[0],'mate@example.com');
- assert.equal(a.headers.get('cache-control'),'private, no-store');
- assert.equal((await routes(file,{providerError:{status:429}}).POST(request({email:'mate@example.com'}))).status,200);
+ const input={email:'mate@example.com',password:'a-password'};
+ assert.equal((await routes(file,{enabled:false}).POST(request(input))).status,404);
+ assert.equal((await routes(file).POST(request(input,'https://evil.test'))).status,403);
+ assert.equal((await routes(file).POST(request({...input,email:'invalid'}))).status,400);
+ assert.equal((await routes(file).POST(request({email:input.email}))).status,400);
+ const ok=routes(file);assert.deepEqual(await (await ok.POST(request(input))).json(),{authenticated:true});
+ assert.deepEqual(ok.calls,[input]);
+ const nonMate=routes(file,{mate:false}),badPassword=routes(file,{providerError:{status:400}});
+ const a=await nonMate.POST(request(input)),b=await badPassword.POST(request(input));
+ assert.equal(a.status,401);assert.equal(b.status,401);assert.deepEqual(await a.json(),await b.json());
+ assert.equal(nonMate.calls.at(-1),'signed-out');
 });
 test('logout only succeeds after provider logout, rejecting CSRF and preserving retry on failure',async()=>{
  const file='app/api/mate/logout/route.ts';
  assert.equal((await routes(file).POST(request({},'https://evil.test'))).status,403);
- const ok=routes(file);assert.equal((await ok.POST(request({}))).status,200);assert.deepEqual(ok.calls,['cleared']);
+ const ok=routes(file);assert.equal((await ok.POST(request({}))).status,200);assert.deepEqual(ok.calls,['signed-out','cleared']);
  const failure=routes(file,{fail:true});assert.equal((await failure.POST(request({}))).status,503);assert.deepEqual(failure.calls,[]);
 });
 test('session endpoint distinguishes signed-out state from provider failures',async()=>{
  const file='app/api/mate/session/route.ts';
  assert.deepEqual(await (await routes(file,{mate:false}).GET()).json(),{authenticated:false});
  assert.equal((await routes(file,{fail:true}).GET()).status,503);
-});
-
-test('callback rejects failed verification/non-Mates and ignores arbitrary redirect targets',async()=>{
- for(const state of ['valid','invalid','non-mate']) {
-  let cleared=false;
-  const handler=load('app/auth/callback/route.ts',{
-   'next/server':{NextResponse:{redirect:(url,init)=>new Response(null,{...init,status:307,headers:{...init.headers,Location:url.toString()}})}},
-   '@/lib/mate/mailerlite':{normaliseEmail:value=>typeof value==='string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()) ? value.trim().toLowerCase() : null},
-  '@/lib/mate/entry':{requestMateEntry:async email=>{calls.push(email);if(providerError)throw Error('provider');return mate;}},
-  '@/lib/mate/config':{mateConfig:()=>({enabled:true,origin:'https://example.com'}),isMate},
-   '@/lib/mate/server':{
-    clearMateCookies:async()=>{cleared=true;},
-    mateClient:async()=>({auth:{exchangeCodeForSession:async()=>({error:state==='invalid'?Error('bad code'):null}),getUser:async()=>({data:{user:{email_confirmed_at:'today',app_metadata:{mate:state!=='non-mate'}}}}),signOut:async()=>({error:null})}}),
-   },
-  });
-  const response=await handler.GET(new Request('https://example.com/auth/callback?code=test&next=https://evil.test'));
-  assert.equal(response.headers.get('location'),state==='valid'?'https://example.com/?mate_entry=1':'https://example.com/?mate_error=1');
-  assert.equal(cleared,state!=='valid');
- }
 });
 
 test('hosted preview login does not require public launch and cannot open the production site',()=>{

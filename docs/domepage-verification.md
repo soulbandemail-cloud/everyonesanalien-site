@@ -1,6 +1,6 @@
 # Historical inspection record
 
-The configuration observations below describe the earlier inspection, not the current environment. Mate membership provisioning now follows `docs/mate-entry.md`; manual Supabase account creation is no longer required.
+The configuration observations below describe the earlier inspection, not the current environment. Password-based Mate membership provisioning now follows `docs/mate-entry.md`; manual Supabase account creation is no longer required.
 
 # Domepage / Mate verification — 22 September 2026
 
@@ -8,7 +8,7 @@ The configuration observations below describe the earlier inspection, not the cu
 
 The repository's sole canonical homepage implementation is `components/home/CanonicalHomepage.tsx`. `app/page.tsx` obtains verified session state and renders `MateExperience`, which always renders that component. `app/ship/page.tsx` renders the same `MateExperience` in development-preview mode. `Ship.tsx` only draws room geometry/utility controls; it has no separate homepage content.
 
-`useDomeProjection.ts` changes placement of existing live DOM elements. It does not copy text or links. The obsolete `components/ship/DomePage.tsx` is already absent; no further duplicate implementation needed removal. A regression test now renders both modes and compares all headings and links, checks the same signup form, and verifies no head belt in cockpit view.
+`useDomeProjection.ts` changes placement of existing live DOM elements. It does not copy text or links. The obsolete `components/ship/DomePage.tsx` is already absent; no further duplicate implementation needed removal. Current regression tests compare shared live links, verify SHOWS/MATES/MERCH public order, remove MATES entirely in cockpit mode, and verify no head belt in cockpit view.
 
 The cockpit-only “SOUL VIDEO” button is a presentation affordance in the canonical component: it opens the same television/video markup in a dialog because the floating public TV is not placed over the room. It is not evidence of a second source of media content.
 

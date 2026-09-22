@@ -29,18 +29,18 @@ test('MailerLite lookup is read-only, encoded, uncached and distinguishes absenc
 test('entry stops all admin/email work for non-Mates and lookup failures',async()=>{
  for(const state of ['mate','absent','wrong-group','outage','admin-error','email-error','not-ready']) {
   const calls=[];
-  const entry=load('lib/mate/entry.ts',{
+  const entry=load('lib/mate/recovery.ts',{
    './config':{mateConfig:()=>({enabled:true,provisioningReady:state!=='not-ready',origin:'https://site.test'})},
    './mailerlite':{eligibleSubscriber:membership.eligibleSubscriber,findSubscriber:async()=>{calls.push('lookup');if(state==='outage')throw Error();return state==='absent'?null:state==='wrong-group'?{...subscriber,groups:[]}:subscriber;}},
    './admin':{authoriseMate:async()=>{calls.push('admin');if(state==='admin-error')throw Error();}},
-   './server':{mateClient:async()=>({auth:{signInWithOtp:async args=>{calls.push(args);return {error:state==='email-error'?Error():null};}}})},
+   './server':{recoveryClient:async()=>({auth:{resetPasswordForEmail:async (email,args)=>{calls.push({email,...args});return {error:state==='email-error'?Error():null};}}})},
   });
-  if(['outage','admin-error','email-error','not-ready'].includes(state))await assert.rejects(entry.requestMateEntry(subscriber.email));
-  else assert.equal(await entry.requestMateEntry(subscriber.email),state==='mate');
+  if(['outage','admin-error','email-error','not-ready'].includes(state))await assert.rejects(entry.requestMateRecovery(subscriber.email));
+  else assert.equal(await entry.requestMateRecovery(subscriber.email),state==='mate');
   if(['absent','wrong-group','outage'].includes(state))assert.deepEqual(calls,['lookup']);
   if(state==='not-ready')assert.deepEqual(calls,[]);
   if(state==='admin-error')assert.deepEqual(calls,['lookup','admin']);
-  if(state==='mate')assert.deepEqual(calls,['lookup','admin',{email:subscriber.email,options:{shouldCreateUser:false,emailRedirectTo:'https://site.test/auth/callback'}}]);
+  if(state==='mate')assert.deepEqual(calls,['lookup','admin',{email:subscriber.email,redirectTo:'https://site.test/auth/reset-password'}]);
  }
 });
 test('admin provisioning preserves metadata, paginates and never marks an email confirmed',async()=>{
@@ -75,5 +75,19 @@ test('MailerLite signup adds only the Mate group without forcing consent or blan
   else assert.deepEqual(await api.subscribeMate(subscriber.email),{subscriber,alreadySubscribed:status===200});
   assert.equal(calls[0][1].method,'POST');
   assert.deepEqual(JSON.parse(calls[0][1].body),{email:subscriber.email,groups:['189432463968175126']});
+ }
+});
+test('recovery errors retain the failing stage and safe provider status/code without leaking private details',async()=>{
+ for(const stage of ['membership','provisioning','supabase-recovery']) {
+  const providerError={status:429,code:'over_email_send_rate_limit',message:'private email and token',email:'private@example.test',url:'https://private.test/token'};
+  const api=load('lib/mate/recovery.ts',{
+   './config':{mateConfig:()=>({enabled:true,provisioningReady:true,origin:'https://site.test'})},
+   './mailerlite':{eligibleSubscriber:()=>true,findSubscriber:async()=>{if(stage==='membership')throw new Error('lookup',{cause:providerError});return subscriber;}},
+   './admin':{authoriseMate:async()=>{if(stage==='provisioning')throw new Error('admin',{cause:providerError});}},
+   './server':{recoveryClient:async()=>({auth:{resetPasswordForEmail:async()=>({error:providerError})}})},
+  });
+  let failure;try{await api.requestMateRecovery(subscriber.email);}catch(error){failure=error;}
+  assert.deepEqual(api.recoveryFailureDetails(failure),{stage,status:429,code:'over_email_send_rate_limit'});
+  assert.deepEqual(api.recoveryFailureDetails({message:'secret',code:'private@example.test',status:0}),{stage:'unknown'});
  }
 });

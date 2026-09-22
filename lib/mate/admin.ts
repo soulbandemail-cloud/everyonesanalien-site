@@ -13,7 +13,7 @@ export async function authoriseMate(email: string) {
   async function findUser() {
     for (let page = 1; ; page++) {
       const { data, error } = await admin.listUsers({ page, perPage: 1000 });
-      if (error) throw new Error('Mate account lookup failed');
+      if (error) throw new Error('Mate account lookup failed', { cause: error });
       const user = data.users.find(user => user.email?.toLowerCase() === email);
       if (user) return user;
       if (data.users.length < 1000) return null;
@@ -24,11 +24,11 @@ export async function authoriseMate(email: string) {
     const { data, error } = await admin.createUser({ email, email_confirm: false, app_metadata: { mate: true } });
     if (!error && data.user) return;
     // A simultaneous request may have created the same user. Never reset an account.
-    if (error?.code !== 'email_exists' && error?.code !== 'user_already_exists') throw new Error('Mate provisioning failed');
+    if (error?.code !== 'email_exists' && error?.code !== 'user_already_exists') throw new Error('Mate provisioning failed', { cause: error });
     user = await findUser();
-    if (!user) throw new Error('Mate provisioning failed');
+    if (!user) throw new Error('Mate provisioning failed', { cause: error });
   }
   if (user.app_metadata.mate === true) return;
   const { error } = await admin.updateUserById(user.id, { app_metadata: { ...user.app_metadata, mate: true } });
-  if (error) throw new Error('Mate authorisation failed');
+  if (error) throw new Error('Mate authorisation failed', { cause: error });
 }
