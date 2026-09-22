@@ -17,7 +17,7 @@ export function perimeterFixtures(radius: number, centre: Vec3) {
   const railPos = wallPosition(radius, centre, .91, 1.05 * 1.05, .38 * 1.05);
   const sofaYaw = inwardYaw(sofaPos, centre);
   return {
-    radio: { x: -1.65, y: ROOM.consoleAnchorY + 1.05, z: 7.65, scale: .85, yaw: -.12 },
+    radio: { x: 1.65, y: ROOM.consoleAnchorY + 1.05, z: 7.65, scale: .85, yaw: .12 },
     sofa: { ...sofaPos, y: ROOM.floorY, scale: 1.15, yaw: sofaYaw },
     // Directly inward of the seat, with a short reachable gap to the circular tabletop.
     coffeeTable: { x: sofaPos.x - 1.79 * Math.sin(sofaYaw), z: sofaPos.z - 1.79 * Math.cos(sofaYaw), y: ROOM.floorY, scale: .9, yaw: sofaYaw },

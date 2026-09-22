@@ -16,13 +16,13 @@ const panel=component('components/mate/MatePanel.tsx');
 const page=component('components/home/CanonicalHomepage.tsx',{'./useDomeProjection':{useDomeProjection:()=>{}},'@/components/mate/MatePanel':panel});
 const render=cockpit=>renderToStaticMarkup(React.createElement(page.default,{cockpit,loginEnabled:true,config:{},view:{width:1440,height:900}}));
 const links=html=>[...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/gs)].map(m=>[m[1],m[2]]);
-test('one canonical content tree: public SHOWS/MATES/MERCH, cockpit SHOWS/empty/MERCH',()=>{
+test('one canonical content tree: public SHOWS/MATES/THE MERCH, cockpit SHOWS/empty/THE MERCH',()=>{
  const publicPage=render(false),cockpit=render(true);
  assert.deepEqual(links(cockpit),links(publicPage));
- assert.ok(publicPage.indexOf('UPCOMING SHOWS')<publicPage.indexOf('>MATES<'));
- assert.ok(publicPage.indexOf('>MATES<')<publicPage.indexOf('>MERCH<'));
+ assert.ok(publicPage.indexOf('THE SHOWS')<publicPage.indexOf('>THE MATES<'));
+ assert.ok(publicPage.indexOf('>THE MATES<')<publicPage.indexOf('>THE MERCH<'));
  assert.match(publicPage,/SIGN UP/);assert.match(publicPage,/LOG IN/);
- assert.doesNotMatch(cockpit,/data-dome-slot="mate"|>MATES<|Get The Hyper-Fix|SIGN UP|LOG IN|<form/);
+ assert.doesNotMatch(cockpit,/data-dome-slot="mate"|>THE MATES<|Get The Hyper-Fix|SIGN UP|LOG IN|<form/);
  for(const html of [publicPage,cockpit]){
   assert.match(html,/data-dome-slot="live" class="md:col-start-1/);
   assert.match(html,/data-dome-slot="merch" class="md:col-start-3/);

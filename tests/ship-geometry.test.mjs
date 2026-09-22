@@ -158,7 +158,7 @@ test('domepage reserves glass above the fixed lower latitude and gaps only the u
   close(DEFAULT_DOME.lowerLatitude,.085);
   close(layout.brand,DEFAULT_DOME.topLatitude);
   assert.ok(layout.socials > layout.brand);
-  assert.ok(layout.merch > layout.posterTop);
+  assert.ok(layout['merch'] > layout.posterTop);
   assert.ok(layout.posterTop > layout.posterBottom);
   assert.ok(layout.posterBottom > DEFAULT_DOME.lowerLatitude);
   assert.ok((upperRulePath(DEFAULT_DOME,desktop).match(/M/g) ?? []).length >= 2);

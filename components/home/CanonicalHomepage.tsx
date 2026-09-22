@@ -334,31 +334,44 @@ const clampTvPosition = (x: number, y: number) => {
     y: Math.min(Math.max(margin, y), window.innerHeight - tvHeight - 70),
   };
 };
-
 const dragTv = (e: React.PointerEvent<HTMLElement>) => {
   if (tvExpanded) return;
-  if ((e.target as HTMLElement).closest("button")) return;
-  if ((e.target as HTMLElement).closest(".space-tv-screen")) return;
 
   e.preventDefault();
   e.stopPropagation();
 
   const startX = e.clientX;
-  const startY = e.clientY;
-  const startPos = tvPos ?? clampTvPosition(window.innerWidth - 340, window.innerHeight - 320);
+  
+  const threshold = 18;
+  let direction: "left" | "right" | null = null;
 
   const moveTv = (moveEvent: PointerEvent) => {
-    setTvPos(
-      clampTvPosition(
-        startPos.x + moveEvent.clientX - startX,
-        startPos.y + moveEvent.clientY - startY
-      )
-    );
+    const dx = moveEvent.clientX - startX;
+
+    if (dx < -threshold) {
+      direction = "left";
+    } else if (dx > threshold) {
+      direction = "right";
+    }
   };
 
   const stopDragging = () => {
     window.removeEventListener("pointermove", moveTv);
     window.removeEventListener("pointerup", stopDragging);
+
+    if (!direction || !tvRef.current) return;
+
+    const rect = tvRef.current.getBoundingClientRect();
+    const margin = window.innerWidth < 640 ? 8 : 26;
+
+    const x =
+      direction === "left"
+        ? margin
+        : window.innerWidth - rect.width - margin;
+
+    const y = window.innerHeight - rect.height - margin;
+
+    setTvPos(clampTvPosition(x, y));
   };
 
   window.addEventListener("pointermove", moveTv);
@@ -753,31 +766,90 @@ useEffect(() => {
     window.removeEventListener("resize", placeTv);
   };
 }, [minigameEnabled]);
+useEffect(() => {
+  if (!minigameEnabled) return;
+
+  const placeTv = () => {
+    setTvPos((current) => {
+      const isMobile = window.innerWidth < 640;
+      const margin = isMobile ? 8 : 26;
+
+      const tvWidth =
+        tvRef.current?.getBoundingClientRect().width ??
+        (isMobile
+          ? Math.min(140, window.innerWidth * 0.35)
+          : Math.min(340, window.innerWidth * 0.28));
+
+      const tvHeight =
+        tvRef.current?.getBoundingClientRect().height ??
+        (isMobile ? 92 : 250);
+
+      const rightX = window.innerWidth - tvWidth - margin;
+      const bottomY = window.innerHeight - tvHeight - margin;
+
+      if (!current) {
+  return current;
+}
+
+      const wasOnLeft = current.x < window.innerWidth / 2;
+
+      return clampTvPosition(
+        wasOnLeft ? margin : rightX,
+        bottomY
+      );
+    });
+  };
+
+  placeTv();
+  window.addEventListener("resize", placeTv);
+
+  return () => {
+    window.removeEventListener("resize", placeTv);
+  };
+}, [minigameEnabled]);
 
 useEffect(() => {
   if (!minigameEnabled) return;
+
+  const placeTv = () => {
+    const frame = window.requestAnimationFrame(() => {
+      const tv = tvRef.current;
+      if (!tv) return;
+
+      const rect = tv.getBoundingClientRect();
+      const margin = window.innerWidth < 640 ? 8 : 26;
+
+      const leftX = margin;
+      const rightX = window.innerWidth - rect.width - margin;
+      const bottomY = window.innerHeight - rect.height - margin;
+
+      setTvPos((current) => {
+        const side =
+          current && current.x < window.innerWidth / 2
+            ? "left"
+            : "right";
+
+        return clampTvPosition(
+          side === "left" ? leftX : rightX,
+          bottomY
+        );
+      });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  };
+
+  const cancelInitialFrame = placeTv();
+
+  const handleResize = () => {
+    placeTv();
+  };
+
+  window.addEventListener("resize", handleResize);
+
   return () => {
-    if (tvSparkTimeoutRef.current) {
-      window.clearTimeout(tvSparkTimeoutRef.current);
-    }
-
-    if (hideWishLayerTimeoutRef.current) {
-      window.clearTimeout(hideWishLayerTimeoutRef.current);
-    }
-
-    if (wishLayerReturnTimeoutRef.current) {
-      window.clearTimeout(wishLayerReturnTimeoutRef.current);
-    }
-
-    if (womboComboTimeoutRef.current) {
-      window.clearTimeout(womboComboTimeoutRef.current);
-    }
-
-    if (heartPulseTimeoutRef.current) {
-      window.clearTimeout(heartPulseTimeoutRef.current);
-    }
-
-    
+    cancelInitialFrame?.();
+    window.removeEventListener("resize", handleResize);
   };
 }, [minigameEnabled]);
 
@@ -1535,7 +1607,7 @@ return (
 
         <div className="grid gap-8 md:gap-16 md:grid-cols-3 mt-2 mb-4 md:mb-16">
           <section data-dome-slot="live" className="md:col-start-1 mt-4 md:mt-0 md:max-w-sm md:mx-auto">
-            <h2 className="text-2xl mb-4">UPCOMING SHOWS</h2>
+            <h2 className="text-2xl mb-4">THE SHOWS</h2>
 
 
            <ul className="space-y-2">
@@ -1556,13 +1628,13 @@ return (
           {!cockpit && <MatePanel enabled={loginEnabled} />}
 
           <section data-dome-slot="merch" className="md:col-start-3 md:max-w-sm md:mx-auto">
-            <h2 className="text-2xl mb-4">MERCH</h2>
+            <h2 className="text-2xl mb-4">THE MERCH</h2>
 
             <p>
               Coming soon
               <span className="animate-pulse">_</span>
             </p>
-            {cockpit && <button type="button" className="mate-login-link" onClick={()=>{setVideoOpen(true);videoDialog.current?.showModal();}}>SOUL VIDEO ↗</button>}
+
           </section>
         </div>
 

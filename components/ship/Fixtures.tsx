@@ -53,11 +53,47 @@ export const Fixtures = memo(function Fixtures({ config, view }: Props) {
   const radio = fixtures.radio, music = fixtures.musicStation, sofa = fixtures.sofa;
   const rail = fixtures.clothesRail, table = fixtures.coffeeTable;
   return <svg className={styles.fixtures} width={view.width} height={view.height} role="img" aria-label="Empty base ship fixtures: radio left, gramophone and empty record cabinet right, empty sofa left, empty clothes rail right, coffee table with current Hyper-Fix foremost">
-    <g aria-label="Retro radio placed on the left side of the pilot console">
-      {box(radio,0,0,0,1.05,.58,.38,'#655f5c')}
-      {flatArt(radio,0,.26,-.2,.95,<g><rect x="-42" y="-19" width="51" height="35" rx="4" fill="#263640" />{[-33,-25,-17,-9,-1].map(x=><path key={x} d={`M${x} -12 V10`} stroke="#7b8787" strokeWidth="3" />)}<circle cx="29" cy="4" r="9" fill="#b2ada0" stroke="#263640" strokeWidth="3" /><path d="M18 -13 H40" stroke="#b2ada0" strokeWidth="3" /></g>)}
-      {line(radio,[.32,.58,.1],[.46,.98,.1],'#a2aaa5',2)}
+    <g aria-label="Portable TV placed on the left side of the pilot console">
+  {box(radio,0,0,0,1.05,.58,.38,'#655f5c')}
+
+  {flatArt(
+    radio,
+    0,
+    .26,
+    -.2,
+    .95,
+    <g>
+      {/* screen border */}
+      <rect
+        x="-45"
+        y="-21"
+        width="90"
+        height="42"
+        rx="4"
+        fill="#7b8787"
+      />
+
+      {/* thumbnail fills almost the entire frontage */}
+      <image
+        href="/tv-poster.png"
+        x="-42"
+        y="-18"
+        width="84"
+        height="36"
+        preserveAspectRatio="xMidYMid slice"
+      />
     </g>
+  )}
+
+  {/* carry handle — left */}
+  {line(radio,[-.43,.58,0],[-.39,.76,0],'#a2aaa5',2)}
+  {line(radio,[-.39,.76,0],[-.10,.76,0],'#a2aaa5',2)}
+  {line(radio,[-.10,.76,0],[-.06,.58,0],'#a2aaa5',2)}
+
+  {/* symmetrical bunny ears — right */}
+  {line(radio,[.25,.58,.1],[.10,.98,.1],'#a2aaa5',2)}
+  {line(radio,[.25,.58,.1],[.40,.98,.1],'#a2aaa5',2)}
+</g>
     <g aria-label="Music station: gramophone left, empty sleeve display right, empty horizontal record shelves below">
       {/* Open-front cabinet. Shelves run horizontally, with vertical storage clearance. */}
       {box(music,0,0,.24,2.85,1.15,.09,'#26353f')}

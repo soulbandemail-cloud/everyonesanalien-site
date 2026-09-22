@@ -242,6 +242,7 @@ body {
   user-select: none;
   color: #ffffff;
   cursor: default;
+  transition: left 480ms cubic-bezier(.45, 0, .2, 1);
 }
 
 .space-tv-expanded {
