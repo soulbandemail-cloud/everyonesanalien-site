@@ -88,44 +88,6 @@
   }
 }
 
-.space-tv-spark {
-  position: absolute;
-  left: 50%;
-  top: -6px;
-  z-index: 2;
-  width: 58px;
-  height: 28px;
-  transform: translateX(-50%);
-  filter:
-    drop-shadow(0 0 7px rgba(255, 176, 255, 0.95))
-    drop-shadow(0 0 18px rgba(255, 176, 255, 0.54));
-  pointer-events: none;
-  animation: space-tv-spark-flash 500ms steps(2, end) both;
-}
-
-@keyframes space-tv-spark-flash {
-  0% {
-    opacity: 0;
-    transform: translateX(-50%) scaleX(0.75) scaleY(0.8);
-  }
-
-  18%,
-  66% {
-    opacity: 1;
-    transform: translateX(-50%) scale(1);
-  }
-
-  40% {
-    opacity: 0.35;
-    transform: translateX(-50%) scaleX(1.08) scaleY(0.9);
-  }
-
-  100% {
-    opacity: 0;
-    transform: translateX(-50%) scaleX(1.18) scaleY(0.72);
-  }
-}
-
 @keyframes alien-footer-scroll {
   from {
     transform: translateX(100vw);
@@ -215,124 +177,6 @@
   transform-origin: center;
 }
 
-.wish-box {
-  animation: wish-box-arrive 240ms ease-out both;
-}
-
-.wish-rules-box {
-  position: relative;
-  z-index: 20;
-  max-width: min(92vw, 520px);
-  border: 1px solid #ffffff;
-  background: #00082d;
-  padding: 12px 16px;
-  text-align: left;
-  color: #ffffff;
-  filter:
-    drop-shadow(0 0 7px rgba(255, 176, 255, 0.72))
-    drop-shadow(0 0 14px rgba(127, 255, 212, 0.24));
-  animation: wish-box-arrive 240ms ease-out both;
-}
-
-.wish-rules-box p {
-  margin: 0;
-}
-
-.wish-rules-box p + p {
-  margin-top: 4px;
-}
-
-@keyframes wish-box-arrive {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.92);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.wish-burst-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 99999;
-  pointer-events: none;
-  opacity: 1;
-  transition: opacity 1s ease-out;
-}
-
-.wish-flash-blackout-return {
-  transition-duration: 2s;
-}
-
-.wish-flash-hidden {
-  opacity: 0;
-}
-
-.wish-pong-layer {
-  touch-action: none;
-}
-
-.wish-pong-handle {
-  position: fixed;
-  left: 50%;
-  top: 34%;
-  width: 150px;
-  height: 48px;
-  cursor: ew-resize;
-  pointer-events: auto;
-  touch-action: none;
-  transform: translate(-50%, -50%) translateX(calc(var(--wish-paddle-x, 0px) + var(--wish-paddle-center-x, 0px)));
-}
-
-.wish-burst-star {
-  position: fixed;
-  left: 50%;
-  top: 34%;
-  width: 18px;
-  height: 18px;
-  background: #7fffd4;
-  clip-path: polygon(
-    50% 5%,
-    61% 35%,
-    93% 35%,
-    67% 54%,
-    78% 90%,
-    50% 68%,
-    22% 90%,
-    33% 54%,
-    7% 35%,
-    39% 35%
-  );
-  opacity: 1;
-  filter: drop-shadow(0 0 12px #7fffd4);
-  transform: translate(-50%, -50%) translateX(calc(var(--wish-paddle-x, 0px) + var(--burst-x))) scale(0.8);
-  animation: wish-burst-star 900ms ease-out forwards;
-}
-
-.wish-pong-star {
-  animation: none;
-}
-
-@media (max-width: 640px) {
-  .wish-pong-handle,
-  .wish-burst-star {
-    top: 24%;
-  }
-}
-
-@keyframes wish-burst-star {
-  0% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0;
-  }
-}
-
 @keyframes flying-alien-spin {
   from {
     transform: translate(-50%, -50%) rotate(0deg) scale(var(--tractor-scale, 1));
@@ -358,95 +202,6 @@
   fill: #ffffff;
   filter: drop-shadow(0 0 7px rgba(255, 176, 255, 0.72));
 }
-.space-tv-spark-burst {
-  position: absolute;
-  left: 50%;
-  top: -10px;
-  width: 1px;
-  height: 1px;
-  color: #ffffff;
-  pointer-events: none;
-  z-index: 4;
-}
-
-.space-tv-spark-bit {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 46px;
-  height: 28px;
-  opacity: 0;
-  transform-origin: center;
-  filter:
-    drop-shadow(0 0 6px rgba(255, 255, 255, 0.95))
-    drop-shadow(0 0 14px rgba(255, 176, 255, 0.72))
-    drop-shadow(0 0 22px rgba(127, 255, 212, 0.38));
-  animation: space-tv-spark-bit-burst 780ms steps(2, end) forwards;
-}
-
-.space-tv-spark-bit-0 {
-  --spark-x: -70px;
-  --spark-y: -24px;
-  --spark-rotate: -28deg;
-  animation-delay: 40ms;
-}
-
-.space-tv-spark-bit-1 {
-  --spark-x: 34px;
-  --spark-y: -44px;
-  --spark-rotate: 18deg;
-  animation-delay: 90ms;
-}
-
-.space-tv-spark-bit-2 {
-  --spark-x: -54px;
-  --spark-y: 16px;
-  --spark-rotate: 26deg;
-  animation-delay: 140ms;
-}
-
-.space-tv-spark-bit-3 {
-  --spark-x: 42px;
-  --spark-y: 18px;
-  --spark-rotate: -20deg;
-  animation-delay: 190ms;
-}
-
-.space-tv-spark-bit-4 {
-  --spark-x: -16px;
-  --spark-y: -64px;
-  --spark-rotate: 78deg;
-  animation-delay: 240ms;
-}
-
-.space-tv-spark-bit-5 {
-  --spark-x: 12px;
-  --spark-y: 44px;
-  --spark-rotate: -78deg;
-  animation-delay: 290ms;
-}
-
-@keyframes space-tv-spark-bit-burst {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) translate(0, 0) rotate(var(--spark-rotate)) scale(0.55);
-  }
-
-  18%,
-  54% {
-    opacity: 1;
-  }
-
-  36% {
-    opacity: 0.32;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate(-50%, -50%) translate(var(--spark-x), var(--spark-y)) rotate(var(--spark-rotate)) scale(1.08);
-  }
-}
-
 .flying-alien-skull {
   animation: none;
   filter:
@@ -659,43 +414,6 @@
   }
 }
 
-@media (max-width: 640px) {
-  .space-tv-spark-bit {
-    width: 34px;
-    height: 22px;
-  }
-
-  .space-tv-spark-bit-0 {
-    --spark-x: -42px;
-    --spark-y: -16px;
-  }
-
-  .space-tv-spark-bit-1 {
-    --spark-x: 26px;
-    --spark-y: -28px;
-  }
-
-  .space-tv-spark-bit-2 {
-    --spark-x: -34px;
-    --spark-y: 12px;
-  }
-
-  .space-tv-spark-bit-3 {
-    --spark-x: 30px;
-    --spark-y: 14px;
-  }
-
-  .space-tv-spark-bit-4 {
-    --spark-x: -10px;
-    --spark-y: -42px;
-  }
-
-  .space-tv-spark-bit-5 {
-    --spark-x: 8px;
-    --spark-y: 30px;
-  }
-}
-
 /* Arcade-local boundary retains the original band dimensions and collision plane. */
 .saucer-hull-strip {
   border-top: 1px solid #e4ebef;
@@ -714,3 +432,13 @@
 .arcade-controls { position: fixed; top: 8px; right: 8px; z-index: 1000000; }
 .arcade-controls button { border: 1px solid #7fffd4; padding: 8px 12px; background: #00082d; color: #7fffd4; cursor: pointer; }
 .arcade-controls button:focus-visible { outline: 2px solid white; outline-offset: 2px; }
+
+
+.arcade-charge { position:fixed; top:12px; left:12px; z-index:9000; display:flex; align-items:center; gap:10px; color:#7fffd4; text-align:left; font-size:13px; letter-spacing:.15em; user-select:none; }
+.arcade-charge-meter { width:140px; height:13px; border:1px solid white; padding:2px; box-shadow:0 0 7px #ffb0ff88; }
+.arcade-charge-meter > div { height:100%; background:#7fffd4; transform-origin:left; }
+.arcade-charge > span { order:-1; }
+.arcade-discharge { position:fixed; inset:0; width:100%; height:100%; max-width:none; pointer-events:none; z-index:9997; overflow:visible; }
+.arcade-discharge polyline { fill:none; stroke:#e4fff7; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; filter:drop-shadow(0 0 7px #ffb0fff2) drop-shadow(0 0 18px #ffb0ff8a); animation:arcade-discharge-flicker 120ms steps(2,end) infinite; }
+@keyframes arcade-discharge-flicker { 0%,100% {opacity:1} 50% {opacity:.5} }
+.arcade-game { user-select:none; cursor:auto; }

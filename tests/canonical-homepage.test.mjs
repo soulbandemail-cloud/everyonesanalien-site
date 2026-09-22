@@ -16,8 +16,10 @@ const lifecycle=component('components/home/useScopedLifecycle.ts');
 const tvHook=component('components/home/usePortableTv.ts',{'./useScopedLifecycle':lifecycle});
 const tv=component('components/home/PortableTV.tsx',{'./usePortableTv':tvHook});
 const heart=component('components/home/PlanetHeart.tsx');
+const rules=component('components/home/WishRules.tsx');
+const wishes=component('components/home/DomeWishes.tsx',{'./useScopedLifecycle':lifecycle,'./WishRules':rules,'./wishes.css':{}});
 const panel=component('components/mate/MatePanel.tsx');
-const page=component('components/home/CanonicalHomepage.tsx',{'./PortableTV':tv,'./PlanetHeart':heart,'./useDomeProjection':{useDomeProjection:()=>{}},'@/components/mate/MatePanel':panel});
+const page=component('components/home/CanonicalHomepage.tsx',{'./DomeWishes':wishes,'./PortableTV':tv,'./PlanetHeart':heart,'./useDomeProjection':{useDomeProjection:()=>{}},'@/components/mate/MatePanel':panel});
 const render=cockpit=>renderToStaticMarkup(React.createElement(page.default,{cockpit,loginEnabled:true,config:{},view:{width:1440,height:900}}));
 const links=html=>[...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/gs)].map(m=>[m[1],m[2]]);
 test('one canonical content tree: public SHOWS/MATES/THE MERCH, cockpit SHOWS/empty/THE MERCH',()=>{
@@ -56,4 +58,14 @@ test('desktop glass projection leaves its centre empty and preserves live links'
  new Function('module','exports','require','window','document',outputText)(loaded,loaded.exports,name=>deps[name],{matchMedia:()=>({addEventListener(){},removeEventListener(){}}),addEventListener(){}},{addEventListener(){}});
  loaded.exports.useDomeProjection(root,true,{}, {width:1440,height:900});
  assert.equal(elements[0].style.left,'-0.67px');assert.equal(elements[1].style.left,'0.67px');
+});
+
+test('public atmosphere stays intact and Wish UI/rules are absent before a catch',()=>{
+ const html=render(false);
+ assert.match(html,/class="stars"/);
+ assert.equal((html.match(/class="shooting-star /g)||[]).length,11);
+ assert.doesNotMatch(html,/aria-label="Wish Rules"|wish-rules-box|MAKE A WISH|Rule 1:/);
+ assert.doesNotMatch(render(true),/wish-rules-box|shooting-star|class="stars"/);
+ const rulesSource=fs.readFileSync('components/home/WishRules.tsx','utf8');
+ assert.doesNotMatch(rulesSource,/useState|useEffect|onClick|onPointer|setInterval|ArcadeGame/);
 });

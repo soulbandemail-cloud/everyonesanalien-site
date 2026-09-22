@@ -4,6 +4,7 @@ import MatePanel from '@/components/mate/MatePanel';
 import { useDomeProjection } from './useDomeProjection';
 import PlanetHeart from './PlanetHeart';
 import PortableTV from './PortableTV';
+import DomeWishes from './DomeWishes';
 import type { DomeConfig, Viewport } from '@/lib/ship/domeGeometry';
 import {
   FaInstagram,
@@ -27,19 +28,7 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
 
 <PortableTV />
 
-<div className="shooting-stars">
-  <span className="shooting-star shooting-star-launch"></span>
-  <span className="shooting-star shooting-star-1"></span>
-  <span className="shooting-star shooting-star-2"></span>
-  <span className="shooting-star shooting-star-3"></span>
-  <span className="shooting-star shooting-star-4"></span>
-  <span className="shooting-star shooting-star-5"></span>
-  <span className="shooting-star shooting-star-6"></span>
-  <span className="shooting-star shooting-star-7"></span>
-  <span className="shooting-star shooting-star-8"></span>
-  <span className="shooting-star shooting-star-9"></span>
-  <span className="shooting-star shooting-star-10"></span>
-</div>
+
 
 </div>}
  <main className="pink-text-glow min-h-screen text-white p-8 md:p-12 max-w-12xl mx-auto">
@@ -107,6 +96,8 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
             <div className="pink-line-glow h-[4px] bg-white flex-1 ml-2" />
           </div>
         </div>
+
+        {!cockpit && <DomeWishes />}
 
         <div className="grid gap-8 md:gap-16 md:grid-cols-3 mt-2 mb-4 md:mb-16">
           <section data-dome-slot="live" className="md:col-start-1 mt-4 md:mt-0 md:max-w-sm md:mx-auto">

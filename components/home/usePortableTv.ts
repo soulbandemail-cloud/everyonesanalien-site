@@ -2,11 +2,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useScopedLifecycle } from './useScopedLifecycle';
 
-/** Original two-position TV movement, shared by the video TV and arcade bumper. */
+/** Two-position movement for the public video TV. */
 export function usePortableTv() {
   const lifecycle = useScopedLifecycle();
   const dragCleanup = useRef<(() => void) | null>(null);
   useEffect(() => () => dragCleanup.current?.(), []);
+  const tvSide = useRef<"left" | "right">("right");
   const tvRef = useRef<HTMLElement | null>(null);
   const [tvPos, setTvPos] = useState<{ x: number; y: number } | null>(null);
   const [tvExpanded, setTvExpanded] = useState(false);
@@ -51,6 +52,7 @@ const dragTv = (e: React.PointerEvent<HTMLElement>) => {
 
     if (!direction || !tvRef.current) return;
 
+    tvSide.current = direction;
     const rect = tvRef.current.getBoundingClientRect();
     const margin = window.innerWidth < 640 ? 8 : 26;
 
@@ -76,26 +78,24 @@ const dragTv = (e: React.PointerEvent<HTMLElement>) => {
 };
 
 
-useEffect(() => {
-  const isMobile = window.innerWidth < 640;
-  const fallbackWidth = isMobile
-    ? Math.min(140, window.innerWidth * 0.35)
-    : Math.min(340, window.innerWidth * 0.28);
-
-  const margin = isMobile ? 8 : 26;
-
-  setTvPos({
-    x: window.innerWidth - fallbackWidth - margin,
-    y: window.innerHeight,
-  });
-}, []);
+const hasPosition = tvPos !== null;
 
 useEffect(() => {
 
   const placeTv = () => {
     const frame = lifecycle.frame(() => {
       const tv = tvRef.current;
-      if (!tv) return;
+      if (!tv) {
+        // Bootstrap the conditional TV mount; this same positioning system
+        // measures it after React commits the non-null position.
+        const isMobile = window.innerWidth < 640;
+        const fallbackWidth = isMobile
+          ? Math.min(140, window.innerWidth * 0.35)
+          : Math.min(340, window.innerWidth * 0.28);
+        const margin = isMobile ? 8 : 26;
+        setTvPos({ x: window.innerWidth - fallbackWidth - margin, y: window.innerHeight });
+        return;
+      }
 
       const rect = tv.getBoundingClientRect();
       const margin = window.innerWidth < 640 ? 8 : 26;
@@ -104,17 +104,10 @@ useEffect(() => {
       const rightX = window.innerWidth - rect.width - margin;
       const bottomY = window.innerHeight - rect.height - margin;
 
-      setTvPos((current) => {
-        const side =
-          current && current.x < window.innerWidth / 2
-            ? "left"
-            : "right";
-
-        return clampTvPosition(
-          side === "left" ? leftX : rightX,
-          bottomY
-        );
-      });
+      setTvPos(clampTvPosition(
+        tvSide.current === "left" ? leftX : rightX,
+        bottomY
+      ));
     });
 
     return () => lifecycle.cancelFrame(frame);
@@ -132,7 +125,7 @@ useEffect(() => {
     cancelInitialFrame?.();
     window.removeEventListener("resize", handleResize);
   };
-}, [lifecycle]);
+}, [lifecycle, hasPosition]);
 
 
 return { tvRef, tvPos, tvExpanded, setTvExpanded, dragTv };

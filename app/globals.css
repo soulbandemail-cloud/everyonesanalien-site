@@ -847,5 +847,5 @@ svg {
 }
 
 
-/* Public shooting stars and TV antenna are scenery, not game controls. */
-.site-atmosphere .shooting-star, .site-atmosphere .space-tv-antenna { pointer-events: none; cursor: default; }
+/* The public antenna remains scenery; shooting stars keep their original hit targets. */
+.site-atmosphere .space-tv-antenna { pointer-events: none; cursor: default; }

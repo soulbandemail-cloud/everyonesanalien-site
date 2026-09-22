@@ -1,39 +1,14 @@
 "use client";
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import PlanetHeart from '../home/PlanetHeart';
-import { usePortableTv } from '../home/usePortableTv';
+import { useOrbitDischarge } from './useOrbitDischarge';
+import { hitBolt } from './discharge';
 import { useScopedLifecycle } from '../home/useScopedLifecycle';
 import './arcade.css';
 
 const ZAP_STUN_DURATION = 3000;
 const ZAP_RECATCH_COOLDOWN = 700;
-const WISH_BURST_DURATION = 900;
-const WISH_RULE_DURATION = 8000;
-const WISH_BOUNCE_COOLDOWN = 140;
 const FOOTER_BOUNCE_COOLDOWN = 140;
-const TV_BOUNCE_COOLDOWN = 100;
-const WISH_STAR_OFFSETS = [-120, -92, -66, -38, -14, 14, 38, 66, 92, 120];
-const PONG_STAR_OFFSETS = [-120, -92, -66, -38, -14];
-const PONG_PADDLE_CENTER_OFFSET = -67;
-const WISH_STAR_HIT_PADDING = 18;
-const WISH_RULE_TRIGGERS = [
-  /another\s+wish/,
-  /more\s+wishes/,
-  /infinite\s+wishes/,
-  /\bkill\b/,
-  /\bdead\b/,
-  /\bdie\b/,
-  /\bdeath\b/,
-  /back\s+to\s+life/,
-  /fall\s+in\s+love/,
-];
-
-type WishBarrier = {
-  key: number;
-  activeUntil: number;
-  xOffset: number;
-  starOffsets: number[];
-};
 
 type TractorCollectionType = "alien" | "whiteSkull" | "blackSkull";
 
@@ -93,46 +68,29 @@ type FlyingAlien = {
   isBlackSkull?: boolean;
   turningBlack?: boolean;
   stunnedUntil?: number;
-  lastSparkCatch?: number;
-  needsSparkExit?: boolean;
+  lastZapCatch?: number;
+  needsZapExit?: boolean;
   tractorCaptured?: boolean;
   tractorCapturedAt?: number;
   tractorScale?: number;
-  lastWishBounce?: number;
   lastFooterBounce?: number;
-  lastTvBounce?: number;
 };
 
 export default function ArcadeGame({ onRestart }: { onRestart: () => void }) {
   const minigameEnabled = true;
-  const cockpit = false;
+  const gameRoot = useRef<HTMLDivElement | null>(null);
   const lifecycle = useScopedLifecycle();
-  const paddleCleanup = useRef<(() => void) | null>(null);
-  useEffect(() => () => paddleCleanup.current?.(), []);
-  const {tvRef, tvPos, tvExpanded, setTvExpanded, dragTv} = usePortableTv();
-  const tvBodyRef = useRef<HTMLDivElement | null>(null);
-  const antennaRef = useRef<HTMLSpanElement | null>(null);
   const footerRef = useRef<HTMLDivElement | null>(null);
-  const tvSparkActiveRef = useRef(false);
-  const tvSparkTimeoutRef = useRef<number | null>(null);
-  const hideWishLayerTimeoutRef = useRef<number | null>(null);
-  const wishLayerReturnTimeoutRef = useRef<number | null>(null);
   const womboComboTimeoutRef = useRef<number | null>(null);
   const heartPulseTimeoutRef = useRef<number | null>(null);
   const ufoPosRef = useRef({ x: -100, y: -100 });
   const tractorBeamActiveRef = useRef(false);
   const collectedTractorIdsRef = useRef(new Set<number>());
   
-  const wishBarrierRef = useRef<WishBarrier | null>(null);
-  const [tvStarted, setTvStarted] = useState(false);
-  const [tvSpark, setTvSpark] = useState(false);
-  const [tvSparkBurst, setTvSparkBurst] = useState(0);
   const [flashbang, setFlashbang] = useState<{
     key: number;
     type: "white" | "black";
   } | null>(null);
-  const [hideWishLayerForFlash, setHideWishLayerForFlash] = useState(false);
-  const [slowWishLayerReturn, setSlowWishLayerReturn] = useState(false);
   const [womboComboKey, setWomboComboKey] = useState(0);
   
   const [ufoPos, setUfoPos] = useState({ x: -100, y: -100 });
@@ -146,71 +104,6 @@ export default function ArcadeGame({ onRestart }: { onRestart: () => void }) {
   const [ringBlinking, setRingBlinking] = useState(false);
 
   const [flyingAliens, setFlyingAliens] = useState<FlyingAlien[]>([]);
-
-const [wishPrompt, setWishPrompt] = useState(false);
-const [wish, setWish] = useState("");
-const [wishPoof, setWishPoof] = useState(0);
-const [wishRulesKey, setWishRulesKey] = useState(0);
-const [pongWish, setPongWish] = useState<{ key: number; x: number } | null>(null);
-
-const catchShootingStar = (e: React.PointerEvent<HTMLSpanElement>) => {
-  e.preventDefault();
-  e.stopPropagation();
-
-  setWish("");
-  setWishPoof(0);
-  setWishRulesKey(0);
-  setPongWish(null);
-  wishBarrierRef.current = null;
-  setWishPrompt(true);
-};
-
-const closeWishPrompt = () => {
-  const key = Date.now();
-  const wishcode = wish.trim().toLowerCase();
-  const isPongWish = wishcode === "pong";
-  const isRulesWish = WISH_RULE_TRIGGERS.some((trigger) =>
-    trigger.test(wishcode)
-  );
-
-  setWishPrompt(false);
-
-  if (isRulesWish) {
-    setWishPoof(0);
-    setPongWish(null);
-    setWishRulesKey(key);
-    wishBarrierRef.current = null;
-
-    lifecycle.timeout(() => {
-      setWishRulesKey((current) => (current === key ? 0 : current));
-    }, WISH_RULE_DURATION);
-
-    return;
-  }
-
-  setWishRulesKey(0);
-  setWishPoof(key);
-  setPongWish(isPongWish ? { key, x: 0 } : null);
-  wishBarrierRef.current = {
-    key,
-    activeUntil: isPongWish ? Number.POSITIVE_INFINITY : key + WISH_BURST_DURATION,
-    xOffset: 0,
-    starOffsets: isPongWish ? PONG_STAR_OFFSETS : WISH_STAR_OFFSETS,
-  };
-
-  if (isPongWish) {
-    return;
-  }
-
-  lifecycle.timeout(() => {
-    setWishPoof((current) => (current === key ? 0 : current));
-
-    if (wishBarrierRef.current?.key === key) {
-      wishBarrierRef.current = null;
-    }
-  }, WISH_BURST_DURATION);
-};
-
 
 const orbitRef = useRef<HTMLSpanElement | null>(null);
   const ufoOrbitingRef = useRef(false);
@@ -265,33 +158,15 @@ const triggerHeartPulse = (x: number, y: number, key: number) => {
 };
 
 const triggerFlashbang = (key: number, type: "white" | "black") => {
-  setSlowWishLayerReturn(false);
-  setHideWishLayerForFlash(true);
-
-  if (hideWishLayerTimeoutRef.current) {
-    window.clearTimeout(hideWishLayerTimeoutRef.current);
-  }
-
-  if (wishLayerReturnTimeoutRef.current) {
-    window.clearTimeout(wishLayerReturnTimeoutRef.current);
-  }
-
-  hideWishLayerTimeoutRef.current = lifecycle.timeout(() => {
-    if (type === "black") {
-      setSlowWishLayerReturn(true);
-
-      wishLayerReturnTimeoutRef.current = lifecycle.timeout(() => {
-        setSlowWishLayerReturn(false);
-        wishLayerReturnTimeoutRef.current = null;
-      }, 2000);
-    }
-
-    setHideWishLayerForFlash(false);
-    hideWishLayerTimeoutRef.current = null;
-  }, 500);
-
   setFlashbang({ key, type });
 };
+
+const electricity = useOrbitDischarge(gameRoot, orbitRef, ufoOrbitingRef, () => {
+  // Same effect as black-skull/heart impact; overload does not award Wombo.
+  triggerFlashbang(Date.now(), "black");
+  ufoOrbitingRef.current = false;
+  setUfoOrbiting(false);
+});
 
 const launchAlien = (e: React.PointerEvent<SVGSVGElement>) => {
   e.preventDefault();
@@ -312,90 +187,6 @@ const launchAlien = (e: React.PointerEvent<SVGSVGElement>) => {
       spin: Math.random() > 0.5 ? 1 : -1,
     },
   ]);
-};
-
-const activateTvSpark = (duration = 500, burst = false) => {
-  tvSparkActiveRef.current = true;
-  setTvSpark(true);
-
-  if (burst) {
-    setTvSparkBurst(Date.now());
-  }
-
-  if (tvSparkTimeoutRef.current) {
-    window.clearTimeout(tvSparkTimeoutRef.current);
-  }
-
-  tvSparkTimeoutRef.current = lifecycle.timeout(() => {
-    tvSparkActiveRef.current = false;
-    setTvSpark(false);
-    setTvSparkBurst(0);
-    tvSparkTimeoutRef.current = null;
-  }, duration);
-};
-
-const getAntennaCircuitPoint = () => {
-  const rect = antennaRef.current?.getBoundingClientRect();
-
-  if (!rect) return null;
-
-  const tipY = window.innerWidth < 640 ? 5 : 5;
-
-  return {
-    x: rect.left + rect.width / 2,
-    y: rect.top + tipY,
-  };
-};
-
-const reflectAlienOffWishStars = (
-  alien: FlyingAlien,
-  next: FlyingAlien,
-  now: number
-) => {
-  const barrier = wishBarrierRef.current;
-
-  if (
-    !barrier ||
-    now > barrier.activeUntil ||
-    now - (alien.lastWishBounce ?? 0) < WISH_BOUNCE_COOLDOWN
-  ) {
-    return next;
-  }
-
-  const starY = window.innerHeight * (window.innerWidth < 640 ? 0.24 : 0.34);
-  const minX =
-    window.innerWidth / 2 +
-    barrier.xOffset +
-    Math.min(...barrier.starOffsets) -
-    WISH_STAR_HIT_PADDING;
-  const maxX =
-    window.innerWidth / 2 +
-    barrier.xOffset +
-    Math.max(...barrier.starOffsets) +
-    WISH_STAR_HIT_PADDING;
-  const crossedStars =
-    (alien.y <= starY && next.y >= starY) ||
-    (alien.y >= starY && next.y <= starY);
-
-  if (!crossedStars || alien.vy === 0) {
-    return next;
-  }
-
-  const travelY = next.y - alien.y;
-  const progress = travelY === 0 ? 0 : (starY - alien.y) / travelY;
-  const hitX = alien.x + (next.x - alien.x) * progress;
-
-  if (hitX < minX || hitX > maxX) {
-    return next;
-  }
-
-  return {
-    ...next,
-    x: hitX + alien.vx * Math.max(0, 1 - progress),
-    y: starY - Math.sign(alien.vy) * 18,
-    vy: -alien.vy,
-    lastWishBounce: now,
-  };
 };
 
 const reflectAlienOffFooterLine = (
@@ -430,134 +221,6 @@ const reflectAlienOffFooterLine = (
     vy: -alien.vy,
     lastFooterBounce: now,
   };
-};
-
-const reflectAlienOffTvBody = (
-  alien: FlyingAlien,
-  next: FlyingAlien,
-  now: number
-) => {
-  const rect = tvBodyRef.current?.getBoundingClientRect();
-
-  if (
-    !rect ||
-    tvRef.current?.classList.contains("space-tv-expanded") ||
-    now - (alien.lastTvBounce ?? 0) < TV_BOUNCE_COOLDOWN
-  ) {
-    return next;
-  }
-
-  const headRadius = 16;
-  const left = rect.left - headRadius;
-  const right = rect.right + headRadius;
-  const top = rect.top - headRadius;
-  const bottom = rect.bottom + headRadius;
-  const travelX = next.x - alien.x;
-  const travelY = next.y - alien.y;
-  const collisions: Array<{ t: number; flipX: boolean; flipY: boolean }> = [];
-
-  if (travelX > 0 && alien.x <= left && next.x >= left) {
-    const t = (left - alien.x) / travelX;
-    const hitY = alien.y + travelY * t;
-
-    if (hitY >= top && hitY <= bottom) {
-      collisions.push({ t, flipX: true, flipY: false });
-    }
-  }
-
-  if (travelX < 0 && alien.x >= right && next.x <= right) {
-    const t = (right - alien.x) / travelX;
-    const hitY = alien.y + travelY * t;
-
-    if (hitY >= top && hitY <= bottom) {
-      collisions.push({ t, flipX: true, flipY: false });
-    }
-  }
-
-  if (travelY > 0 && alien.y <= top && next.y >= top) {
-    const t = (top - alien.y) / travelY;
-    const hitX = alien.x + travelX * t;
-
-    if (hitX >= left && hitX <= right) {
-      collisions.push({ t, flipX: false, flipY: true });
-    }
-  }
-
-  if (travelY < 0 && alien.y >= bottom && next.y <= bottom) {
-    const t = (bottom - alien.y) / travelY;
-    const hitX = alien.x + travelX * t;
-
-    if (hitX >= left && hitX <= right) {
-      collisions.push({ t, flipX: false, flipY: true });
-    }
-  }
-
-  if (collisions.length === 0) return next;
-
-  collisions.sort((a, b) => a.t - b.t);
-  const firstHit = collisions[0];
-  const cornerHits = collisions.filter(
-    (collision) => Math.abs(collision.t - firstHit.t) < 0.02
-  );
-  const flipX = cornerHits.some((collision) => collision.flipX);
-  const flipY = cornerHits.some((collision) => collision.flipY);
-  const reflectedVx = flipX ? -next.vx : next.vx;
-  const reflectedVy = flipY ? -next.vy : next.vy;
-  const remainingTravel = Math.max(0, 1 - firstHit.t);
-  const hitX = alien.x + travelX * firstHit.t;
-  const hitY = alien.y + travelY * firstHit.t;
-
-  return {
-    ...next,
-    x: hitX + reflectedVx * remainingTravel,
-    y: hitY + reflectedVy * remainingTravel,
-    vx: reflectedVx,
-    vy: reflectedVy,
-    lastTvBounce: now,
-  };
-};
-
-const dragWishPaddle = (e: React.PointerEvent<HTMLDivElement>) => {
-  if (!pongWish) return;
-
-  e.preventDefault();
-  e.stopPropagation();
-
-  const startX = e.clientX;
-  paddleCleanup.current?.();
-  const startOffset = pongWish.x;
-  const maxOffset = window.innerWidth / 2 - 40;
-
-  const movePaddle = (moveEvent: PointerEvent) => {
-    const nextX = Math.min(
-      Math.max(startOffset + moveEvent.clientX - startX, -maxOffset),
-      maxOffset
-    );
-
-    wishBarrierRef.current = wishBarrierRef.current
-      ? { ...wishBarrierRef.current, xOffset: nextX }
-      : null;
-    setPongWish((current) => (current ? { ...current, x: nextX } : current));
-  };
-
-  const stopDragging = () => {
-    window.removeEventListener("pointermove", movePaddle);
-    window.removeEventListener("pointerup", stopDragging);
-    window.removeEventListener("pointercancel", stopDragging);
-    paddleCleanup.current = null;
-  };
-
-  paddleCleanup.current = stopDragging;
-  window.addEventListener("pointercancel", stopDragging);
-  window.addEventListener("pointermove", movePaddle);
-  window.addEventListener("pointerup", stopDragging);
-};
-
-const sparkTvAntenna = (e: React.PointerEvent<HTMLSpanElement>) => {
-  e.preventDefault();
-  e.stopPropagation();
-
-  activateTvSpark();
 };
 
   useEffect(() => {
@@ -708,10 +371,8 @@ const tickPhysics = useEffectEvent(() => {
       const rect = orbitRef.current.getBoundingClientRect();
       const heartX = rect.left + rect.width / 2;
       const heartY = rect.top + rect.height / 2;
-      const sparkPoint = tvSparkActiveRef.current ? getAntennaCircuitPoint() : null;
-      const sparkX = sparkPoint?.x ?? 0;
-      const sparkY = sparkPoint?.y ?? 0;
-      const sparkRadius = window.innerWidth < 640 ? 26 : 38;
+      const zapPath = electricity.engine.drawing?.points ?? [];
+      const zapRadius = electricity.headWidth.current / 2 + 2;
       const now = Date.now();
 
       return aliens
@@ -740,11 +401,7 @@ const tickPhysics = useEffectEvent(() => {
           }
 
           if (alien.stunnedUntil && now < alien.stunnedUntil) {
-            const circuitPoint = getAntennaCircuitPoint();
-
-            return circuitPoint
-              ? { ...alien, x: circuitPoint.x, y: circuitPoint.y }
-              : alien;
+            return alien;
           }
 
           const activeAlien =
@@ -763,9 +420,7 @@ const tickPhysics = useEffectEvent(() => {
             y: activeAlien.y + activeAlien.vy,
           };
 
-          next = reflectAlienOffWishStars(activeAlien, next, now);
           next = reflectAlienOffFooterLine(activeAlien, next, now);
-          next = reflectAlienOffTvBody(activeAlien, next, now);
 
           if (touchesTractorBeam(next)) {
             recordTractorCapture(next);
@@ -780,38 +435,23 @@ const tickPhysics = useEffectEvent(() => {
             };
           }
 
-          const nearSpark = Boolean(
-            sparkPoint &&
-              Math.hypot(next.x - sparkX, next.y - sparkY) < sparkRadius
-          );
-          const needsSparkExit = Boolean(activeAlien.needsSparkExit && sparkPoint && nearSpark);
-
-          if (activeAlien.needsSparkExit !== needsSparkExit) {
-            next = { ...next, needsSparkExit };
-          }
-
-          const hitSpark =
-            sparkPoint &&
-            !activeAlien.stunnedUntil &&
-            !needsSparkExit &&
-            now - (activeAlien.lastSparkCatch ?? 0) > ZAP_RECATCH_COOLDOWN &&
-            nearSpark;
-
-          if (hitSpark) {
-            const stunnedUntil = now + ZAP_STUN_DURATION;
-
-            activateTvSpark(ZAP_STUN_DURATION, true);
-
+          const contact = hitBolt(activeAlien, next, zapPath, zapRadius);
+          const nearZap = Boolean(hitBolt(next, next, zapPath, zapRadius));
+          const needsZapExit = Boolean(activeAlien.needsZapExit && nearZap);
+          if (activeAlien.needsZapExit !== needsZapExit) next = { ...next, needsZapExit };
+          const hitZap = contact && !activeAlien.stunnedUntil && !needsZapExit &&
+            now - (activeAlien.lastZapCatch ?? 0) > ZAP_RECATCH_COOLDOWN;
+          if (hitZap) {
             return {
               ...next,
-              x: sparkX,
-              y: sparkY,
+              x: contact.x,
+              y: contact.y,
               isSkull: true,
               isBlackSkull: next.isSkull ? false : next.isBlackSkull,
               turningBlack: next.isSkull || next.isBlackSkull,
-              stunnedUntil,
-              lastSparkCatch: now,
-              needsSparkExit: true,
+              stunnedUntil: now + ZAP_STUN_DURATION,
+              lastZapCatch: now,
+              needsZapExit: true,
             };
           }
 
@@ -888,108 +528,17 @@ useEffect(() => {
   return () => window.clearInterval(interval);
 }, []);
 
-const television = (tvPos || cockpit) && (
-  <aside
-    ref={tvRef}
-    className={`space-tv ${(tvExpanded || cockpit) ? "space-tv-expanded" : ""}`}
-    style={{
-      left: (tvExpanded || cockpit) ? "0px" : `${tvPos?.x ?? 0}px`,
-      top: (tvExpanded || cockpit) ? "0px" : `${tvPos?.y ?? 0}px`,
-    }}
-    onPointerDown={(e) => {
-      if (tvExpanded) {
-        if (e.target === e.currentTarget) {
-          setTvExpanded(false);
-        }
-
-        return;
-      }
-    }}
-    aria-label="Floating space TV"
-  >
-    <div className="space-tv-top">
-      <div
-        role="button"
-        tabIndex={0}
-        className="space-tv-handle"
-        aria-label="Move TV"
-        onPointerDown={dragTv}
-      />
-      <span
-        ref={antennaRef}
-        className="space-tv-antenna"
-        role="button"
-        tabIndex={0}
-        aria-label="Spark TV antenna"
-        onPointerDown={sparkTvAntenna}
-      >
-        {tvSpark && !flyingAliens.some((alien) => alien.stunnedUntil) && (
-          <svg
-            viewBox="0 0 100 46"
-            className="space-tv-spark"
-            aria-hidden="true"
-          >
-            <polyline
-              points="8,24 28,10 42,30 58,12 72,32 92,18"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        )}
-        {tvSparkBurst > 0 && (
-          <div key={tvSparkBurst} className="space-tv-spark-burst" aria-hidden="true">
-            {[0, 1, 2, 3, 4, 5].map((spark) => (
-              <svg
-                key={spark}
-                viewBox="0 0 52 32"
-                className={`space-tv-spark-bit space-tv-spark-bit-${spark}`}
-              >
-                <polyline
-                  points="3,18 15,7 24,22 35,8 49,17"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            ))}
-          </div>
-        )}
-      </span>
-    </div>
-
-    <div ref={tvBodyRef} className="space-tv-body">
-      <div
-        className="space-tv-screen"
-        onPointerDownCapture={() => {
-          if (!tvExpanded) {
-            setTvStarted(true);
-            setTvExpanded(true);
-          }
-        }}
-      >
-        <iframe
-          key={tvStarted ? "tv-started" : "tv-poster"}
-          src={`https://www.tiktok.com/embed/v2/7623124860574731543?autoplay=1&muted=1&playsinline=1&start=${tvStarted ? "1" : "0"}`}
-          title="SOUL music video"
-          allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-          allowFullScreen
-          loading="eager"
-          className="space-tv-video"
-        />
-        {!tvStarted && <div className="space-tv-poster" aria-hidden="true" />}
-        <div className="space-tv-scanlines" />
-      </div>
-    </div>
-  </aside>
-);
-
 return (
-  <div className="arcade-game" aria-label="SOUL arcade playfield">
+  <div ref={gameRoot} className="arcade-game" aria-label="SOUL arcade playfield">
+    <div className="arcade-charge" data-arcade-controls>
+      <div className="arcade-charge-meter" role="progressbar" aria-label="Charge" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(electricity.display.charge * 100)}>
+        <div style={{transform:`scaleX(${electricity.display.charge})`}} />
+      </div>
+      <span>CHARGE</span>
+    </div>
+    {electricity.display.points.length > 1 && <svg className="arcade-discharge" aria-hidden="true">
+      <polyline points={electricity.display.points.map(p=>`${p.x},${p.y}`).join(' ')} />
+    </svg>}
     {minigameEnabled && <>
     <div
       className={`fixed z-[9999] pointer-events-none ${
@@ -1172,29 +721,6 @@ return (
     ))}
   </div>
 )}
-      <div className="stars">
-        <span className="star star-1"></span>
-        <span className="star star-2"></span>
-        <span className="star star-3"></span>
-        <span className="star star-4"></span>
-        <span className="star star-5"></span>
-      </div>
-
-{television}
-
-<div className="shooting-stars">
-  <span className="shooting-star shooting-star-launch" onPointerDown={catchShootingStar}></span>
-  <span className="shooting-star shooting-star-1" onPointerDown={catchShootingStar}></span>
-  <span className="shooting-star shooting-star-2" onPointerDown={catchShootingStar}></span>
-  <span className="shooting-star shooting-star-3" onPointerDown={catchShootingStar}></span>
-  <span className="shooting-star shooting-star-4" onPointerDown={catchShootingStar}></span>
-  <span className="shooting-star shooting-star-5" onPointerDown={catchShootingStar}></span>
-  <span className="shooting-star shooting-star-6" onPointerDown={catchShootingStar}></span>
-  <span className="shooting-star shooting-star-7" onPointerDown={catchShootingStar}></span>
-  <span className="shooting-star shooting-star-8" onPointerDown={catchShootingStar}></span>
-  <span className="shooting-star shooting-star-9" onPointerDown={catchShootingStar}></span>
-  <span className="shooting-star shooting-star-10" onPointerDown={catchShootingStar}></span>
-</div>
 
     </>}
       <main className="pink-text-glow min-h-screen text-white p-8 md:p-12 max-w-12xl mx-auto">
@@ -1238,80 +764,7 @@ return (
         )}
 
 
-{minigameEnabled && (wishPrompt || wishPoof > 0 || wishRulesKey > 0) && (
-  <div className={`relative flex min-h-[72px] justify-center ${wishRulesKey > 0 ? "mb-4" : "mb-0"}`}>
-    {wishPrompt && (
-      <form
-        className="wish-box"
-        onSubmit={(e) => {
-          e.preventDefault();
-          closeWishPrompt();
-        }}
-      >
-        <input
-          value={wish}
-          onChange={(e) => setWish(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              closeWishPrompt();
-            }
-          }}
-          placeholder="MAKE A WISH!"
-          autoFocus
-          className="pink-border-glow border border-white bg-[#00082d] focus:bg-[#00082d] px-3 py-2 text-white placeholder:text-white/70 outline-none focus:border-[#7fffd4]"
-        />
-      </form>
-    )}
-
-    {wishRulesKey > 0 && (
-      <div key={wishRulesKey} className="wish-rules-box">
-        <p>Rule 1: Can&apos;t kill anybody.</p>
-        <p>Rule 2: Can&apos;t make anyone fall in love.</p>
-        <p>Rule 3: Can&apos;t bring people back from the dead.</p>
-        <p>And no wishing for more wishes!</p>
-      </div>
-    )}
-
-    {wishPoof > 0 && (
-      <div
-        key={wishPoof}
-        className={`wish-burst-layer ${pongWish ? "wish-pong-layer" : ""} ${
-          hideWishLayerForFlash ? "wish-flash-hidden" : ""
-        } ${
-          slowWishLayerReturn ? "wish-flash-blackout-return" : ""
-        }`}
-        style={
-          {
-            "--wish-paddle-x": `${pongWish?.x ?? 0}px`,
-            "--wish-paddle-center-x": `${pongWish ? PONG_PADDLE_CENTER_OFFSET : 0}px`,
-          } as React.CSSProperties
-        }
-      >
-        {pongWish && (
-          <div
-            className="wish-pong-handle"
-            onPointerDown={dragWishPaddle}
-            aria-hidden="true"
-          />
-        )}
-        {(pongWish ? PONG_STAR_OFFSETS : WISH_STAR_OFFSETS).map((x, i) => (
-          <span
-            key={i}
-            className={`wish-burst-star ${pongWish ? "wish-pong-star" : ""}`}
-            style={
-              {
-                "--burst-x": `${x}px`,
-              } as React.CSSProperties
-            }
-          />
-        ))}
-      </div>
-    )}
-  </div>
-)}
-
-               {minigameEnabled && <div ref={footerRef} className="saucer-hull-strip fixed bottom-0 inset-x-0 z-40 overflow-hidden py-2">
+               {minigameEnabled && <div ref={footerRef} data-no-zap className="saucer-hull-strip fixed bottom-0 inset-x-0 z-40 overflow-hidden py-2">
   <div className="alien-footer-marquee flex w-max items-center">
     {[0, 1].map((track) => (
       <div key={track} className="flex items-center gap-8 px-4 shrink-0">
