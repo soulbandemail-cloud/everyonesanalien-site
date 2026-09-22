@@ -76,7 +76,19 @@ const dragTv = (e: React.PointerEvent<HTMLElement>) => {
 };
 
 
+useEffect(() => {
+  const isMobile = window.innerWidth < 640;
+  const fallbackWidth = isMobile
+    ? Math.min(140, window.innerWidth * 0.35)
+    : Math.min(340, window.innerWidth * 0.28);
 
+  const margin = isMobile ? 8 : 26;
+
+  setTvPos({
+    x: window.innerWidth - fallbackWidth - margin,
+    y: window.innerHeight,
+  });
+}, []);
 
 useEffect(() => {
 
