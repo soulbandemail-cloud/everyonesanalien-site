@@ -28,6 +28,8 @@ function routes(file,{enabled=true,providerError=null,mate=true,fail=false}={}) 
  const calls=[];
  const client={auth:{signInWithOtp:async args=>{calls.push(args);return {error:providerError};},signOut:async()=>{if(fail)throw Error('network');return {error:providerError};}}};
  const deps={
+  '@/lib/mate/mailerlite':{normaliseEmail:value=>typeof value==='string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()) ? value.trim().toLowerCase() : null},
+  '@/lib/mate/entry':{requestMateEntry:async email=>{calls.push(email);if(providerError)throw Error('provider');return mate;}},
   '@/lib/mate/config':{mateConfig:()=>({enabled,origin:'https://example.com'}),sameOrigin:req=>req.headers.get('Origin')==='https://example.com'},
   '@/lib/mate/server':{mateClient:async()=>client,privateJson:(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'private, no-store'}}),clearMateCookies:async()=>calls.push('cleared'),currentMate:async()=>{if(fail)throw Error('network');return mate;}},
  };
@@ -41,10 +43,9 @@ test('login is gated, validates origin/email, does not sign up users or enumerat
  const known=routes(file),unknown=routes(file,{providerError:{status:400}});
  const a=await known.POST(request({email:'mate@example.com'})),b=await unknown.POST(request({email:'unknown@example.com'}));
  assert.deepEqual(await a.json(),await b.json());
- assert.equal(known.calls[0].options.shouldCreateUser,false);
- assert.equal(known.calls[0].options.emailRedirectTo,'https://example.com/auth/callback');
+ assert.equal(known.calls[0],'mate@example.com');
  assert.equal(a.headers.get('cache-control'),'private, no-store');
- assert.equal((await routes(file,{providerError:{status:429}}).POST(request({email:'mate@example.com'}))).status,503);
+ assert.equal((await routes(file,{providerError:{status:429}}).POST(request({email:'mate@example.com'}))).status,200);
 });
 test('logout only succeeds after provider logout, rejecting CSRF and preserving retry on failure',async()=>{
  const file='app/api/mate/logout/route.ts';
@@ -63,7 +64,9 @@ test('callback rejects failed verification/non-Mates and ignores arbitrary redir
   let cleared=false;
   const handler=load('app/auth/callback/route.ts',{
    'next/server':{NextResponse:{redirect:(url,init)=>new Response(null,{...init,status:307,headers:{...init.headers,Location:url.toString()}})}},
-   '@/lib/mate/config':{mateConfig:()=>({enabled:true,origin:'https://example.com'}),isMate},
+   '@/lib/mate/mailerlite':{normaliseEmail:value=>typeof value==='string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()) ? value.trim().toLowerCase() : null},
+  '@/lib/mate/entry':{requestMateEntry:async email=>{calls.push(email);if(providerError)throw Error('provider');return mate;}},
+  '@/lib/mate/config':{mateConfig:()=>({enabled:true,origin:'https://example.com'}),isMate},
    '@/lib/mate/server':{
     clearMateCookies:async()=>{cleared=true;},
     mateClient:async()=>({auth:{exchangeCodeForSession:async()=>({error:state==='invalid'?Error('bad code'):null}),getUser:async()=>({data:{user:{email_confirmed_at:'today',app_metadata:{mate:state!=='non-mate'}}}}),signOut:async()=>({error:null})}}),
@@ -73,4 +76,15 @@ test('callback rejects failed verification/non-Mates and ignores arbitrary redir
   assert.equal(response.headers.get('location'),state==='valid'?'https://example.com/?mate_entry=1':'https://example.com/?mate_error=1');
   assert.equal(cleared,state!=='valid');
  }
+});
+
+test('hosted preview login does not require public launch and cannot open the production site',()=>{
+ const preview={...configured,NODE_ENV:'production',VERCEL_ENV:'preview',MATE_PREVIEW_LOGIN_ENABLED:'true'};
+ assert.equal(mateConfig(preview).enabled,true);
+ assert.equal(mateConfig({...preview,VERCEL_ENV:'production'}).enabled,false);
+ assert.equal(mateConfig({...preview,VERCEL_ENV:undefined}).enabled,false);
+ assert.equal(mateConfig({...preview,MATE_APP_ORIGIN:'https://everyonesanalien.com'}).enabled,false);
+ assert.equal(mateConfig({...preview,MATE_APP_ORIGIN:'https://www.everyonesanalien.com'}).enabled,false);
+ assert.equal(mateConfig({...preview,MATE_PREVIEW_LOGIN_ENABLED:'false'}).enabled,false);
+ assert.equal(mateConfig({...preview,SUPABASE_PUBLISHABLE_KEY:''}).enabled,false);
 });

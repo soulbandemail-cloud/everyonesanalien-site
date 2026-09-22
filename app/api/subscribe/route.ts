@@ -1,50 +1,25 @@
+import { mateConfig } from '@/lib/mate/config';
+import { privateJson } from '@/lib/mate/server';
+import { normaliseEmail, subscribeMate, eligibleSubscriber } from '@/lib/mate/mailerlite';
+import { requestMateEntry } from '@/lib/mate/entry';
+
 export async function POST(request: Request) {
+  const config = mateConfig();
+  // Newsletter-only deployments may not yet have a Mate origin configured.
+  if (request.headers.get('origin') !== (config.validOrigin ? config.origin : new URL(request.url).origin)) return privateJson({ error: 'Invalid origin.' }, 403);
+  const body = await request.json().catch(() => null);
+  const email = normaliseEmail(body?.email);
+  if (!email) return privateJson({ error: 'Enter a valid email address.' }, 400);
+  if (!process.env.MAILERLITE_API_TOKEN) return privateJson({ error: 'Newsletter signup is temporarily unavailable. Please try again later.', code: 'SIGNUP_UNAVAILABLE' }, 503);
   try {
-    const { email, name } = await request.json();
-
-    if (!email) {
-      return Response.json(
-        { error: "Email is required" },
-        { status: 400 }
-      );
-    }
-
-    const response = await fetch(
-      "https://connect.mailerlite.com/api/subscribers",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.MAILERLITE_API_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          fields: {
-            name: name || "",
-          },
-          groups: ["189432463968175126"],
-        }),
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return Response.json(
-        { error: "MailerLite error", details: data },
-        { status: 500 }
-      );
-    }
-
-    if (response.status === 200) {
-  return Response.json({ success: true, alreadySubscribed: true });
-}
-
-return Response.json({ success: true, alreadySubscribed: false });
-  } catch (error) {
-    return Response.json(
-      { error: "Server error" },
-      { status: 500 }
-    );
+    const result = await subscribeMate(email, typeof body.name === 'string' ? body.name.trim().slice(0, 200) : undefined);
+    if (!eligibleSubscriber(result.subscriber, email)) return privateJson({ success: true, alreadySubscribed: result.alreadySubscribed, entry: 'pending' });
+    if (!config.enabled) return privateJson({ success: true, alreadySubscribed: result.alreadySubscribed });
+    let entry = 'retry';
+    try { entry = await requestMateEntry(email) ? 'email' : 'pending'; }
+    catch { console.error('Mate signup saved; authentication email request failed.'); }
+    return privateJson({ success: true, alreadySubscribed: result.alreadySubscribed, entry });
+  } catch {
+    return privateJson({ error: 'Signup is temporarily unavailable. Please try again later.' }, 503);
   }
 }

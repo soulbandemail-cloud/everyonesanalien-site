@@ -1,0 +1,17 @@
+import nextEnv from '@next/env';
+const { loadEnvConfig } = nextEnv;
+import fs from 'node:fs';
+import ts from 'typescript';
+loadEnvConfig(process.cwd(), process.env.NODE_ENV !== 'production');
+const loaded = { exports: {} };
+const { outputText } = ts.transpileModule(fs.readFileSync('lib/mate/config.ts','utf8'), {compilerOptions:{module:ts.ModuleKind.CommonJS}});
+new Function('module','exports',outputText)(loaded,loaded.exports);
+const environment = {...process.env, NODE_ENV: process.env.NODE_ENV ?? 'development'};
+const config=loaded.exports.mateConfig(environment);
+for(const name of ['SUPABASE_URL','SUPABASE_PUBLISHABLE_KEY','MATE_APP_ORIGIN','MAILERLITE_API_TOKEN','SUPABASE_SERVICE_ROLE_KEY']) console.log(`${name}: ${environment[name] ? 'present' : 'missing'}`);
+console.log(`Valid app origin: ${config.validOrigin}`);
+console.log(`Local-development gate: ${config.development}; hosted-preview gate: ${config.preview}`);
+console.log(`Real Mate login enabled: ${config.enabled}`);
+console.log(`Membership provisioning ready: ${config.provisioningReady}`);
+console.log('No credential values printed and no emails sent. See docs/mate-entry.md.');
+if(!config.enabled || !config.provisioningReady) process.exitCode=1;

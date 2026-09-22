@@ -1,51 +1,41 @@
-# Mate entry V1 — gated implementation
+# Mate entry — MailerLite membership, Supabase authentication
 
-## Configuration and real accounts
+## Configuration
 
-The app uses Supabase Auth email magic links with PKCE, via official `@supabase/ssr` / `@supabase/supabase-js`. All auth calls are server-side. Session cookies are HttpOnly, SameSite=Lax and Secure on HTTPS; no auth tokens or service-role keys are shipped to the browser. `getUser()` verifies identity and reads current admin-controlled membership. Browser state alone cannot grant a session.
+The existing Supabase SSR/PKCE flow, HttpOnly cookies, callback, session verification, logout and cockpit transition are unchanged. Copy variable names from `docs/mate.env.example`; never commit credentials. `SUPABASE_PUBLISHABLE_KEY` remains the session client's key. The separate `SUPABASE_SERVICE_ROLE_KEY` is used only by the server-only admin module, with session persistence disabled. `MAILERLITE_API_TOKEN` is also server-only.
 
-Copy the variable names from `docs/mate.env.example` into your environment. `MATE_AUTH_ENABLED=true` enables configured development entry. Production additionally requires `MATE_PUBLIC_LOGIN_ENABLED=true`. Both default off. `MATE_APP_ORIGIN` is the exact origin without a trailing slash; production requires HTTPS. It is the fixed callback destination and CSRF origin allowlist. Use the project's publishable key, never a service-role key.
+`MATE_APP_ORIGIN` must be the exact origin without trailing slash (HTTPS in production). Development requires `MATE_AUTH_ENABLED=true`. Vercel Preview also requires `MATE_PREVIEW_LOGIN_ENABLED=true`; production requires `MATE_PUBLIC_LOGIN_ENABLED=true`. Preview cannot enable the real production hostname. Existing flags and origins are not changed by this implementation.
 
-Before real testing:
+`npm run mate:check` and `/dev/mate` report configuration presence only. Provisioning readiness is separate from the session gate: missing MailerLite/admin credentials must not disable existing authenticated sessions. No environment files or dashboard settings are modified by the implementation.
 
-1. Create/configure a Supabase project with email auth and SMTP. Set Site URL to the app origin and allow the exact `<origin>/auth/callback` redirect. Keep the standard magic-link email template using `{{ .ConfirmationURL }}` so the provider completes verification and returns a PKCE code. Links must open in the browser that requested them.
-2. Disable open user signup. Provision existing Mate accounts deliberately through admin tools. Give confirmed, approved accounts **app_metadata** `{ "mate": true }`. User-editable `user_metadata` does not grant access. Configure provider email rate limits and abuse protection before public rollout.
-3. No application database tables or migrations are required for this pass. Supabase manages the auth users/sessions. Newsletter subscribers are NOT automatically auth accounts. The existing MailerLite signup/API remain separate; no subscriber import or duplicate signup was introduced.
-4. Test a real approved account: delivery, same-browser link, expired/reused/wrong-browser link, non-Mate rejection, session refresh/revocation, logout, private cookies and mobile/reduced-motion behavior on the intended HTTPS domain. Only then consider enabling the separate public flag.
+## Entry flows
 
-No real Supabase project or email delivery is configured by this change. Local end-to-end checks use a temporary simulated provider outside the repository. That fixture is not an authentication option in the app and is not deployed. Real-provider acceptance is still required.
+LOG IN normalises and validates email, checks the request origin, and reads the subscriber from MailerLite. Eligibility in this version means **active** status and membership in group **189432463968175126**. Missing, wrong-group, unconfirmed, unsubscribed, bounced and junk subscribers are ineligible. Login never writes to MailerLite and never provisions or emails an ineligible address.
 
-## Canonical content and viewpoint
+For eligible subscribers the server finds the Supabase account using paginated admin listing, or creates an unconfirmed account. It sets `app_metadata.mate=true` while preserving other metadata, handles concurrent creation, and never resets passwords or marks email ownership confirmed. Existing authorised accounts are reused. This listing approach avoids a database migration; a dedicated indexed lookup can replace it as account volume grows.
 
-`components/home/CanonicalHomepage.tsx` is the only homepage content/game implementation, extracted from `app/page.tsx`. The latter is now a server entry that supplies verified session state. Links, branding, newsletter form, signup response states, existing TV and public game code remain in the canonical component. There is no `DomePage` copy or screenshot.
+The existing cookie-bound client then calls `signInWithOtp` with `shouldCreateUser:false` and the fixed `/auth/callback` redirect. All valid login submissions receive identical public status/message, including provider failures. Server logs contain generic failure notices, not submitted emails, provider bodies, credentials or tokens. Provider failures do not grant access. Configure provider/hosting request and email rate limits before enabling public login; origin checks are not abuse-rate limiting.
 
-`useDomeProjection` places the same live DOM content groups on the glass. Desktop uses the locked angular layout; small screens use a scrollable glass content area so links/forms remain readable. The flying-head belt and its gameplay effects are only mounted/running in the settled public view. Room objects have no new click behavior. The console is disabled and reserved for future travel.
+BECOME A MATE performs the existing non-destructive MailerLite upsert into the Mate group. It does not force subscription status, resubscribe suppressed addresses, or fabricate consent. When the returned subscriber is active and eligible and entry is enabled, the shared entry service rechecks membership and starts authentication. A successful MailerLite write followed by authentication failure returns a retry state: membership is retained and LOG IN can retry. Pending/inactive membership does not trigger provisioning or email. With authentication disabled, newsletter signup continues independently.
 
-`MateExperience` owns presentation state at `/`. Verified login changes the target view; a callback returns to `/?mate_entry=1` then cleans the URL. The actual DOM animates between public layout and glass anchors, while the room camera interpolates from the raised pilot eye backward/upward to the exact saved camera over 1.8 seconds. No second homepage is loaded for the reveal. An already signed-in reload opens the cockpit directly. Logout revokes the current session and clears its cookies BEFORE starting the inverse movement; animation completion never decides identity. Failures retain a retryable logout button rather than falsely reporting success.
+If MailerLite API double opt-in is enabled, an unconfirmed member must complete MailerLite's confirmation first and then use LOG IN. This version does not add webhooks or automate that second step. No API success alone establishes a browser session.
 
-Reduced motion, background tabs and resize snap the camera/DOM animations to their authoritative target. Focus, pageshow, visibility, a 60-second check and cross-tab notifications revalidate the server session. Transient session-check failures show a message without inventing a new auth state. No protected user data is loaded in this pass; future data/object endpoints must independently verify Mate access.
+## Supabase email setting — manual verification required
 
-## Development / production isolation
+Keep email confirmation enabled, SMTP working, and the exact app callback allowlisted. Use the standard `{{ .ConfirmationURL }}` template for both confirmation and magic-link email so verification returns the existing PKCE code. Open links in the browser that requested them.
 
-`/ship` remains a clearly labelled development-only geometry preview with no Mate session. In production it redirects to `/` and cannot bypass authentication. Geometry controls render only in development. The ordinary Mate flow has LOG OUT and no view toggle. The auth API and callback are also gated server-side, not merely hidden with CSS.
+Supabase's magic-link flow for an unconfirmed account uses its signup-confirmation path. If the dashboard globally disables new signups, first-time accounts can therefore fail to receive their confirmation email even though admin creation succeeded. The earlier recommendation to disable all signups is incompatible with this first-time flow. Verify that setting manually before real first-time testing; no dashboard setting has been changed here. Allowing provider signup does not grant Mate authorisation: direct browser-created accounts cannot set `app_metadata.mate`, and the confirmed-email plus metadata check remains mandatory.
+
+References: https://supabase.com/docs/reference/javascript/auth-admin-createuser and https://github.com/supabase/auth/blob/master/internal/api/magic_link.go .
+
+## Ongoing sessions
+
+`currentMate()` and the callback still require a Supabase-verified user, confirmed email and admin-controlled `app_metadata.mate === true`. They do not call MailerLite. A MailerLite outage cannot interrupt an existing Mate session. Membership revocation/synchronisation is explicitly deferred: removing someone from MailerLite does not yet revoke an existing Supabase grant. Future protected data endpoints must use the same server-side access checks.
+
+No cockpit geometry, links, projection, rendering, swivel, transition, logout or cookie-refresh code is changed for membership provisioning. `/ship` remains development-only preview, not a session bypass in production.
 
 ## Validation
 
-`node --test tests/mate-auth.test.mjs tests/ship-geometry.test.mjs` checks flag/identity decisions, CSRF rejection, account-enumeration behavior, no automatic signup, logout failures, session outages, camera endpoints and locked geometry. TypeScript, lint and production build cover the integration. Browser checks exercise the actual canonical homepage, local PKCE/session flow, logout and absence of cockpit head elements. No production emails or newsletter submissions are used during testing.
+Run `node --test tests/*.test.mjs`, `npx tsc --noEmit`, `npm run lint`, and `npm run build`. Tests mock external providers and send no emails. Coverage includes eligibility, non-Mate side-effect prevention, provider outages, metadata preservation, pagination, concurrent provisioning, unconfirmed creation, first-stage signup failure and partial success, generic login responses, session independence, callback/logout security and the existing canonical-content/geometry regressions.
 
-## Files for this pass
-
-- `app/page.tsx`: verified session-aware canonical entry.
-- `app/ship/page.tsx`: development preview only; production redirect.
-- `components/home/CanonicalHomepage.tsx`: extracted real homepage, live forms/links/media, public-only head game, Mate entry control.
-- `components/home/useDomeProjection.ts`: live DOM projection and reversible layout animation.
-- `components/mate/MateExperience.tsx`, `MateLogin.tsx`, `mate.css`: session-aware UI, login dialog, transition coordinator, mobile glass and account messages.
-- `components/ship/Ship.tsx`, `PilotMezzanine.tsx`, `ship.module.css`: room overlay, development-only debugging, logout and travel-reserved console. Removed the duplicated `components/ship/DomePage.tsx`.
-- `lib/ship/cameraTransition.ts`: raised pilot-eye start and exact locked camera endpoint.
-- `lib/mate/config.ts`, `server.ts`, `proxy.ts`: server gates, verified membership and cookie sessions/refresh.
-- `app/api/mate/login/route.ts`, `session/route.ts`, `logout/route.ts`, `app/auth/callback/route.ts`: auth endpoints.
-- `package.json`, `package-lock.json`: official Supabase dependencies.
-- `tests/mate-auth.test.mjs`, `tests/ship-geometry.test.mjs`: auth/fallback/camera regression checks.
-- `docs/mate-entry.md`, `docs/mate.env.example`, `lib/ship/README.md`: setup, lock and implementation notes.
-
-The existing uncommitted final-calibration changes remain intact. Dome radius, camera endpoint, hull profile, room dimensions and fixture placements were not changed by the authentication pass. `app/api/subscribe/route.ts` is unchanged.
+Real delivery and first-time confirmation still require manual testing after secrets and dashboard configuration are ready. Test an active existing MailerLite-only Mate, a new signup, an ineligible address, returning sessions and logout. No bulk import or database migration is required.
