@@ -11,12 +11,13 @@
 .mate-notice { position: fixed; z-index: 10001; bottom: 70px; left: 50%; transform: translateX(-50%); padding: 14px; width: min(460px,90vw); background: #00082d; border: 1px solid #7fffd4; color: white; font-size: 14px; }
 .mate-notice button { margin-left: 12px; cursor: pointer; }
 @media (max-width: 759px) {
-  .on-glass { position: fixed; top: 64px; left: 4%; width: 92%; height: 48svh; overflow: auto; overscroll-behavior: contain; scrollbar-color: #7fffd4 #00082d; }
+  .on-glass { position: fixed; inset: 0; width: 100%; height: 100svh; overflow: hidden; }
   .on-glass main { padding: 12px; }
   .on-glass [data-dome-slot="socials"] { gap: 20px; }
   .on-glass [data-dome-slot="socials"] svg { width: 24px; height: 24px; }
   .on-glass [data-dome-slot="brand"] { margin-top: 10px; }
-  .on-glass h2 { font-size: 20px; }
+  .on-glass h2 { font-size: 16px; margin-bottom: 8px; }
+  .on-glass [data-dome-slot="live"], .on-glass [data-dome-slot="merch"] { font-size: 12px; }
 }
 .mate-video-dialog { margin: auto; width: min(90vw, 1000px); height: min(80vh, 720px); background: #00082d; color: white; border: 1px solid #7fffd4; padding: 20px; }
 .mate-video-dialog::backdrop { background: #00082dcc; }

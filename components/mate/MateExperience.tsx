@@ -106,7 +106,7 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
 
   const camera=transitionCamera(config,progress);
   return <div className={`mate-experience ${cockpit ? 'mate-cockpit' : ''}`} ref={focusTarget} tabIndex={-1}>
-    <CanonicalHomepage animateEntry={entry} cockpit={cockpit} loginEnabled={loginEnabled && !preview} config={config} view={view} />
+    <CanonicalHomepage animateEntry={entry} cockpit={cockpit} loginEnabled={loginEnabled && !preview} config={config} camera={camera} progress={progress} view={view} />
     {(cockpit || progress>0) && <Ship config={camera} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
     {cockpit && arcadeOpen && <ArcadeDialog onExit={() => setArcadeOpen(false)} />}
     {notice && <div role="status" className="mate-notice">{notice}<button onClick={()=>setNotice('')} aria-label="Dismiss message">×</button></div>}

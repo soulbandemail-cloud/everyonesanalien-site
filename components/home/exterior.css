@@ -1,0 +1,5 @@
+/* Persistent exterior scene, below live content and the ship's opaque surfaces. */
+.exterior-space { position:fixed; inset:0; z-index:-1; pointer-events:none; overflow:hidden; }
+.exterior-star-plane { position:absolute; inset:0; transform-origin:0 0; }
+.real-planet-heart { position:absolute; overflow:visible; }
+.exterior-shooting-inactive, .exterior-shooting-inactive .shooting-star { pointer-events:none; }

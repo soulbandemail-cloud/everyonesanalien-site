@@ -19,8 +19,13 @@ const heart=component('components/home/PlanetHeart.tsx');
 const rules=component('components/home/WishRules.tsx');
 const wishes=component('components/home/DomeWishes.tsx',{'./useScopedLifecycle':lifecycle,'./WishRules':rules,'./wishes.css':{}});
 const panel=component('components/mate/MatePanel.tsx');
-const page=component('components/home/CanonicalHomepage.tsx',{'./DomeWishes':wishes,'./PortableTV':tv,'./PlanetHeart':heart,'./useDomeProjection':{useDomeProjection:()=>{}},'@/components/mate/MatePanel':panel});
-const render=cockpit=>renderToStaticMarkup(React.createElement(page.default,{cockpit,loginEnabled:true,config:{},view:{width:1440,height:900}}));
+const geometry=component('lib/ship/domeGeometry.ts');
+const room=component('lib/ship/roomGeometry.ts',{'./domeGeometry':geometry});
+const transition=component('lib/ship/cameraTransition.ts',{'./roomGeometry':room});
+const exterior=component('lib/ship/exteriorSpace.ts',{'./domeGeometry':geometry,'./cameraTransition':transition});
+const space=component('components/home/ExteriorSpace.tsx',{'./exterior.css':{},'@/lib/ship/domeGeometry':geometry,'@/lib/ship/exteriorSpace':exterior});
+const page=component('components/home/CanonicalHomepage.tsx',{'@/lib/ship/domeGeometry':geometry,'./ExteriorSpace':space,'@/lib/ship/exteriorSpace':exterior,'./DomeWishes':wishes,'./PortableTV':tv,'./PlanetHeart':heart,'./useDomeProjection':{useDomeProjection:()=>{}},'@/components/mate/MatePanel':panel});
+const render=cockpit=>renderToStaticMarkup(React.createElement(page.default,{cockpit,loginEnabled:true,config:geometry.DEFAULT_DOME,view:{width:1440,height:900}}));
 const links=html=>[...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/gs)].map(m=>[m[1],m[2]]);
 test('one canonical content tree: public SHOWS/MATES/THE MERCH, cockpit SHOWS/empty/THE MERCH',()=>{
  const publicPage=render(false),cockpit=render(true);
@@ -46,12 +51,15 @@ test('inline mode selectors persist and expose only the selected form',()=>{
   assert.match(html,/SIGN UP/);assert.match(html,/LOG IN/);assert.match(html,/name="email"/);assert.match(html,/>ENTER</);
   assert.doesNotMatch(html,/<dialog/);assert.equal((html.match(/<form/g)||[]).length,1);
   if(mode==='login'){assert.match(html,/name="password"/);assert.match(html,/RESET PASSWORD/);}
-  else assert.doesNotMatch(html,/name="password"|RESET PASSWORD/);
+  else {
+   assert.doesNotMatch(html,/name="password"|RESET PASSWORD/);
+   assert.match(html,/<button class="[^"]*bg-\[#00082d\][^"]*">ENTER<\/button>/);
+  }
  }
 });
 test('desktop glass projection leaves its centre empty and preserves live links',()=>{
  const elements=['live','merch'].map(name=>({dataset:{domeSlot:name},style:{},getBoundingClientRect:()=>({width:100,x:0,y:0,height:100}),removeAttribute(){}}));
- const root={current:{querySelectorAll:()=>elements,classList:{toggle(){}}}};
+ const root={current:{querySelectorAll:selector=>selector.includes("h1")?[]:elements,classList:{toggle(){},remove(){}}}};
  const loaded={exports:{}};
  const {outputText}=ts.transpileModule(fs.readFileSync('components/home/useDomeProjection.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}});
  const deps={'react':{useRef:value=>({current:value}),useLayoutEffect:fn=>fn()},'@/lib/ship/domeGeometry':{domePoint:theta=>({x:theta,y:0})},'@/lib/ship/domePageLayout':{domePageLayout:()=>({information:1})},'@/lib/ship/cameraTransition':{cameraDuration:()=>0}};
@@ -65,7 +73,9 @@ test('public atmosphere stays intact and Wish UI/rules are absent before a catch
  assert.match(html,/class="stars"/);
  assert.equal((html.match(/class="shooting-star /g)||[]).length,11);
  assert.doesNotMatch(html,/aria-label="Wish Rules"|wish-rules-box|MAKE A WISH|Rule 1:/);
- assert.doesNotMatch(render(true),/wish-rules-box|shooting-star|class="stars"/);
+ assert.doesNotMatch(render(true),/wish-rules-box|wish-box/);
+ assert.match(render(true),/exterior-shooting-inactive/);
+ assert.match(render(true),/class="stars"/);
  const rulesSource=fs.readFileSync('components/home/WishRules.tsx','utf8');
  assert.doesNotMatch(rulesSource,/useState|useEffect|onClick|onPointer|setInterval|ArcadeGame/);
 });

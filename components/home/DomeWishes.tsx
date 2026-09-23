@@ -22,7 +22,7 @@ const WISH_RULE_TRIGGERS = [
   /fall\s+in\s+love/,
 ];
 
-export default function DomeWishes() {
+export default function DomeWishes({ active = true, spaceTransform }: { active?: boolean; spaceTransform?: string }) {
 const lifecycle = useScopedLifecycle();
 const wishBarrierRef = useRef<WishBarrier | null>(null);
 const paddleCleanup = useRef<(() => void) | null>(null);
@@ -34,6 +34,7 @@ const [wishRulesKey, setWishRulesKey] = useState(0);
 const [pongWish, setPongWish] = useState<{ key: number; x: number } | null>(null);
 
 const catchShootingStar = (e: React.PointerEvent<HTMLSpanElement>) => {
+  if (!active) return;
   e.preventDefault();
   e.stopPropagation();
 
@@ -129,7 +130,7 @@ const dragWishPaddle = (e: React.PointerEvent<HTMLDivElement>) => {
 };
 
 return <>
-<div className="shooting-stars">
+<div className={`shooting-stars ${active ? "" : "exterior-shooting-inactive"}`} style={{transform:spaceTransform,transformOrigin:"0 0"}}>
   <span className="shooting-star shooting-star-launch" onPointerDown={catchShootingStar}></span>
   <span className="shooting-star shooting-star-1" onPointerDown={catchShootingStar}></span>
   <span className="shooting-star shooting-star-2" onPointerDown={catchShootingStar}></span>
@@ -143,7 +144,7 @@ return <>
   <span className="shooting-star shooting-star-10" onPointerDown={catchShootingStar}></span>
 </div>
 
-{(wishPrompt || wishPoof > 0 || wishRulesKey > 0) && (
+{active && (wishPrompt || wishPoof > 0 || wishRulesKey > 0) && (
   <div className={`relative flex min-h-[72px] justify-center ${wishRulesKey > 0 ? "mb-4" : "mb-0"}`}>
     {wishPrompt && (
       <form

@@ -53,7 +53,6 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
  const [debug,setDebug]=useState(false);
  const [grid,setGrid]=useState(true);
  return <div ref={root} className={styles.ship} style={{opacity:Math.max(0,Math.min(1,(reveal-.12)/.6))}} aria-label="Mate cockpit">
-  <div className={styles.space} aria-hidden="true">{Array.from({ length: 75 }, (_, i) => <i key={i} style={{ left: `${(i * 73.31) % 100}%`, top: `${(i * 31.71) % 75}%`, opacity: .2 + i % 5 * .14 }} />)}</div>
   <Dome config={config} view={view} debug={development && debug && grid} />
   <ExteriorHull config={config} hull={hull} view={view} />
   <CockpitFloor config={config} view={view} />

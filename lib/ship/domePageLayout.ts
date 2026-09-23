@@ -4,8 +4,10 @@ import { domePoint, type DomeConfig, type Viewport } from './domeGeometry';
 export function domePageLayout(config: DomeConfig) {
   const span = config.topLatitude - config.lowerLatitude;
   return {
-    socials: config.topLatitude + .18,
+    socials: config.topLatitude + .24,
     brand: config.topLatitude,
+    caption: config.topLatitude + .12,
+    captionWidth: .52,
     information: config.lowerLatitude + span * .66,
     merch: config.lowerLatitude + span * .46,
     posterBottom: config.lowerLatitude + .045,
@@ -25,4 +27,13 @@ export function upperRulePath(config: DomeConfig, view: Viewport) {
     drawing = true;
   }
   return d;
+}
+
+/** Three spherical samples define a local live-DOM surface patch, not a guessed CSS tilt. */
+export function domeSurfaceFrame(theta: number, phi: number, angularWidth: number, width: number, height: number, config: DomeConfig, view: Viewport) {
+  const angularHeight=angularWidth*height/width*Math.cos(phi);
+  const a=domePoint(theta-angularWidth/2,phi+angularHeight/2,config,view);
+  const b=domePoint(theta+angularWidth/2,phi+angularHeight/2,config,view);
+  const c=domePoint(theta-angularWidth/2,phi-angularHeight/2,config,view);
+  return [(b.x-a.x)/width,(b.y-a.y)/width,(c.x-a.x)/height,(c.y-a.y)/height,a.x,a.y];
 }
