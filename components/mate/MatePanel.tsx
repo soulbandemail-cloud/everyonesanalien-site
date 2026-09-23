@@ -56,7 +56,7 @@ export default function MatePanel({ enabled }: { enabled: boolean }) {
       {mode && <form className="flex flex-col gap-3" onSubmit={submit}>
         <input name="email" aria-label="EMAIL" type="email" placeholder="EMAIL" autoComplete="email" maxLength={254} value={email} onChange={event => setEmail(event.target.value)} className={inputClass} required />
         {mode === 'login' && <input name="password" aria-label="PASSWORD" type="password" placeholder="PASSWORD" autoComplete="current-password" maxLength={1024} className={inputClass} required />}
-        <button className={`${buttonClass} ${mode === 'signup' ? 'bg-[#00082d]' : ''}`} disabled={busy}>{busy ? '...' : 'ENTER'}</button>
+        <button className={`${buttonClass} bg-[#00082d]`} disabled={busy}>{busy ? '...' : 'ENTER'}</button>
         {mode === 'login' && <button type="button" className="mate-login-link" disabled={busy} onClick={reset}>RESET PASSWORD</button>}
       </form>}
     </div>

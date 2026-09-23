@@ -18,7 +18,7 @@ import {
 
 export default function CanonicalHomepage({ cockpit, loginEnabled, config, view, animateEntry = false, camera = config, progress = cockpit ? 1 : 0 }: { cockpit: boolean; loginEnabled: boolean; config: DomeConfig; view: Viewport; animateEntry?: boolean; camera?: DomeConfig; progress?: number }) {
  const homeRoot = useRef<HTMLDivElement>(null);
- useDomeProjection(homeRoot,cockpit,config,view,animateEntry,camera,progress);
+ useDomeProjection(homeRoot, cockpit, config, view, animateEntry);
  return <div ref={homeRoot} className="canonical-home">
  <ExteriorSpace config={config} camera={camera} view={view} progress={progress} />
  {!cockpit && <div className="site-atmosphere"><PortableTV /></div>}
