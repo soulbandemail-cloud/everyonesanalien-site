@@ -10,14 +10,14 @@ export default function RealPlanetHeart() {
    <defs><radialGradient id={id} cx="32%" cy="25%" r="85%"><stop stopColor="#b5ffe0"/><stop offset=".65" stopColor="#42cfa0"/><stop offset="1" stopColor="#126b60"/></radialGradient>
     {/* Explicit user-space bounds cover both ring halves and their widest halo. */}
     <filter id={ringGlowId} filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse" x="-200" y="-150" width="400" height="300" colorInterpolationFilters="sRGB">
-     <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="near-blur" />
-     <feFlood floodColor="rgb(255,176,255)" floodOpacity=".90" result="near-pink" />
+     <feGaussianBlur in="SourceAlpha" stdDeviation="8" result="near-blur" />
+     <feFlood floodColor="rgb(255,176,255)" floodOpacity=".140" result="near-pink" />
      <feComposite in="near-pink" in2="near-blur" operator="in" result="near-halo" />
-     <feGaussianBlur in="SourceAlpha" stdDeviation="12" result="middle-blur" />
-     <feFlood floodColor="rgb(255,176,255)" floodOpacity=".65" result="middle-pink" />
+     <feGaussianBlur in="SourceAlpha" stdDeviation="18" result="middle-blur" />
+     <feFlood floodColor="rgb(255,176,255)" floodOpacity=".100" result="middle-pink" />
      <feComposite in="middle-pink" in2="middle-blur" operator="in" result="middle-halo" />
-     <feGaussianBlur in="SourceAlpha" stdDeviation="24" result="outer-blur" />
-     <feFlood floodColor="rgb(255,176,255)" floodOpacity=".32" result="outer-pink" />
+     <feGaussianBlur in="SourceAlpha" stdDeviation="36" result="outer-blur" />
+     <feFlood floodColor="rgb(255,176,255)" floodOpacity=".50" result="outer-pink" />
      <feComposite in="outer-pink" in2="outer-blur" operator="in" result="outer-halo" />
      <feMerge>
       <feMergeNode in="outer-halo" /><feMergeNode in="middle-halo" /><feMergeNode in="near-halo" />
