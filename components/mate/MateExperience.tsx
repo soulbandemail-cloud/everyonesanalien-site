@@ -1,7 +1,9 @@
 'use client';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './mate.css';
 import CanonicalHomepage from '@/components/home/CanonicalHomepage';
+import { usePresentationViewport } from './usePresentationViewport';
+import { mobileThirdCamera, cockpitPresentation } from '@/lib/ship/mobilePresentation';
 import Ship from '@/components/ship/Ship';
 import dynamic from 'next/dynamic';
 import { DEFAULT_DOME } from '@/lib/ship/domeGeometry';
@@ -10,8 +12,8 @@ import { cameraDuration, transitionCamera } from '@/lib/ship/cameraTransition';
 
 const ArcadeDialog = dynamic(() => import('@/components/arcade/ArcadeDialog'), { ssr: false });
 
-export default function MateExperience({ initialAuthenticated = false, loginEnabled = false, entry = false, error = false, development = false, preview = false }: {
-  initialAuthenticated?: boolean; loginEnabled?: boolean; entry?: boolean; error?: boolean; development?: boolean; preview?: boolean;
+export default function MateExperience({ initialAuthenticated = false, loginEnabled = false, entry = false, error = false, development = false, preview = false, mobilePreview = false }: {
+  initialAuthenticated?: boolean; loginEnabled?: boolean; entry?: boolean; error?: boolean; development?: boolean; preview?: boolean; mobilePreview?: boolean;
 }) {
   const [arcadeOpen,setArcadeOpen] = useState(false);
   const [authenticated,setAuthenticated] = useState(initialAuthenticated);
@@ -21,7 +23,11 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
   if (!cockpit && arcadeOpen) setArcadeOpen(false);
   const [progress,setProgress] = useState(cockpit && !entry ? 1 : 0);
   const progressRef = useRef(progress);
-  const [view,setView] = useState({width:1440,height:900});
+  const viewport=usePresentationViewport(setEntryReady,mobilePreview);
+  const {mobile}=viewport;
+  const presentation=useMemo(()=>cockpitPresentation(viewport.view,mobile,viewport.landscape,progress),[viewport.view,mobile,viewport.landscape,progress]);
+  const view=presentation.view;
+  const mobileThird=mobile && (cockpit || progress>0);
   const [config,setConfig] = useState(DEFAULT_DOME);
   const [hull,setHull] = useState(DEFAULT_HULL);
   const [busy,setBusy] = useState(false);
@@ -31,16 +37,7 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
   const focusTarget = useRef<HTMLDivElement>(null);
 
   useEffect(()=>{
-    const resize=()=>{
-      const width=window.innerWidth,height=window.innerHeight;
-      setView(current=>current.width===width && current.height===height ? current : {width,height});
-      setEntryReady(true);
-    };
-    const observer=new ResizeObserver(resize);
-    observer.observe(document.documentElement);
-    window.addEventListener('resize',resize);
     if (entry || error) window.history.replaceState(window.history.state,'','/');
-    return ()=>{observer.disconnect();window.removeEventListener('resize',resize);};
   },[entry,error]);
 
   useEffect(()=>{
@@ -105,10 +102,16 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
   }
 
   const camera=transitionCamera(config,progress);
+  const roomCamera=transitionCamera(mobileThird ? mobileThirdCamera(config,view) : config,progress);
   return <div className={`mate-experience ${cockpit ? 'mate-cockpit' : ''}`} ref={focusTarget} tabIndex={-1}>
-    <CanonicalHomepage animateEntry={entry} cockpit={cockpit} loginEnabled={loginEnabled && !preview} config={config} camera={camera} progress={progress} view={view} />
-    {(cockpit || progress>0) && <Ship config={camera} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
+    <div data-cockpit-presentation data-presentation-angle={presentation.angle} style={mobileThird ? {
+      position:'fixed',left:0,top:0,width:view.width,height:view.height,transformOrigin:'0 0',
+      transform:`translate(${viewport.left+viewport.view.width/2}px,${viewport.top+viewport.view.height/2}px) rotate(${presentation.angle}deg) translate(${-view.width/2}px,${-view.height/2}px)`,
+    } : undefined}>
+    <CanonicalHomepage animateEntry={entry} cockpit={cockpit} loginEnabled={loginEnabled && !preview} config={config} camera={camera} progress={progress} view={view} mobileThird={mobileThird} />
+    {(cockpit || progress>0) && <Ship config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
     {cockpit && arcadeOpen && <ArcadeDialog onExit={() => setArcadeOpen(false)} />}
+    </div>
     {notice && <div role="status" className="mate-notice">{notice}<button onClick={()=>setNotice('')} aria-label="Dismiss message">×</button></div>}
   </div>;
 }

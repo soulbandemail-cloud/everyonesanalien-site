@@ -12,10 +12,10 @@ import styles from './ship.module.css';
 const clamp = (n: number) => Math.max(0, Math.min(1, n));
 const smoothstep = (n: number) => { const t = clamp(n); return t * t * (3 - 2 * t); };
 
-export default function Ship({ config, baseline, onConfigChange, hull, onHullChange, view, reveal=1, development=false, preview=false, logout, busy, onArcade }: {
+export default function Ship({ config, baseline, onConfigChange, hull, onHullChange, view, domeConfig=config, sharedSeam=false, reveal=1, development=false, preview=false, logout, busy, onArcade }: {
  config:DomeConfig; baseline:DomeConfig; onConfigChange:(config:DomeConfig)=>void;
  hull:HullConfig; onHullChange:(hull:HullConfig)=>void; view:Viewport;
- reveal?:number; development?:boolean; preview?:boolean; logout?:()=>void; busy?:boolean; onArcade?:()=>void;
+ domeConfig?:DomeConfig; sharedSeam?:boolean; reveal?:number; development?:boolean; preview?:boolean; logout?:()=>void; busy?:boolean; onArcade?:()=>void;
 }) {
  const root = useRef<HTMLDivElement>(null);
  const pointer = useRef({ x: 0, y: .25 });
@@ -27,7 +27,11 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
    const bounds = root.current?.getBoundingClientRect();
    if (!bounds || !bounds.width || !bounds.height) return;
    if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) { reset(); return; }
-   pointer.current = { x: (event.clientX - bounds.left) / bounds.width * 2 - 1, y: (event.clientY - bounds.top) / bounds.height };
+   const scene=root.current?.closest<HTMLElement>('[data-cockpit-presentation]');
+   const angle=Number(scene?.dataset.presentationAngle ?? 0)*Math.PI/180;
+   const dx=event.clientX-bounds.left-bounds.width/2,dy=event.clientY-bounds.top-bounds.height/2;
+   const width=root.current!.clientWidth,height=root.current!.clientHeight;
+   pointer.current = { x: (dx*Math.cos(angle)+dy*Math.sin(angle))/width*2, y: (-dx*Math.sin(angle)+dy*Math.cos(angle))/height+.5 };
   };
   const leave = (event: PointerEvent) => { if (event.relatedTarget === null) reset(); };
   window.addEventListener('pointermove', move, { passive: true, capture: true });
@@ -52,10 +56,10 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
  }, []);
  const [debug,setDebug]=useState(false);
  const [grid,setGrid]=useState(true);
- return <div ref={root} className={styles.ship} style={{opacity:Math.max(0,Math.min(1,(reveal-.12)/.6))}} aria-label="Mate cockpit">
-  <Dome config={config} view={view} debug={development && debug && grid} />
-  <ExteriorHull config={config} hull={hull} view={view} />
-  <CockpitFloor config={config} view={view} />
+ return <div ref={root} className={styles.ship} style={{...(sharedSeam ? {width:view.width,height:view.height} : {}),opacity:Math.max(0,Math.min(1,(reveal-.12)/.6))}} aria-label="Mate cockpit">
+  <Dome config={domeConfig} view={view} debug={development && debug && grid} />
+  <ExteriorHull config={config} hull={hull} view={view} sharedSeam={sharedSeam} />
+  <CockpitFloor config={config} view={view} sharedSeam={sharedSeam} />
   <Fixtures config={config} view={view} onArcade={onArcade} />
   <PilotMezzanine attention={attention} config={config} view={view} />
   <ManifestationPort config={config} view={view} />

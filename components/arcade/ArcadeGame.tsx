@@ -6,7 +6,7 @@ import { hitBolt } from './discharge';
 import { useScopedLifecycle } from '../home/useScopedLifecycle';
 import './arcade.css';
 
-const ZAP_STUN_DURATION = 3000;
+const ZAP_STUN_DURATION = 1000;
 const ZAP_RECATCH_COOLDOWN = 700;
 const FOOTER_BOUNCE_COOLDOWN = 140;
 

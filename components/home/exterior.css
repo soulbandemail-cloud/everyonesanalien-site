@@ -1,5 +1,12 @@
 /* Persistent exterior scene, below live content and the ship's opaque surfaces. */
 .exterior-space { position:fixed; inset:0; z-index:-1; pointer-events:none; overflow:hidden; }
 .exterior-star-plane { position:absolute; inset:0; transform-origin:0 0; }
-.real-planet-heart { position:absolute; overflow:visible; }
+/* One visible-ink layout centres S…L and preserves the same three ring/letter gaps. */
+.soul-wordmark { position:relative; width:100%; font-size:clamp(36px, 12vw, 60px); height:96px; gap:.26em; }
+.soul-wordmark > * { flex-shrink:0; white-space:nowrap; }
+[data-ink-baseline] { display:inline-block; width:0; height:0; vertical-align:baseline; }
+.soul-planet { display:inline-flex; width:1.5em; height:.82em; }
+[data-dome-rules] { position:absolute; pointer-events:none; overflow:visible; }
+.real-planet-heart { display:block; width:100%; height:100%; overflow:visible; }
+.planet-letter-ring { filter:drop-shadow(0 0 6px rgba(255,176,255,.62)) drop-shadow(0 0 16px rgba(255,176,255,.32)); }
 .exterior-shooting-inactive, .exterior-shooting-inactive .shooting-star { pointer-events:none; }

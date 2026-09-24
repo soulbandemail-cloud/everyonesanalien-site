@@ -2,7 +2,7 @@
 import { useRef } from 'react';
 import MatePanel from '@/components/mate/MatePanel';
 import { useDomeProjection } from './useDomeProjection';
-import PlanetHeart from './PlanetHeart';
+import RealPlanetHeart from './RealPlanetHeart';
 import PortableTV from './PortableTV';
 import ExteriorSpace from './ExteriorSpace';
 import { exteriorPlane } from '@/lib/ship/exteriorSpace';
@@ -16,11 +16,13 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 
-export default function CanonicalHomepage({ cockpit, loginEnabled, config, view, animateEntry = false, camera = config, progress = cockpit ? 1 : 0 }: { cockpit: boolean; loginEnabled: boolean; config: DomeConfig; view: Viewport; animateEntry?: boolean; camera?: DomeConfig; progress?: number }) {
+export default function CanonicalHomepage({ cockpit, loginEnabled, config, view, animateEntry = false, camera = config, progress = cockpit ? 1 : 0, mobileThird=false }: { cockpit: boolean; loginEnabled: boolean; config: DomeConfig; view: Viewport; animateEntry?: boolean; camera?: DomeConfig; progress?: number; mobileThird?:boolean }) {
  const homeRoot = useRef<HTMLDivElement>(null);
- useDomeProjection(homeRoot, cockpit, config, view, animateEntry);
+ // Blend the live header toward the final dome frame. The travelling eye crosses
+ // that surface near its start; projecting through it would fling the header offscreen.
+ useDomeProjection(homeRoot, cockpit, config, view, animateEntry, config, progress, mobileThird);
  return <div ref={homeRoot} className="canonical-home">
- <ExteriorSpace config={config} camera={camera} view={view} progress={progress} />
+ <ExteriorSpace config={config} camera={camera} view={view} />
  {!cockpit && <div className="site-atmosphere"><PortableTV /></div>}
  <main className="pink-text-glow min-h-screen text-white p-8 md:p-12 max-w-12xl mx-auto">
         <div data-dome-slot="socials" className="flex flex-nowrap justify-center gap-10 sm:gap-10 mb-0 md:mb-4">
@@ -29,7 +31,7 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
             href="https://open.spotify.com/artist/4aoqsXn1YULl9y1boDeTZA?si=mPVXh9BtR4KvRUSQoIyJYA"
             target="_blank"
             rel="noopener noreferrer"
-            className="pink-icon-glow transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
+            className="pink-icon-glow transition-colors duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
           >
             <FaSpotify size={48} />
           </a>
@@ -39,7 +41,7 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
             href="https://www.instagram.com/everyonesanalien/"
             target="_blank"
             rel="noopener noreferrer"
-            className="pink-icon-glow transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
+            className="pink-icon-glow transition-colors duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
           >
             <FaInstagram size={48} />
           </a>
@@ -49,7 +51,7 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
             href="https://www.tiktok.com/@everyonesanalien?lang=en-GB"
             target="_blank"
             rel="noopener noreferrer"
-            className="pink-icon-glow transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
+            className="pink-icon-glow transition-colors duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
           >
             <FaTiktok size={48} />
           </a>
@@ -59,7 +61,7 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
             href="https://www.youtube.com/channel/UCTp_Wb8HBHWMQxXvNzxkksg"
             target="_blank"
             rel="noopener noreferrer"
-            className="pink-icon-glow transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
+            className="pink-icon-glow transition-colors duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
           >
             <FaYoutube size={48} />
           </a>
@@ -67,7 +69,7 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
           <a
             aria-label="Email"
             href="mailto:soul.band.email@gmail.com"
-            className="pink-icon-glow transition-all duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
+            className="pink-icon-glow transition-colors duration-200 hover:text-[#6ee7b7] active:text-[#6ee7b7]"
           >
             <FaEnvelope size={48} />
           </a>
@@ -80,16 +82,15 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
           
 
           <div className="flex items-center justify-center w-full mt-0">
-            <div className="pink-line-glow h-[4px] bg-white flex-1 mr-2" />
+            <svg data-dome-rules aria-hidden="true"><path fill="none" stroke="white" strokeWidth="2" className="pink-svg-glow" /></svg>
 
-            <h1 className="relative z-10 text-6xl font-bold text-center flex justify-center items-center text-white shrink-0">
-              <span className="-mr-4">S</span>
+            <h1 aria-label="SOUL" className="soul-wordmark relative z-10 font-bold text-center flex justify-center items-center text-white shrink-0">
+              <span data-soul-letter="S">S<i data-ink-baseline /></span>
 
-              <PlanetHeart />
-              <span className="-ml-3">U</span><span>L</span>
+              <RealPlanetHeart />
+              <span data-soul-letter="U">U<i data-ink-baseline /></span><span data-soul-letter="L">L<i data-ink-baseline /></span>
             </h1>
 
-            <div className="pink-line-glow h-[4px] bg-white flex-1 ml-2" />
           </div>
         </div>
 
@@ -106,7 +107,7 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
                   href="https://link.dice.fm/w4a23940adca"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="pink-border-glow inline-block border border-white px-3 py-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] active:bg-[#6ee7b7] active:border-[#6ee7b7] active:text-[#00082d] transition-all duration-200"
+                  className="pink-border-glow inline-block border border-white bg-[#00082d] px-3 py-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] active:bg-[#6ee7b7] active:border-[#6ee7b7] active:text-[#00082d] transition-all duration-200"
                 >
                   The George Tavern, LONDON, 5th Oct
                 </a>

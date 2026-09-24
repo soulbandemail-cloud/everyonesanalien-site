@@ -55,7 +55,7 @@ The cabinet contains only permanent shelves, a gramophone with an empty platter,
 
 `domePageLayout.ts` defines angular content zones. Socials sit above the upper latitude; SOUL is anchored at that latitude. `upperRulePath()` samples the same spherical circle but skips a central longitude interval for the wordmark. The lower rule and head ring are removed.
 
-Information and merch sit above a reserved poster band (approximately latitude 0.13–0.301 at the saved baseline). This glass is deliberately empty: no poster wall or placeholders. The content hierarchy is defined in spherical coordinates so later personal-display work has an explicit zone below website content and above the exterior hull.
+Information and THE MERCH sit above a reserved poster band (approximately latitude 0.13–0.301 at the saved baseline). This glass is deliberately empty: no poster wall or placeholders. The content hierarchy is defined in spherical coordinates so later personal-display work has an explicit zone below website content and above the exterior hull.
 
 Side-art faces are depth-sorted. Tabletop artwork follows its projected horizontal plane; small upright details follow the fixture's vertical plane. All remain simple 2.5D blocking.
 

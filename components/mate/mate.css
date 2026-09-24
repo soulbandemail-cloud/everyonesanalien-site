@@ -24,3 +24,6 @@
 .mate-video-dialog > button { position: relative; z-index: 100; border: 1px solid #7fffd4; padding: 8px; cursor: pointer; }
 .mate-video-dialog .space-tv.space-tv-expanded { position: absolute; width: 100%; height: 100%; }
 .mate-video-dialog .space-tv.space-tv-expanded .space-tv-body { width: min(80vw, 800px); }
+
+/* A transformed frame establishes the same local viewport for all live layers. */
+[data-cockpit-presentation][style] .on-glass { width:100%; height:100%; }

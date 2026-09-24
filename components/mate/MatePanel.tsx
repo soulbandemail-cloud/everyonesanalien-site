@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 
-const buttonClass = 'pink-border-glow pink-text-glow border border-white p-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] transition-all duration-200 disabled:opacity-50';
+const buttonClass = 'pink-border-glow pink-text-glow border border-white bg-[#00082d] p-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] transition-all duration-200 disabled:opacity-50';
 const inputClass = 'pink-border-glow border border-white bg-[#00082d] p-2';
 
 export default function MatePanel({ enabled }: { enabled: boolean }) {
@@ -51,12 +51,12 @@ export default function MatePanel({ enabled }: { enabled: boolean }) {
     <p className="mb-4">Get The Hyper-Fix, MATES RATE discounts on merch and tickets!</p>
     <div className="flex flex-col gap-3 max-w-md md:mx-auto">
       <div className="grid grid-cols-2 gap-3">
-        {(['signup', 'login'] as const).map(value => <button key={value} type="button" aria-pressed={mode === value} disabled={busy || (value === 'login' && !enabled)} className={`${buttonClass} ${mode === value ? 'bg-[#6ee7b7] border-[#6ee7b7] text-[#00082d]' : ''}`} onClick={() => { setMode(value); setMessage(''); }}>{value === 'signup' ? 'SIGN UP' : 'LOG IN'}</button>)}
+        {(['signup', 'login'] as const).map(value => <button key={value} type="button" aria-pressed={mode === value} disabled={busy || (value === 'login' && !enabled)} className={`${buttonClass} ${mode === value ? 'aria-pressed:bg-[#6ee7b7] border-[#6ee7b7] text-[#00082d]' : ''}`} onClick={() => { setMode(value); setMessage(''); }}>{value === 'signup' ? 'SIGN UP' : 'LOG IN'}</button>)}
       </div>
       {mode && <form className="flex flex-col gap-3" onSubmit={submit}>
         <input name="email" aria-label="EMAIL" type="email" placeholder="EMAIL" autoComplete="email" maxLength={254} value={email} onChange={event => setEmail(event.target.value)} className={inputClass} required />
         {mode === 'login' && <input name="password" aria-label="PASSWORD" type="password" placeholder="PASSWORD" autoComplete="current-password" maxLength={1024} className={inputClass} required />}
-        <button className={`${buttonClass} bg-[#00082d]`} disabled={busy}>{busy ? '...' : 'ENTER'}</button>
+        <button className={buttonClass} disabled={busy}>{busy ? '...' : 'ENTER'}</button>
         {mode === 'login' && <button type="button" className="mate-login-link" disabled={busy} onClick={reset}>RESET PASSWORD</button>}
       </form>}
     </div>

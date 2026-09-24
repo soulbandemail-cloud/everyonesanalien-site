@@ -1,3 +1,4 @@
+import { hullFloorSeamPoint, SEAM_SECTORS } from './hullFloorSeam';
 import type { DomeConfig, Vec3 } from './domeGeometry';
 
 export type HullConfig = { outerRadius: number; drop: number; profile: number };
@@ -12,13 +13,24 @@ export function hullHeight(radius: number, dome: DomeConfig, hull: HullConfig) {
 export function hullPoint(radius: number, theta: number, dome: DomeConfig, hull: HullConfig): Vec3 {
   return { x: dome.centre.x + radius*Math.sin(theta), y: hullHeight(radius,dome,hull), z: dome.centre.z + radius*Math.cos(theta) };
 }
-export function hullMesh(dome: DomeConfig, hull: HullConfig) {
+export function hullMesh(dome: DomeConfig, hull: HullConfig, sharedSeam=false) {
   const patches: { points: Vec3[]; radial: number }[] = [];
   const outer = Math.max(dome.radius+.1,hull.outerRadius);
-  for(let ring=0;ring<18;ring++) for(let sector=0;sector<128;sector++) {
+  const point=(radius:number,theta:number)=>{
+    const p=hullPoint(radius,theta,dome,hull);
+    if(!sharedSeam) return p;
+    const seam=hullFloorSeamPoint(theta,dome);
+    if(radius===dome.radius) return seam;
+    // Same radial surface, lowered to meet its true interior edge, tapering to
+    // the original exterior rim. No overlay or independent screen-space curve.
+    const t=(radius-dome.radius)/(outer-dome.radius);
+    return {...p,y:p.y+(seam.y-dome.centre.y)*(1-t)};
+  };
+  const sectors=SEAM_SECTORS;
+  for(let ring=0;ring<18;ring++) for(let sector=0;sector<sectors;sector++) {
     const r0=dome.radius+(outer-dome.radius)*ring/18, r1=dome.radius+(outer-dome.radius)*(ring+1)/18;
-    const a=sector/128*Math.PI*2,b=(sector+1)/128*Math.PI*2;
-    patches.push({radial:ring/18,points:[hullPoint(r0,a,dome,hull),hullPoint(r1,a,dome,hull),hullPoint(r1,b,dome,hull),hullPoint(r0,b,dome,hull)]});
+    const a=sector/sectors*Math.PI*2,b=(sector+1)/sectors*Math.PI*2;
+    patches.push({radial:ring/18,points:[point(r0,a),point(r1,a),point(r1,b),point(r0,b)]});
   }
   return patches;
 }

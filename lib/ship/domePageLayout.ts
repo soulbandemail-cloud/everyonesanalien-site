@@ -12,7 +12,8 @@ export function domePageLayout(config: DomeConfig) {
     merch: config.lowerLatitude + span * .46,
     posterBottom: config.lowerLatitude + .045,
     posterTop: config.lowerLatitude + span * .32,
-    wordmarkGap: .39,
+    wordmarkHalfWidth: .54,
+    wordmarkGap: .65,
   };
 }
 /** Same latitude circle, with an angular gap centred on the forward axis. */
@@ -36,4 +37,24 @@ export function domeSurfaceFrame(theta: number, phi: number, angularWidth: numbe
   const b=domePoint(theta+angularWidth/2,phi+angularHeight/2,config,view);
   const c=domePoint(theta-angularWidth/2,phi-angularHeight/2,config,view);
   return [(b.x-a.x)/width,(b.y-a.y)/width,(c.x-a.x)/height,(c.y-a.y)/height,a.x,a.y];
+}
+
+/** The same upper latitude, clipped at the live wordmark's measured ink boundaries. */
+export function wordmarkRulePath(config:DomeConfig,view:Viewport,edges:{left:number;right:number},flatY:number,progress:number) {
+ const t=Math.max(0,Math.min(1,progress));
+ if(t===0)return `M0 ${flatY}H${edges.left} M${edges.right} ${flatY}H${view.width}`;
+ let path='',last:{x:number;y:number}|null=null;
+ for(let i=0;i<=720;i++) {
+  const p=domePoint(-Math.PI+i/720*Math.PI*2,config.topLatitude,config,view);
+  const next=p.visible ? {x:p.x,y:flatY+(p.y-flatY)*t} : null;
+  if(last && next) for(const [min,max] of [[0,edges.left],[edges.right,view.width]]) {
+   const dx=next.x-last.x;
+   if(Math.abs(dx)<1e-9 || max<=min)continue;
+   const a=(min-last.x)/dx,b=(max-last.x)/dx;
+   const lo=Math.max(0,Math.min(a,b)),hi=Math.min(1,Math.max(a,b));
+   if(lo<=hi)path+=`M${last.x+dx*lo} ${last.y+(next.y-last.y)*lo}L${last.x+dx*hi} ${last.y+(next.y-last.y)*hi} `;
+  }
+  last=next;
+ }
+ return path;
 }

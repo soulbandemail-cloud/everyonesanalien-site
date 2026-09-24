@@ -1,5 +1,6 @@
 import { type DomeConfig, type Viewport } from '@/lib/ship/domeGeometry';
 import { ROOM, floorPortDiameter, deckOutline, polygonPath } from '@/lib/ship/roomGeometry';
+import { hullFloorBoundary } from '@/lib/ship/hullFloorSeam';
 import styles from './ship.module.css';
 
 export function ManifestationPort({ config, view }: { config: DomeConfig; view: Viewport }) {
@@ -19,8 +20,8 @@ export function ManifestationPort({ config, view }: { config: DomeConfig; view: 
   </svg>;
 }
 
-export function CockpitFloor({ config, view }: { config: DomeConfig; view: Viewport }) {
+export function CockpitFloor({ config, view, sharedSeam=false }: { config: DomeConfig; view: Viewport; sharedSeam?:boolean }) {
   return <svg className={styles.cockpitFloor} width={view.width} height={view.height} aria-hidden="true">
-      <path d={polygonPath(deckOutline(config.radius * 2, config.radius * 2, ROOM.floorY, config.centre.z), config, view)} fill="#25353f" stroke="#52636a" strokeWidth="2" />
+      <path d={polygonPath(sharedSeam ? hullFloorBoundary(config) : deckOutline(config.radius * 2, config.radius * 2, ROOM.floorY, config.centre.z), config, view)} fill="#25353f" stroke="#52636a" strokeWidth="2" />
   </svg>;
 }

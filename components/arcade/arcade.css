@@ -228,7 +228,7 @@
 }
 
 .flying-alien-turning-black.flying-alien-zapped .flying-alien-skull-fill {
-  animation: flying-alien-skull-blacken 3000ms linear forwards;
+  animation: flying-alien-skull-blacken 1000ms linear forwards;
 }
 
 @keyframes flying-alien-skull-flash {
@@ -272,7 +272,7 @@
 .flying-alien-turning-black.flying-alien-zapped .flying-alien-skull-fill + ellipse + ellipse,
 .flying-alien-turning-black.flying-alien-zapped .flying-alien-skull-fill + ellipse + ellipse + path,
 .flying-alien-turning-black.flying-alien-zapped .flying-alien-skull-fill + ellipse + ellipse + path + path {
-  animation: flying-alien-skull-face-blacken 3000ms linear forwards;
+  animation: flying-alien-skull-face-blacken 1000ms linear forwards;
 }
 
 .flying-alien-black-skull .flying-alien-skull-fill,

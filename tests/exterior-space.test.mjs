@@ -12,22 +12,9 @@ const room=load('lib/ship/roomGeometry.ts',{'./domeGeometry':geometry});
 const transition=load('lib/ship/cameraTransition.ts',{'./roomGeometry':room});
 const exterior=load('lib/ship/exteriorSpace.ts',{'./domeGeometry':geometry,'./cameraTransition':transition});
 const layout=load('lib/ship/domePageLayout.ts',{'./domeGeometry':geometry});
-const {DEFAULT_DOME:config,project,domePoint}=geometry;
+const {DEFAULT_DOME:config,domePoint}=geometry;
 const source=p=>fs.readFileSync(p,'utf8');
 
-test('one distant planet projects through the existing camera with negligible cockpit-scale parallax',()=>{
- for(const view of [{width:1440,height:900},{width:390,height:844}]) {
-  const start=project(exterior.PLANET_HEART.position,transition.transitionCamera(config,0),view);
-  const end=project(exterior.PLANET_HEART.position,config,view);
-  assert.ok(start.visible && end.visible);
-  assert.ok(Math.hypot(end.x-start.x,end.y-start.y)<1);
-  assert.ok(Math.abs(end.scale/start.scale-1)<.002);
-  for(const progress of [0,.25,.5,.75,1]) {
-   const p=project(exterior.PLANET_HEART.position,transition.transitionCamera(config,progress),view);
-   assert.ok(p.x>0 && p.x<view.width && p.y>0 && p.y<view.height);
-  }
- }
-});
 test('distant star plane starts at the public layout and moves continuously without regeneration',()=>{
  const view={width:1440,height:900};
  const matrix=exterior.exteriorPlane(config,transition.transitionCamera(config,0),view).slice(7,-1).split(',').map(Number);
@@ -48,12 +35,16 @@ test('exterior retains the same four-point twinkle and shooting animations behin
  assert.match(source('components/home/DomeWishes.tsx'),/if \(!active\) return/);
  assert.match(source('components/home/DomeWishes.tsx'),/active && \(wishPrompt/);
 });
-test('real planet has rear ring, opaque heart, front ring in that paint order and does not replace logo',()=>{
- const scene=source('components/home/ExteriorSpace.tsx');
+test('wordmark reuses the shaded real planet with white rings in the correct depth order',()=>{
+ const scene=source('components/home/RealPlanetHeart.tsx');
  assert.ok(scene.indexOf('data-ring="rear"')<scene.indexOf('fill={`url(#${id})`}'));
  assert.ok(scene.indexOf('fill={`url(#${id})`}')<scene.indexOf('data-ring="front"'));
- assert.match(source('components/home/CanonicalHomepage.tsx'),/<PlanetHeart \/>/);
- assert.match(scene,/project\(PLANET_HEART.position,camera,view\)/);
+ assert.match(source('components/home/CanonicalHomepage.tsx'),/<RealPlanetHeart \/>/);
+ assert.equal((scene.match(/stroke="white"/g)||[]).length,2);
+ assert.match(scene,/stopColor="#9eccc4"/);
+ assert.match(scene,/stopColor="#41646f"/);
+ assert.match(scene,/rotate\(-18\)/);
+ assert.doesNotMatch(source('components/home/ExteriorSpace.tsx'),/planet-heart|<svg/);
 });
 test('each dome surface patch follows sampled curvature, including different slopes across the header',()=>{
  const view={width:1440,height:900},phi=config.topLatitude;
@@ -80,26 +71,23 @@ test('caption letters follow distinct dome slopes below the raised social latitu
  assert.match(source('components/home/useDomeProjection.ts'),/p > \[data-dome-caption\]/);
 });
 
- test('real planet is centred on the ship axis and doubled in world size',()=>{
- assert.equal(exterior.PLANET_HEART.position.x,0);
- assert.equal(exterior.PLANET_HEART.radius,1300);
- assert.equal(exterior.PLANET_HEART.position.y,500);
-});
-
-test('first-person planet follows its content anchor without moving the third-person endpoint',()=>{
- assert.equal(exterior.planetScreenY(340,540,0),540);
- assert.equal(exterior.planetScreenY(340,540,.5),440);
- assert.equal(exterior.planetScreenY(340,540,1),340);
- assert.equal(exterior.planetScreenY(340,null,0),340);
-
- assert.match(source('components/home/ExteriorSpace.tsx'),/firstPersonPlanetY\(view.height\)/);
-});
-
-test('first-person planet keeps its settled position independently of signup/login mode',()=>{
- const y=exterior.firstPersonPlanetY(800);
- assert.equal(y,480);
- assert.equal(exterior.planetScreenY(340,y,1),340);
- const scene=source('components/home/ExteriorSpace.tsx');
- assert.doesNotMatch(scene,/MutationObserver|querySelector|controlsBottom|enterTop/);
-
+test('dome frame maps DOM corners onto the spherical samples across desktop and mobile viewports',()=>{
+ const zones=layout.domePageLayout(config);
+ assert.equal(zones.caption,config.topLatitude+.12);
+ assert.equal(zones.captionWidth,.52);
+ for(const view of [{width:1440,height:900},{width:844,height:290},{width:390,height:700}]) {
+  for(const phi of [zones.brand,zones.caption,zones.socials])for(const theta of [-.4,0,.4]){
+   const width=48,height=32,angle=.12;
+   const frame=layout.domeSurfaceFrame(theta,phi,angle,width,height,config,view);
+   assert.equal(frame.length,6);assert.ok(frame.every(Number.isFinite));
+   const [a,b,c,d,e,f]=frame;
+   const angularHeight=angle*height/width*Math.cos(phi);
+   const corners=[[0,0,theta-angle/2,phi+angularHeight/2],[width,0,theta+angle/2,phi+angularHeight/2],[0,height,theta-angle/2,phi-angularHeight/2]];
+   for(const [x,y,t,p] of corners){
+    const expected=domePoint(t,p,config,view);
+    assert.ok(Math.abs(a*x+c*y+e-expected.x)<1e-9);
+    assert.ok(Math.abs(b*x+d*y+f-expected.y)<1e-9);
+   }
+  }
+ }
 });

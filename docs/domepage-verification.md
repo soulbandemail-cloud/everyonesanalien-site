@@ -8,7 +8,7 @@ The configuration observations below describe the earlier inspection, not the cu
 
 The repository's sole canonical homepage implementation is `components/home/CanonicalHomepage.tsx`. `app/page.tsx` obtains verified session state and renders `MateExperience`, which always renders that component. `app/ship/page.tsx` renders the same `MateExperience` in development-preview mode. `Ship.tsx` only draws room geometry/utility controls; it has no separate homepage content.
 
-`useDomeProjection.ts` changes placement of existing live DOM elements. It does not copy text or links. The obsolete `components/ship/DomePage.tsx` is already absent; no further duplicate implementation needed removal. Current regression tests compare shared live links, verify SHOWS/MATES/MERCH public order, remove MATES entirely in cockpit mode, and verify no head belt in cockpit view.
+`useDomeProjection.ts` changes placement of existing live DOM elements. It does not copy text or links. The obsolete `components/ship/DomePage.tsx` is already absent; no further duplicate implementation needed removal. Current regression tests compare shared live links, verify THE SHOWS/THE MATES/THE MERCH public order, remove MATES entirely in cockpit mode, and verify no head belt in cockpit view.
 
 The cockpit-only “SOUL VIDEO” button is a presentation affordance in the canonical component: it opens the same television/video markup in a dialog because the floating public TV is not placed over the room. It is not evidence of a second source of media content.
 
@@ -19,9 +19,9 @@ Opening `https://everyonesanalien.com` redirected to `https://www.everyonesanali
 - GET YOUR THE HYPER-FIX
 - Sign up to SOUL's newsletter for Mates Rate discounts on merch and tickets!
 - EVERYONE'S AN ALIEN, the email field and BECOME A MATE
-- UPCOMING SHOWS
+- THE SHOWS
 - The George Tavern, LONDON, 5th Oct, linked to `https://link.dice.fm/w4a23940adca`
-- MERCH / Coming soon
+- THE MERCH / Coming soon
 
 Those headings and the show link match the checked-out canonical component. This is observation of the currently served public site, not proof of which commit or hosting deployment produced it. No hosting/deployment history or the user's specific old preview URL was supplied. Consequently, this inspection cannot establish that the old preview was stale, or identify another intended newer homepage. No content was recreated from appearance and no homepage redesign was made. If another approved deployment/branch is intended, compare it directly before replacing content.
 
