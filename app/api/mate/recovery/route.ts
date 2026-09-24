@@ -14,5 +14,5 @@ export async function POST(request: Request) {
     console.info('Mate recovery request outcome', JSON.stringify({ outcome: accepted ? 'supabase-accepted' : 'not-eligible' }));
   }
   catch (error) { console.error('Mate recovery request failed', JSON.stringify(recoveryFailureDetails(error))); }
-  return privateJson({ message: 'If this email belongs to an eligible Mate, you’ll receive a RESET PASSWORD email. Open it in this browser.' });
+  return privateJson({ message: 'If this email belongs to an eligible Mate, you’ll receive a RESET PASSWORD email.' });
 }

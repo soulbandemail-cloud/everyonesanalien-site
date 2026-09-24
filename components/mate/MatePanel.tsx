@@ -25,9 +25,9 @@ export default function MatePanel({ enabled }: { enabled: boolean }) {
         if (data.authenticated === true) window.dispatchEvent(new Event('focus'));
         else setMessage('Unable to log in. Please try again.');
       } else {
-        setMessage(data.entry === 'email' ? 'Check your email to RESET PASSWORD and finish setting up your Mate access. Open it in this browser.'
+        setMessage(data.entry === 'email' ? 'Check your email to RESET PASSWORD and finish setting up your Mate access.'
           : data.entry === 'retry' ? 'Your signup is saved, but we could not send your RESET PASSWORD email. Use LOG IN → RESET PASSWORD to try again.'
-          : data.entry === 'pending' ? 'Your subscription needs confirmation or reactivation before Mate access. Check your email, then use LOG IN → RESET PASSWORD. If no confirmation arrives, contact SOUL.'
+          : data.entry === 'pending' ? 'Your subscription needs confirmation or reactivation before Mate access. Check your email, then use LOG IN → RESET PASSWORD. If no confirmation arrives, contact soul@everyonesanalien.com.'
           : data.alreadySubscribed ? 'You’re already a Mate, mate.' : 'WELCOME ABOARD. You are now a Mate of the Band!');
       }
     } catch { setMessage('Unable to connect. Please try again.'); }
