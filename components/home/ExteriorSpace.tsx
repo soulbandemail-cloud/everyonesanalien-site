@@ -6,7 +6,11 @@ import { exteriorPlane } from '@/lib/ship/exteriorSpace';
 export default function ExteriorSpace({config,camera,view}:{config:DomeConfig;camera:DomeConfig;view:Viewport}) {
  return <div className="exterior-space" aria-hidden="true">
   <div className="exterior-star-plane" style={{transform:exteriorPlane(config,camera,view)}}>
-   <div className="stars">{[1,2,3,4,5].map(i=><span key={i} className={`star star-${i}`} />)}</div>
+   <div className="stars">
+  {Array.from({ length: 20 }, (_, i) => i + 1).map(i => (
+    <span key={i} className={`star star-${i}`} />
+  ))}
+</div>
   </div>
  </div>;
 }

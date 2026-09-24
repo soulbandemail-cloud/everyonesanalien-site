@@ -145,6 +145,24 @@ body {
 .star-4 { top: 66%; left: 58%; width: 28px; height: 28px; animation-delay: 2s; }
 .star-5 { top: 84%; left: 32%; width: 12px; height: 12px; animation-delay: 4s; }
 
+.star-6  { top: 8%;  left: 63%; width: 10px; height: 10px; animation-delay: .4s;  animation-duration: 4.2s; }
+.star-7  { top: 19%; left: 27%; width: 17px; height: 17px; animation-delay: 2.1s; animation-duration: 5.1s; }
+.star-8  { top: 22%; left: 93%; width: 11px; height: 11px; animation-delay: 4.7s; animation-duration: 4.6s; }
+.star-9  { top: 35%; left: 7%;  width: 20px; height: 20px; animation-delay: 1.3s; animation-duration: 5.8s; }
+.star-10 { top: 39%; left: 68%; width: 13px; height: 13px; animation-delay: 3.8s; animation-duration: 4.9s; }
+
+.star-11 { top: 53%; left: 24%; width: 9px;  height: 9px;  animation-delay: 5.2s; animation-duration: 5.4s; }
+.star-12 { top: 57%; left: 76%; width: 19px; height: 19px; animation-delay: .8s;  animation-duration: 6.1s; }
+.star-13 { top: 69%; left: 6%;  width: 12px; height: 12px; animation-delay: 2.9s; animation-duration: 4.4s; }
+.star-14 { top: 73%; left: 45%; width: 15px; height: 15px; animation-delay: 4.1s; animation-duration: 5.7s; }
+.star-15 { top: 78%; left: 91%; width: 10px; height: 10px; animation-delay: 1.7s; animation-duration: 4.8s; }
+
+.star-16 { top: 91%; left: 9%;  width: 16px; height: 16px; animation-delay: 3.3s; animation-duration: 5.3s; }
+.star-17 { top: 92%; left: 53%; width: 11px; height: 11px; animation-delay: .2s;  animation-duration: 6.3s; }
+.star-18 { top: 14%; left: 51%; width: 8px;  height: 8px;  animation-delay: 5.8s; animation-duration: 4.7s; }
+.star-19 { top: 44%; left: 34%; width: 10px; height: 10px; animation-delay: 2.5s; animation-duration: 6.5s; }
+.star-20 { top: 87%; left: 72%; width: 14px; height: 14px; animation-delay: 4.5s; animation-duration: 5.6s; }
+
 .space-tv {
   position: fixed;
   z-index: 80;
