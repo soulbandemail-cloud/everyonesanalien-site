@@ -116,7 +116,7 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
       const brand=node.querySelector<HTMLElement>('[data-dome-slot="brand"]')!.getBoundingClientRect();
       Object.assign(rules.style,{position:progress>0?'fixed':'absolute',left:'0',top:'0',width:`${view.width}px`,height:`${view.height}px`,transform:progress===0?`translate(${-brand.left}px,${-brand.top}px)`:'none'});
       rules.querySelector('path')!.setAttribute('stroke-width',String(4-2*progress));
-      rules.querySelector('path')!.setAttribute('d',wordmarkRulePath(camera,view,frames.rules,centreY,progress));
+      rules.querySelector('path')!.setAttribute('d',wordmarkRulePath(camera,view,frames.rules,centreY,progress,!mobileThird));
     }
     node.classList.toggle('on-glass',cockpit);
     const layout=domePageLayout(config);

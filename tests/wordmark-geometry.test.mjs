@@ -102,3 +102,25 @@ test('mobile icon size blends continuously instead of jumping when on-glass chan
  assert.equal((source.match(/pink-icon-glow transition-colors/g)||[]).length,5);
  assert.doesNotMatch(source,/pink-icon-glow transition-all/);
 });
+
+test('desktop rules retain only the continuous visible arc instead of a second flying back arc',()=>{
+ for(const view of [{width:798,height:799},{width:1440,height:900},{width:1920,height:1080}]) {
+  const edges={left:view.width*.35,right:view.width*.65};
+  const segments=(path)=>[...path.matchAll(/M([\d.e+-]+) ([\d.e+-]+)L([\d.e+-]+) ([\d.e+-]+)/g)].map(m=>m.slice(1).map(Number));
+  const oldFinal=segments(layout.wordmarkRulePath(g.DEFAULT_DOME,view,edges,184,1));
+  const final=segments(layout.wordmarkRulePath(g.DEFAULT_DOME,view,edges,184,1,true));
+  // All previously visible final geometry is preserved exactly.
+  assert.deepEqual(final,oldFinal.filter(([x,,xx])=>xx>x));
+  assert.ok(oldFinal.filter(([x,,xx])=>xx<x).every(([,y,,yy])=>y<0 && yy<0));
+  assert.equal(layout.wordmarkRulePath(g.DEFAULT_DOME,view,edges,184,0,true),layout.wordmarkRulePath(g.DEFAULT_DOME,view,edges,184,0));
+  for(const progress of [.001,.1,.25,.5,.75,.999,1]) {
+   const moving=segments(layout.wordmarkRulePath(g.DEFAULT_DOME,view,edges,184,progress,true));
+   assert.equal(moving.length,final.length);
+   moving.forEach(([x,y,xx,yy],i)=>{
+    close(x,final[i][0]);close(xx,final[i][2]);
+    close(y,184+(final[i][1]-184)*progress);close(yy,184+(final[i][3]-184)*progress);
+    assert.ok(y>=0 && yy>=0,'no rule branch flies above the viewport');
+   });
+  }
+ }
+});

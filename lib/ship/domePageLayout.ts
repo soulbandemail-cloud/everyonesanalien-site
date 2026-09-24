@@ -40,7 +40,7 @@ export function domeSurfaceFrame(theta: number, phi: number, angularWidth: numbe
 }
 
 /** The same upper latitude, clipped at the live wordmark's measured ink boundaries. */
-export function wordmarkRulePath(config:DomeConfig,view:Viewport,edges:{left:number;right:number},flatY:number,progress:number) {
+export function wordmarkRulePath(config:DomeConfig,view:Viewport,edges:{left:number;right:number},flatY:number,progress:number,frontArcOnly=false) {
  const t=Math.max(0,Math.min(1,progress));
  if(t===0)return `M0 ${flatY}H${edges.left} M${edges.right} ${flatY}H${view.width}`;
  let path='',last:{x:number;y:number}|null=null;
@@ -49,7 +49,9 @@ export function wordmarkRulePath(config:DomeConfig,view:Viewport,edges:{left:num
   const next=p.visible ? {x:p.x,y:flatY+(p.y-flatY)*t} : null;
   if(last && next) for(const [min,max] of [[0,edges.left],[edges.right,view.width]]) {
    const dx=next.x-last.x;
-   if(Math.abs(dx)<1e-9 || max<=min)continue;
+   // The forward arc runs left-to-right. The returning back arc lies above
+   // the viewport at rest, but would sweep visibly upward when flattened.
+   if((frontArcOnly ? dx<=1e-9 : Math.abs(dx)<1e-9) || max<=min)continue;
    const a=(min-last.x)/dx,b=(max-last.x)/dx;
    const lo=Math.max(0,Math.min(a,b)),hi=Math.min(1,Math.max(a,b));
    if(lo<=hi)path+=`M${last.x+dx*lo} ${last.y+(next.y-last.y)*lo}L${last.x+dx*hi} ${last.y+(next.y-last.y)*hi} `;

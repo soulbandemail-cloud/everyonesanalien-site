@@ -4,7 +4,9 @@
 .on-glass { height: 100svh; overflow: hidden; }
 .on-glass [data-dome-slot] { text-align: center; }
 .on-glass [data-dome-slot="brand"] .pink-line-glow { visibility: hidden; }
-.on-glass [data-dome-slot="brand"] { overflow: visible; }
+/* Projected letters can extend beyond the natural brand box until return completes. */
+.on-glass [data-dome-slot="brand"],
+.canonical-home[data-returning] [data-dome-slot="brand"] { overflow: visible; }
 .on-glass main { min-height: 0; }
 .mate-login-link { display: block; margin: 12px auto 0; color: #7fffd4; cursor: pointer; letter-spacing: .15em; }
 .mate-login-link:focus-visible { outline: 2px solid #7fffd4; outline-offset: 4px; }
