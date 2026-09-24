@@ -109,3 +109,25 @@ test('MATES reserves its destination but remains hidden until reverse projection
  assert.match(css,/:not\(\[data-returning\]\) \[data-dome-slot="mate"\].*animation:mate-arrival/);
  assert.match(css,/prefers-reduced-motion:reduce/);
 });
+
+test('real planet ring has isolated SVG halos, crisp white cores and unique instance IDs',()=>{
+ const html=renderToStaticMarkup(React.createElement('div',null,React.createElement(heart.default),React.createElement(heart.default)));
+ const filters=[...html.matchAll(/<filter id="([^"]+)"([^>]*)>(.*?)<\/filter>/gs)];
+ assert.equal(filters.length,2);assert.notEqual(filters[0][1],filters[1][1]);
+ for(const [ ,id,attrs,contents] of filters) {
+  assert.match(attrs,/filterUnits="userSpaceOnUse"/);
+  assert.match(attrs,/x="-200" y="-150" width="400" height="300"/);
+  assert.match(attrs,/color-interpolation-filters="sRGB"/);
+  assert.deepEqual([...contents.matchAll(/stdDeviation="([^"]+)"/g)].map(x=>x[1]),['4','10','20']);
+  assert.deepEqual([...contents.matchAll(/flood-opacity="([^"]+)"/g)].map(x=>x[1]),['.72','.42','.18']);
+  assert.equal((contents.match(/flood-color="rgb\(255,176,255\)"/g)||[]).length,3);
+  assert.match(contents,/<feMergeNode in="SourceGraphic"><\/feMergeNode><\/feMerge>$/);
+  const rings=[...html.matchAll(/<path data-ring="(?:rear|front)"[^>]+>/g)].map(x=>x[0]).filter(x=>x.includes(`filter="url(#${id})"`));
+  assert.equal(rings.length,2);
+  for(const ring of rings){assert.match(ring,/stroke="white"/);assert.match(ring,/stroke-width="9"/);}
+ }
+ const planetPaths=[...html.matchAll(/<path[^>]*fill="url\(#[^"]+\)"[^>]*>/g)];
+ assert.equal(planetPaths.length,2);
+ for(const [path] of planetPaths)assert.doesNotMatch(path,/filter=/);
+ assert.doesNotMatch(fs.readFileSync('components/home/exterior.css','utf8'),/\.planet-letter-ring\s*\{/);
+});

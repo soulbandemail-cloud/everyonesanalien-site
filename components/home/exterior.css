@@ -17,12 +17,7 @@
     drop-shadow(0 0 calc(16 * var(--soul-glow-unit, 1px)) var(--soul-glow-far));
 }
 
-.planet-letter-ring {
-  filter:
-    drop-shadow(0 0 4px rgba(255, 176, 255, .72))
-    drop-shadow(0 0 10px rgba(255, 176, 255, .42))
-    drop-shadow(0 0 20px rgba(255, 176, 255, .18));
-}
+
 .canonical-home[data-returning] [data-dome-slot="mate"] { visibility:hidden; opacity:0; pointer-events:none; }
 .canonical-home:not([data-returning]) [data-dome-slot="mate"] { animation:mate-arrival 220ms ease-out both; }
 @keyframes mate-arrival { from {opacity:0} to {opacity:1} }
