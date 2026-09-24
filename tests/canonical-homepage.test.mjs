@@ -118,8 +118,8 @@ test('real planet ring has isolated SVG halos, crisp white cores and unique inst
   assert.match(attrs,/filterUnits="userSpaceOnUse"/);
   assert.match(attrs,/x="-200" y="-150" width="400" height="300"/);
   assert.match(attrs,/color-interpolation-filters="sRGB"/);
-  assert.deepEqual([...contents.matchAll(/stdDeviation="([^"]+)"/g)].map(x=>x[1]),['4','10','20']);
-  assert.deepEqual([...contents.matchAll(/flood-opacity="([^"]+)"/g)].map(x=>x[1]),['.72','.42','.18']);
+  assert.deepEqual([...contents.matchAll(/stdDeviation="([^"]+)"/g)].map(x=>x[1]),['10','12','24']);
+  assert.deepEqual([...contents.matchAll(/flood-opacity="([^"]+)"/g)].map(x=>x[1]),['.90','.65','.32']);
   assert.equal((contents.match(/flood-color="rgb\(255,176,255\)"/g)||[]).length,3);
   assert.match(contents,/<feMergeNode in="SourceGraphic"><\/feMergeNode><\/feMerge>$/);
   const rings=[...html.matchAll(/<path data-ring="(?:rear|front)"[^>]+>/g)].map(x=>x[0]).filter(x=>x.includes(`filter="url(#${id})"`));

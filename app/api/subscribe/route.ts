@@ -1,4 +1,4 @@
-import { mateConfig } from '@/lib/mate/config';
+import { mateConfig, sameOrigin } from '@/lib/mate/config';
 import { privateJson } from '@/lib/mate/server';
 import { normaliseEmail, subscribeMate, eligibleSubscriber } from '@/lib/mate/mailerlite';
 import { requestMateRecovery, recoveryFailureDetails } from '@/lib/mate/recovery';
@@ -6,7 +6,7 @@ import { requestMateRecovery, recoveryFailureDetails } from '@/lib/mate/recovery
 export async function POST(request: Request) {
   const config = mateConfig();
   // Newsletter-only deployments may not yet have a Mate origin configured.
-  if (request.headers.get('origin') !== (config.validOrigin ? config.origin : new URL(request.url).origin)) return privateJson({ error: 'Invalid origin.' }, 403);
+  if (!(config.validOrigin ? sameOrigin(request) : request.headers.get('origin') === new URL(request.url).origin)) return privateJson({ error: 'Invalid origin.' }, 403);
   const body = await request.json().catch(() => null);
   const email = normaliseEmail(body?.email);
   if (!email) return privateJson({ error: 'Enter a valid email address.' }, 400);
