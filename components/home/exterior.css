@@ -11,7 +11,18 @@
 /* Same two pink shadows as the letters. SVG glow uses a nonzero filter box. */
 .canonical-home { --soul-glow-near:rgba(255,176,255,.62); --soul-glow-far:rgba(255,176,255,.32); }
 .canonical-home .pink-text-glow { text-shadow:0 0 6px var(--soul-glow-near),0 0 16px var(--soul-glow-far); }
-[data-dome-rules], .planet-letter-ring { filter:drop-shadow(0 0 calc(6 * var(--soul-glow-unit, 1px)) var(--soul-glow-near)) drop-shadow(0 0 calc(16 * var(--soul-glow-unit, 1px)) var(--soul-glow-far)); }
+[data-dome-rules] {
+  filter:
+    drop-shadow(0 0 calc(6 * var(--soul-glow-unit, 1px)) var(--soul-glow-near))
+    drop-shadow(0 0 calc(16 * var(--soul-glow-unit, 1px)) var(--soul-glow-far));
+}
+
+.planet-letter-ring {
+  filter:
+    drop-shadow(0 0 calc(8 * var(--soul-glow-unit, 1px)) rgba(255, 176, 255, .9))
+    drop-shadow(0 0 calc(20 * var(--soul-glow-unit, 1px)) rgba(255, 176, 255, .65))
+    drop-shadow(0 0 calc(32 * var(--soul-glow-unit, 1px)) rgba(255, 176, 255, .35));
+}
 .canonical-home[data-returning] [data-dome-slot="mate"] { visibility:hidden; opacity:0; pointer-events:none; }
 .canonical-home:not([data-returning]) [data-dome-slot="mate"] { animation:mate-arrival 220ms ease-out both; }
 @keyframes mate-arrival { from {opacity:0} to {opacity:1} }
