@@ -5,8 +5,8 @@
   pointer-events: none;
   top: 28px;
   left: 50%;
-  width: clamp(30px, 3.75vw, 47.5px);
-  height: min(10.5vh, 85px);
+  width: clamp(30px, calc(3.75 * var(--arcade-vw, 1vw)), 47.5px);
+  height: min(calc(10.5 * var(--arcade-vh, 1vh)), 85px);
   transform: translateX(-50%);
   clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%);
   background:
@@ -90,7 +90,7 @@
 
 @keyframes alien-footer-scroll {
   from {
-    transform: translateX(100vw);
+    transform: translateX(calc(100 * var(--arcade-vw, 1vw)));
   }
 
   to {
@@ -371,13 +371,13 @@
 .wombo-combo-callout {
   position: fixed;
   top: 50%;
-  right: clamp(14px, 5vw, 74px);
+  right: clamp(14px, calc(5 * var(--arcade-vw, 1vw)), 74px);
   z-index: 10002;
   pointer-events: none;
   transform: translateY(-50%) skew(-8deg);
   color: #7fffd4;
   font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
-  font-size: clamp(2.5rem, 8vw, 7rem);
+  font-size: clamp(2.5rem, calc(8 * var(--arcade-vw, 1vw)), 7rem);
   font-weight: 900;
   line-height: 0.82;
   letter-spacing: 0;
@@ -434,11 +434,12 @@
 .arcade-controls button:focus-visible { outline: 2px solid white; outline-offset: 2px; }
 
 
-.arcade-charge { position:fixed; top:12px; left:12px; z-index:9000; display:flex; align-items:center; gap:10px; color:#7fffd4; text-align:left; font-size:13px; letter-spacing:.15em; user-select:none; }
+.arcade-charge { position:fixed; top:12px; left:12px; z-index:9000; display:flex; flex-direction:column; align-items:flex-start; gap:6px; color:#7fffd4; text-align:left; font-size:13px; letter-spacing:.15em; user-select:none; }
 .arcade-charge-meter { width:140px; height:13px; border:1px solid white; padding:2px; box-shadow:0 0 7px #ffb0ff88; }
 .arcade-charge-meter > div { height:100%; background:#7fffd4; transform-origin:left; }
-.arcade-charge > span { order:-1; }
 .arcade-discharge { position:fixed; inset:0; width:100%; height:100%; max-width:none; pointer-events:none; z-index:9997; overflow:visible; }
 .arcade-discharge polyline { fill:none; stroke:#e4fff7; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; filter:drop-shadow(0 0 7px #ffb0fff2) drop-shadow(0 0 18px #ffb0ff8a); animation:arcade-discharge-flicker 120ms steps(2,end) infinite; }
 @keyframes arcade-discharge-flicker { 0%,100% {opacity:1} 50% {opacity:.5} }
 .arcade-game { user-select:none; cursor:auto; }
+
+[data-arcade-frame] .arcade-game, [data-arcade-frame] .arcade-game > main { min-height:var(--arcade-height); }

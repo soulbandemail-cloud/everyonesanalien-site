@@ -33,11 +33,12 @@ export function harness(width = 1280, height = 720, mode = 'arcade') {
   const lifecycle = compile('components/home/useScopedLifecycle.ts',{});
   const portable = compile('components/home/usePortableTv.ts',{'./useScopedLifecycle':lifecycle});
   const electricalMath = compile('components/arcade/discharge.ts',{});
-  const electricalHook = compile('components/arcade/useOrbitDischarge.ts',{'./discharge':electricalMath});
+  const presentation = compile('components/arcade/presentation.ts',{});
+  const electricalHook = compile('components/arcade/useOrbitDischarge.ts',{'./discharge':electricalMath,'./presentation':presentation});
   const fields = mode === 'arcade' ? ['flyingAliens','setFlyingAliens','launchAlien','ringBlinking','heartPulse','flashbang','womboComboKey','hideCursorUfo','toggleUfoOrbit','ufoOrbiting','ufoPosRef','tractorBeamActiveRef','tractorCounts','touchesTractorBeam','recordTractorCapture','orbitRef','ufoOrbitingRef','footerRef','reflectAlienOffFooterLine','electricity','gameRoot'] : ['wishPrompt','wish','setWish','wishPoof','wishRulesKey','pongWish','wishBarrierRef','closeWishPrompt','catchShootingStar','dragWishPaddle'];
   const rules = compile('components/home/WishRules.tsx',{});
   const physics = compile('components/home/wishPhysics.ts',{});
-  const dependencies = {'./discharge':electricalMath,'./useOrbitDischarge':electricalHook,'../home/useScopedLifecycle':lifecycle,'../home/usePortableTv':portable,'../home/PlanetHeart':{default:()=>null},'./arcade.css':{},'./useScopedLifecycle':lifecycle,'./WishRules':rules,'./wishes.css':{}};
+  const dependencies = {'./presentation':presentation,'./discharge':electricalMath,'./useOrbitDischarge':electricalHook,'../home/useScopedLifecycle':lifecycle,'../home/usePortableTv':portable,'../home/PlanetHeart':{default:()=>null},'./arcade.css':{},'./useScopedLifecycle':lifecycle,'./WishRules':rules,'./wishes.css':{}};
   const game = mode === 'tv' ? {default:()=>{snapshot=portable.usePortableTv();return null;}} : compile(mode === 'arcade' ? 'components/arcade/ArcadeGame.tsx' : 'components/home/DomeWishes.tsx',dependencies,source => source.replace(mode === 'arcade' ? 'return (\n  <div ref={gameRoot}' : 'return <>',`inspect({${fields.join(',')}});\n${mode === 'arcade' ? 'return (\n  <div ref={gameRoot}' : 'return <>'}`));
   const rootListeners=new Map();
   const captured=new Set();

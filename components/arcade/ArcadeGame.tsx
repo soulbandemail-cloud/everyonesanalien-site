@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
+import { arcadePoint, arcadeRect, arcadeSize } from './presentation';
 import PlanetHeart from '../home/PlanetHeart';
 import { useOrbitDischarge } from './useOrbitDischarge';
 import { hitBolt } from './discharge';
@@ -172,7 +173,7 @@ const launchAlien = (e: React.PointerEvent<SVGSVGElement>) => {
   e.preventDefault();
   e.stopPropagation();
 
-  const rect = e.currentTarget.getBoundingClientRect();
+  const rect = arcadeRect(gameRoot.current,e.currentTarget);
   const angle = Math.random() * Math.PI * 2;
   const speed = 5 + Math.random() * 4;
 
@@ -194,7 +195,7 @@ const reflectAlienOffFooterLine = (
   next: FlyingAlien,
   now: number
 ) => {
-  const footerTop = footerRef.current?.getBoundingClientRect().top;
+  const footerTop = footerRef.current ? arcadeRect(gameRoot.current,footerRef.current).top : undefined;
 
   if (
     footerTop === undefined ||
@@ -227,10 +228,7 @@ const reflectAlienOffFooterLine = (
   if (!minigameEnabled) return;
   const moveUfo = (e: PointerEvent) => {
     if ((e.target as Element)?.closest?.("[data-arcade-controls]")) return;
-    const nextPosition = {
-      x: e.clientX,
-      y: e.clientY,
-    };
+    const nextPosition = arcadePoint(gameRoot.current,{x:e.clientX,y:e.clientY});
 
     ufoPosRef.current = nextPosition;
     setUfoPos(nextPosition);
@@ -250,10 +248,7 @@ useEffect(() => {
   const respawnUfo = (e: PointerEvent) => {
     if (!hideCursorUfo) return;
 
-    const nextPosition = {
-      x: e.clientX,
-      y: e.clientY,
-    };
+    const nextPosition = arcadePoint(gameRoot.current,{x:e.clientX,y:e.clientY});
 
     ufoPosRef.current = nextPosition;
     setUfoPos(nextPosition);
@@ -313,8 +308,8 @@ useEffect(() => {
 const touchesTractorBeam = (alien: FlyingAlien) => {
   if (!tractorBeamActiveRef.current || ufoOrbitingRef.current) return false;
 
-  const beamWidth = Math.min(47.5, Math.max(30, window.innerWidth * 0.0375));
-  const beamHeight = Math.min(85, window.innerHeight * 0.105);
+  const beamWidth = Math.min(47.5, Math.max(30, arcadeSize(gameRoot.current).width * 0.0375));
+  const beamHeight = Math.min(85, arcadeSize(gameRoot.current).height * 0.105);
   const beamTop = ufoPosRef.current.y + 8;
   const beamBottom = beamTop + beamHeight;
   const headRadius = 12;
@@ -368,7 +363,7 @@ const tickPhysics = useEffectEvent(() => {
     setFlyingAliens((aliens) => {
       if (!orbitRef.current) return aliens;
 
-      const rect = orbitRef.current.getBoundingClientRect();
+      const rect = arcadeRect(gameRoot.current,orbitRef.current);
       const heartX = rect.left + rect.width / 2;
       const heartY = rect.top + rect.height / 2;
       const zapPath = electricity.engine.drawing?.points ?? [];
@@ -514,9 +509,9 @@ const tickPhysics = useEffectEvent(() => {
 
           const offscreen =
             next.x < -80 ||
-            next.x > window.innerWidth + 80 ||
+            next.x > arcadeSize(gameRoot.current).width + 80 ||
             next.y < -80 ||
-            next.y > window.innerHeight + 80;
+            next.y > arcadeSize(gameRoot.current).height + 80;
 
           return offscreen ? null : next;
         })

@@ -1,3 +1,4 @@
+import { arcadePoint, arcadeRect } from './presentation';
 import { useEffect, useEffectEvent, useRef, useState, type RefObject } from 'react';
 import { Discharge, renderedOrbitAngle, type Point } from './discharge';
 
@@ -10,13 +11,13 @@ export function useOrbitDischarge(root: RefObject<HTMLDivElement | null>, anchor
 
   const update = useEffectEvent(() => {
     const body = root.current?.querySelector('.footer-alien-head');
-    const measured = body?.getBoundingClientRect().width;
+    const measured = body ? arcadeRect(root.current,body).width : undefined;
     if (measured && measured>0) headWidth.current=measured;
     const ship = anchor.current?.querySelector('.ufo-on-orbit');
     const animation = ship?.getAnimations().find(a => 'animationName' in a && a.animationName==='ufo-orbit-path');
     const timing = animation?.effect?.getComputedTiming();
     if (orbiting.current && ship && animation && timing?.progress != null && timing.currentIteration != null && anchor.current) {
-      const angle=renderedOrbitAngle(timing.currentIteration,timing.progress,ship.getBoundingClientRect(),anchor.current.getBoundingClientRect());
+      const angle=renderedOrbitAngle(timing.currentIteration,timing.progress,arcadeRect(root.current,ship),arcadeRect(root.current,anchor.current));
       if(engine.sampleOrbit(animation,angle)) onFull();
     } else engine.sampleOrbit(null,null);
     const activePointer = engine.drawing?.pointerId;
@@ -47,7 +48,7 @@ export function useOrbitDischarge(root: RefObject<HTMLDivElement | null>, anchor
       const target=e.target as Element;
       if(target.closest('button,a,input,select,textarea,h1,p,svg,[data-arcade-controls],[data-no-zap]')) return;
       update();
-      if(!engine.begin(e.pointerId,{x:e.clientX,y:e.clientY},headWidth.current)) return;
+      if(!engine.begin(e.pointerId,arcadePoint(root.current,{x:e.clientX,y:e.clientY}),headWidth.current)) return;
       e.preventDefault();
       pointerTarget.current=surface;
       surface.setPointerCapture(e.pointerId);
@@ -56,12 +57,12 @@ export function useOrbitDischarge(root: RefObject<HTMLDivElement | null>, anchor
       if(engine.drawing?.pointerId!==e.pointerId) return;
       e.preventDefault();
       update(); // Settle orbital movement against the previous pointer target first.
-      engine.aim(e.pointerId,{x:e.clientX,y:e.clientY});
+      engine.aim(e.pointerId,arcadePoint(root.current,{x:e.clientX,y:e.clientY}));
       update();
     };
     const up=(e:PointerEvent) => {
       if(engine.drawing?.pointerId!==e.pointerId) return;
-      update();engine.aim(e.pointerId,{x:e.clientX,y:e.clientY});update();end(e.pointerId);
+      update();engine.aim(e.pointerId,arcadePoint(root.current,{x:e.clientX,y:e.clientY}));update();end(e.pointerId);
     };
     const cancel=(e:PointerEvent)=>end(e.pointerId);
     const blur=()=>end();

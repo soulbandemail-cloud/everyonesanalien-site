@@ -104,7 +104,7 @@ export function hitBolt(from: Point, to: Point, points: Point[], radius: number)
 
 /** CSS motion follows an ellipse; use its rendered position for partial angular distance,
  * and the animation's iteration count to retain whole turns even across slow frames. */
-export function renderedOrbitAngle(iteration: number, progress: number, orbitBox: DOMRect, anchorBox: DOMRect) {
+export function renderedOrbitAngle(iteration: number, progress: number, orbitBox: Pick<DOMRect,'left'|'top'|'width'|'height'>, anchorBox: Pick<DOMRect,'left'|'top'|'width'|'height'>) {
   const x=(orbitBox.left+orbitBox.width/2-anchorBox.left-56)/40;
   const y=(orbitBox.top+orbitBox.height/2-anchorBox.top-48)/21;
   let angle=Math.atan2(y,x);
