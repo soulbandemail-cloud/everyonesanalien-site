@@ -3,7 +3,7 @@ import { useLayoutEffect, useRef, type RefObject } from 'react';
 import { domePoint, type DomeConfig, type Viewport } from '@/lib/ship/domeGeometry';
 import { domePageLayout, domeSurfaceFrame, wordmarkRulePath } from '@/lib/ship/domePageLayout';
 import { mobileSideContent } from '@/lib/ship/mobilePresentation';
-import { wordmarkFrames } from '@/lib/ship/wordmarkGeometry';
+import { wordmarkFrames, PLANET_INK } from '@/lib/ship/wordmarkGeometry';
 import { measureWordmarkInk, clearWordmarkInkCache } from './measureWordmarkInk';
 import { socialProjection, socialIconSize, type SocialRect } from '@/lib/ship/socialProjection';
 import { cameraDuration } from '@/lib/ship/cameraTransition';
@@ -41,7 +41,7 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
     });
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const duration = cameraDuration(motion.matches,document.hidden);
-    const animations = duration > 0 && desktop && !mobileThird && changedMode ? slots.map((el,i) => {
+    const animations = duration > 0 && desktop && !mobileThird && changedMode && cockpit ? slots.map((el,i) => {
       if (['brand','socials'].includes(el.dataset.domeSlot!)) return null;
       const next = el.getBoundingClientRect(), prior = old[i];
       if (!next.width || !prior.width) return null;
@@ -79,6 +79,12 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
     const icons=socialParts.map(el=>el.querySelector('svg'));
     icons.forEach(svg=>{svg?.style.removeProperty('width');svg?.style.removeProperty('height');});
     node.classList.remove('on-glass');
+    const returning=!cockpit && progress>0;
+    const sides=Array.from(node.querySelectorAll<HTMLElement>('[data-dome-slot="live"], [data-dome-slot="merch"]'));
+    if(!cockpit) sides.forEach(el=>{el.removeAttribute('style');el.querySelector('h2')?.removeAttribute('style');});
+    // Measure the complete first-person grid before taking header pieces out of flow.
+    const destinations=returning ? sides.map(el=>el.getBoundingClientRect()) : [];
+    const slotHeights=returning ? slots.map(el=>el.getBoundingClientRect().height) : [];
     const natural=headerParts.map(el=>el.getBoundingClientRect());
     const surfaceRects=natural;
     // Never feed an intermediate rendered position back into the next frame's origin.
@@ -105,20 +111,21 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
         Object.assign(glyphs[i].style,{position:progress>0?'fixed':'absolute',left:'0',top:'0',width:`${inks[i].width}px`,height:`${inks[i].height}px`,margin:'0',transformOrigin:'0 0',transform:`matrix(${m.join(',')})`});
       }
       const m=[...frames.O];if(progress===0){m[4]-=rect.left;m[5]-=rect.top;}
+      planet.style.setProperty('--soul-glow-unit',`${(PLANET_INK.right-PLANET_INK.left)/(frames.planetWidth*Math.hypot(m[0],m[1]))}px`);
       Object.assign(planet.style,{position:progress>0?'fixed':'absolute',left:'0',top:'0',width:`${frames.planetWidth}px`,height:`${frames.planetHeight}px`,margin:'0',transformOrigin:'0 0',transform:`matrix(${m.join(',')})`});
       const brand=node.querySelector<HTMLElement>('[data-dome-slot="brand"]')!.getBoundingClientRect();
       Object.assign(rules.style,{position:progress>0?'fixed':'absolute',left:'0',top:'0',width:`${view.width}px`,height:`${view.height}px`,transform:progress===0?`translate(${-brand.left}px,${-brand.top}px)`:'none'});
       rules.querySelector('path')!.setAttribute('stroke-width',String(4-2*progress));
       rules.querySelector('path')!.setAttribute('d',wordmarkRulePath(camera,view,frames.rules,centreY,progress));
     }
-    node.classList.toggle('on-glass',cockpit || progress>0);
+    node.classList.toggle('on-glass',cockpit);
     const layout=domePageLayout(config);
     // Sample the actual spherical surface separately for every glyph/logo/link.
     // The existing camera progress blends from the unchanged first-person DOM layout.
     if (progress > 0) {
       for (const name of ['brand','socials']) {
         const slot=slots.find(el=>el.dataset.domeSlot===name);
-        if(slot) Object.assign(slot.style,{position:'static',transform:'none',width:'auto'});
+        if(slot) Object.assign(slot.style,{position:'static',transform:'none',width:'auto',...(returning ? {height:`${slotHeights[slots.indexOf(slot)]}px`} : {})});
       }
       const captionRects=headerParts.filter(el=>el.hasAttribute('data-dome-caption')).map(el=>surfaceRects[headerParts.indexOf(el)]);
       const captionLeft=Math.min(...captionRects.map(r=>r.left));
@@ -146,6 +153,27 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
         Object.assign(el.style,{position:'fixed',left:'0',top:'0',width:`${rect.width}px`,height:`${rect.height}px`,margin:'0',transformOrigin:'0 0',transform:`matrix(${ax},${ay},${bx},${by},${x},${y})`});
       });
     }
+    if(returning) sides.forEach((el,i)=>{
+      const dest=destinations[i];
+      const tuning=mobileThird ? mobileSideContent(el.dataset.domeSlot!) : null;
+      const theta=tuning?.theta ?? (el.dataset.domeSlot==='live' ? -.67 : .67);
+      const point=domePoint(theta,layout.information,config,view);
+      const desktop=view.width>=760;
+      const projectedWidth=Math.min(350,view.width*(desktop ? .27 : .43));
+      const scale=tuning?.scale ?? .78;
+      const centre=desktop ? point.x : Math.max(projectedWidth*scale/2+view.width*.04,Math.min(view.width*.96-projectedWidth*scale/2,point.x));
+      const width=dest.width+(projectedWidth-dest.width)*progress;
+      const currentScale=1+(scale-1)*progress;
+      // Preserve third-person typography at its endpoint, with no CSS-class snap.
+      const heading=el.querySelector<HTMLElement>('h2');
+      if(heading){heading.style.fontSize=`${24+(view.width<760 ? -8 : 0)*progress}px`;heading.style.marginBottom=`${16+(view.width<760 ? -8 : 0)*progress}px`;}
+      Object.assign(el.style,{position:'fixed',left:'0',top:'0',width:`${width}px`,margin:'0',fontSize:`${16+(view.width<760 ? -4 : 0)*progress}px`,transform:'none',transformOrigin:'0 0'});
+      const height=el.getBoundingClientRect().height;
+      const x=dest.left+(centre-projectedWidth*scale/2-dest.left)*progress;
+      const y=dest.top+(point.y-height*scale/2-dest.top)*progress;
+      el.style.transform=`translate(${x}px,${y}px) scale(${currentScale})`;
+    });
+    if(!cockpit && progress===0) sides.forEach(el=>el.querySelector('h2')?.removeAttribute('style'));
     } finally {
       if(presentationTransform) presentation!.style.transform=presentationTransform;
     }
@@ -156,6 +184,6 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
     if(document.fonts?.status==='loading')void document.fonts.ready.then(()=>{if(!cancelled)fontsChanged();});
     document.fonts?.addEventListener('loadingdone',fontsChanged);
     return ()=>{cancelled=true;cancelAnimationFrame(frame);document.fonts?.removeEventListener('loadingdone',fontsChanged);};
-  },[root,cockpit,config,view,camera,progress]);
+  },[root,cockpit,config,view,camera,progress,mobileThird]);
 
 }

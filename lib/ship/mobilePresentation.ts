@@ -1,5 +1,6 @@
 import { lens, project, type DomeConfig, type Viewport } from './domeGeometry';
 import { orientedFixtures } from './fixtureLayout';
+import { ROOM, floorPortDiameter, deckOutline } from './roomGeometry';
 
 export function isMobileViewport(view: Viewport, coarse: boolean, touchPoints: number) {
   return coarse && touchPoints>0 && Math.min(view.width,view.height)<=600;
@@ -29,6 +30,7 @@ export function sofaBounds(config: DomeConfig) {
 /** Fit the authoritative sofa to a small left margin; no furniture relocation. */
 export function mobileThirdCamera(config: DomeConfig, view: Viewport) {
   const points=sofaBounds(config);
+  const floorBounds=[...points,...deckOutline(floorPortDiameter,floorPortDiameter,ROOM.floorY,ROOM.port.z)];
   const margin=Math.max(8,view.width*.015);
   const fit=(pitch:number)=>{
     const posed={...config,pitch};
@@ -40,11 +42,11 @@ export function mobileThirdCamera(config: DomeConfig, view: Viewport) {
     const fov=2*Math.atan(Math.min(view.height,view.width*1.15)/(2*focal))*180/Math.PI;
     return {...posed,fov:Math.min(config.fov,fov)};
   };
-  // Short Safari viewports also need a slight downward look to retain the sofa's feet.
+  // Retain the full hatch as well as the sofa in short Safari visual viewports.
   let low=config.pitch-30,high=config.pitch;
   for(let i=0;i<32;i++){
     const mid=(low+high)/2,camera=fit(mid);
-    const bottom=Math.max(...points.map(p=>project(p,camera,view).y));
+    const bottom=Math.max(...floorBounds.map(p=>project(p,camera,view).y));
     if(bottom>view.height-8) high=mid; else low=mid;
   }
   return fit(low);

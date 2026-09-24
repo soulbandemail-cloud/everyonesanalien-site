@@ -8,5 +8,12 @@
 .soul-planet { display:inline-flex; width:1.5em; height:.82em; }
 [data-dome-rules] { position:absolute; pointer-events:none; overflow:visible; }
 .real-planet-heart { display:block; width:100%; height:100%; overflow:visible; }
-.planet-letter-ring { filter:drop-shadow(0 0 6px rgba(255,176,255,.62)) drop-shadow(0 0 16px rgba(255,176,255,.32)); }
+/* Same two pink shadows as the letters. SVG glow uses a nonzero filter box. */
+.canonical-home { --soul-glow-near:rgba(255,176,255,.62); --soul-glow-far:rgba(255,176,255,.32); }
+.canonical-home .pink-text-glow { text-shadow:0 0 6px var(--soul-glow-near),0 0 16px var(--soul-glow-far); }
+[data-dome-rules], .planet-letter-ring { filter:drop-shadow(0 0 calc(6 * var(--soul-glow-unit, 1px)) var(--soul-glow-near)) drop-shadow(0 0 calc(16 * var(--soul-glow-unit, 1px)) var(--soul-glow-far)); }
+.canonical-home[data-returning] [data-dome-slot="mate"] { visibility:hidden; opacity:0; pointer-events:none; }
+.canonical-home:not([data-returning]) [data-dome-slot="mate"] { animation:mate-arrival 220ms ease-out both; }
+@keyframes mate-arrival { from {opacity:0} to {opacity:1} }
+@media (prefers-reduced-motion:reduce) { .canonical-home [data-dome-slot="mate"] { animation:none; } }
 .exterior-shooting-inactive, .exterior-shooting-inactive .shooting-star { pointer-events:none; }

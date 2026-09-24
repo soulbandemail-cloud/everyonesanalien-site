@@ -97,3 +97,15 @@ test('public atmosphere stays intact and Wish UI/rules are absent before a catch
  const rulesSource=fs.readFileSync('components/home/WishRules.tsx','utf8');
  assert.doesNotMatch(rulesSource,/useState|useEffect|onClick|onPointer|setInterval|ArcadeGame/);
 });
+
+test('MATES reserves its destination but remains hidden until reverse projection completes',()=>{
+ for(const progress of [1,.75,.25,.001,0]) {
+  const html=renderToStaticMarkup(React.createElement(page.default,{cockpit:false,progress,loginEnabled:true,config:geometry.DEFAULT_DOME,view:{width:1440,height:900}}));
+  assert.equal((html.match(/data-dome-slot="mate"/g)||[]).length,1);
+  assert.equal(html.includes('data-returning="true"'),progress>0);
+ }
+ const css=fs.readFileSync('components/home/exterior.css','utf8');
+ assert.match(css,/\[data-returning\] \[data-dome-slot="mate"\] \{ visibility:hidden; opacity:0; pointer-events:none/);
+ assert.match(css,/:not\(\[data-returning\]\) \[data-dome-slot="mate"\].*animation:mate-arrival/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
+});

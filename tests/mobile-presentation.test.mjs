@@ -129,3 +129,14 @@ test('live projection applies mobile tuning to whole side groups only and preser
   assert.deepEqual(publicPage[i],{});
  }
 });
+
+test('mobile camera retains the entire flush hatch above the bottom edge',()=>{
+ const hatch=room.deckOutline(room.floorPortDiameter,room.floorPortDiameter,room.ROOM.floorY,room.ROOM.port.z);
+ for(const view of [...samples,{width:700,height:390},{width:844,height:220}]) {
+  const camera=m.mobileThirdCamera(g.DEFAULT_DOME,view);
+  for(const point of hatch) {
+   const p=g.project(point,camera,view);
+   assert.ok(p.visible && p.x>=0 && p.x<=view.width && p.y>=0 && p.y<=view.height-8+.001);
+  }
+ }
+});

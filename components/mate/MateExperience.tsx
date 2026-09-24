@@ -18,7 +18,8 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
   const [arcadeOpen,setArcadeOpen] = useState(false);
   const [authenticated,setAuthenticated] = useState(initialAuthenticated);
   const [entryReady,setEntryReady] = useState(!entry);
-  const cockpit = preview || (authenticated && entryReady);
+  const [previewCockpit,setPreviewCockpit]=useState(preview);
+  const cockpit = (preview && previewCockpit) || (authenticated && entryReady);
   // Losing access must also discard the open game before any later login.
   if (!cockpit && arcadeOpen) setArcadeOpen(false);
   const [progress,setProgress] = useState(cockpit && !entry ? 1 : 0);
@@ -112,6 +113,7 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
     {(cockpit || progress>0) && <Ship config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
     {cockpit && arcadeOpen && <ArcadeDialog onExit={() => setArcadeOpen(false)} />}
     </div>
+    {development && preview && <button type="button" onClick={()=>setPreviewCockpit(value=>!value)} style={{position:'fixed',bottom:8,right:8,zIndex:30001,background:'#00082d',color:'white',border:'1px solid white',padding:8}}>Preview {cockpit ? '1st' : '3rd'} person</button>}
     {notice && <div role="status" className="mate-notice">{notice}<button onClick={()=>setNotice('')} aria-label="Dismiss message">×</button></div>}
   </div>;
 }

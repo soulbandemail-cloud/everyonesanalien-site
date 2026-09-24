@@ -21,7 +21,7 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
  // Blend the live header toward the final dome frame. The travelling eye crosses
  // that surface near its start; projecting through it would fling the header offscreen.
  useDomeProjection(homeRoot, cockpit, config, view, animateEntry, config, progress, mobileThird);
- return <div ref={homeRoot} className="canonical-home">
+ return <div ref={homeRoot} className="canonical-home" data-returning={!cockpit && progress>0 ? "true" : undefined}>
  <ExteriorSpace config={config} camera={camera} view={view} />
  {!cockpit && <div className="site-atmosphere"><PortableTV /></div>}
  <main className="pink-text-glow min-h-screen text-white p-8 md:p-12 max-w-12xl mx-auto">
@@ -82,7 +82,7 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
           
 
           <div className="flex items-center justify-center w-full mt-0">
-            <svg data-dome-rules aria-hidden="true"><path fill="none" stroke="white" strokeWidth="2" className="pink-svg-glow" /></svg>
+            <svg data-dome-rules aria-hidden="true"><path fill="none" stroke="white" strokeWidth="2" /></svg>
 
             <h1 aria-label="SOUL" className="soul-wordmark relative z-10 font-bold text-center flex justify-center items-center text-white shrink-0">
               <span data-soul-letter="S">S<i data-ink-baseline /></span>
@@ -107,7 +107,7 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
                   href="https://link.dice.fm/w4a23940adca"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="pink-border-glow inline-block border border-white bg-[#00082d] px-3 py-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] active:bg-[#6ee7b7] active:border-[#6ee7b7] active:text-[#00082d] transition-all duration-200"
+                  className="pink-border-glow inline-block border border-white bg-[#00082d] px-3 py-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] active:bg-[#6ee7b7] active:border-[#6ee7b7] active:text-[#00082d] transition-colors duration-200"
                 >
                   The George Tavern, LONDON, 5th Oct
                 </a>
