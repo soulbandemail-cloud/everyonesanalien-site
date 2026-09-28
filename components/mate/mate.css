@@ -12,15 +12,14 @@
 .mate-login-link:focus-visible { outline: 2px solid #7fffd4; outline-offset: 4px; }
 .mate-notice { position: fixed; z-index: 10001; bottom: 70px; left: 50%; transform: translateX(-50%); padding: 14px; width: min(460px,90vw); background: #00082d; border: 1px solid #7fffd4; color: white; font-size: 14px; }
 .mate-notice button { margin-left: 12px; cursor: pointer; }
-@media (max-width: 759px) {
-  .on-glass { position: fixed; inset: 0; width: 100%; height: 100svh; overflow: hidden; }
-  .on-glass main { padding: 12px; }
-  .on-glass [data-dome-slot="socials"] { gap: 20px; }
-  .on-glass [data-dome-slot="socials"] svg { width: 24px; height: 24px; }
-  .on-glass [data-dome-slot="brand"] { margin-top: 10px; }
-  .on-glass h2 { font-size: 16px; margin-bottom: 8px; }
-  .on-glass [data-dome-slot="live"], .on-glass [data-dome-slot="merch"] { font-size: 12px; }
-}
+/* Match the projected landscape viewport, not the phone’s physical orientation. */
+.on-glass[data-dome-narrow] { position: fixed; inset: 0; width: 100%; height: 100svh; overflow: hidden; }
+.on-glass[data-dome-narrow] main { padding: 12px; }
+.on-glass[data-dome-narrow] [data-dome-slot="socials"] { gap: 20px; }
+.on-glass[data-dome-narrow] [data-dome-slot="socials"] svg { width: 24px; height: 24px; }
+.on-glass[data-dome-narrow] [data-dome-slot="brand"] { margin-top: 10px; }
+.on-glass[data-dome-narrow] h2 { font-size: 16px; margin-bottom: 8px; }
+.on-glass[data-dome-narrow] [data-dome-slot="live"], .on-glass[data-dome-narrow] [data-dome-slot="merch"] { font-size: 12px; }
 .mate-video-dialog { margin: auto; width: min(90vw, 1000px); height: min(80vh, 720px); background: #00082d; color: white; border: 1px solid #7fffd4; padding: 20px; }
 .mate-video-dialog::backdrop { background: #00082dcc; }
 .mate-video-dialog > button { position: relative; z-index: 100; border: 1px solid #7fffd4; padding: 8px; cursor: pointer; }
@@ -91,11 +90,12 @@
 /* Independent of the camera/visual viewport: keyboard and page scrolling cannot
    move the TV. The small viewport units also ignore Safari toolbar expansion. */
 .public-tv-frame { position:fixed; inset:0; z-index:80; pointer-events:none; transform:translateZ(0); }
-.public-tv-frame[data-mobile] { bottom:auto; height:100svh; }
+.public-tv-frame[data-mobile] { inset:auto; left:0; top:0; width:100svw; height:100svh; transform-origin:0 0; transform:translate(50svw,50svh) rotate(var(--tv-turn,0deg)) translate(-50%,-50%); }
 .public-tv-frame .space-tv { pointer-events:auto; }
 .public-tv-frame[data-portrait-first] {
   inset:auto; left:0; top:0; width:100svh; height:100svw;
   --portrait-width:100svh; --portrait-height:100svw;
-  transform-origin:0 0; transform:translateX(100svw) rotate(90deg);
 }
 .public-tv-frame .space-tv.space-tv-expanded { inset:0; width:100%; height:100%; }
+
+.mate-experience[data-cockpit-active] { touch-action:none; }

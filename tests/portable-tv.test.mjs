@@ -37,7 +37,7 @@ test('TV corner is CSS-anchored outside the moving camera frame; antennae are ce
  assert.match(css,/\.space-tv-antenna \{[^}]*left: 50%;[^}]*translateX\(-50%\)/);
  assert.doesNotMatch(css,/space-tv-handle/);
  const mate=fs.readFileSync('components/mate/MateExperience.tsx','utf8');
- assert.match(mate,/<\/div>\s*{!cockpit && <div className="public-tv-frame/);
+ assert.match(mate,/<\/div>\s*{!cockpit && progress===0 && <div className="public-tv-frame/);
  assert.doesNotMatch(fs.readFileSync('components/home/CanonicalHomepage.tsx','utf8'),/PortableTV/);
  const frameCss=fs.readFileSync('components/mate/mate.css','utf8');
  assert.match(frameCss,/\.public-tv-frame \{[^}]*position:fixed;[^}]*inset:0/);

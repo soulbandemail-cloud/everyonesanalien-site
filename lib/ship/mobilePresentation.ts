@@ -11,11 +11,25 @@ export function viewportLandscape(view: Viewport, orientationType?: string) {
   if (orientationType?.startsWith('portrait')) return false;
   return view.width>view.height;
 }
-/** Turn the same live scene sideways; no orientation permission or blocking screen. */
-export function cockpitPresentation(view:Viewport,mobile:boolean,landscape:boolean,progress:number) {
+/** Screen rotation relative to upright portrait, including Safari's legacy angle.
+ * A clockwise-held iPhone (volume buttons up) reports 270 / -90 degrees. */
+export function portraitScreenAngle(landscape:boolean,type?:string,angle?:number,legacy?:number) {
+  if(!landscape) return type==='portrait-secondary' || Math.abs(angle ?? legacy ?? 0)===180 ? 180 : 0;
+  const value=Number.isFinite(angle) ? angle! : legacy;
+  if(value!==undefined && ((value%360)+360)%360===90) return 90;
+  if(value!==undefined && ((value%360)+360)%360===270) return -90;
+  return type==='landscape-secondary' ? 90 : -90;
+}
+/** One physical direction: enter anticlockwise, return clockwise. */
+export function cockpitPresentation(view:Viewport,mobile:boolean,landscape:boolean,progress:number,screenAngle=landscape ? -90 : 0) {
   const p=Math.max(0,Math.min(1,progress));
   const t=mobile ? (landscape ? 1-p : p) : 0;
-  return {view:t===0 ? view : {width:view.width+(view.height-view.width)*t,height:view.height+(view.width-view.height)*t},angle:90*t};
+  return {view:t===0 ? view : {width:view.width+(view.height-view.width)*t,height:view.height+(view.width-view.height)*t},angle:mobile ? (-90*p-screenAngle || 0) : 0};
+}
+/** Undo an existing browser pinch without changing the calibrated scene scale. */
+export function cockpitViewport(view:Viewport,scale:number,active:boolean) {
+  const zoom=active && Number.isFinite(scale) && scale>0 ? scale : 1;
+  return {view:zoom===1 ? view : {width:view.width*zoom,height:view.height*zoom},scale:1/zoom};
 }
 /** Bounds of the existing sofa solids, transformed exactly like Fixtures.local(). */
 export function sofaBounds(config: DomeConfig) {

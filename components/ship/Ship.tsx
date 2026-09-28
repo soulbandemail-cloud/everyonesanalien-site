@@ -30,7 +30,8 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
    const scene=root.current?.closest<HTMLElement>('[data-cockpit-presentation]');
    const angle=Number(scene?.dataset.presentationAngle ?? 0)*Math.PI/180;
    const dx=event.clientX-bounds.left-bounds.width/2,dy=event.clientY-bounds.top-bounds.height/2;
-   const width=root.current!.clientWidth,height=root.current!.clientHeight;
+   const scale=Number(scene?.dataset.presentationScale ?? 1);
+   const width=root.current!.clientWidth*scale,height=root.current!.clientHeight*scale;
    pointer.current = { x: (dx*Math.cos(angle)+dy*Math.sin(angle))/width*2, y: (-dx*Math.sin(angle)+dy*Math.cos(angle))/height+.5 };
   };
   const leave = (event: PointerEvent) => { if (event.relatedTarget === null) reset(); };

@@ -17,7 +17,7 @@ test('mobile first person stays portrait and cockpit stays landscape in either p
  assert.equal(m.isMobileViewport(landscape,false,0),false);
  for(const progress of [0,.001,.25,.5,.75,1,.5,0]) {
   const frame=m.cockpitPresentation(portrait,true,false,progress);
-  assert.equal(frame.angle,90*progress);
+  assert.equal(frame.angle,-90*progress || 0);
   assert.equal(frame.view.width,390+454*progress);
   assert.equal(frame.view.height,844-454*progress);
   const reverse=m.cockpitPresentation(landscape,true,true,progress);
@@ -106,7 +106,7 @@ test('viewport hook follows usable viewport and rotation events without reloadin
  frame();
  assert.equal(ready,true);assert.equal(observed,true);assert.equal(state.mobile,true);
  assert.deepEqual(state.view,{width:390,height:700});assert.equal(state.landscape,false);
- assert.equal(m.cockpitPresentation(state.view,state.mobile,state.landscape,1).angle,90);
+ assert.equal(m.cockpitPresentation(state.view,state.mobile,state.landscape,1).angle,-90);
  Object.assign(win,{innerWidth:844,innerHeight:390});Object.assign(vv,{width:844,height:290});orientation.type='landscape-primary';
  orientation.events.get('change')();frame();
  assert.deepEqual(state.view,{width:844,height:290});
@@ -144,5 +144,34 @@ test('mobile camera retains the entire flush hatch above the bottom edge',()=>{
    const p=g.project(point,camera,view);
    assert.ok(p.visible && p.x>=0 && p.x<=view.width && p.y>=0 && p.y<=view.height-8+.001);
   }
+ }
+});
+
+test('all reported orientations share one physical portrait and landscape direction',()=>{
+ const portrait={width:390,height:844},landscape={width:844,height:390};
+ for(const [type,angle,expected] of [['portrait-primary',0,0],['portrait-secondary',180,180],['landscape-primary',90,90],['landscape-secondary',270,-90]]) {
+  const wide=type.startsWith('landscape'),view=wide?landscape:portrait;
+  const screenAngle=m.portraitScreenAngle(wide,type,angle);
+  assert.equal(screenAngle,expected);
+  let previous=Infinity;
+  for(const progress of [0,.25,.5,.75,1]) {
+   const frame=m.cockpitPresentation(view,true,wide,progress,screenAngle);
+   assert.equal(frame.angle+screenAngle,-90*progress || 0);
+   assert.ok(frame.angle<previous);previous=frame.angle;
+  }
+  assert.deepEqual(m.cockpitPresentation(view,true,wide,0,screenAngle).view,portrait);
+  assert.deepEqual(m.cockpitPresentation(view,true,wide,1,screenAngle).view,landscape);
+ }
+ assert.equal(m.portraitScreenAngle(true,undefined,undefined,-90),-90);
+ assert.equal(m.portraitScreenAngle(true,undefined,undefined,90),90);
+ assert.equal(m.portraitScreenAngle(false,undefined,undefined,180),180);
+});
+test('existing pinch zoom does not shrink the calibrated cockpit viewport',()=>{
+ const base={width:390,height:844};
+ for(const zoom of [.75,1,1.5,2]) {
+  const visual={width:base.width/zoom,height:base.height/zoom};
+  const frame=m.cockpitViewport(visual,zoom,true);
+  assert.deepEqual(frame.view,base);assert.equal(frame.scale,1/zoom);
+  assert.deepEqual(m.cockpitViewport(visual,zoom,false),{view:visual,scale:1});
  }
 });

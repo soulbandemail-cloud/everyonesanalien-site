@@ -1,10 +1,11 @@
 'use client';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './mate.css';
+import { useCockpitZoomGuard } from './useCockpitZoomGuard';
 import PortableTV from '@/components/home/PortableTV';
 import CanonicalHomepage from '@/components/home/CanonicalHomepage';
 import { usePresentationViewport } from './usePresentationViewport';
-import { mobileThirdCamera, cockpitPresentation } from '@/lib/ship/mobilePresentation';
+import { mobileThirdCamera, cockpitPresentation, cockpitViewport } from '@/lib/ship/mobilePresentation';
 import Ship from '@/components/ship/Ship';
 import dynamic from 'next/dynamic';
 import { DEFAULT_DOME } from '@/lib/ship/domeGeometry';
@@ -27,7 +28,10 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
   const progressRef = useRef(progress);
   const viewport=usePresentationViewport(setEntryReady,mobilePreview);
   const {mobile}=viewport;
-  const presentation=useMemo(()=>cockpitPresentation(viewport.view,mobile,viewport.landscape,progress),[viewport.view,mobile,viewport.landscape,progress]);
+  const thirdActive=cockpit || progress>0;
+  useCockpitZoomGuard(thirdActive && !arcadeOpen);
+  const sceneViewport=useMemo(()=>cockpitViewport(viewport.view,viewport.scale,thirdActive),[viewport.view,viewport.scale,thirdActive]);
+  const presentation=useMemo(()=>cockpitPresentation(sceneViewport.view,mobile,viewport.landscape,progress,viewport.screenAngle),[sceneViewport.view,mobile,viewport.landscape,progress,viewport.screenAngle]);
   const view=presentation.view;
   const portraitFirst=mobile && viewport.landscape && (!cockpit || progress<1);
   const mobileThird=mobile && (cockpit || progress>0);
@@ -106,17 +110,17 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
 
   const camera=transitionCamera(config,progress);
   const roomCamera=transitionCamera(mobileThird ? mobileThirdCamera(config,view) : config,progress);
-  return <div className={`mate-experience ${cockpit ? 'mate-cockpit' : ''}`} ref={focusTarget} tabIndex={-1}>
-    <div data-cockpit-presentation data-presentation-angle={presentation.angle} data-portrait-first={portraitFirst || undefined} data-portrait-settled={portraitFirst && progress===0 || undefined} style={mobileThird || (mobile && viewport.landscape) ? {
+  return <div className={`mate-experience ${cockpit ? 'mate-cockpit' : ''}`} ref={focusTarget} tabIndex={-1} data-cockpit-active={thirdActive && !arcadeOpen || undefined}>
+    <div data-cockpit-presentation data-presentation-angle={presentation.angle} data-presentation-scale={sceneViewport.scale} data-portrait-first={portraitFirst || undefined} data-portrait-settled={portraitFirst && progress===0 || undefined} style={mobileThird || (mobile && viewport.screenAngle!==0) || sceneViewport.scale!==1 ? {
       '--portrait-width':`${view.width}px`,'--portrait-height':`${view.height}px`,
       position:'fixed',left:0,top:0,width:view.width,height:view.height,transformOrigin:'0 0',
-      transform:`translate(${viewport.left+viewport.view.width/2}px,${viewport.top+viewport.view.height/2}px) rotate(${presentation.angle}deg) translate(${-view.width/2}px,${-view.height/2}px)`,
+      transform:`translate(${viewport.left+viewport.view.width/2}px,${viewport.top+viewport.view.height/2}px) scale(${sceneViewport.scale}) rotate(${presentation.angle}deg) translate(${-view.width/2}px,${-view.height/2}px)`,
     } as React.CSSProperties : undefined}>
     <CanonicalHomepage animateEntry={entry} cockpit={cockpit} loginEnabled={loginEnabled && !preview} config={config} camera={camera} progress={progress} view={view} mobileThird={mobileThird} publicFrame={mobile ? presentation : undefined} />
     {(cockpit || progress>0) && <Ship config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
     {cockpit && arcadeOpen && <ArcadeDialog viewport={viewport} onExit={() => setArcadeOpen(false)} />}
     </div>
-    {!cockpit && <div className="public-tv-frame site-atmosphere" data-mobile={mobile || undefined} data-portrait-first={mobile && viewport.landscape || undefined}>
+    {!cockpit && progress===0 && <div className="public-tv-frame site-atmosphere" data-mobile={mobile || undefined} style={{'--tv-turn':`${-viewport.screenAngle}deg`} as React.CSSProperties} data-portrait-first={mobile && viewport.landscape || undefined}>
       <PortableTV />
     </div>}
     {development && preview && <button type="button" onClick={()=>setPreviewCockpit(value=>!value)} style={{position:'fixed',bottom:8,right:8,zIndex:30001,background:'#00082d',color:'white',border:'1px solid white',padding:8}}>Preview {cockpit ? '1st' : '3rd'} person</button>}
