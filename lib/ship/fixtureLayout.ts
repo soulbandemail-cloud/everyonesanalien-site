@@ -1,4 +1,4 @@
-import { DEFAULT_DOME, type Vec3 } from './domeGeometry';
+import { DEFAULT_DOME, project, type DomeConfig, type Viewport, type Vec3 } from './domeGeometry';
 import { ROOM } from './roomGeometry';
 
 export type FixturePlacement = { x: number; y: number; z: number; scale: number; yaw: number; widthScale?: number };
@@ -37,4 +37,12 @@ const arcadeYaw = inwardYaw(arcadePos, centre);
 export const FIXTURES = perimeterFixtures(DEFAULT_DOME.radius, DEFAULT_DOME.centre);
 export function orientedFixtures(centre: Vec3, radius = DEFAULT_DOME.radius) {
   return { ...perimeterFixtures(radius, centre), radio: FIXTURES.radio };
+}
+
+/** Exact screen plane already used by Fixtures.flatArt for the console TV. */
+export function consoleTvScreen(config:DomeConfig,view:Viewport) {
+  const f=FIXTURES.radio;
+  const p=project({x:f.x-f.scale*.2*Math.sin(f.yaw),y:f.y+f.scale*.26,z:f.z-f.scale*.2*Math.cos(f.yaw)},config,view);
+  const scale=p.scale*f.scale*.95/100;
+  return {x:p.x-42*scale,y:p.y-18*scale,scale,visible:p.visible};
 }

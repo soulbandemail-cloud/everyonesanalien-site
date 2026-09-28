@@ -19,7 +19,7 @@ test('TV retains the video, tap-to-maximise and background-to-close behaviour',(
  const h=harness(390,844,'tv');
  const iframe=()=>nodes(h.tree).find(n=>n.type==='iframe');
  assert.match(iframe().props.src,/7623124860574731543.*start=0/);
- nodes(h.tree).find(n=>n.props?.className==='space-tv-screen').props.onPointerDownCapture();
+ nodes(h.tree).find(n=>n.props?.className==='space-tv-open').props.onClick();
  assert.equal(h.game.tvExpanded,true);assert.equal(h.game.tvStarted,true);
  assert.match(iframe().props.src,/7623124860574731543.*start=1/);
  assert.equal(iframe().props.allowFullScreen,true);
@@ -37,7 +37,8 @@ test('TV corner is CSS-anchored outside the moving camera frame; antennae are ce
  assert.match(css,/\.space-tv-antenna \{[^}]*left: 50%;[^}]*translateX\(-50%\)/);
  assert.doesNotMatch(css,/space-tv-handle/);
  const mate=fs.readFileSync('components/mate/MateExperience.tsx','utf8');
- assert.match(mate,/<\/div>\s*{!cockpit && progress===0 && <div className="public-tv-frame/);
+ assert.match(mate,/<\/div>\s*<div className="public-tv-frame/);
+ assert.match(mate,/data-tv-visible={!!tvVisible}/);
  assert.doesNotMatch(fs.readFileSync('components/home/CanonicalHomepage.tsx','utf8'),/PortableTV/);
  const frameCss=fs.readFileSync('components/mate/mate.css','utf8');
  assert.match(frameCss,/\.public-tv-frame \{[^}]*position:fixed;[^}]*inset:0/);
@@ -46,4 +47,21 @@ test('TV corner is CSS-anchored outside the moving camera frame; antennae are ce
  assert.match(fixtures,/TV fixed on the control panel to the alien’s right/);
  assert.match(fixtures,/line\(radio,\[0,\.58,\.1\],\[-\.15,\.98,\.1\]/);
  assert.match(fixtures,/line\(radio,\[0,\.58,\.1\],\[\.15,\.98,\.1\]/);
+});
+
+test('one mounted iframe and playback/maximise state persist between both TV positions',()=>{
+ const h=harness(1280,720,'tv');
+ const iframe=()=>nodes(h.tree).filter(n=>n.type==='iframe');
+ nodes(h.tree).find(n=>n.props?.className==='space-tv-open').props.onClick();
+ const src=iframe()[0].props.src;
+ for(const dock of [{x:700,y:450,scale:.5},undefined,{x:350,y:220,scale:.25}]) {
+  h.setTvProps({dock});
+  assert.equal(h.game.tvExpanded,true);assert.equal(h.game.tvStarted,true);
+  assert.equal(iframe().length,1);assert.equal(iframe()[0].props.src,src);assert.equal(iframe()[0].key,null);
+ }
+ nodes(h.tree).find(n=>n.props?.className==='space-tv-close').props.onClick();
+ assert.equal(h.game.tvExpanded,false);assert.equal(h.game.tvStarted,true);
+ assert.deepEqual(nodes(h.tree).find(n=>n.type==='aside').props.style.left,350);
+ h.setTvProps({});assert.equal(h.game.tvStarted,true);assert.equal(iframe()[0].props.src,src);
+ h.unmount();
 });

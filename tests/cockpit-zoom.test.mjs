@@ -29,6 +29,7 @@ test('initial dome sizing is based on the logical viewport and TV waits for retu
  assert.doesNotMatch(css,/@media \(max-width: 759px\)/);
  assert.match(css,/\.on-glass\[data-dome-narrow\] h2/);
  const mate=fs.readFileSync('components/mate/MateExperience.tsx','utf8');
- assert.match(mate,/!cockpit && progress===0 && <div className="public-tv-frame/);
+ assert.match(mate,/const tvVisible=\(!cockpit && progress===0\) \|\| \(cockpit && progress===1/);
+ assert.match(mate,/data-tv-visible={!!tvVisible}/);
  assert.match(mate,/useCockpitZoomGuard\(thirdActive && !arcadeOpen\)/);
 });

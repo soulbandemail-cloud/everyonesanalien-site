@@ -7,6 +7,7 @@ const require = createRequire(import.meta.url);
 // hooks, viewport, clock and DOM bounds. No test-only production API or copy of physics.
 export function harness(width = 1280, height = 720, mode = 'arcade', frame) {
   let cursor = 0, snapshot, tree, now = 10000, nextId = 0;
+  let tvProps={};
   const slots = [], effects = [], cleanups = [], intervals = new Map(), timers = new Map(), listeners = new Map();
   const react = {
     useCallback(callback, deps) { const i=cursor++; if(!slots[i] || deps.some((v,j)=>v!==slots[i].deps[j])) slots[i]={callback,deps}; return slots[i].callback; },
@@ -48,7 +49,7 @@ export function harness(width = 1280, height = 720, mode = 'arcade', frame) {
     removeEventListener:(name,fn)=>rootListeners.get(name)?.delete(fn),
     setPointerCapture:id=>captured.add(id),hasPointerCapture:id=>captured.has(id),releasePointerCapture:id=>captured.delete(id),
   };
-  function render() { cursor=0; tree=game.default({onRestart(){},frame});if(mode==='arcade')snapshot.gameRoot.current=surface; for (const effect of effects.splice(0)) { const cleanup=effect(); if(cleanup) cleanups.push(cleanup); } return snapshot; }
+  function render() { cursor=0; tree=game.default({onRestart(){},frame,...tvProps});if(mode==='arcade')snapshot.gameRoot.current=surface; for (const effect of effects.splice(0)) { const cleanup=effect(); if(cleanup) cleanups.push(cleanup); } return snapshot; }
   const rect = (left,top,width,height) => ({getBoundingClientRect:()=>({left,top,width,height,right:left+width,bottom:top+height}),offsetWidth:width,offsetHeight:height,classList:{contains:()=>false}});
   render();
   if (mode === 'arcade') {
@@ -60,6 +61,7 @@ export function harness(width = 1280, height = 720, mode = 'arcade', frame) {
   const animation={animationName:'ufo-orbit-path',effect:{getComputedTiming:()=>({currentIteration:Math.floor(orbitAngle/(2*Math.PI)),progress:orbitAngle/(2*Math.PI)%1})}};
   const orbiter={getAnimations:()=>[animation],getBoundingClientRect:()=>({left:500+56+40*Math.cos(orbitAngle)-16,top:150+48+21*Math.sin(orbitAngle)-16,width:32,height:32})};
   return {
+    setTvProps(props){tvProps=props;return render();},
     setOrbitAngle(angle){orbitAngle=angle;snapshot.orbitRef.current.querySelector=()=>orbiter;},
     rootEvent(name,event){for(const fn of rootListeners.get(name)??[])fn({button:0,isPrimary:true,pointerId:1,target:{closest:()=>null},preventDefault(){},...event});return render();},
     captured,rootListeners,

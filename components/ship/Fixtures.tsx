@@ -4,10 +4,10 @@ import { polygonPath } from '@/lib/ship/roomGeometry';
 import { FIXTURES, orientedFixtures, type FixturePlacement } from '@/lib/ship/fixtureLayout';
 import styles from './ship.module.css';
 
-type Props = { config: DomeConfig; view: Viewport; onArcade?: () => void };
+type Props = { config: DomeConfig; view: Viewport; onArcade?: () => void; liveTv?:boolean };
 
 /** Crude world-space solids: no owned items, controls, playback or inventory state. */
-export const Fixtures = memo(function Fixtures({ config, view, onArcade }: Props) {
+export const Fixtures = memo(function Fixtures({ config, view, onArcade, liveTv=false }: Props) {
   const path = (points: Vec3[]) => polygonPath(points, config, view);
   const local = (f: FixturePlacement, x: number, y: number, z: number): Vec3 => ({
     x: f.x + f.scale * (x * (f.widthScale ?? 1) * Math.cos(f.yaw) + z * Math.sin(f.yaw)),
@@ -53,7 +53,7 @@ export const Fixtures = memo(function Fixtures({ config, view, onArcade }: Props
 const radio = fixtures.radio, music = fixtures.musicStation, sofa = fixtures.sofa;
 const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtures.arcade;
   return <svg className={styles.fixtures} width={view.width} height={view.height} role="group" aria-label="Empty base ship fixtures: radio left, gramophone and empty record cabinet right, empty sofa left, empty clothes rail right, coffee table with current Hyper-Fix foremost">
-    <g aria-label="Portable TV fixed on the control panel to the alien’s right">
+    <g className="console-tv" aria-label="Portable TV fixed on the control panel to the alien’s right">
   {box(radio,0,0,0,1.05,.58,.38,'#655f5c')}
 
   {flatArt(
@@ -74,14 +74,14 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
       />
 
       {/* thumbnail fills almost the entire frontage */}
-      <image
+      {!liveTv && <image
         href="/tv-poster.png"
         x="-42"
         y="-18"
         width="84"
         height="36"
         preserveAspectRatio="xMidYMid slice"
-      />
+      />}
     </g>
   )}
 

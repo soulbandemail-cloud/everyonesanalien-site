@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './mate.css';
 import { useCockpitZoomGuard } from './useCockpitZoomGuard';
+import { consoleTvScreen } from '@/lib/ship/fixtureLayout';
 import PortableTV from '@/components/home/PortableTV';
 import CanonicalHomepage from '@/components/home/CanonicalHomepage';
 import { usePresentationViewport } from './usePresentationViewport';
@@ -110,6 +111,8 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
 
   const camera=transitionCamera(config,progress);
   const roomCamera=transitionCamera(mobileThird ? mobileThirdCamera(config,view) : config,progress);
+  const tvDock=thirdActive ? consoleTvScreen(roomCamera,view) : undefined;
+  const tvVisible=(!cockpit && progress===0) || (cockpit && progress===1 && tvDock?.visible);
   return <div className={`mate-experience ${cockpit ? 'mate-cockpit' : ''}`} ref={focusTarget} tabIndex={-1} data-cockpit-active={thirdActive && !arcadeOpen || undefined}>
     <div data-cockpit-presentation data-presentation-angle={presentation.angle} data-presentation-scale={sceneViewport.scale} data-portrait-first={portraitFirst || undefined} data-portrait-settled={portraitFirst && progress===0 || undefined} style={mobileThird || (mobile && viewport.screenAngle!==0) || sceneViewport.scale!==1 ? {
       '--portrait-width':`${view.width}px`,'--portrait-height':`${view.height}px`,
@@ -117,12 +120,16 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
       transform:`translate(${viewport.left+viewport.view.width/2}px,${viewport.top+viewport.view.height/2}px) scale(${sceneViewport.scale}) rotate(${presentation.angle}deg) translate(${-view.width/2}px,${-view.height/2}px)`,
     } as React.CSSProperties : undefined}>
     <CanonicalHomepage animateEntry={entry} cockpit={cockpit} loginEnabled={loginEnabled && !preview} config={config} camera={camera} progress={progress} view={view} mobileThird={mobileThird} publicFrame={mobile ? presentation : undefined} />
-    {(cockpit || progress>0) && <Ship config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
+    {(cockpit || progress>0) && <Ship liveTv={!!tvVisible} config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
     {cockpit && arcadeOpen && <ArcadeDialog viewport={viewport} onExit={() => setArcadeOpen(false)} />}
     </div>
-    {!cockpit && progress===0 && <div className="public-tv-frame site-atmosphere" data-mobile={mobile || undefined} style={{'--tv-turn':`${-viewport.screenAngle}deg`} as React.CSSProperties} data-portrait-first={mobile && viewport.landscape || undefined}>
-      <PortableTV />
-    </div>}
+    <div className="public-tv-frame site-atmosphere" data-tv-visible={!!tvVisible} data-mobile={mobile || undefined} style={thirdActive ? {
+      '--tv-frame-width':`${view.width}px`,'--tv-frame-height':`${view.height}px`,
+      left:0,top:0,width:view.width,height:view.height,transformOrigin:'0 0',
+      transform:`translate(${viewport.left+viewport.view.width/2}px,${viewport.top+viewport.view.height/2}px) scale(${sceneViewport.scale}) rotate(${presentation.angle}deg) translate(${-view.width/2}px,${-view.height/2}px)`,
+    } as React.CSSProperties : {'--tv-turn':`${-viewport.screenAngle}deg`} as React.CSSProperties} data-portrait-first={!thirdActive && mobile && viewport.landscape || undefined}>
+      <PortableTV dock={tvDock} />
+    </div>
     {development && preview && <button type="button" onClick={()=>setPreviewCockpit(value=>!value)} style={{position:'fixed',bottom:8,right:8,zIndex:30001,background:'#00082d',color:'white',border:'1px solid white',padding:8}}>Preview {cockpit ? '1st' : '3rd'} person</button>}
     {notice && <div role="status" className="mate-notice">{notice}<button onClick={()=>setNotice('')} aria-label="Dismiss message">×</button></div>}
   </div>;

@@ -1,10 +1,12 @@
 "use client";
 import { useState } from 'react';
-export default function PortableTV() {
+export default function PortableTV({dock}:{dock?:{x:number;y:number;scale:number}} = {}) {
  const [tvExpanded, setTvExpanded] = useState(false);
  const [tvStarted, setTvStarted] = useState(false);
 return (
   <aside
+    data-console={!!dock || undefined}
+    style={dock && !tvExpanded ? {left:dock.x,top:dock.y,right:'auto',bottom:'auto',width:84,height:36,transform:`scale(${dock.scale})`,transformOrigin:'0 0','--tv-dock-scale':dock.scale} as React.CSSProperties : undefined}
     className={`space-tv ${tvExpanded ? "space-tv-expanded" : ""}`}
     onPointerDown={(e) => {
       if (tvExpanded) {
@@ -22,17 +24,8 @@ return (
     </div>
 
     <div className="space-tv-body">
-      <div
-        className="space-tv-screen"
-        onPointerDownCapture={() => {
-          if (!tvExpanded) {
-            setTvStarted(true);
-            setTvExpanded(true);
-          }
-        }}
-      >
+      <div className="space-tv-screen">
         <iframe
-          key={tvStarted ? "tv-started" : "tv-poster"}
           src={`https://www.tiktok.com/embed/v2/7623124860574731543?autoplay=1&muted=1&playsinline=1&start=${tvStarted ? "1" : "0"}`}
           title="SOUL music video"
           allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
@@ -42,8 +35,10 @@ return (
         />
         {!tvStarted && <div className="space-tv-poster" aria-hidden="true" />}
         <div className="space-tv-scanlines" />
+        {!tvExpanded && <button type="button" className="space-tv-open" aria-label="Maximise TV" onClick={()=>{setTvStarted(true);setTvExpanded(true);}} />}
       </div>
     </div>
+    {tvExpanded && <button type="button" className="space-tv-close" onClick={()=>setTvExpanded(false)}>CLOSE TV</button>}
   </aside>
 );
 
