@@ -3,7 +3,6 @@ import { useRef } from 'react';
 import MatePanel from '@/components/mate/MatePanel';
 import { useDomeProjection } from './useDomeProjection';
 import RealPlanetHeart from './RealPlanetHeart';
-import PortableTV from './PortableTV';
 import ExteriorSpace from './ExteriorSpace';
 import { exteriorPlane } from '@/lib/ship/exteriorSpace';
 import DomeWishes from './DomeWishes';
@@ -23,7 +22,6 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
  useDomeProjection(homeRoot, cockpit, config, view, animateEntry, config, progress, mobileThird);
  return <div ref={homeRoot} className="canonical-home" data-returning={!cockpit && progress>0 ? "true" : undefined}>
  <ExteriorSpace config={config} camera={camera} view={view} />
- {!cockpit && <div className="site-atmosphere"><PortableTV frame={publicFrame} /></div>}
  <main className="pink-text-glow min-h-screen text-white p-8 md:p-12 max-w-12xl mx-auto">
         <div data-dome-slot="socials" className="flex flex-nowrap justify-center gap-10 sm:gap-10 mb-0 md:mb-4">
           <a

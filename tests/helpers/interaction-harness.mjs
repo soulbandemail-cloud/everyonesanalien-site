@@ -32,15 +32,14 @@ export function harness(width = 1280, height = 720, mode = 'arcade', frame) {
     return loaded.exports;
   }
   const lifecycle = compile('components/home/useScopedLifecycle.ts',{});
-  const portable = compile('components/home/usePortableTv.ts',{'./useScopedLifecycle':lifecycle});
   const electricalMath = compile('components/arcade/discharge.ts',{});
   const presentation = compile('components/arcade/presentation.ts',{});
   const electricalHook = compile('components/arcade/useOrbitDischarge.ts',{'./discharge':electricalMath,'./presentation':presentation});
   const fields = mode === 'arcade' ? ['flyingAliens','setFlyingAliens','launchAlien','ringBlinking','heartPulse','flashbang','womboComboKey','hideCursorUfo','toggleUfoOrbit','ufoOrbiting','ufoPosRef','tractorBeamActiveRef','tractorCounts','touchesTractorBeam','recordTractorCapture','orbitRef','ufoOrbitingRef','footerRef','reflectAlienOffFooterLine','electricity','gameRoot'] : ['wishPrompt','wish','setWish','wishPoof','wishRulesKey','pongWish','wishBarrierRef','closeWishPrompt','catchShootingStar','dragWishPaddle'];
   const rules = compile('components/home/WishRules.tsx',{});
   const physics = compile('components/home/wishPhysics.ts',{});
-  const dependencies = {'./presentation':presentation,'./discharge':electricalMath,'./useOrbitDischarge':electricalHook,'../home/useScopedLifecycle':lifecycle,'../home/usePortableTv':portable,'../home/PlanetHeart':{default:()=>null},'./arcade.css':{},'./useScopedLifecycle':lifecycle,'./WishRules':rules,'./wishes.css':{}};
-  const game = mode === 'tv' ? {default:()=>{snapshot=portable.usePortableTv(frame);return null;}} : compile(mode === 'arcade' ? 'components/arcade/ArcadeGame.tsx' : 'components/home/DomeWishes.tsx',dependencies,source => source.replace(mode === 'arcade' ? 'return (\n  <div ref={gameRoot}' : 'return <>',`inspect({${fields.join(',')}});\n${mode === 'arcade' ? 'return (\n  <div ref={gameRoot}' : 'return <>'}`));
+  const dependencies = {'./presentation':presentation,'./discharge':electricalMath,'./useOrbitDischarge':electricalHook,'../home/useScopedLifecycle':lifecycle,'../home/PlanetHeart':{default:()=>null},'./arcade.css':{},'./useScopedLifecycle':lifecycle,'./WishRules':rules,'./wishes.css':{}};
+  const game = mode === 'tv' ? compile('components/home/PortableTV.tsx',{},source=>source.replace('return (','inspect({tvExpanded,tvStarted}); return (')) : compile(mode === 'arcade' ? 'components/arcade/ArcadeGame.tsx' : 'components/home/DomeWishes.tsx',dependencies,source => source.replace(mode === 'arcade' ? 'return (\n  <div ref={gameRoot}' : 'return <>',`inspect({${fields.join(',')}});\n${mode === 'arcade' ? 'return (\n  <div ref={gameRoot}' : 'return <>'}`));
   const rootListeners=new Map();
   const captured=new Set();
   const surface={
@@ -49,7 +48,7 @@ export function harness(width = 1280, height = 720, mode = 'arcade', frame) {
     removeEventListener:(name,fn)=>rootListeners.get(name)?.delete(fn),
     setPointerCapture:id=>captured.add(id),hasPointerCapture:id=>captured.has(id),releasePointerCapture:id=>captured.delete(id),
   };
-  function render() { cursor=0; tree=game.default({onRestart(){},frame});if(mode==='arcade')snapshot.gameRoot.current=surface;if(mode==='tv')snapshot.tvRef.current=snapshot.tvPos ? rect(900,400,320,250) : null; for (const effect of effects.splice(0)) { const cleanup=effect(); if(cleanup) cleanups.push(cleanup); } return snapshot; }
+  function render() { cursor=0; tree=game.default({onRestart(){},frame});if(mode==='arcade')snapshot.gameRoot.current=surface; for (const effect of effects.splice(0)) { const cleanup=effect(); if(cleanup) cleanups.push(cleanup); } return snapshot; }
   const rect = (left,top,width,height) => ({getBoundingClientRect:()=>({left,top,width,height,right:left+width,bottom:top+height}),offsetWidth:width,offsetHeight:height,classList:{contains:()=>false}});
   render();
   if (mode === 'arcade') {

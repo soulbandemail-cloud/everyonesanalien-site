@@ -1,42 +1,49 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {harness} from './helpers/interaction-harness.mjs';
+import fs from 'node:fs';
+import {harness,nodes} from './helpers/interaction-harness.mjs';
 
-const pointer={clientX:200,preventDefault(){},stopPropagation(){}};
-test('TV bootstraps its conditional mount, measures bottom-right, snaps and preserves side on resize',()=>{
- const h=harness(1280,720,'tv');
- assert.equal(h.game.tvPos,null);assert.equal(h.game.tvRef.current,null);
- h.advance(16);assert.ok(h.game.tvPos);assert.ok(h.game.tvRef.current);
- h.advance(16);assert.deepEqual(h.game.tvPos,{x:934,y:444});
- assert.equal(h.listeners.get('resize').size,1);
- h.win.innerWidth=2400;h.win.innerHeight=900;h.event('resize');h.advance(16);
- assert.deepEqual(h.game.tvPos,{x:2054,y:624});
- h.game.dragTv(pointer);h.event('pointermove',{clientX:150});h.event('pointerup');
- assert.deepEqual(h.game.tvPos,{x:26,y:624});
- h.win.innerWidth=800;h.win.innerHeight=600;h.event('resize');h.advance(16);
- assert.deepEqual(h.game.tvPos,{x:26,y:324});
- h.game.dragTv(pointer);h.event('pointermove',{clientX:250});h.event('pointerup');
- assert.deepEqual(h.game.tvPos,{x:454,y:324});
- h.game.setTvExpanded(true);h.game.dragTv(pointer);h.event('pointermove',{clientX:150});h.event('pointerup');
- assert.deepEqual(h.game.tvPos,{x:454,y:324});assert.equal(h.game.tvExpanded,true);
- h.unmount();assert.equal(h.timers.size,0);assert.equal(h.listeners.get('resize').size,0);
+test('TV mounts immediately without positioning effects or drag controls',()=>{
+ for(const [width,height] of [[1280,720],[390,844],[844,390]]) {
+  const h=harness(width,height,'tv');
+  assert.equal(nodes(h.tree).filter(n=>n.type==='iframe').length,1);
+  assert.equal(nodes(h.tree).filter(n=>n.props?.className==='space-tv-handle').length,0);
+  assert.equal(h.timers.size,0);assert.equal(h.listeners.size,0);
+  h.win.innerHeight=250;h.event('resize');h.event('scroll');h.event('pointermove',{clientX:0,clientY:0});
+  assert.equal(nodes(h.tree).find(n=>n.type==='aside').props.style,undefined);
+  assert.equal(h.game.tvExpanded,false);
+  h.unmount();
+ }
 });
-test('unmount before bootstrap cancels initialization',()=>{
- const h=harness(1280,720,'tv');assert.equal(h.game.tvPos,null);
- h.unmount();assert.equal(h.timers.size,0);
-});
-
-test('rotated portrait TV uses local bounds and the rotated drag axis',()=>{
- const frame={view:{width:390,height:844},angle:90};
- const h=harness(844,390,'tv',frame);
- h.advance(16);h.advance(16);
- // Harness TV is 320 × 250 regardless of CSS; placement must use those local sizes.
- assert.deepEqual(h.game.tvPos,{x:62,y:586});
- h.game.dragTv({...pointer,clientY:200});
- h.event('pointermove',{clientX:200,clientY:150});h.event('pointerup');
- assert.deepEqual(h.game.tvPos,{x:8,y:586});
- h.game.dragTv({...pointer,clientY:200});
- h.event('pointermove',{clientX:200,clientY:250});h.event('pointerup');
- assert.deepEqual(h.game.tvPos,{x:62,y:586});
+test('TV retains the video, tap-to-maximise and background-to-close behaviour',()=>{
+ const h=harness(390,844,'tv');
+ const iframe=()=>nodes(h.tree).find(n=>n.type==='iframe');
+ assert.match(iframe().props.src,/7623124860574731543.*start=0/);
+ nodes(h.tree).find(n=>n.props?.className==='space-tv-screen').props.onPointerDownCapture();
+ assert.equal(h.game.tvExpanded,true);assert.equal(h.game.tvStarted,true);
+ assert.match(iframe().props.src,/7623124860574731543.*start=1/);
+ assert.equal(iframe().props.allowFullScreen,true);
+ const aside=nodes(h.tree).find(n=>n.type==='aside');
+ aside.props.onPointerDown({target:{},currentTarget:{}});assert.equal(h.game.tvExpanded,true);
+ const background={};aside.props.onPointerDown({target:background,currentTarget:background});
+ assert.equal(h.game.tvExpanded,false);assert.equal(h.game.tvStarted,true);
  h.unmount();
+});
+test('TV corner is CSS-anchored outside the moving camera frame; antennae are centred',()=>{
+ const css=fs.readFileSync('app/globals.css','utf8');
+ const tv=css.match(/\.space-tv \{([^}]+)\}/)[1];
+ assert.match(tv,/position: fixed/);assert.match(tv,/right: 0/);assert.match(tv,/bottom: 0/);
+ assert.doesNotMatch(tv,/transition/);
+ assert.match(css,/\.space-tv-antenna \{[^}]*left: 50%;[^}]*translateX\(-50%\)/);
+ assert.doesNotMatch(css,/space-tv-handle/);
+ const mate=fs.readFileSync('components/mate/MateExperience.tsx','utf8');
+ assert.match(mate,/<\/div>\s*{!cockpit && <div className="public-tv-frame/);
+ assert.doesNotMatch(fs.readFileSync('components/home/CanonicalHomepage.tsx','utf8'),/PortableTV/);
+ const frameCss=fs.readFileSync('components/mate/mate.css','utf8');
+ assert.match(frameCss,/\.public-tv-frame \{[^}]*position:fixed;[^}]*inset:0/);
+ assert.match(frameCss,/\.public-tv-frame\[data-portrait-first\] \{[^}]*width:100svh; height:100svw/);
+ const fixtures=fs.readFileSync('components/ship/Fixtures.tsx','utf8');
+ assert.match(fixtures,/TV fixed on the control panel to the alien’s right/);
+ assert.match(fixtures,/line\(radio,\[0,\.58,\.1\],\[-\.15,\.98,\.1\]/);
+ assert.match(fixtures,/line\(radio,\[0,\.58,\.1\],\[\.15,\.98,\.1\]/);
 });

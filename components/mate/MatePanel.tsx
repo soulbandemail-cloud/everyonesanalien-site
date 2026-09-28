@@ -48,7 +48,7 @@ export default function MatePanel({ enabled }: { enabled: boolean }) {
   }
   return <section data-dome-slot="mate" className="md:col-start-2 md:max-w-sm md:mx-auto">
     <h2 className="text-2xl mb-4">THE MATES</h2>
-    <p className="mb-4">Get The Hyper-Fix, MATES RATE discounts on merch and tickets!</p>
+    <p className="mb-4">Get The Hyper-Fix (official SOUL newsletter) for MATES RATE discounts on merch and tickets!</p>
     <div className="flex flex-col gap-3 max-w-md md:mx-auto">
       <div className="grid grid-cols-2 gap-3">
         {(['signup', 'login'] as const).map(value => <button key={value} type="button" aria-pressed={mode === value} disabled={busy || (value === 'login' && !enabled)} className={`${buttonClass} ${mode === value ? 'aria-pressed:bg-[#6ee7b7] border-[#6ee7b7] text-[#00082d]' : ''}`} onClick={() => { setMode(value); setMessage(''); }}>{value === 'signup' ? 'SIGN UP' : 'LOG IN'}</button>)}

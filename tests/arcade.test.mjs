@@ -53,14 +53,6 @@ test('independent footer reflection remains; TV collision and rendering are gone
  assert.ok(nodes(h.tree).every(el=>el.type!=='iframe'));
  h.unmount();
 });
-test('public TV preserves two-position drag and mid-drag cleanup independently of arcade',()=>{
- const h=harness(1280,720,'tv');h.advance(16);h.advance(16);h.game.dragTv(pointer);h.event('pointermove',{clientX:150});h.event('pointerup');assert.equal(h.game.tvPos.x,26);
- h.game.dragTv(pointer);h.event('pointermove',{clientX:250});h.event('pointerup');assert.equal(h.game.tvPos.x,934);
- const position=h.game.tvPos.x;h.game.dragTv(pointer);h.event('pointermove',{clientX:205});h.event('pointerup');assert.equal(h.game.tvPos.x,position);
- h.game.dragTv(pointer);
- h.unmount();assert.equal(h.intervals.size,0);assert.equal(h.timers.size,0);for(const set of h.listeners.values()) assert.equal(set.size,0);
-});
-
 test('arcade contains no Wish/Pong runtime or UI and reopening starts fresh',()=>{
  const h=harness();
  for(const el of nodes(h.tree)) {

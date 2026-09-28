@@ -1,17 +1,11 @@
 "use client";
 import { useState } from 'react';
-import { usePortableTv } from './usePortableTv';
-export default function PortableTV({frame}:{frame?:{view:{width:number;height:number};angle:number}}) {
- const {tvRef, tvPos, tvExpanded, setTvExpanded, dragTv} = usePortableTv(frame);
+export default function PortableTV() {
+ const [tvExpanded, setTvExpanded] = useState(false);
  const [tvStarted, setTvStarted] = useState(false);
-return tvPos && (
+return (
   <aside
-    ref={tvRef}
     className={`space-tv ${tvExpanded ? "space-tv-expanded" : ""}`}
-    style={{
-      left: tvExpanded ? "0px" : `${tvPos?.x ?? 0}px`,
-      top: tvExpanded ? "0px" : `${tvPos?.y ?? 0}px`,
-    }}
     onPointerDown={(e) => {
       if (tvExpanded) {
         if (e.target === e.currentTarget) {
@@ -21,16 +15,9 @@ return tvPos && (
         return;
       }
     }}
-    aria-label="Floating space TV"
+    aria-label="Space TV"
   >
     <div className="space-tv-top">
-      <div
-        role="button"
-        tabIndex={0}
-        className="space-tv-handle"
-        aria-label="Move TV"
-        onPointerDown={dragTv}
-      />
       <span className="space-tv-antenna" aria-hidden="true" />
     </div>
 

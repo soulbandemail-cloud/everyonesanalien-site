@@ -13,8 +13,7 @@ function component(file,deps={}) {
  return loaded.exports;
 }
 const lifecycle=component('components/home/useScopedLifecycle.ts');
-const tvHook=component('components/home/usePortableTv.ts',{'./useScopedLifecycle':lifecycle});
-const tv=component('components/home/PortableTV.tsx',{'./usePortableTv':tvHook});
+const tv=component('components/home/PortableTV.tsx');
 const rules=component('components/home/WishRules.tsx');
 const wishes=component('components/home/DomeWishes.tsx',{'./useScopedLifecycle':lifecycle,'./WishRules':rules,'./wishes.css':{}});
 const panel=component('components/mate/MatePanel.tsx');

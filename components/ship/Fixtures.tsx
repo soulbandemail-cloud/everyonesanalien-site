@@ -53,7 +53,7 @@ export const Fixtures = memo(function Fixtures({ config, view, onArcade }: Props
 const radio = fixtures.radio, music = fixtures.musicStation, sofa = fixtures.sofa;
 const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtures.arcade;
   return <svg className={styles.fixtures} width={view.width} height={view.height} role="group" aria-label="Empty base ship fixtures: radio left, gramophone and empty record cabinet right, empty sofa left, empty clothes rail right, coffee table with current Hyper-Fix foremost">
-    <g aria-label="Portable TV placed on the left side of the pilot console">
+    <g aria-label="Portable TV fixed on the control panel to the alien’s right">
   {box(radio,0,0,0,1.05,.58,.38,'#655f5c')}
 
   {flatArt(
@@ -85,14 +85,9 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
     </g>
   )}
 
-  {/* carry handle — left */}
-  {line(radio,[-.43,.58,0],[-.39,.76,0],'#a2aaa5',2)}
-  {line(radio,[-.39,.76,0],[-.10,.76,0],'#a2aaa5',2)}
-  {line(radio,[-.10,.76,0],[-.06,.58,0],'#a2aaa5',2)}
-
-  {/* symmetrical bunny ears — right */}
-  {line(radio,[.25,.58,.1],[.10,.98,.1],'#a2aaa5',2)}
-  {line(radio,[.25,.58,.1],[.40,.98,.1],'#a2aaa5',2)}
+  {/* Centred bunny ears; the console TV has no carry handle. */}
+  {line(radio,[0,.58,.1],[-.15,.98,.1],'#a2aaa5',2)}
+  {line(radio,[0,.58,.1],[.15,.98,.1],'#a2aaa5',2)}
 </g>
     <g aria-label="Music station: gramophone left, empty sleeve display right, empty horizontal record shelves below">
       {/* Open-front cabinet. Shelves run horizontally, with vertical storage clearance. */}

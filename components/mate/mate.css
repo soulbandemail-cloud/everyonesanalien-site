@@ -52,14 +52,7 @@
     height: 24px;
   }
 
-  [data-portrait-first] .space-tv-handle {
-    width: min(58%, 92px);
-    height: 17px;
-    border-width: 1px;
-  }
-
   [data-portrait-first] .space-tv-antenna {
-    right: 4px;
     bottom: 1px;
     width: 36px;
     height: 34px;
@@ -94,3 +87,15 @@
     font-size: 0.5rem;
     letter-spacing: 0.16em;
   }
+
+/* Independent of the camera/visual viewport: keyboard and page scrolling cannot
+   move the TV. The small viewport units also ignore Safari toolbar expansion. */
+.public-tv-frame { position:fixed; inset:0; z-index:80; pointer-events:none; transform:translateZ(0); }
+.public-tv-frame[data-mobile] { bottom:auto; height:100svh; }
+.public-tv-frame .space-tv { pointer-events:auto; }
+.public-tv-frame[data-portrait-first] {
+  inset:auto; left:0; top:0; width:100svh; height:100svw;
+  --portrait-width:100svh; --portrait-height:100svw;
+  transform-origin:0 0; transform:translateX(100svw) rotate(90deg);
+}
+.public-tv-frame .space-tv.space-tv-expanded { inset:0; width:100%; height:100%; }
