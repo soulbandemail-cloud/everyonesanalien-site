@@ -1,9 +1,10 @@
 "use client";
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useScopedLifecycle } from './useScopedLifecycle';
 
 /** Two-position movement for the public video TV. */
-export function usePortableTv() {
+export function usePortableTv(frame?:{view:{width:number;height:number};angle:number}) {
+  const width=frame?.view.width, height=frame?.view.height, angle=frame?.angle ?? 0;
   const lifecycle = useScopedLifecycle();
   const dragCleanup = useRef<(() => void) | null>(null);
   useEffect(() => () => dragCleanup.current?.(), []);
@@ -11,17 +12,17 @@ export function usePortableTv() {
   const tvRef = useRef<HTMLElement | null>(null);
   const [tvPos, setTvPos] = useState<{ x: number; y: number } | null>(null);
   const [tvExpanded, setTvExpanded] = useState(false);
-const clampTvPosition = (x: number, y: number) => {
-  const isMobile = window.innerWidth < 640;
-  const tvWidth = tvRef.current?.offsetWidth ?? (isMobile ? Math.min(140, window.innerWidth * 0.35) : 320);
+const clampTvPosition = useCallback((x: number, y: number) => {
+  const isMobile = (width ?? window.innerWidth) < 640;
+  const tvWidth = tvRef.current?.offsetWidth ?? (isMobile ? Math.min(140, (width ?? window.innerWidth) * 0.35) : 320);
   const tvHeight = tvRef.current?.offsetHeight ?? (isMobile ? 80 : 250);
   const margin = isMobile ? 8 : 12;
 
   return {
-    x: Math.min(Math.max(margin, x), window.innerWidth - tvWidth - margin),
-    y: Math.min(Math.max(margin, y), window.innerHeight - tvHeight - margin),
+    x: Math.min(Math.max(margin, x), (width ?? window.innerWidth) - tvWidth - margin),
+    y: Math.min(Math.max(margin, y), (height ?? window.innerHeight) - tvHeight - margin),
   };
-};
+}, [width, height]);
 const dragTv = (e: React.PointerEvent<HTMLElement>) => {
   if (tvExpanded) return;
 
@@ -29,13 +30,15 @@ const dragTv = (e: React.PointerEvent<HTMLElement>) => {
   e.stopPropagation();
 
   dragCleanup.current?.();
-  const startX = e.clientX;
+  const radians=angle*Math.PI/180;
+  const localX=(event:{clientX:number;clientY:number})=>event.clientX*Math.cos(radians)+(event.clientY ?? 0)*Math.sin(radians);
+  const startX = localX(e);
   
   const threshold = 18;
   let direction: "left" | "right" | null = null;
 
   const moveTv = (moveEvent: PointerEvent) => {
-    const dx = moveEvent.clientX - startX;
+    const dx = localX(moveEvent) - startX;
 
     if (dx < -threshold) {
       direction = "left";
@@ -53,15 +56,15 @@ const dragTv = (e: React.PointerEvent<HTMLElement>) => {
     if (!direction || !tvRef.current) return;
 
     tvSide.current = direction;
-    const rect = tvRef.current.getBoundingClientRect();
-    const margin = window.innerWidth < 640 ? 8 : 26;
+    const rect = width===undefined ? tvRef.current.getBoundingClientRect() : {width:tvRef.current.offsetWidth,height:tvRef.current.offsetHeight};
+    const margin = (width ?? window.innerWidth) < 640 ? 8 : 26;
 
     const x =
       direction === "left"
         ? margin
-        : window.innerWidth - rect.width - margin;
+        : (width ?? window.innerWidth) - rect.width - margin;
 
-    const y = window.innerHeight - rect.height - margin;
+    const y = (height ?? window.innerHeight) - rect.height - margin;
 
     setTvPos(clampTvPosition(x, y));
   };
@@ -88,21 +91,21 @@ useEffect(() => {
       if (!tv) {
         // Bootstrap the conditional TV mount; this same positioning system
         // measures it after React commits the non-null position.
-        const isMobile = window.innerWidth < 640;
+        const isMobile = (width ?? window.innerWidth) < 640;
         const fallbackWidth = isMobile
-          ? Math.min(140, window.innerWidth * 0.35)
-          : Math.min(340, window.innerWidth * 0.28);
+          ? Math.min(140, (width ?? window.innerWidth) * 0.35)
+          : Math.min(340, (width ?? window.innerWidth) * 0.28);
         const margin = isMobile ? 8 : 26;
-        setTvPos({ x: window.innerWidth - fallbackWidth - margin, y: window.innerHeight });
+        setTvPos({ x: (width ?? window.innerWidth) - fallbackWidth - margin, y: (height ?? window.innerHeight) });
         return;
       }
 
-      const rect = tv.getBoundingClientRect();
-      const margin = window.innerWidth < 640 ? 8 : 26;
+      const rect = width===undefined ? tv.getBoundingClientRect() : {width:tv.offsetWidth,height:tv.offsetHeight};
+      const margin = (width ?? window.innerWidth) < 640 ? 8 : 26;
 
       const leftX = margin;
-      const rightX = window.innerWidth - rect.width - margin;
-      const bottomY = window.innerHeight - rect.height - margin;
+      const rightX = (width ?? window.innerWidth) - rect.width - margin;
+      const bottomY = (height ?? window.innerHeight) - rect.height - margin;
 
       setTvPos(clampTvPosition(
         tvSide.current === "left" ? leftX : rightX,
@@ -125,7 +128,7 @@ useEffect(() => {
     cancelInitialFrame?.();
     window.removeEventListener("resize", handleResize);
   };
-}, [lifecycle, hasPosition]);
+}, [lifecycle, hasPosition, width, height, clampTvPosition]);
 
 
 return { tvRef, tvPos, tvExpanded, setTvExpanded, dragTv };

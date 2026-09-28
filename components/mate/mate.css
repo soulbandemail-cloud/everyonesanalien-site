@@ -29,3 +29,68 @@
 
 /* A transformed frame establishes the same local viewport for all live layers. */
 [data-cockpit-presentation][style] .on-glass { width:100%; height:100%; }
+
+/* A landscape-held phone uses the existing portrait page inside the swivel frame.
+   Scope these layout overrides so desktop and completed cockpit remain untouched. */
+[data-portrait-first] .canonical-home main { padding:32px; min-height:var(--portrait-height); }
+[data-portrait-first] [data-dome-slot="socials"] { margin-bottom:0; }
+[data-portrait-first] [data-dome-slot="brand"] { margin-left:-32px; margin-right:-32px; }
+[data-portrait-first] .soul-wordmark { font-size:clamp(36px,calc(var(--portrait-width) * .12),60px); }
+[data-portrait-first] main > .grid { grid-template-columns:minmax(0,1fr); gap:32px; margin-bottom:16px; }
+[data-portrait-first] main > .grid > section { grid-column-start:auto; max-width:none; margin-left:0; margin-right:0; }
+[data-portrait-first] [data-dome-slot="live"] { margin-top:16px; }
+[data-portrait-first] [data-dome-slot="mate"] > .flex { margin-left:0; margin-right:0; }
+/* Scroll the content, not the rotated viewport; fixed atmosphere/TV stay anchored. */
+[data-portrait-settled] .canonical-home { height:100%; overflow:auto; overscroll-behavior:contain; }
+[data-portrait-first] .wish-rules-box { max-width:min(calc(var(--portrait-width) * .92),520px); }
+[data-portrait-first] .wish-pong-handle,
+[data-portrait-first] .wish-burst-star { top:24%; }
+[data-portrait-first] .space-tv { width:min(calc(var(--portrait-width) * .35),140px); }
+[data-portrait-first] .space-tv.space-tv-expanded { width:var(--portrait-width); height:var(--portrait-height); }
+[data-portrait-first] .space-tv.space-tv-expanded .space-tv-body { width:min(calc(var(--portrait-width) * .9),520px); }
+  [data-portrait-first] .space-tv-top {
+    height: 24px;
+  }
+
+  [data-portrait-first] .space-tv-handle {
+    width: min(58%, 92px);
+    height: 17px;
+    border-width: 1px;
+  }
+
+  [data-portrait-first] .space-tv-antenna {
+    right: 4px;
+    bottom: 1px;
+    width: 36px;
+    height: 34px;
+    background:
+      radial-gradient(circle at 4.5px 5px, #7fffd4 0 3px, transparent 3.5px),
+      radial-gradient(circle at calc(100% - 4.5px) 5px, #7fffd4 0 3px, transparent 3.5px);
+  }
+
+  [data-portrait-first] .space-tv-spark {
+    top: -4px;
+    width: 38px;
+    height: 19px;
+  }
+
+  [data-portrait-first] .space-tv-antenna::before,
+  [data-portrait-first] .space-tv-antenna::after {
+    height: 34px;
+    width: 1px;
+  }
+
+  [data-portrait-first] .space-tv-body {
+    padding: 6px;
+    border-radius: 7px 7px 12px 12px;
+  }
+
+  [data-portrait-first] .space-tv-screen {
+    min-height: 52px;
+    border-width: 1px;
+  }
+
+  [data-portrait-first] .space-tv-screen p {
+    font-size: 0.5rem;
+    letter-spacing: 0.16em;
+  }

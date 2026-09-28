@@ -11,7 +11,7 @@ function load(name){
 }
 const g=load('domeGeometry'),m=load('mobilePresentation'),h=load('hullGeometry'),seam=load('hullFloorSeam'),room=load('roomGeometry');
 const samples=[{width:844,height:290},{width:667,height:300},{width:915,height:360},{width:812,height:250}];
-test('portrait cockpit swivels with entry progress and unrotates when the phone rotates',()=>{
+test('mobile first person stays portrait and cockpit stays landscape in either physical orientation',()=>{
  const portrait={width:390,height:844},landscape={width:844,height:390};
  assert.equal(m.isMobileViewport(portrait,true,5),true);
  assert.equal(m.isMobileViewport(landscape,false,0),false);
@@ -20,10 +20,16 @@ test('portrait cockpit swivels with entry progress and unrotates when the phone 
   assert.equal(frame.angle,90*progress);
   assert.equal(frame.view.width,390+454*progress);
   assert.equal(frame.view.height,844-454*progress);
-  assert.deepEqual(m.cockpitPresentation(landscape,true,true,progress),{view:landscape,angle:0});
+  const reverse=m.cockpitPresentation(landscape,true,true,progress);
+  assert.equal(reverse.angle,90*(1-progress));
+  assert.equal(reverse.view.width,844-454*(1-progress));
+  assert.equal(reverse.view.height,390+454*(1-progress));
+  assert.deepEqual(m.cockpitPresentation(landscape,false,true,progress),{view:landscape,angle:0});
   assert.deepEqual(m.cockpitPresentation(portrait,false,false,progress),{view:portrait,angle:0});
  }
  assert.deepEqual(m.cockpitPresentation(portrait,true,false,1).view,landscape);
+ assert.deepEqual(m.cockpitPresentation(landscape,true,true,0).view,portrait);
+ assert.deepEqual(m.cockpitPresentation(landscape,true,true,1),{view:landscape,angle:0});
  const source=fs.readFileSync('components/mate/MateExperience.tsx','utf8');
  assert.doesNotMatch(source,/orientation-gate|Rotate your phone|inert=|requestOrientation/);
  assert.match(source,/data-cockpit-presentation/);

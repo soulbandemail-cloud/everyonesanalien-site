@@ -16,14 +16,14 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 
-export default function CanonicalHomepage({ cockpit, loginEnabled, config, view, animateEntry = false, camera = config, progress = cockpit ? 1 : 0, mobileThird=false }: { cockpit: boolean; loginEnabled: boolean; config: DomeConfig; view: Viewport; animateEntry?: boolean; camera?: DomeConfig; progress?: number; mobileThird?:boolean }) {
+export default function CanonicalHomepage({ cockpit, loginEnabled, config, view, animateEntry = false, camera = config, progress = cockpit ? 1 : 0, mobileThird=false, publicFrame }: { cockpit: boolean; loginEnabled: boolean; config: DomeConfig; view: Viewport; animateEntry?: boolean; camera?: DomeConfig; progress?: number; mobileThird?:boolean; publicFrame?:{view:Viewport;angle:number} }) {
  const homeRoot = useRef<HTMLDivElement>(null);
  // Blend the live header toward the final dome frame. The travelling eye crosses
  // that surface near its start; projecting through it would fling the header offscreen.
  useDomeProjection(homeRoot, cockpit, config, view, animateEntry, config, progress, mobileThird);
  return <div ref={homeRoot} className="canonical-home" data-returning={!cockpit && progress>0 ? "true" : undefined}>
  <ExteriorSpace config={config} camera={camera} view={view} />
- {!cockpit && <div className="site-atmosphere"><PortableTV /></div>}
+ {!cockpit && <div className="site-atmosphere"><PortableTV frame={publicFrame} /></div>}
  <main className="pink-text-glow min-h-screen text-white p-8 md:p-12 max-w-12xl mx-auto">
         <div data-dome-slot="socials" className="flex flex-nowrap justify-center gap-10 sm:gap-10 mb-0 md:mb-4">
           <a
@@ -94,7 +94,7 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
           </div>
         </div>
 
-        <DomeWishes active={!cockpit} spaceTransform={exteriorPlane(config,camera,view)} />
+        <DomeWishes active={!cockpit} frame={publicFrame} spaceTransform={exteriorPlane(config,camera,view)} />
 
         <div className="grid gap-8 md:gap-16 md:grid-cols-3 mt-2 mb-4 md:mb-16">
           <section data-dome-slot="live" className="md:col-start-1 mt-4 md:mt-0 md:max-w-sm md:mx-auto">

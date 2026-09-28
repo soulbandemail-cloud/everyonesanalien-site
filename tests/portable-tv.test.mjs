@@ -25,3 +25,18 @@ test('unmount before bootstrap cancels initialization',()=>{
  const h=harness(1280,720,'tv');assert.equal(h.game.tvPos,null);
  h.unmount();assert.equal(h.timers.size,0);
 });
+
+test('rotated portrait TV uses local bounds and the rotated drag axis',()=>{
+ const frame={view:{width:390,height:844},angle:90};
+ const h=harness(844,390,'tv',frame);
+ h.advance(16);h.advance(16);
+ // Harness TV is 320 × 250 regardless of CSS; placement must use those local sizes.
+ assert.deepEqual(h.game.tvPos,{x:62,y:586});
+ h.game.dragTv({...pointer,clientY:200});
+ h.event('pointermove',{clientX:200,clientY:150});h.event('pointerup');
+ assert.deepEqual(h.game.tvPos,{x:8,y:586});
+ h.game.dragTv({...pointer,clientY:200});
+ h.event('pointermove',{clientX:200,clientY:250});h.event('pointerup');
+ assert.deepEqual(h.game.tvPos,{x:62,y:586});
+ h.unmount();
+});

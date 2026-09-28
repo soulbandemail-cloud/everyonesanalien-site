@@ -22,7 +22,7 @@ const WISH_RULE_TRIGGERS = [
   /fall\s+in\s+love/,
 ];
 
-export default function DomeWishes({ active = true, spaceTransform }: { active?: boolean; spaceTransform?: string }) {
+export default function DomeWishes({ active = true, spaceTransform, frame }: { active?: boolean; spaceTransform?: string; frame?:{view:{width:number;height:number};angle:number} }) {
 const lifecycle = useScopedLifecycle();
 const wishBarrierRef = useRef<WishBarrier | null>(null);
 const paddleCleanup = useRef<(() => void) | null>(null);
@@ -99,14 +99,16 @@ const dragWishPaddle = (e: React.PointerEvent<HTMLDivElement>) => {
   e.preventDefault();
   e.stopPropagation();
 
-  const startX = e.clientX;
+  const radians=(frame?.angle ?? 0)*Math.PI/180;
+  const localX=(event:{clientX:number;clientY:number})=>event.clientX*Math.cos(radians)+(event.clientY ?? 0)*Math.sin(radians);
+  const startX = localX(e);
   paddleCleanup.current?.();
   const startOffset = pongWish.x;
-  const maxOffset = window.innerWidth / 2 - 40;
+  const maxOffset = (frame?.view.width ?? window.innerWidth) / 2 - 40;
 
   const movePaddle = (moveEvent: PointerEvent) => {
     const nextX = Math.min(
-      Math.max(startOffset + moveEvent.clientX - startX, -maxOffset),
+      Math.max(startOffset + localX(moveEvent) - startX, -maxOffset),
       maxOffset
     );
 

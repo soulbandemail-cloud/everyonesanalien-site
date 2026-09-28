@@ -13,7 +13,8 @@ export function viewportLandscape(view: Viewport, orientationType?: string) {
 }
 /** Turn the same live scene sideways; no orientation permission or blocking screen. */
 export function cockpitPresentation(view:Viewport,mobile:boolean,landscape:boolean,progress:number) {
-  const t=mobile && !landscape ? Math.max(0,Math.min(1,progress)) : 0;
+  const p=Math.max(0,Math.min(1,progress));
+  const t=mobile ? (landscape ? 1-p : p) : 0;
   return {view:t===0 ? view : {width:view.width+(view.height-view.width)*t,height:view.height+(view.width-view.height)*t},angle:90*t};
 }
 /** Bounds of the existing sofa solids, transformed exactly like Fixtures.local(). */

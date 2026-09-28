@@ -28,6 +28,7 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
   const {mobile}=viewport;
   const presentation=useMemo(()=>cockpitPresentation(viewport.view,mobile,viewport.landscape,progress),[viewport.view,mobile,viewport.landscape,progress]);
   const view=presentation.view;
+  const portraitFirst=mobile && viewport.landscape && (!cockpit || progress<1);
   const mobileThird=mobile && (cockpit || progress>0);
   const [config,setConfig] = useState(DEFAULT_DOME);
   const [hull,setHull] = useState(DEFAULT_HULL);
@@ -105,11 +106,12 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
   const camera=transitionCamera(config,progress);
   const roomCamera=transitionCamera(mobileThird ? mobileThirdCamera(config,view) : config,progress);
   return <div className={`mate-experience ${cockpit ? 'mate-cockpit' : ''}`} ref={focusTarget} tabIndex={-1}>
-    <div data-cockpit-presentation data-presentation-angle={presentation.angle} style={mobileThird ? {
+    <div data-cockpit-presentation data-presentation-angle={presentation.angle} data-portrait-first={portraitFirst || undefined} data-portrait-settled={portraitFirst && progress===0 || undefined} style={mobileThird || (mobile && viewport.landscape) ? {
+      '--portrait-width':`${view.width}px`,'--portrait-height':`${view.height}px`,
       position:'fixed',left:0,top:0,width:view.width,height:view.height,transformOrigin:'0 0',
       transform:`translate(${viewport.left+viewport.view.width/2}px,${viewport.top+viewport.view.height/2}px) rotate(${presentation.angle}deg) translate(${-view.width/2}px,${-view.height/2}px)`,
-    } : undefined}>
-    <CanonicalHomepage animateEntry={entry} cockpit={cockpit} loginEnabled={loginEnabled && !preview} config={config} camera={camera} progress={progress} view={view} mobileThird={mobileThird} />
+    } as React.CSSProperties : undefined}>
+    <CanonicalHomepage animateEntry={entry} cockpit={cockpit} loginEnabled={loginEnabled && !preview} config={config} camera={camera} progress={progress} view={view} mobileThird={mobileThird} publicFrame={mobile ? presentation : undefined} />
     {(cockpit || progress>0) && <Ship config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
     {cockpit && arcadeOpen && <ArcadeDialog viewport={viewport} onExit={() => setArcadeOpen(false)} />}
     </div>

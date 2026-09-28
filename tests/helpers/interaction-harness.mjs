@@ -5,10 +5,11 @@ const require = createRequire(import.meta.url);
 
 // Exercise the real extracted component's handlers/physics with deterministic
 // hooks, viewport, clock and DOM bounds. No test-only production API or copy of physics.
-export function harness(width = 1280, height = 720, mode = 'arcade') {
+export function harness(width = 1280, height = 720, mode = 'arcade', frame) {
   let cursor = 0, snapshot, tree, now = 10000, nextId = 0;
   const slots = [], effects = [], cleanups = [], intervals = new Map(), timers = new Map(), listeners = new Map();
   const react = {
+    useCallback(callback, deps) { const i=cursor++; if(!slots[i] || deps.some((v,j)=>v!==slots[i].deps[j])) slots[i]={callback,deps}; return slots[i].callback; },
     useRef(value) { const i = cursor++; return slots[i] ??= { current: value }; },
     useState(value) { const i = cursor++; if (!(i in slots)) slots[i] = typeof value === 'function' ? value() : value; return [slots[i], update => { slots[i] = typeof update === 'function' ? update(slots[i]) : update; }]; },
     useEffect(callback, deps) { const i = cursor++; if (!slots[i] || deps.some((v,j) => v !== slots[i][j])) { slots[i] = deps; effects.push(() => { cleanups[i]?.(); cleanups[i] = callback(); }); } },
@@ -39,7 +40,7 @@ export function harness(width = 1280, height = 720, mode = 'arcade') {
   const rules = compile('components/home/WishRules.tsx',{});
   const physics = compile('components/home/wishPhysics.ts',{});
   const dependencies = {'./presentation':presentation,'./discharge':electricalMath,'./useOrbitDischarge':electricalHook,'../home/useScopedLifecycle':lifecycle,'../home/usePortableTv':portable,'../home/PlanetHeart':{default:()=>null},'./arcade.css':{},'./useScopedLifecycle':lifecycle,'./WishRules':rules,'./wishes.css':{}};
-  const game = mode === 'tv' ? {default:()=>{snapshot=portable.usePortableTv();return null;}} : compile(mode === 'arcade' ? 'components/arcade/ArcadeGame.tsx' : 'components/home/DomeWishes.tsx',dependencies,source => source.replace(mode === 'arcade' ? 'return (\n  <div ref={gameRoot}' : 'return <>',`inspect({${fields.join(',')}});\n${mode === 'arcade' ? 'return (\n  <div ref={gameRoot}' : 'return <>'}`));
+  const game = mode === 'tv' ? {default:()=>{snapshot=portable.usePortableTv(frame);return null;}} : compile(mode === 'arcade' ? 'components/arcade/ArcadeGame.tsx' : 'components/home/DomeWishes.tsx',dependencies,source => source.replace(mode === 'arcade' ? 'return (\n  <div ref={gameRoot}' : 'return <>',`inspect({${fields.join(',')}});\n${mode === 'arcade' ? 'return (\n  <div ref={gameRoot}' : 'return <>'}`));
   const rootListeners=new Map();
   const captured=new Set();
   const surface={
@@ -48,7 +49,7 @@ export function harness(width = 1280, height = 720, mode = 'arcade') {
     removeEventListener:(name,fn)=>rootListeners.get(name)?.delete(fn),
     setPointerCapture:id=>captured.add(id),hasPointerCapture:id=>captured.has(id),releasePointerCapture:id=>captured.delete(id),
   };
-  function render() { cursor=0; tree=game.default({onRestart(){}});if(mode==='arcade')snapshot.gameRoot.current=surface;if(mode==='tv')snapshot.tvRef.current=snapshot.tvPos ? rect(900,400,320,250) : null; for (const effect of effects.splice(0)) { const cleanup=effect(); if(cleanup) cleanups.push(cleanup); } return snapshot; }
+  function render() { cursor=0; tree=game.default({onRestart(){},frame});if(mode==='arcade')snapshot.gameRoot.current=surface;if(mode==='tv')snapshot.tvRef.current=snapshot.tvPos ? rect(900,400,320,250) : null; for (const effect of effects.splice(0)) { const cleanup=effect(); if(cleanup) cleanups.push(cleanup); } return snapshot; }
   const rect = (left,top,width,height) => ({getBoundingClientRect:()=>({left,top,width,height,right:left+width,bottom:top+height}),offsetWidth:width,offsetHeight:height,classList:{contains:()=>false}});
   render();
   if (mode === 'arcade') {

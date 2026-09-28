@@ -1,8 +1,8 @@
 "use client";
 import { useState } from 'react';
 import { usePortableTv } from './usePortableTv';
-export default function PortableTV() {
- const {tvRef, tvPos, tvExpanded, setTvExpanded, dragTv} = usePortableTv();
+export default function PortableTV({frame}:{frame?:{view:{width:number;height:number};angle:number}}) {
+ const {tvRef, tvPos, tvExpanded, setTvExpanded, dragTv} = usePortableTv(frame);
  const [tvStarted, setTvStarted] = useState(false);
 return tvPos && (
   <aside
