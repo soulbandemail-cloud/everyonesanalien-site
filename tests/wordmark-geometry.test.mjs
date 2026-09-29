@@ -124,3 +124,21 @@ test('desktop rules retain only the continuous visible arc instead of a second f
   }
  }
 });
+
+test('mobile socials centre TikTok and space the visible icons symmetrically',()=>{
+ for(const view of [{width:667,height:375},{width:844,height:390}]) {
+  const latitude=layout.domePageLayout(g.DEFAULT_DOME).socials;
+  const centres=[];
+  for(let i=0;i<5;i++) {
+   const rect={left:0,top:40,width:48,height:48};
+   const m=social.socialProjection(rect,i,latitude,g.DEFAULT_DOME,view,1,true);
+   const size=social.socialIconSize(48,view.width<760,1);
+   centres.push(m[4]+(m[0]+m[2])*size/2);
+   const anchor=g.domePoint((i-2)*.30,latitude,g.DEFAULT_DOME,view);
+   close(centres[i],anchor.x);
+  }
+  close(centres[2],view.width/2);
+  close(centres[0]+centres[4],view.width);
+  close(centres[1]+centres[3],view.width);
+ }
+});
