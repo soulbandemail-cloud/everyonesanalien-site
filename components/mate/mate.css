@@ -152,3 +152,9 @@ button.object-back:focus-visible { text-decoration:none; }
 
 /* Reuse the cockpit silhouette treatment without a resting frame. */
 .ringer-tee-display { transform-origin:center; vertical-align:top; }
+
+/* Keep the alpha filter inside a real SVG viewport for Safari tab restoration. */
+.ringer-tee-art { height:auto; max-width:100%; }
+.ringer-tee-display:not([data-resting]):is(:hover,:focus-visible) .ringer-tee-silhouette { filter:var(--tee-outline); }
+.ringer-tee-display:active .ringer-tee-silhouette { filter:none !important; }
+.on-glass[data-mobile-third] .ringer-tee-art { width:64px; }

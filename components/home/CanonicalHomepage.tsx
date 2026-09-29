@@ -1,5 +1,4 @@
 "use client";
-import Image from 'next/image';
 import ringerTee from '@/public/soul-ringer-tee.png';
 import { useId, useRef, type CSSProperties } from 'react';
 import MatePanel from '@/components/mate/MatePanel';
@@ -23,20 +22,8 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
  // Blend the live header toward the final dome frame. The travelling eye crosses
  // that surface near its start; projecting through it would fling the header offscreen.
  useDomeProjection(homeRoot, cockpit, config, view, animateEntry, config, progress, mobileThird);
- return <div ref={homeRoot} className="canonical-home" data-dome-narrow={view.width<760 || undefined} data-returning={!cockpit && progress>0 ? "true" : undefined}>
+ return <div ref={homeRoot} className="canonical-home" data-mobile-third={mobileThird || undefined} data-dome-narrow={view.width<760 || undefined} data-returning={!cockpit && progress>0 ? "true" : undefined}>
  <ExteriorSpace config={config} camera={camera} view={view} />
- <svg width="0" height="0" aria-hidden="true" style={{position:'absolute',pointerEvents:'none'}}>
-  <defs>
-   <filter id={teeOutlineId} x="-100%" y="-100%" width="300%" height="300%" colorInterpolationFilters="sRGB">
-    <feGaussianBlur in="SourceAlpha" stdDeviation="2.5" result="softSilhouette" />
-    <feComponentTransfer in="softSilhouette" result="expanded"><feFuncA type="linear" slope="12" intercept="-1.5" /></feComponentTransfer>
-    <feComposite in="expanded" in2="SourceAlpha" operator="out" result="edge" />
-    <feFlood floodColor="#6ee7b7" result="mint" />
-    <feComposite in="mint" in2="edge" operator="in" result="outline" />
-    <feMerge><feMergeNode in="outline" /><feMergeNode in="SourceGraphic" /></feMerge>
-   </filter>
-  </defs>
- </svg>
  <main className="pink-text-glow min-h-screen text-white p-8 md:p-12 max-w-12xl mx-auto">
         <div data-dome-slot="socials" className="flex flex-nowrap justify-center gap-10 sm:gap-10 mb-0 md:mb-4">
           <a
@@ -134,8 +121,25 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
           <section data-dome-slot="merch" className="md:col-start-3 md:max-w-sm md:mx-auto">
             <h2 className="text-2xl mb-4">THE MERCH</h2>
 
-            <a href="https://square.link/u/lXbPiLpe" target="_blank" rel="noopener noreferrer" aria-label="Shop the SOUL Ringer Tee (opens in a new tab)" className="inline-block ringer-tee-display cockpit-interactive-fixture" aria-disabled="false" style={{"--fixture-hover-filter":`url(#${teeOutlineId})`} as CSSProperties}>
-              <Image src={ringerTee} alt="SOUL Ringer Tee" width={180} className="h-auto max-w-full" />
+            <a href="https://square.link/u/lXbPiLpe" target="_blank" rel="noopener noreferrer" aria-label="Shop the SOUL Ringer Tee (opens in a new tab)" className="inline-block ringer-tee-display cockpit-interactive-fixture" aria-disabled="false" style={{"--fixture-hover-filter":"none","--tee-outline":`url(#${teeOutlineId})`} as CSSProperties}
+              onClick={event=>{event.currentTarget.dataset.resting='true';}}
+              onPointerMove={event=>{if(event.pointerType==='mouse')delete event.currentTarget.dataset.resting;}}
+              onPointerEnter={event=>{if(event.pointerType==='mouse')delete event.currentTarget.dataset.resting;}}
+              onBlur={event=>{event.currentTarget.dataset.resting='true';}}>
+              <svg className="ringer-tee-art" width="180" viewBox={`0 0 180 ${180*ringerTee.height/ringerTee.width}`} role="img" aria-label="SOUL Ringer Tee" style={{overflow:'visible',display:'block'}}>
+  <defs>
+   <filter id={teeOutlineId} x="-100%" y="-100%" width="300%" height="300%" colorInterpolationFilters="sRGB">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="2.5" result="softSilhouette" />
+    <feComponentTransfer in="softSilhouette" result="expanded"><feFuncA type="linear" slope="12" intercept="-1.5" /></feComponentTransfer>
+    <feComposite in="expanded" in2="SourceAlpha" operator="out" result="edge" />
+    <feFlood floodColor="#6ee7b7" result="mint" />
+    <feComposite in="mint" in2="edge" operator="in" result="outline" />
+    <feMerge><feMergeNode in="outline" /><feMergeNode in="SourceGraphic" /></feMerge>
+   </filter>
+  </defs>
+
+                <g className="ringer-tee-silhouette"><image href={ringerTee.src} width={180} height={180*ringerTee.height/ringerTee.width} /></g>
+              </svg>
             </a>
 
           </section>

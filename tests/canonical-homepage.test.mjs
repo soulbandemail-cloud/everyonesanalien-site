@@ -25,7 +25,7 @@ const room=component('lib/ship/roomGeometry.ts',{'./domeGeometry':geometry});
 const transition=component('lib/ship/cameraTransition.ts',{'./roomGeometry':room});
 const exterior=component('lib/ship/exteriorSpace.ts',{'./domeGeometry':geometry,'./cameraTransition':transition});
 const space=component('components/home/ExteriorSpace.tsx',{'./exterior.css':{},'@/lib/ship/domeGeometry':geometry,'@/lib/ship/exteriorSpace':exterior});
-const page=component('components/home/CanonicalHomepage.tsx',{'@/public/soul-ringer-tee.png':{src:'/soul-ringer-tee.png',width:1152,height:928},'@/lib/ship/domeGeometry':geometry,'./ExteriorSpace':space,'@/lib/ship/exteriorSpace':exterior,'./DomeWishes':wishes,'./PortableTV':tv,'./RealPlanetHeart':heart,'./useDomeProjection':{useDomeProjection:()=>{}},'@/components/mate/MatePanel':panel});
+const page=component('components/home/CanonicalHomepage.tsx',{'@/public/soul-ringer-tee.png':{default:{src:'/soul-ringer-tee.png',width:1397,height:1126}},'@/lib/ship/domeGeometry':geometry,'./ExteriorSpace':space,'@/lib/ship/exteriorSpace':exterior,'./DomeWishes':wishes,'./PortableTV':tv,'./RealPlanetHeart':heart,'./useDomeProjection':{useDomeProjection:()=>{}},'@/components/mate/MatePanel':panel});
 const render=cockpit=>renderToStaticMarkup(React.createElement(page.default,{cockpit,loginEnabled:true,config:geometry.DEFAULT_DOME,view:{width:1440,height:900}}));
 const links=html=>[...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/gs)].map(m=>[m[1],m[2]]);
 test('one canonical content tree: public SHOWS/MATES/THE MERCH, cockpit SHOWS/empty/THE MERCH',()=>{
@@ -129,4 +129,14 @@ test('real planet ring has isolated SVG halos, crisp white cores and unique inst
  assert.equal(planetPaths.length,2);
  for(const [path] of planetPaths)assert.doesNotMatch(path,/filter=/);
  assert.doesNotMatch(fs.readFileSync('components/home/exterior.css','utf8'),/\.planet-letter-ring\s*\{/);
+});
+
+test('tee uses a visible SVG silhouette and preserves its Square link in both views',()=>{
+ for(const cockpit of [false,true]) {
+  const html=render(cockpit);
+  assert.match(html,/href="https:\/\/square.link\/u\/lXbPiLpe"/);
+  assert.match(html,/class="ringer-tee-art" width="180"/);
+  assert.match(html,/<g class="ringer-tee-silhouette"><image href="\/soul-ringer-tee.png"/);
+  assert.doesNotMatch(html,/<svg width="0" height="0"/);
+ }
 });
