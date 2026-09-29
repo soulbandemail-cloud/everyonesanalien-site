@@ -1,4 +1,6 @@
 "use client";
+import Image from 'next/image';
+import ringerTee from '@/public/soul-ringer-tee.png';
 import { useRef } from 'react';
 import MatePanel from '@/components/mate/MatePanel';
 import { useDomeProjection } from './useDomeProjection';
@@ -119,10 +121,9 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
           <section data-dome-slot="merch" className="md:col-start-3 md:max-w-sm md:mx-auto">
             <h2 className="text-2xl mb-4">THE MERCH</h2>
 
-            <p>
-              Coming soon
-              <span className="animate-pulse">_</span>
-            </p>
+            <a href="https://square.link/u/lXbPiLpe" target="_blank" rel="noopener noreferrer" aria-label="Shop the SOUL Ringer Tee (opens in a new tab)" className="inline-block ringer-tee-display">
+              <Image src={ringerTee} alt="SOUL Ringer Tee" width={180} className="h-auto max-w-full" />
+            </a>
 
           </section>
         </div>
