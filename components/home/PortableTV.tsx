@@ -40,7 +40,7 @@ return (
         {!tvExpanded && !dock && <button type="button" className="space-tv-open" aria-label="Maximise TV" onClick={()=>{setTvStarted(true);setTvExpanded(true);}} />}
       </div>
     </div>
-    {tvExpanded && <button type="button" className="space-tv-close" onClick={()=>setTvExpanded(false)}>CLOSE TV</button>}
+    {tvExpanded && <button type="button" className="space-tv-close object-back" onClick={()=>setTvExpanded(false)}>BACK</button>}
   </aside>
 );
 

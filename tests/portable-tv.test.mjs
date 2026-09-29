@@ -59,7 +59,7 @@ test('one mounted iframe and playback/maximise state persist between both TV pos
   assert.equal(h.game.tvExpanded,true);assert.equal(h.game.tvStarted,true);
   assert.equal(iframe().length,1);assert.equal(iframe()[0].props.src,src);assert.equal(iframe()[0].key,null);
  }
- nodes(h.tree).find(n=>n.props?.className==='space-tv-close').props.onClick();
+ nodes(h.tree).find(n=>n.props?.className?.split(' ').includes('space-tv-close')).props.onClick();
  assert.equal(h.game.tvExpanded,false);assert.equal(h.game.tvStarted,true);
  assert.deepEqual(nodes(h.tree).find(n=>n.type==='aside').props.style.left,350);
  h.setTvProps({});assert.equal(h.game.tvStarted,true);assert.equal(iframe()[0].props.src,src);

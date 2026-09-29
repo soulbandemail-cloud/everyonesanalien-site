@@ -13,6 +13,8 @@ export const Fixtures = memo(function Fixtures({ config, view, onArcade, onTV, o
   const interaction=(name:'tv'|'arcade'|'newsletter',action?:()=>void)=>({
     tabIndex:action ? 0 : -1, 'aria-disabled':!action, 'data-pressed':pressed===name || undefined,
     onClick:action,
+    onPointerMove:(event:React.PointerEvent<SVGGElement>)=>{delete event.currentTarget.dataset.resting;},
+    onFocus:(event:React.FocusEvent<SVGGElement>)=>{delete event.currentTarget.dataset.resting;},
     onPointerDown:(event:React.PointerEvent<SVGGElement>)=>{if(action && event.button===0){event.currentTarget.setPointerCapture(event.pointerId);setPressed(name);}},
     onPointerUp:()=>setPressed(null),onPointerCancel:()=>setPressed(null),onPointerLeave:(event:React.PointerEvent<SVGGElement>)=>{if(!event.currentTarget.hasPointerCapture(event.pointerId))setPressed(null);},onBlur:()=>setPressed(null),
     onKeyDown:(event:React.KeyboardEvent)=>{if(action && (event.key==='Enter' || event.key===' ')){event.preventDefault();setPressed(name);}},

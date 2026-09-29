@@ -125,7 +125,7 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
     } as React.CSSProperties : undefined}>
     <CanonicalHomepage animateEntry={entry} cockpit={cockpit} loginEnabled={loginEnabled && !preview} config={config} camera={camera} progress={progress} view={view} mobileThird={mobileThird} publicFrame={mobile ? presentation : undefined} />
     {(cockpit || progress>0) && <Ship onNewsletter={cockpit && progress===1 ? ()=>setNewsletterOpen(true) : undefined} onTV={cockpit && progress===1 ? ()=>tvController.current?.open() : undefined} liveTv={!!tvVisible} config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
-    {cockpit && newsletterOpen && <NewsletterDialog onClose={()=>setNewsletterOpen(false)} />}
+    {cockpit && newsletterOpen && <NewsletterDialog viewport={viewport} onClose={()=>setNewsletterOpen(false)} />}
     {cockpit && arcadeOpen && <ArcadeDialog viewport={viewport} onExit={() => setArcadeOpen(false)} />}
     </div>
     <div className="public-tv-frame site-atmosphere" data-tv-visible={!!tvVisible} data-mobile={mobile || undefined} style={thirdActive ? {

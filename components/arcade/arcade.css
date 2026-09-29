@@ -430,8 +430,6 @@
 .arcade-dialog::backdrop { background: #00082d; }
 .arcade-game { min-height: 100dvh; isolation: isolate; touch-action: none; }
 .arcade-controls { position: fixed; top: 8px; right: 8px; z-index: 1000000; }
-.arcade-controls button { border: 1px solid #7fffd4; padding: 8px 12px; background: #00082d; color: #7fffd4; cursor: pointer; }
-.arcade-controls button:focus-visible { outline: 2px solid white; outline-offset: 2px; }
 
 
 .arcade-charge { position:fixed; top:12px; left:12px; z-index:9000; display:flex; flex-direction:column; align-items:flex-start; gap:6px; color:#7fffd4; text-align:left; font-size:13px; letter-spacing:.15em; user-select:none; }

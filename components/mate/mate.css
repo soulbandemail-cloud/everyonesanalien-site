@@ -105,7 +105,7 @@
 .public-tv-frame[data-tv-visible="false"] .space-tv { pointer-events:none; }
 .space-tv-open { position:absolute; inset:0; z-index:5; cursor:pointer; background:transparent; border:0; }
 .space-tv-close { position:absolute; top:12px; right:12px; z-index:10; border:2px solid white; padding:8px 12px; color:white; background:#00082d; cursor:pointer; }
-.space-tv-close:focus-visible { outline:3px solid white; outline-offset:3px; }
+
 /* The live iframe occupies the exact existing SVG screen, not another TV body. */
 .space-tv[data-console]:not(.space-tv-expanded) .space-tv-top { display:none; }
 .space-tv[data-console]:not(.space-tv-expanded) .space-tv-body { width:100%; height:100%; padding:0; border:0; border-radius:0; background:transparent; box-shadow:none; transform-origin:center; }
@@ -127,11 +127,19 @@
 }
 
 @font-face { font-family:HyperFixBlackletter; src:url('/fonts/UnifrakturMaguntia-Book.ttf') format('truetype'); font-style:normal; font-weight:400; font-display:swap; }
-.newsletter-dialog { position:fixed; inset:0; width:100%; height:100%; max-width:none; max-height:none; margin:0; padding:56px 16px 16px; border:0; background:transparent; overflow:auto; box-sizing:border-box; }
+.newsletter-dialog { position:fixed; inset:0; width:100%; height:100%; max-width:none; max-height:none; margin:0; padding:0; border:0; background:transparent; overflow:auto; box-sizing:border-box; }
 .newsletter-dialog[open] { display:flex; flex-direction:column; align-items:center; }
 .newsletter-dialog::backdrop { background:rgba(0,8,45,.85); }
 .newsletter-page { display:block; flex:none; max-width:100%; line-height:0; }
 .newsletter-page img { display:block; width:auto; height:auto; max-width:100%; max-height:calc(100dvh - 72px); object-fit:contain; background:white; }
-.newsletter-close { position:fixed; top:12px; right:16px; border:2px solid white; padding:8px 12px; color:white; background:#00082d; cursor:pointer; }
-.newsletter-page:focus-visible,.newsletter-close:focus-visible { outline:3px solid #6ee7b7; outline-offset:4px; }
+.newsletter-close { position:absolute; top:12px; right:16px; border:2px solid white; padding:8px 12px; color:white; background:#00082d; cursor:pointer; }
+.newsletter-page:focus-visible { outline:3px solid #6ee7b7; outline-offset:4px; }
 .newsletter-fixture path { fill:white; stroke:#c4c4c4; }
+
+/* Shared BACK treatment for all current and future maximised objects. */
+button.object-back { color:white; border:2px solid white; background:#00082d; padding:8px 12px; cursor:pointer; outline:none; box-shadow:none; }
+button.object-back:is(:hover,:focus-visible) { color:#6ee7b7; border-color:#6ee7b7; outline:none; box-shadow:none; }
+.cockpit-interactive-fixture[data-resting] { transform:none !important; filter:none !important; transition:none; }
+.newsletter-frame { position:relative; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; box-sizing:border-box; padding:56px 16px 16px; }
+.newsletter-frame[data-mobile] { padding-top:76px; }
+.newsletter-frame[data-mobile] .newsletter-page img { max-height:calc(var(--newsletter-height) - 92px); }
