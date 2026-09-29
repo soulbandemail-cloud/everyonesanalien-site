@@ -12,10 +12,10 @@ import styles from './ship.module.css';
 const clamp = (n: number) => Math.max(0, Math.min(1, n));
 const smoothstep = (n: number) => { const t = clamp(n); return t * t * (3 - 2 * t); };
 
-export default function Ship({ config, baseline, onConfigChange, hull, onHullChange, view, domeConfig=config, sharedSeam=false, reveal=1, development=false, preview=false, logout, busy, onArcade, onTV, liveTv=false }: {
+export default function Ship({ config, baseline, onConfigChange, hull, onHullChange, view, domeConfig=config, sharedSeam=false, reveal=1, development=false, preview=false, logout, busy, onArcade, onTV, onNewsletter, liveTv=false }: {
  config:DomeConfig; baseline:DomeConfig; onConfigChange:(config:DomeConfig)=>void;
  hull:HullConfig; onHullChange:(hull:HullConfig)=>void; view:Viewport;
- domeConfig?:DomeConfig; sharedSeam?:boolean; reveal?:number; development?:boolean; preview?:boolean; logout?:()=>void; busy?:boolean; onArcade?:()=>void; onTV?:()=>void; liveTv?:boolean;
+ domeConfig?:DomeConfig; sharedSeam?:boolean; reveal?:number; development?:boolean; preview?:boolean; logout?:()=>void; busy?:boolean; onArcade?:()=>void; onTV?:()=>void; onNewsletter?:()=>void; liveTv?:boolean;
 }) {
  const root = useRef<HTMLDivElement>(null);
  const pointer = useRef({ x: 0, y: .25 });
@@ -61,7 +61,7 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
   <Dome config={domeConfig} view={view} debug={development && debug && grid} />
   <ExteriorHull config={config} hull={hull} view={view} sharedSeam={sharedSeam} />
   <CockpitFloor config={config} view={view} sharedSeam={sharedSeam} />
-  <Fixtures config={config} view={view} onArcade={onArcade} onTV={onTV} liveTv={liveTv} />
+  <Fixtures config={config} view={view} onArcade={onArcade} onTV={onTV} onNewsletter={onNewsletter} liveTv={liveTv} />
   <PilotMezzanine attention={attention} config={config} view={view} />
   <ManifestationPort config={config} view={view} />
   <header className={styles.toolbar}>

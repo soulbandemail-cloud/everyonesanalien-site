@@ -125,3 +125,13 @@
 @media (prefers-reduced-motion:reduce) {
  .cockpit-interactive-fixture, .space-tv[data-console]:not(.space-tv-expanded) .space-tv-body { transition:none; }
 }
+
+@font-face { font-family:HyperFixBlackletter; src:url('/fonts/UnifrakturMaguntia-Book.ttf') format('truetype'); font-style:normal; font-weight:400; font-display:swap; }
+.newsletter-dialog { position:fixed; inset:0; width:100%; height:100%; max-width:none; max-height:none; margin:0; padding:56px 16px 16px; border:0; background:transparent; overflow:auto; box-sizing:border-box; }
+.newsletter-dialog[open] { display:flex; flex-direction:column; align-items:center; }
+.newsletter-dialog::backdrop { background:rgba(0,8,45,.85); }
+.newsletter-page { display:block; flex:none; max-width:100%; line-height:0; }
+.newsletter-page img { display:block; width:auto; height:auto; max-width:100%; max-height:calc(100dvh - 72px); object-fit:contain; background:white; }
+.newsletter-close { position:fixed; top:12px; right:16px; border:2px solid white; padding:8px 12px; color:white; background:#00082d; cursor:pointer; }
+.newsletter-page:focus-visible,.newsletter-close:focus-visible { outline:3px solid #6ee7b7; outline-offset:4px; }
+.newsletter-fixture path { fill:white; stroke:#c4c4c4; }

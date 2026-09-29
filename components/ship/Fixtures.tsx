@@ -4,13 +4,13 @@ import { polygonPath } from '@/lib/ship/roomGeometry';
 import { FIXTURES, orientedFixtures, consoleTvScreen, type FixturePlacement } from '@/lib/ship/fixtureLayout';
 import styles from './ship.module.css';
 
-type Props = { config: DomeConfig; view: Viewport; onArcade?: () => void; onTV?:()=>void; liveTv?:boolean };
+type Props = { config: DomeConfig; view: Viewport; onArcade?: () => void; onTV?:()=>void; onNewsletter?:()=>void; liveTv?:boolean };
 
 /** Crude world-space solids: no owned items, controls, playback or inventory state. */
-export const Fixtures = memo(function Fixtures({ config, view, onArcade, onTV, liveTv=false }: Props) {
+export const Fixtures = memo(function Fixtures({ config, view, onArcade, onTV, onNewsletter, liveTv=false }: Props) {
   const outlineId=useId();
-  const [pressed,setPressed]=useState<'tv'|'arcade'|null>(null);
-  const interaction=(name:'tv'|'arcade',action?:()=>void)=>({
+  const [pressed,setPressed]=useState<'tv'|'arcade'|'newsletter'|null>(null);
+  const interaction=(name:'tv'|'arcade'|'newsletter',action?:()=>void)=>({
     tabIndex:action ? 0 : -1, 'aria-disabled':!action, 'data-pressed':pressed===name || undefined,
     onClick:action,
     onPointerDown:(event:React.PointerEvent<SVGGElement>)=>{if(action && event.button===0){event.currentTarget.setPointerCapture(event.pointerId);setPressed(name);}},
@@ -236,8 +236,10 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
         const rim = (height: number) => Array.from({length:65},(_,i) => local(table,1.05*Math.sin(i/64*Math.PI*2),height,1.05*Math.cos(i/64*Math.PI*2)));
         return <g stroke="#849396" strokeWidth="1"><path d={path(rim(.45))} fill="#45565f" /><path d={path(rim(.55))} fill="#6b7777" /></g>;
       })()}
-      {box(table,-.17,.55,0,.82,.025,.61,'#d2c9b3')}
-      {flatArt(table,-.17,.58,-.1,.67,<g><text textAnchor="middle" fill="#263b40" fontSize="14" fontWeight="bold">HYPER-FIX</text><text y="17" textAnchor="middle" fill="#435955" fontSize="8">CURRENT ISSUE</text></g>,'horizontal')}
+      <g className="newsletter-fixture cockpit-interactive-fixture" role="button" aria-label="Open The Hyper-Fix" {...interaction('newsletter',onNewsletter)} style={{pointerEvents:onNewsletter ? 'auto' : 'none'}}>
+      {box(table,-.17,.55,0,.82,.025,.61,'#fff')}
+      {flatArt(table,-.17,.58,-.1,.67,<g><text textAnchor="middle" fill="#000" fontSize="14" fontFamily="HyperFixBlackletter, serif">The Hyper-Fix</text><text y="17" textAnchor="middle" fill="#222" fontSize="8">CURRENT ISSUE</text></g>,'horizontal')}
+      </g>
     </g>
   </svg>;
 });

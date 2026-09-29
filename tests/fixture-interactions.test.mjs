@@ -22,12 +22,12 @@ function fixtureHarness(){
   });cache.set(file,mod.exports);return mod.exports;
  }
  const {Fixtures}=load('components/ship/Fixtures.tsx'),{DEFAULT_DOME}=load('lib/ship/domeGeometry.ts');
- let tv=0,arcade=0;
- const render=(enabled=true)=>Fixtures({config:DEFAULT_DOME,view:{width:1280,height:720},onTV:enabled?()=>tv++:undefined,onArcade:enabled?()=>arcade++:undefined,liveTv:true});
- return {render,counts:()=>({tv,arcade})};
+ let tv=0,arcade=0,newsletter=0;
+ const render=(enabled=true)=>Fixtures({config:DEFAULT_DOME,view:{width:1280,height:720},onTV:enabled?()=>tv++:undefined,onArcade:enabled?()=>arcade++:undefined,onNewsletter:enabled?()=>newsletter++:undefined,liveTv:true});
+ return {render,counts:()=>({tv,arcade,newsletter})};
 }
-test('TV and arcade use identical press/release and cancellation behaviour',()=>{
- for(const [name,id] of [['Maximise TV','tv'],['Play SOUL arcade','arcade']]){
+test('TV, arcade and newspaper use identical press/release and cancellation behaviour',()=>{
+ for(const [name,id] of [['Maximise TV','tv'],['Play SOUL arcade','arcade'],['Open The Hyper-Fix','newsletter']]){
   const h=fixtureHarness();const button=()=>nodes(h.render()).find(n=>n.props?.['aria-label']===name);
   let captured=false;const target={setPointerCapture(){captured=true;},hasPointerCapture(){return captured;}};
   button().props.onPointerDown({button:0,pointerId:1,currentTarget:target});

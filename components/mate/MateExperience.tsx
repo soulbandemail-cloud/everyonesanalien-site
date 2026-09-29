@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './mate.css';
 import { useCockpitZoomGuard } from './useCockpitZoomGuard';
 import { consoleTvScreen } from '@/lib/ship/fixtureLayout';
+import NewsletterDialog from './NewsletterDialog';
 import PortableTV, { type TvController } from '@/components/home/PortableTV';
 import CanonicalHomepage from '@/components/home/CanonicalHomepage';
 import { usePresentationViewport } from './usePresentationViewport';
@@ -19,12 +20,14 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
   initialAuthenticated?: boolean; loginEnabled?: boolean; entry?: boolean; error?: boolean; development?: boolean; preview?: boolean; mobilePreview?: boolean;
 }) {
   const tvController=useRef<TvController>(null);
+  const [newsletterOpen,setNewsletterOpen]=useState(false);
   const [arcadeOpen,setArcadeOpen] = useState(false);
   const [authenticated,setAuthenticated] = useState(initialAuthenticated);
   const [entryReady,setEntryReady] = useState(!entry);
   const [previewCockpit,setPreviewCockpit]=useState(preview);
   const cockpit = (preview && previewCockpit) || (authenticated && entryReady);
   // Losing access must also discard the open game before any later login.
+  if (!cockpit && newsletterOpen) setNewsletterOpen(false);
   if (!cockpit && arcadeOpen) setArcadeOpen(false);
   const [progress,setProgress] = useState(cockpit && !entry ? 1 : 0);
   const progressRef = useRef(progress);
@@ -121,7 +124,8 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
       transform:`translate(${viewport.left+viewport.view.width/2}px,${viewport.top+viewport.view.height/2}px) scale(${sceneViewport.scale}) rotate(${presentation.angle}deg) translate(${-view.width/2}px,${-view.height/2}px)`,
     } as React.CSSProperties : undefined}>
     <CanonicalHomepage animateEntry={entry} cockpit={cockpit} loginEnabled={loginEnabled && !preview} config={config} camera={camera} progress={progress} view={view} mobileThird={mobileThird} publicFrame={mobile ? presentation : undefined} />
-    {(cockpit || progress>0) && <Ship onTV={cockpit && progress===1 ? ()=>tvController.current?.open() : undefined} liveTv={!!tvVisible} config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
+    {(cockpit || progress>0) && <Ship onNewsletter={cockpit && progress===1 ? ()=>setNewsletterOpen(true) : undefined} onTV={cockpit && progress===1 ? ()=>tvController.current?.open() : undefined} liveTv={!!tvVisible} config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
+    {cockpit && newsletterOpen && <NewsletterDialog onClose={()=>setNewsletterOpen(false)} />}
     {cockpit && arcadeOpen && <ArcadeDialog viewport={viewport} onExit={() => setArcadeOpen(false)} />}
     </div>
     <div className="public-tv-frame site-atmosphere" data-tv-visible={!!tvVisible} data-mobile={mobile || undefined} style={thirdActive ? {
