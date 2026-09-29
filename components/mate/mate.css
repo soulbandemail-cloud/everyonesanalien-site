@@ -144,4 +144,4 @@ button.object-back:hover { color:#6ee7b7; border-color:#6ee7b7; outline:none; bo
 .newsletter-frame[data-mobile] { padding-top:76px; }
 .newsletter-frame[data-mobile] .newsletter-page img { max-height:calc(var(--newsletter-height) - 92px); }
 
-button.object-back:focus-visible { text-decoration:underline; text-underline-offset:3px; }
+button.object-back:focus-visible { text-decoration:none; }
