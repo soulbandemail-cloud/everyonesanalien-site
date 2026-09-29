@@ -116,7 +116,7 @@
 /* Both fixtures share the same silhouette filter, scale and press behaviour. */
 .cockpit-interactive-fixture { cursor:pointer; transform-box:fill-box; transform-origin:center; transition:transform 120ms ease; }
 .cockpit-interactive-fixture[aria-disabled="false"]:is(:hover,:focus-visible) { transform:scale(1.25); filter:var(--fixture-hover-filter); outline:none; }
-.cockpit-interactive-fixture[data-pressed] { transform:scale(.9) !important; filter:none !important; outline:none; }
+.cockpit-interactive-fixture[data-pressed], .ringer-tee-display:active { transform:scale(.9) !important; filter:none !important; outline:none; }
 /* The live screen follows the TV's SVG body, using the same screen-centre pivot. */
 .public-tv-frame .space-tv[data-console]:not(.space-tv-expanded) { pointer-events:none; }
 .space-tv[data-console]:not(.space-tv-expanded) .space-tv-body { transition:transform 120ms ease; }
@@ -150,7 +150,5 @@ button.object-back:focus-visible { text-decoration:none; }
 .on-glass [data-dome-slot="socials"] > a { z-index:20; pointer-events:auto; }
 .on-glass [data-dome-slot="socials"] > a:is(:hover,:active,:focus-visible) { color:#6ee7b7; }
 
-/* Outside-only framing leaves the product image's current dimensions intact. */
-.ringer-tee-display { border-radius:3px; box-shadow:0 0 0 1px rgba(255,255,255,.65),0 0 8px rgba(255,176,255,.22); }
-.ringer-tee-display img { border-radius:3px; }
-.ringer-tee-display:is(:hover,:focus-visible) { outline:none; box-shadow:0 0 0 1px #6ee7b7,0 0 10px rgba(110,231,183,.28); }
+/* Reuse the cockpit silhouette treatment without a resting frame. */
+.ringer-tee-display { transform-origin:center; vertical-align:top; }
