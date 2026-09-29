@@ -145,3 +145,7 @@ button.object-back:hover { color:#6ee7b7; border-color:#6ee7b7; outline:none; bo
 .newsletter-frame[data-mobile] .newsletter-page img { max-height:calc(var(--newsletter-height) - 92px); }
 
 button.object-back:focus-visible { text-decoration:none; }
+
+/* Projected social links must sit above the wordmark's invisible layout box. */
+.on-glass [data-dome-slot="socials"] > a { z-index:20; pointer-events:auto; }
+.on-glass [data-dome-slot="socials"] > a:is(:hover,:active,:focus-visible) { color:#6ee7b7; }

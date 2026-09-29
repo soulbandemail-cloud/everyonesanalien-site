@@ -136,7 +136,7 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
         const social=el.tagName==='A';
         if(social) {
           const index=socialParts.indexOf(el),start=origins.rects[index];
-          const matrix=socialProjection(start,index,layout.socials,camera,view,progress);
+          const matrix=socialProjection(start,index,layout.socials,camera,view,progress,mobileThird);
           Object.assign(el.style,{position:'fixed',left:'0',top:'0',width:`${start.width}px`,height:`${start.height}px`,margin:'0',transformOrigin:'0 0',transform:`matrix(${matrix.join(',')})`});
           const svg=icons[index],size=origins.sizes[index];
           if(svg)Object.assign(svg.style,{width:`${socialIconSize(size.width,view.width<760,progress)}px`,height:`${socialIconSize(size.height,view.width<760,progress)}px`});
