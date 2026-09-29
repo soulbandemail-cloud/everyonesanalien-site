@@ -19,9 +19,9 @@ export default function NewsletterDialog({onClose,viewport}:{onClose:()=>void;vi
   <div className="newsletter-frame" data-mobile={viewport.mobile || undefined} onClick={event=>{if(event.target===event.currentTarget)onClose();}} style={viewport.mobile ? {position:"absolute",left:viewport.left,top:viewport.top,width:frame.width,height:frame.height,transformOrigin:"0 0",transform:frame.rotated?`translateX(${frame.height}px) rotate(90deg)`:"none","--newsletter-height":`${frame.height}px`} as CSSProperties : undefined}>
   <button className="newsletter-close object-back" type="button" onClick={onClose} autoFocus>BACK</button>
   <a className="newsletter-page" href="https://link.dice.fm/C83a5f037e38" target="_blank" rel="noopener noreferrer" aria-label="The Hyper-Fix — open ticket page (new tab)">
-   {/* Native image preserves the complete supplied newsletter without cropping. */}
+   {/* Vector rendering of the supplied PDF keeps the newsletter sharp without cropping. */}
    {/* eslint-disable-next-line @next/next/no-img-element */}
-   <img src="/hyper-fix-no1.png" alt="The Hyper-Fix, issue 1: Soul Extend the Weekend. Newsletter and ticket offer." />
+   <img src="/hyper-fix-no1.svg" alt="The Hyper-Fix, issue 1: Soul Extend the Weekend. Newsletter and ticket offer." />
   </a>
   </div>
  </dialog>;
