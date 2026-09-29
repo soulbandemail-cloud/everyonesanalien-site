@@ -65,3 +65,12 @@ test('one mounted iframe and playback/maximise state persist between both TV pos
  h.setTvProps({});assert.equal(h.game.tvStarted,true);assert.equal(iframe()[0].props.src,src);
  h.unmount();
 });
+test('console fixture opens the same persistent player through its controller',()=>{
+ const h=harness(1280,720,'tv'),controllerRef={current:null};
+ h.setTvProps({controllerRef,dock:{x:700,y:450,scale:.5}});
+ assert.equal(nodes(h.tree).filter(n=>n.props?.className==='space-tv-open').length,0);
+ controllerRef.current.open();
+ assert.equal(h.game.tvExpanded,true);assert.equal(h.game.tvStarted,true);
+ assert.equal(nodes(h.tree).filter(n=>n.type==='iframe').length,1);
+ h.unmount();
+});

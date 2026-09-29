@@ -1,13 +1,24 @@
-import { memo } from 'react';
+import { memo, useId, useState } from 'react';
 import { project, type DomeConfig, type Vec3, type Viewport } from '@/lib/ship/domeGeometry';
 import { polygonPath } from '@/lib/ship/roomGeometry';
-import { FIXTURES, orientedFixtures, type FixturePlacement } from '@/lib/ship/fixtureLayout';
+import { FIXTURES, orientedFixtures, consoleTvScreen, type FixturePlacement } from '@/lib/ship/fixtureLayout';
 import styles from './ship.module.css';
 
-type Props = { config: DomeConfig; view: Viewport; onArcade?: () => void; liveTv?:boolean };
+type Props = { config: DomeConfig; view: Viewport; onArcade?: () => void; onTV?:()=>void; liveTv?:boolean };
 
 /** Crude world-space solids: no owned items, controls, playback or inventory state. */
-export const Fixtures = memo(function Fixtures({ config, view, onArcade, liveTv=false }: Props) {
+export const Fixtures = memo(function Fixtures({ config, view, onArcade, onTV, liveTv=false }: Props) {
+  const outlineId=useId();
+  const [pressed,setPressed]=useState<'tv'|'arcade'|null>(null);
+  const interaction=(name:'tv'|'arcade',action?:()=>void)=>({
+    tabIndex:action ? 0 : -1, 'aria-disabled':!action, 'data-pressed':pressed===name || undefined,
+    onClick:action,
+    onPointerDown:(event:React.PointerEvent<SVGGElement>)=>{if(action && event.button===0){event.currentTarget.setPointerCapture(event.pointerId);setPressed(name);}},
+    onPointerUp:()=>setPressed(null),onPointerCancel:()=>setPressed(null),onPointerLeave:(event:React.PointerEvent<SVGGElement>)=>{if(!event.currentTarget.hasPointerCapture(event.pointerId))setPressed(null);},onBlur:()=>setPressed(null),
+    onKeyDown:(event:React.KeyboardEvent)=>{if(action && (event.key==='Enter' || event.key===' ')){event.preventDefault();setPressed(name);}},
+    onKeyUp:(event:React.KeyboardEvent)=>{if(action && pressed===name && (event.key==='Enter' || event.key===' ')){event.preventDefault();setPressed(null);action();}},
+  });
+  const tvScreen=consoleTvScreen(config,view);
   const path = (points: Vec3[]) => polygonPath(points, config, view);
   const local = (f: FixturePlacement, x: number, y: number, z: number): Vec3 => ({
     x: f.x + f.scale * (x * (f.widthScale ?? 1) * Math.cos(f.yaw) + z * Math.sin(f.yaw)),
@@ -52,8 +63,24 @@ export const Fixtures = memo(function Fixtures({ config, view, onArcade, liveTv=
   const fixtures = orientedFixtures(config.centre, config.radius);
 const radio = fixtures.radio, music = fixtures.musicStation, sofa = fixtures.sofa;
 const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtures.arcade;
-  return <svg className={styles.fixtures} width={view.width} height={view.height} role="group" aria-label="Empty base ship fixtures: radio left, gramophone and empty record cabinet right, empty sofa left, empty clothes rail right, coffee table with current Hyper-Fix foremost">
-    <g className="console-tv" aria-label="Portable TV fixed on the control panel to the alien’s right">
+  return <svg className={styles.fixtures} width={view.width} height={view.height} style={{'--fixture-hover-filter':`url(#${outlineId})`} as React.CSSProperties} role="group" aria-label="Empty base ship fixtures: radio left, gramophone and empty record cabinet right, empty sofa left, empty clothes rail right, coffee table with current Hyper-Fix foremost">
+    <defs>
+      <filter id={outlineId} x="-100%" y="-100%" width="300%" height="300%" colorInterpolationFilters="sRGB">
+        {/* A softened alpha contour expands equally in every direction, rounding
+            corners without morphology's square dilation kernel. */}
+        <feGaussianBlur in="SourceAlpha" stdDeviation="2.5" result="softSilhouette" />
+        <feComponentTransfer in="softSilhouette" result="expanded">
+          <feFuncA type="linear" slope="12" intercept="-1.5" />
+        </feComponentTransfer>
+        <feComposite in="expanded" in2="SourceAlpha" operator="out" result="edge" />
+        <feFlood floodColor="#6ee7b7" result="mint" />
+        <feComposite in="mint" in2="edge" operator="in" result="outline" />
+        <feMerge><feMergeNode in="outline" /><feMergeNode in="SourceGraphic" /></feMerge>
+      </filter>
+    </defs>
+    <g className="console-tv cockpit-interactive-fixture" role="button" aria-label="Maximise TV" {...interaction('tv',onTV)}
+      style={{pointerEvents:onTV ? 'auto' : 'none',transformBox:'view-box',transformOrigin:`${tvScreen.x+42*tvScreen.scale}px ${tvScreen.y+18*tvScreen.scale}px`}}>
+      <title>Portable TV fixed on the control panel to the alien’s right</title>
   {box(radio,0,0,0,1.05,.58,.38,'#655f5c')}
 
   {flatArt(
@@ -114,9 +141,8 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
       {box(sofa,-.58,.55,-.12,1.08,.12,.86,'#748083')}
       {box(sofa,.58,.55,-.12,1.08,.12,.86,'#748083')}
     </g>
-    <g role="button" tabIndex={onArcade ? 0 : -1} aria-label="Play SOUL arcade" aria-disabled={!onArcade}
-      style={{pointerEvents:onArcade ? 'auto' : 'none', cursor:'pointer'}} onClick={onArcade}
-      onKeyDown={event => { if (onArcade && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); onArcade(); } }}>
+    <g className="arcade-fixture cockpit-interactive-fixture" role="button" aria-label="Play SOUL arcade" {...interaction('arcade',onArcade)}
+      style={{pointerEvents:onArcade ? 'auto' : 'none'}}>
       <title>SOUL arcade — play</title>
   {/* main upright cabinet */}
   {box(arcade,0,0,0,1.15,2.25,.72,'#303d46')}

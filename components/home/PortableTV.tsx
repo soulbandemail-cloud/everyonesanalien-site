@@ -1,8 +1,10 @@
 "use client";
-import { useState } from 'react';
-export default function PortableTV({dock}:{dock?:{x:number;y:number;scale:number}} = {}) {
+import { useImperativeHandle, useState, type Ref } from 'react';
+export type TvController = { open:()=>void };
+export default function PortableTV({dock,controllerRef}:{dock?:{x:number;y:number;scale:number};controllerRef?:Ref<TvController>} = {}) {
  const [tvExpanded, setTvExpanded] = useState(false);
  const [tvStarted, setTvStarted] = useState(false);
+ useImperativeHandle(controllerRef,()=>({open(){setTvStarted(true);setTvExpanded(true);}}),[]);
 return (
   <aside
     data-console={!!dock || undefined}
@@ -35,7 +37,7 @@ return (
         />
         {!tvStarted && <div className="space-tv-poster" aria-hidden="true" />}
         <div className="space-tv-scanlines" />
-        {!tvExpanded && <button type="button" className="space-tv-open" aria-label="Maximise TV" onClick={()=>{setTvStarted(true);setTvExpanded(true);}} />}
+        {!tvExpanded && !dock && <button type="button" className="space-tv-open" aria-label="Maximise TV" onClick={()=>{setTvStarted(true);setTvExpanded(true);}} />}
       </div>
     </div>
     {tvExpanded && <button type="button" className="space-tv-close" onClick={()=>setTvExpanded(false)}>CLOSE TV</button>}

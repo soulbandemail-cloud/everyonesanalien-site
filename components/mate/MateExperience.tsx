@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './mate.css';
 import { useCockpitZoomGuard } from './useCockpitZoomGuard';
 import { consoleTvScreen } from '@/lib/ship/fixtureLayout';
-import PortableTV from '@/components/home/PortableTV';
+import PortableTV, { type TvController } from '@/components/home/PortableTV';
 import CanonicalHomepage from '@/components/home/CanonicalHomepage';
 import { usePresentationViewport } from './usePresentationViewport';
 import { mobileThirdCamera, cockpitPresentation, cockpitViewport } from '@/lib/ship/mobilePresentation';
@@ -18,6 +18,7 @@ const ArcadeDialog = dynamic(() => import('@/components/arcade/ArcadeDialog'), {
 export default function MateExperience({ initialAuthenticated = false, loginEnabled = false, entry = false, error = false, development = false, preview = false, mobilePreview = false }: {
   initialAuthenticated?: boolean; loginEnabled?: boolean; entry?: boolean; error?: boolean; development?: boolean; preview?: boolean; mobilePreview?: boolean;
 }) {
+  const tvController=useRef<TvController>(null);
   const [arcadeOpen,setArcadeOpen] = useState(false);
   const [authenticated,setAuthenticated] = useState(initialAuthenticated);
   const [entryReady,setEntryReady] = useState(!entry);
@@ -120,7 +121,7 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
       transform:`translate(${viewport.left+viewport.view.width/2}px,${viewport.top+viewport.view.height/2}px) scale(${sceneViewport.scale}) rotate(${presentation.angle}deg) translate(${-view.width/2}px,${-view.height/2}px)`,
     } as React.CSSProperties : undefined}>
     <CanonicalHomepage animateEntry={entry} cockpit={cockpit} loginEnabled={loginEnabled && !preview} config={config} camera={camera} progress={progress} view={view} mobileThird={mobileThird} publicFrame={mobile ? presentation : undefined} />
-    {(cockpit || progress>0) && <Ship liveTv={!!tvVisible} config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
+    {(cockpit || progress>0) && <Ship onTV={cockpit && progress===1 ? ()=>tvController.current?.open() : undefined} liveTv={!!tvVisible} config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
     {cockpit && arcadeOpen && <ArcadeDialog viewport={viewport} onExit={() => setArcadeOpen(false)} />}
     </div>
     <div className="public-tv-frame site-atmosphere" data-tv-visible={!!tvVisible} data-mobile={mobile || undefined} style={thirdActive ? {
@@ -128,7 +129,7 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
       left:0,top:0,width:view.width,height:view.height,transformOrigin:'0 0',
       transform:`translate(${viewport.left+viewport.view.width/2}px,${viewport.top+viewport.view.height/2}px) scale(${sceneViewport.scale}) rotate(${presentation.angle}deg) translate(${-view.width/2}px,${-view.height/2}px)`,
     } as React.CSSProperties : {'--tv-turn':`${-viewport.screenAngle}deg`} as React.CSSProperties} data-portrait-first={!thirdActive && mobile && viewport.landscape || undefined}>
-      <PortableTV dock={tvDock} />
+      <PortableTV dock={tvDock} controllerRef={tvController} />
     </div>
     {development && preview && <button type="button" onClick={()=>setPreviewCockpit(value=>!value)} style={{position:'fixed',bottom:8,right:8,zIndex:30001,background:'#00082d',color:'white',border:'1px solid white',padding:8}}>Preview {cockpit ? '1st' : '3rd'} person</button>}
     {notice && <div role="status" className="mate-notice">{notice}<button onClick={()=>setNotice('')} aria-label="Dismiss message">×</button></div>}

@@ -104,20 +104,24 @@
 .public-tv-frame[data-tv-visible="false"] { visibility:hidden; }
 .public-tv-frame[data-tv-visible="false"] .space-tv { pointer-events:none; }
 .space-tv-open { position:absolute; inset:0; z-index:5; cursor:pointer; background:transparent; border:0; }
-.space-tv:not(.space-tv-expanded) .space-tv-body { transition:transform 120ms ease, outline-color 120ms ease; outline:4px solid transparent; outline-offset:-4px; transform-origin:bottom right; }
-.space-tv:not(.space-tv-expanded):is(:hover,:focus-within) .space-tv-body { transform:scale(1.04); outline-color:white; }
-.space-tv:not(.space-tv-expanded):has(.space-tv-open:active) .space-tv-body { transform:scale(.96); outline-color:white; }
 .space-tv-close { position:absolute; top:12px; right:12px; z-index:10; border:2px solid white; padding:8px 12px; color:white; background:#00082d; cursor:pointer; }
 .space-tv-close:focus-visible { outline:3px solid white; outline-offset:3px; }
 /* The live iframe occupies the exact existing SVG screen, not another TV body. */
 .space-tv[data-console]:not(.space-tv-expanded) .space-tv-top { display:none; }
-.space-tv[data-console]:not(.space-tv-expanded) .space-tv-body { width:100%; height:100%; padding:0; border:0; border-radius:0; background:transparent; box-shadow:none; outline-width:calc(4px / var(--tv-dock-scale)); outline-offset:calc(-4px / var(--tv-dock-scale)); transform-origin:center; }
+.space-tv[data-console]:not(.space-tv-expanded) .space-tv-body { width:100%; height:100%; padding:0; border:0; border-radius:0; background:transparent; box-shadow:none; transform-origin:center; }
 .space-tv[data-console]:not(.space-tv-expanded) .space-tv-screen { width:100%; height:100%; min-height:0; aspect-ratio:auto; border:0; border-radius:0; box-shadow:none; }
-.console-tv { transform-box:fill-box; transform-origin:center; transition:transform 120ms ease; }
-.mate-experience:has(.space-tv[data-console]:not(.space-tv-expanded):is(:hover,:focus-within)) .console-tv { transform:scale(1.04); }
-.mate-experience:has(.space-tv[data-console]:not(.space-tv-expanded) .space-tv-open:active) .console-tv { transform:scale(.96); }
-@media (prefers-reduced-motion:reduce) {
- .space-tv:not(.space-tv-expanded) .space-tv-body, .console-tv { transition:none; }
-}
 
 .space-tv[data-console].space-tv-expanded .space-tv-body { width:min(calc(var(--tv-frame-width) * .86),var(--tv-frame-height),980px); }
+
+/* Both fixtures share the same silhouette filter, scale and press behaviour. */
+.cockpit-interactive-fixture { cursor:pointer; transform-box:fill-box; transform-origin:center; transition:transform 120ms ease; }
+.cockpit-interactive-fixture[aria-disabled="false"]:is(:hover,:focus-visible) { transform:scale(1.25); filter:var(--fixture-hover-filter); outline:none; }
+.cockpit-interactive-fixture[data-pressed] { transform:scale(.9) !important; filter:none !important; outline:none; }
+/* The live screen follows the TV's SVG body, using the same screen-centre pivot. */
+.public-tv-frame .space-tv[data-console]:not(.space-tv-expanded) { pointer-events:none; }
+.space-tv[data-console]:not(.space-tv-expanded) .space-tv-body { transition:transform 120ms ease; }
+.mate-experience:has(.console-tv[aria-disabled="false"]:is(:hover,:focus-visible)) .space-tv[data-console]:not(.space-tv-expanded) .space-tv-body { transform:scale(1.25); }
+.mate-experience:has(.console-tv[data-pressed]) .space-tv[data-console]:not(.space-tv-expanded) .space-tv-body { transform:scale(.9); }
+@media (prefers-reduced-motion:reduce) {
+ .cockpit-interactive-fixture, .space-tv[data-console]:not(.space-tv-expanded) .space-tv-body { transition:none; }
+}
