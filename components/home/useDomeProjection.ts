@@ -39,6 +39,13 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
       const x=desktop ? point.x : Math.max(width*scale/2+view.width*.04,Math.min(view.width*.96-width*scale/2,point.x));
       Object.assign(el.style,{position:'fixed',left:`${x}px`,top:`${point.y}px`,width:`${width}px`,margin:'0',transformOrigin:'center',transform:`translate(-50%, -50%) scale(${scale})`});
     });
+    // Centre-based projection otherwise raises the taller merch column's heading.
+    const shows=slots.find(el=>el.dataset.domeSlot==='live');
+    const merch=slots.find(el=>el.dataset.domeSlot==='merch');
+    if(cockpit && shows && merch) {
+      const scale=mobileThird ? mobileSideContent('live').scale : .78;
+      shows.style.top=`${parseFloat(shows.style.top)+(shows.offsetHeight-merch.offsetHeight)*scale/2}px`;
+    }
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const duration = cameraDuration(motion.matches,document.hidden);
     const animations = duration > 0 && desktop && !mobileThird && changedMode && cockpit ? slots.map((el,i) => {
@@ -173,6 +180,14 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
       const y=dest.top+(point.y-height*scale/2-dest.top)*progress;
       el.style.transform=`translate(${x}px,${y}px) scale(${currentScale})`;
     });
+    if(returning) {
+      const shows=sides.find(el=>el.dataset.domeSlot==='live');
+      const merch=sides.find(el=>el.dataset.domeSlot==='merch');
+      if(shows && merch) {
+        const scale=mobileThird ? mobileSideContent('live').scale : .78;
+        shows.style.translate=`0 ${(shows.offsetHeight-merch.offsetHeight)*scale*progress/2}px`;
+      }
+    }
     if(!cockpit && progress===0) sides.forEach(el=>el.querySelector('h2')?.removeAttribute('style'));
     } finally {
       if(presentationTransform) presentation!.style.transform=presentationTransform;
