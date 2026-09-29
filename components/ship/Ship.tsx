@@ -66,7 +66,7 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
   <ManifestationPort config={config} view={view} />
   <header className={styles.toolbar}>
     <span>{preview ? 'DEVELOPMENT PREVIEW · NO MATE SESSION' : ''}</span>
-    {logout && <button onClick={logout} disabled={busy}>{busy ? 'LOGGING OUT…' : 'LOG OUT'}</button>}
+    {logout && <button className="cockpit-logout" onClick={logout} disabled={busy}>{busy ? 'LOGGING OUT…' : 'LOG OUT'}</button>}
     {development && <button aria-pressed={debug} onClick={()=>setDebug(!debug)}>Geometry {debug ? 'on' : 'off'}</button>}
   </header>
   {development && debug && <GeometryCalibration hull={hull} onHullChange={onHullChange} config={baseline} view={view} onChange={onConfigChange} grid={grid} onGridChange={setGrid} />}

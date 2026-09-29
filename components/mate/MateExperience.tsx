@@ -117,7 +117,7 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
   const roomCamera=transitionCamera(mobileThird ? mobileThirdCamera(config,view) : config,progress);
   const tvDock=thirdActive ? consoleTvScreen(roomCamera,view) : undefined;
   const tvVisible=(!cockpit && progress===0) || (cockpit && progress===1 && tvDock?.visible);
-  return <div className={`mate-experience ${cockpit ? 'mate-cockpit' : ''}`} ref={focusTarget} tabIndex={-1} data-cockpit-active={thirdActive && !arcadeOpen || undefined}>
+  return <div className={`mate-experience ${cockpit ? 'mate-cockpit' : ''}`} ref={focusTarget} tabIndex={-1} data-mobile={mobile || undefined} data-cockpit-active={thirdActive && !arcadeOpen || undefined}>
     <div data-cockpit-presentation data-presentation-angle={presentation.angle} data-presentation-scale={sceneViewport.scale} data-portrait-first={portraitFirst || undefined} data-portrait-settled={portraitFirst && progress===0 || undefined} style={mobileThird || (mobile && viewport.screenAngle!==0) || sceneViewport.scale!==1 ? {
       '--portrait-width':`${view.width}px`,'--portrait-height':`${view.height}px`,
       position:'fixed',left:0,top:0,width:view.width,height:view.height,transformOrigin:'0 0',

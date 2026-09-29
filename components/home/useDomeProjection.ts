@@ -37,7 +37,7 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
       const width = name === 'brand' ? 340 : name === 'socials' ? 460 : Math.min(350,view.width*(desktop ? .27 : .43));
       const scale = side?.scale ?? (name === 'brand' ? 1.05 : name === 'socials' ? .72 : .78);
       const x=desktop ? point.x : Math.max(width*scale/2+view.width*.04,Math.min(view.width*.96-width*scale/2,point.x));
-      Object.assign(el.style,{position:'fixed',left:`${x}px`,top:`${point.y+(side ? view.height*.07 : 0)}px`,width:`${width}px`,margin:'0',transformOrigin:'center',transform:`translate(-50%, -50%) scale(${scale})`});
+      Object.assign(el.style,{position:'fixed',left:`${x}px`,top:`${point.y+(side ? view.height*.015 : 0)}px`,width:`${width}px`,margin:'0',transformOrigin:'center',transform:`translate(-50%, -50%) scale(${scale})`});
     });
     // Centre-based projection otherwise raises the taller merch column's heading.
     const shows=slots.find(el=>el.dataset.domeSlot==='live');
@@ -177,7 +177,7 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
       Object.assign(el.style,{position:'fixed',left:'0',top:'0',width:`${width}px`,margin:'0',fontSize:`${16+(view.width<760 ? -4 : 0)*progress}px`,transform:'none',transformOrigin:'0 0'});
       const height=el.getBoundingClientRect().height;
       const x=dest.left+(centre-projectedWidth*scale/2-dest.left)*progress;
-      const y=dest.top+(point.y+(tuning ? view.height*.07 : 0)-height*scale/2-dest.top)*progress;
+      const y=dest.top+(point.y+(tuning ? view.height*.015 : 0)-height*scale/2-dest.top)*progress;
       el.style.transform=`translate(${x}px,${y}px) scale(${currentScale})`;
     });
     if(returning) {
