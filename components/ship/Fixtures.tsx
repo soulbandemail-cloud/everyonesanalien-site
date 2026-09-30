@@ -2,20 +2,22 @@ import { memo, useId, useState } from 'react';
 import { project, type DomeConfig, type Vec3, type Viewport } from '@/lib/ship/domeGeometry';
 import { polygonPath } from '@/lib/ship/roomGeometry';
 import { FIXTURES, orientedFixtures, consoleTvScreen, type FixturePlacement } from '@/lib/ship/fixtureLayout';
+import {UPCOMING_POSTERS,type DomeMenu} from '@/lib/ship/domeNavigation';
 import styles from './ship.module.css';
+import {posterMesh} from '@/lib/ship/posterProjection';
 
-type Props = { config: DomeConfig; view: Viewport; onArcade?: () => void; onTV?:()=>void; onNewsletter?:()=>void; liveTv?:boolean };
+type Props = { config: DomeConfig; view: Viewport; onArcade?: () => void; onTV?:()=>void; onNewsletter?:()=>void; onShows?:()=>void; onMerch?:()=>void; domeMenu?:DomeMenu; liveTv?:boolean };
 
 /** Crude world-space solids: no owned items, controls, playback or inventory state. */
-export const Fixtures = memo(function Fixtures({ config, view, onArcade, onTV, onNewsletter, liveTv=false }: Props) {
+export const Fixtures = memo(function Fixtures({ config, view, onArcade, onTV, onNewsletter, onShows, onMerch, domeMenu=null, liveTv=false }: Props) {
   const outlineId=useId();
-  const [pressed,setPressed]=useState<'tv'|'arcade'|'newsletter'|null>(null);
-  const interaction=(name:'tv'|'arcade'|'newsletter',action?:()=>void)=>({
+  const [pressed,setPressed]=useState<'tv'|'arcade'|'newsletter'|'shows'|'merch'|null>(null);
+  const interaction=(name:'tv'|'arcade'|'newsletter'|'shows'|'merch',action?:()=>void)=>({
     tabIndex:action ? 0 : -1, 'aria-disabled':!action, 'data-pressed':pressed===name || undefined,
     onClick:action,
     onPointerMove:(event:React.PointerEvent<SVGGElement>)=>{delete event.currentTarget.dataset.resting;},
     onFocus:(event:React.FocusEvent<SVGGElement>)=>{delete event.currentTarget.dataset.resting;},
-    onPointerDown:(event:React.PointerEvent<SVGGElement>)=>{if(action && event.button===0){event.currentTarget.setPointerCapture(event.pointerId);setPressed(name);}},
+    onPointerDown:(event:React.PointerEvent<SVGGElement>)=>{if(action && event.button===0){delete event.currentTarget.dataset.resting;event.currentTarget.setPointerCapture(event.pointerId);setPressed(name);}},
     onPointerUp:()=>setPressed(null),onPointerCancel:()=>setPressed(null),onPointerLeave:(event:React.PointerEvent<SVGGElement>)=>{if(!event.currentTarget.hasPointerCapture(event.pointerId))setPressed(null);},onBlur:()=>setPressed(null),
     onKeyDown:(event:React.KeyboardEvent)=>{if(action && (event.key==='Enter' || event.key===' ')){event.preventDefault();setPressed(name);}},
     onKeyUp:(event:React.KeyboardEvent)=>{if(action && pressed===name && (event.key==='Enter' || event.key===' ')){event.preventDefault();setPressed(null);action();}},
@@ -80,6 +82,22 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
         <feMerge><feMergeNode in="outline" /><feMergeNode in="SourceGraphic" /></feMerge>
       </filter>
     </defs>
+    <g className="show-posters cockpit-interactive-fixture" role="button" aria-label="Upcoming show posters" aria-expanded={domeMenu==='shows'} {...interaction('shows',onShows)} style={{pointerEvents:onShows ? 'auto' : 'none'}}>
+      <title>Upcoming shows — toggle THE SHOWS</title>
+      {UPCOMING_POSTERS.map(poster=>{
+        const imageId=`${outlineId}-${poster.id}`;
+        return <g key={poster.id} aria-label={poster.title}>
+          <defs><image id={imageId} href={poster.src} width="1" height="1" preserveAspectRatio="none" /></defs>
+          {posterMesh(poster,config,view).map((triangle,i)=>{
+            const clipId=`${imageId}-${i}`;
+            return <g key={i} transform={`matrix(${triangle.matrix.join(' ')})`}>
+              <defs><clipPath id={clipId}><polygon points={triangle.uv.map(p=>p.join(',')).join(' ')} /></clipPath></defs>
+              <use href={`#${imageId}`} clipPath={`url(#${clipId})`} />
+            </g>;
+          })}
+        </g>;
+      })}
+    </g>
     <g className="console-tv cockpit-interactive-fixture" role="button" aria-label="Maximise TV" {...interaction('tv',onTV)}
       style={{pointerEvents:onTV ? 'auto' : 'none',transformBox:'view-box',transformOrigin:`${tvScreen.x+42*tvScreen.scale}px ${tvScreen.y+18*tvScreen.scale}px`}}>
       <title>Portable TV fixed on the control panel to the alien’s right</title>
@@ -227,7 +245,9 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
     'horizontal'
   )}
 </g>
-    <g aria-label="Empty clothes rail on right main floor; no hangers or clothes">
+    <g className="merch-rail cockpit-interactive-fixture" role="button" aria-label="SOUL merchandise clothes rail" aria-expanded={domeMenu==='merch'} {...interaction('merch',onMerch)} style={{pointerEvents:onMerch ? 'auto' : 'none'}}>
+      <title>All available SOUL wearable and non-vinyl merchandise — toggle THE MERCH</title>
+      <path d={path([local(rail,-1.05,0,0),local(rail,1.05,0,0),local(rail,1.05,2.1,0),local(rail,-1.05,2.1,0)])} fill="transparent" pointerEvents="all" />
       {[-1.05,1.05].map(x=><g key={x}>{line(rail,[x,.04,-.38],[x,.04,.38],'#879c9c',4)}{line(rail,[x,0,0],[x,2.1,0],'#879c9c',4)}</g>)}
       {line(rail,[-1.05,2.1,0],[1.05,2.1,0],'#b0bcb4',5)}
       {line(rail,[-1.05,.15,0],[1.05,.15,0],'#61787b',2)}

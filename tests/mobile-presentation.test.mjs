@@ -115,10 +115,10 @@ test('viewport hook follows usable viewport and rotation events without reloadin
  cleanup();assert.equal(observed,false);assert.equal(win.events.size,0);assert.equal(vv.events.size,0);assert.equal(orientation.events.size,0);assert.equal(media.events.size,0);
 });
 
-test('live projection applies mobile tuning to whole side groups only and preserves public/desktop layout',()=>{
+test('live centre menus use responsive scale while preserving first-person layout',()=>{
  const loaded={exports:{}};
  const code=ts.transpileModule(fs.readFileSync('components/home/useDomeProjection.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
- const deps={'react':{useRef:value=>({current:value}),useLayoutEffect:fn=>fn()},'@/lib/ship/domeGeometry':g,'@/lib/ship/domePageLayout':load('domePageLayout'),'@/lib/ship/mobilePresentation':m,'@/lib/ship/cameraTransition':{cameraDuration:()=>0}};
+ const deps={'react':{useRef:value=>({current:value}),useLayoutEffect:fn=>fn()},'@/lib/ship/domeGeometry':g,'@/lib/ship/domeNavigation':load('domeNavigation'),'@/lib/ship/domePageLayout':load('domePageLayout'),'@/lib/ship/mobilePresentation':m,'@/lib/ship/cameraTransition':{cameraDuration:()=>0}};
  new Function('module','exports','require','window','document',code)(loaded,loaded.exports,name=>deps[name],{matchMedia:()=>({addEventListener(){},removeEventListener(){}}),addEventListener(){}},{addEventListener(){}});
  const run=(cockpit,mobileThird)=>{
   const slots=['live','merch'].map(name=>({dataset:{domeSlot:name},style:{},getBoundingClientRect:()=>({width:100,height:100,x:0,y:0}),removeAttribute(){this.style={};}}));
@@ -127,10 +127,10 @@ test('live projection applies mobile tuning to whole side groups only and preser
   return slots.map(el=>el.style);
  };
  const desktop=run(true,false),mobile=run(true,true),publicPage=run(false,false);
- assert.ok(parseFloat(mobile[0].left)<parseFloat(desktop[0].left));
- assert.ok(parseFloat(mobile[1].left)>parseFloat(desktop[1].left));
+ assert.equal(parseFloat(mobile[0].left),samples[0].width/2);
+ assert.equal(mobile[0].left,mobile[1].left);
  for(let i=0;i<2;i++){
-  assert.match(desktop[i].transform,/scale\(0.78\)/);assert.match(mobile[i].transform,/scale\(0.6\)/);
+  assert.match(desktop[i].transform,/scale\(0.78\)/);assert.match(mobile[i].transform,/scale\(0.7\)/);
   assert.equal(mobile[i].width,desktop[i].width);assert.equal(mobile[i].pointerEvents,undefined);
   assert.deepEqual(publicPage[i],{});
  }
@@ -173,5 +173,29 @@ test('existing pinch zoom does not shrink the calibrated cockpit viewport',()=>{
   const frame=m.cockpitViewport(visual,zoom,true);
   assert.deepEqual(frame.view,base);assert.equal(frame.scale,1/zoom);
   assert.deepEqual(m.cockpitViewport(visual,zoom,false),{view:visual,scale:1});
+ }
+});
+
+test('diegetic menus toggle independently with at most one open',()=>{
+ const {toggleDomeMenu}=load('domeNavigation');
+ assert.equal(toggleDomeMenu(null,'shows'),'shows');
+ assert.equal(toggleDomeMenu('shows','shows'),null);
+ assert.equal(toggleDomeMenu('shows','merch'),'merch');
+ assert.equal(toggleDomeMenu('merch','shows'),'shows');
+ assert.equal(toggleDomeMenu('merch','merch'),null);
+});
+test('third-person header adjustments preserve first person and interpolate continuously',()=>{
+ const {domeHeaderPresentation}=load('domeNavigation');
+ const view={width:844,height:390};
+ for(const mobile of [false,true]){
+  const first=domeHeaderPresentation(view,0,mobile);
+  assert.equal(first.scale,1);assert.equal(first.lift,0);assert.equal(first.socialLift,0);
+  const end=domeHeaderPresentation(view,1,mobile),mid=domeHeaderPresentation(view,.5,mobile);
+  assert.equal(end.scale,.72);
+  assert.equal(mid.scale,(first.scale+end.scale)/2);
+  assert.equal(mid.lift,end.lift/2);
+  assert.equal(mid.socialLift,end.socialLift/2);
+  assert.equal(end.ruleCurvature,mobile?.35:1);
+  assert.equal(end.lift,mobile?view.height*.045:0);
  }
 });

@@ -16,6 +16,13 @@ export function socialProjection(rect:SocialRect,index:number,latitude:number,ca
   end[4]=centre.x-(end[0]*width+end[2]*height)/2;
   end[5]=centre.y-(end[1]*width+end[3]*height)/2;
  }
+ // Scale the third-person endpoint around its visible centre; first person stays exact.
+ const reduction=mobile ? .6 : .85;
+ const width=socialIconSize(rect.width,mobile && view.width<760,1);
+ const height=socialIconSize(rect.height,mobile && view.width<760,1);
+ end[4]+=(end[0]*width+end[2]*height)*(1-reduction)/2;
+ end[5]+=(end[1]*width+end[3]*height)*(1-reduction)/2;
+ for(let i=0;i<4;i++)end[i]*=reduction;
  const start=[1,0,0,1,rect.left,rect.top];
  return start.map((value,i)=>value+(end[i]-value)*t);
 }

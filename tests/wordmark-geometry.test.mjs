@@ -83,6 +83,9 @@ test('social frames interpolate fixed endpoints without feedback in either direc
    const latitude=layout.domePageLayout(g.DEFAULT_DOME).socials;
    const start=[1,0,0,1,rect.left,rect.top];
    const end=layout.domeSurfaceFrame((index-2)*.26,latitude,.14,48,48,g.DEFAULT_DOME,view);
+   end[4]+=(end[0]+end[2])*48*.15/2;
+   end[5]+=(end[1]+end[3])*48*.15/2;
+   for(let i=0;i<4;i++)end[i]*=.85;
    for(const progress of [0,.001,.1,.25,.5,.75,.999,1,.75,.25,0]) {
     const frame=social.socialProjection(rect,index,latitude,g.DEFAULT_DOME,view,progress);
     frame.forEach((value,i)=>close(value,start[i]+(end[i]-start[i])*progress));
@@ -140,5 +143,27 @@ test('mobile socials centre TikTok and space the visible icons symmetrically',()
   close(centres[2],view.width/2);
   close(centres[0]+centres[4],view.width);
   close(centres[1]+centres[3],view.width);
+ }
+});
+
+test('poster artwork follows curved spherical edges and every mesh vertex maps to the dome',()=>{
+ const {posterSurfacePoint,posterMesh}=load('posterProjection');
+ const p=load('domeNavigation').UPCOMING_POSTERS[0],view={width:1280,height:720};
+ for(const v of [0,1]) {
+  const a=posterSurfacePoint(p,0,v,g.DEFAULT_DOME,view),b=posterSurfacePoint(p,1,v,g.DEFAULT_DOME,view),m=posterSurfacePoint(p,.5,v,g.DEFAULT_DOME,view);
+  const chordY=a.y+(b.y-a.y)*(m.x-a.x)/(b.x-a.x);
+  assert.ok(m.y>chordY,'horizontal edges bow down from their chord');
+ }
+ for(const u of [0,1]) {
+  const a=posterSurfacePoint(p,u,0,g.DEFAULT_DOME,view),b=posterSurfacePoint(p,u,1,g.DEFAULT_DOME,view),m=posterSurfacePoint(p,u,.5,g.DEFAULT_DOME,view);
+  const chordX=a.x+(b.x-a.x)*(m.y-a.y)/(b.y-a.y);
+  assert.ok(m.x<chordX,'side edges bow left from their chord');
+ }
+ for(const triangle of posterMesh(p,g.DEFAULT_DOME,view)) {
+  const [a,b,c,d,e,f]=triangle.matrix;
+  triangle.uv.forEach(([u,v],i)=>{
+   close(a*u+c*v+e,triangle.points[i].x);
+   close(b*u+d*v+f,triangle.points[i].y);
+  });
  }
 });

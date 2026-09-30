@@ -1,6 +1,7 @@
 'use client';
 import { useLayoutEffect, useRef, type RefObject } from 'react';
 import { domePoint, type DomeConfig, type Viewport } from '@/lib/ship/domeGeometry';
+import {domeHeaderPresentation} from '@/lib/ship/domeNavigation';
 import { domePageLayout, domeSurfaceFrame, wordmarkRulePath } from '@/lib/ship/domePageLayout';
 import { mobileSideContent } from '@/lib/ship/mobilePresentation';
 import { wordmarkFrames, PLANET_INK } from '@/lib/ship/wordmarkGeometry';
@@ -39,12 +40,9 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
       const x=desktop ? point.x : Math.max(width*scale/2+view.width*.04,Math.min(view.width*.96-width*scale/2,point.x));
       Object.assign(el.style,{position:'fixed',left:`${x}px`,top:`${point.y+(side ? view.height*.015 : 0)}px`,width:`${width}px`,margin:'0',transformOrigin:'center',transform:`translate(-50%, -50%) scale(${scale})`});
     });
-    // Centre-based projection otherwise raises the taller merch column's heading.
-    const shows=slots.find(el=>el.dataset.domeSlot==='live');
-    const merch=slots.find(el=>el.dataset.domeSlot==='merch');
-    if(cockpit && shows && merch) {
-      const scale=mobileThird ? mobileSideContent('live').scale : .78;
-      shows.style.top=`${parseFloat(shows.style.top)+(shows.offsetHeight-merch.offsetHeight)*scale/2}px`;
+    if(cockpit) for(const el of slots.filter(el=>['live','merch'].includes(el.dataset.domeSlot!))) {
+      const scale=mobileThird ? .7 : .78;
+      Object.assign(el.style,{left:`${view.width/2}px`,top:`${view.height*.35}px`,width:`${Math.min(350,view.width*.48)}px`,transformOrigin:'top center',transform:`translateX(-50%) scale(${scale})`});
     }
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const duration = cameraDuration(motion.matches,document.hidden);
@@ -70,6 +68,7 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
   useLayoutEffect(()=>{
     const node=root.current; if(!node) return;
     const paint=()=>{
+    const header=domeHeaderPresentation(view,progress,mobileThird);
     // Read layout in the scene's own coordinates while its outer frame swivels.
     const presentation=node.closest<HTMLElement>('[data-cockpit-presentation]');
     const presentationTransform=presentation?.style.transform;
@@ -111,6 +110,16 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
       const centreY=rect.top+rect.height/2;
       const inks=glyphs.map(measureWordmarkInk);
       const frames=wordmarkFrames(inks,parseFloat(getComputedStyle(wordmark).fontSize),centreY,camera,view,progress);
+      const anchorY=(Math.min(...frames.bounds.map(b=>b.top))+Math.max(...frames.bounds.map(b=>b.bottom)))/2;
+      for(const key of ['S','O','U','L'] as const) {
+        const m=frames[key];
+        for(let i=0;i<4;i++)m[i]*=header.scale;
+        m[4]=view.width/2+(m[4]-view.width/2)*header.scale;
+        m[5]=anchorY+(m[5]-anchorY)*header.scale-header.lift;
+      }
+      frames.rules.left=view.width/2+(frames.rules.left-view.width/2)*header.scale;
+      frames.rules.right=view.width/2+(frames.rules.right-view.width/2)*header.scale;
+
       for(const [i,key] of (['S','U','L'] as const).entries()) {
         const m=[...frames[key]];
         // First person stays in document flow. Projected frames use viewport coordinates.
@@ -123,7 +132,7 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
       const brand=node.querySelector<HTMLElement>('[data-dome-slot="brand"]')!.getBoundingClientRect();
       Object.assign(rules.style,{position:progress>0?'fixed':'absolute',left:'0',top:'0',width:`${view.width}px`,height:`${view.height}px`,transform:progress===0?`translate(${-brand.left}px,${-brand.top}px)`:'none'});
       rules.querySelector('path')!.setAttribute('stroke-width',String(4-2*progress));
-      rules.querySelector('path')!.setAttribute('d',wordmarkRulePath(camera,view,frames.rules,centreY,progress,!mobileThird));
+      rules.querySelector('path')!.setAttribute('d',wordmarkRulePath(camera,view,frames.rules,centreY,progress,true,header.ruleCurvature,mobileThird ? view.height*.045 : 0));
     }
     node.classList.toggle('on-glass',cockpit);
     const layout=domePageLayout(config);
@@ -144,6 +153,7 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
         if(social) {
           const index=socialParts.indexOf(el),start=origins.rects[index];
           const matrix=socialProjection(start,index,layout.socials,camera,view,progress,mobileThird);
+          matrix[5]-=header.socialLift;
           Object.assign(el.style,{position:'fixed',left:'0',top:'0',width:`${start.width}px`,height:`${start.height}px`,margin:'0',transformOrigin:'0 0',transform:`matrix(${matrix.join(',')})`});
           const svg=icons[index],size=origins.sizes[index];
           if(svg)Object.assign(svg.style,{width:`${socialIconSize(size.width,view.width<760,progress)}px`,height:`${socialIconSize(size.height,view.width<760,progress)}px`});
@@ -154,7 +164,7 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
         const phi=social ? layout.socials : layout.caption;
         const [sx,sy,tx,ty,px,py]=domeSurfaceFrame(theta,phi,angularWidth,rect.width,rect.height,camera,view);
         const t=progress;
-        const x=origin.left+(px-origin.left)*t, y=origin.top+(py-origin.top)*t;
+        const x=origin.left+(px-origin.left)*t, y=origin.top+(py-origin.top)*t-header.lift*.4;
         const startX=origin.width/rect.width, startY=origin.height/rect.height;
         const ax=startX+(sx-startX)*t, ay=sy*t, bx=tx*t, by=startY+(ty-startY)*t;
         Object.assign(el.style,{position:'fixed',left:'0',top:'0',width:`${rect.width}px`,height:`${rect.height}px`,margin:'0',transformOrigin:'0 0',transform:`matrix(${ax},${ay},${bx},${by},${x},${y})`});

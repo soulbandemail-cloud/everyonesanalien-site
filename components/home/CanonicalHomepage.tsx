@@ -7,6 +7,7 @@ import RealPlanetHeart from './RealPlanetHeart';
 import ExteriorSpace from './ExteriorSpace';
 import { exteriorPlane } from '@/lib/ship/exteriorSpace';
 import DomeWishes from './DomeWishes';
+import type {DomeMenu} from '@/lib/ship/domeNavigation';
 import type { DomeConfig, Viewport } from '@/lib/ship/domeGeometry';
 import {
   FaInstagram,
@@ -16,13 +17,13 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 
-export default function CanonicalHomepage({ cockpit, loginEnabled, config, view, animateEntry = false, camera = config, progress = cockpit ? 1 : 0, mobileThird=false, publicFrame }: { cockpit: boolean; loginEnabled: boolean; config: DomeConfig; view: Viewport; animateEntry?: boolean; camera?: DomeConfig; progress?: number; mobileThird?:boolean; publicFrame?:{view:Viewport;angle:number} }) {
+export default function CanonicalHomepage({ cockpit, loginEnabled, config, view, animateEntry = false, camera = config, progress = cockpit ? 1 : 0, mobileThird=false, publicFrame, domeMenu=null }: { cockpit: boolean; loginEnabled: boolean; config: DomeConfig; view: Viewport; animateEntry?: boolean; camera?: DomeConfig; progress?: number; mobileThird?:boolean; publicFrame?:{view:Viewport;angle:number};domeMenu?:DomeMenu }) {
  const teeOutlineId=useId();
  const homeRoot = useRef<HTMLDivElement>(null);
  // Blend the live header toward the final dome frame. The travelling eye crosses
  // that surface near its start; projecting through it would fling the header offscreen.
  useDomeProjection(homeRoot, cockpit, config, view, animateEntry, config, progress, mobileThird);
- return <div ref={homeRoot} className="canonical-home" data-mobile-third={mobileThird || undefined} data-dome-narrow={view.width<760 || undefined} data-returning={!cockpit && progress>0 ? "true" : undefined}>
+ return <div ref={homeRoot} className="canonical-home" data-dome-menu={domeMenu ?? "none"} data-mobile-third={mobileThird || undefined} data-dome-narrow={view.width<760 || undefined} data-returning={!cockpit && progress>0 ? "true" : undefined}>
  <ExteriorSpace config={config} camera={camera} view={view} />
  <main className="pink-text-glow min-h-screen text-white p-8 md:p-12 max-w-12xl mx-auto">
         <div data-dome-slot="socials" className="flex flex-nowrap justify-center gap-10 sm:gap-10 mb-0 md:mb-4">

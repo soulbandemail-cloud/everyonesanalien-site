@@ -29,3 +29,16 @@ export function usePresentationViewport(ready: Dispatch<SetStateAction<boolean>>
  },[ready,mobilePreview]);
  return viewport;
 }
+
+/** Opt into Safari's full-width page only while the mobile cockpit is active. */
+export function useCockpitViewportFit(active:boolean) {
+ useEffect(()=>{
+  if(!active)return;
+  const meta=document.querySelector<HTMLMetaElement>('meta[name="viewport"]');
+  if(!meta)return;
+  const prior=meta.content;
+  const content=prior.split(',').filter(part=>!part.trim().startsWith('viewport-fit')).join(',');
+  meta.content=`${content}, viewport-fit=cover`;
+  return ()=>{meta.content=prior;};
+ },[active]);
+}

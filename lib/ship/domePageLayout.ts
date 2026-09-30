@@ -40,13 +40,14 @@ export function domeSurfaceFrame(theta: number, phi: number, angularWidth: numbe
 }
 
 /** The same upper latitude, clipped at the live wordmark's measured ink boundaries. */
-export function wordmarkRulePath(config:DomeConfig,view:Viewport,edges:{left:number;right:number},flatY:number,progress:number,frontArcOnly=false) {
+export function wordmarkRulePath(config:DomeConfig,view:Viewport,edges:{left:number;right:number},flatY:number,progress:number,frontArcOnly=false,curvature=1,lift=0) {
  const t=Math.max(0,Math.min(1,progress));
  if(t===0)return `M0 ${flatY}H${edges.left} M${edges.right} ${flatY}H${view.width}`;
+ const axisY=domePoint(0,config.topLatitude,config,view).y;
  let path='',last:{x:number;y:number}|null=null;
  for(let i=0;i<=720;i++) {
   const p=domePoint(-Math.PI+i/720*Math.PI*2,config.topLatitude,config,view);
-  const next=p.visible ? {x:p.x,y:flatY+(p.y-flatY)*t} : null;
+  const next=p.visible ? {x:p.x,y:flatY+(axisY+(p.y-axisY)*curvature-lift-flatY)*t} : null;
   if(last && next) for(const [min,max] of [[0,edges.left],[edges.right,view.width]]) {
    const dx=next.x-last.x;
    // The forward arc runs left-to-right. The returning back arc lies above

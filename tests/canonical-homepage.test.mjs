@@ -74,15 +74,16 @@ test('inline mode selectors persist and expose only the selected form',()=>{
   }
  }
 });
-test('desktop glass projection leaves its centre empty and preserves live links',()=>{
+test('third-person menus share the centre while keeping the original live content',()=>{
  const elements=['live','merch'].map(name=>({dataset:{domeSlot:name},style:{},getBoundingClientRect:()=>({width:100,x:0,y:0,height:100}),removeAttribute(){}}));
  const root={current:{closest:()=>null,querySelectorAll:selector=>selector.includes("h1")?[]:elements,classList:{toggle(){},remove(){}}}};
  const loaded={exports:{}};
  const {outputText}=ts.transpileModule(fs.readFileSync('components/home/useDomeProjection.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}});
- const deps={'react':{useRef:value=>({current:value}),useLayoutEffect:fn=>fn()},'@/lib/ship/domeGeometry':{domePoint:theta=>({x:theta,y:0})},'@/lib/ship/domePageLayout':{domePageLayout:()=>({information:1})},'@/lib/ship/cameraTransition':{cameraDuration:()=>0},'@/lib/ship/mobilePresentation':{mobileSideContent:()=>({theta:0,scale:.6})}};
+ const deps={'react':{useRef:value=>({current:value}),useLayoutEffect:fn=>fn()},'@/lib/ship/domeGeometry':{domePoint:theta=>({x:theta,y:0})},'@/lib/ship/domePageLayout':{domePageLayout:()=>({information:1})},'@/lib/ship/cameraTransition':{cameraDuration:()=>0},'@/lib/ship/domeNavigation':component('lib/ship/domeNavigation.ts'),'@/lib/ship/mobilePresentation':{mobileSideContent:()=>({theta:0,scale:.6})}};
  new Function('module','exports','require','window','document',outputText)(loaded,loaded.exports,name=>deps[name],{matchMedia:()=>({addEventListener(){},removeEventListener(){}}),addEventListener(){}},{addEventListener(){}});
  loaded.exports.useDomeProjection(root,true,{}, {width:1440,height:900});
- assert.equal(elements[0].style.left,'-0.67px');assert.equal(elements[1].style.left,'0.67px');
+ assert.equal(elements[0].style.left,'720px');assert.equal(elements[1].style.left,'720px');
+ assert.equal(elements[0].style.top,elements[1].style.top);
 });
 
 test('public atmosphere stays intact and Wish UI/rules are absent before a catch',()=>{

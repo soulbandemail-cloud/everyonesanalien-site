@@ -22,20 +22,20 @@ function fixtureHarness(){
   });cache.set(file,mod.exports);return mod.exports;
  }
  const {Fixtures}=load('components/ship/Fixtures.tsx'),{DEFAULT_DOME}=load('lib/ship/domeGeometry.ts');
- let tv=0,arcade=0,newsletter=0;
- const render=(enabled=true)=>Fixtures({config:DEFAULT_DOME,view:{width:1280,height:720},onTV:enabled?()=>tv++:undefined,onArcade:enabled?()=>arcade++:undefined,onNewsletter:enabled?()=>newsletter++:undefined,liveTv:true});
- return {render,counts:()=>({tv,arcade,newsletter})};
+ let tv=0,arcade=0,newsletter=0,shows=0,merch=0;
+ const render=(enabled=true)=>Fixtures({config:DEFAULT_DOME,view:{width:1280,height:720},onTV:enabled?()=>tv++:undefined,onArcade:enabled?()=>arcade++:undefined,onNewsletter:enabled?()=>newsletter++:undefined,onShows:enabled?()=>shows++:undefined,onMerch:enabled?()=>merch++:undefined,liveTv:true});
+ return {render,counts:()=>({tv,arcade,newsletter,shows,merch})};
 }
 test('TV, arcade and newspaper use identical press/release and cancellation behaviour',()=>{
- for(const [name,id] of [['Maximise TV','tv'],['Play SOUL arcade','arcade'],['Open The Hyper-Fix','newsletter']]){
+ for(const [name,id] of [['Maximise TV','tv'],['Play SOUL arcade','arcade'],['Open The Hyper-Fix','newsletter'],['Upcoming show posters','shows'],['SOUL merchandise clothes rail','merch']]){
   const h=fixtureHarness();const button=()=>nodes(h.render()).find(n=>n.props?.['aria-label']===name);
-  let captured=false;const target={setPointerCapture(){captured=true;},hasPointerCapture(){return captured;}};
+  let captured=false;const target={dataset:{resting:'true'},setPointerCapture(){captured=true;},hasPointerCapture(){return captured;}};
   button().props.onPointerDown({button:0,pointerId:1,currentTarget:target});
-  assert.equal(button().props['data-pressed'],true);assert.equal(h.counts()[id],0);
+  assert.equal(button().props['data-pressed'],true);assert.equal(target.dataset.resting,undefined);assert.equal(h.counts()[id],0);
   button().props.onPointerLeave({pointerId:1,currentTarget:target});assert.equal(button().props['data-pressed'],true);
   button().props.onPointerUp();assert.equal(button().props['data-pressed'],undefined);
   button().props.onClick();assert.equal(h.counts()[id],1);
-  button().props.onPointerDown({button:0,pointerId:1,currentTarget:target});button().props.onPointerCancel();assert.equal(button().props['data-pressed'],undefined);
+  button().props.onPointerDown({button:0,pointerId:1,currentTarget:target});assert.equal(button().props['data-pressed'],true,'subsequent presses shrink too');button().props.onPointerCancel();assert.equal(button().props['data-pressed'],undefined);
   button().props.onKeyDown({key:' ',preventDefault(){}});assert.equal(h.counts()[id],1);assert.equal(button().props['data-pressed'],true);
   button().props.onKeyUp({key:' ',preventDefault(){}});assert.equal(h.counts()[id],2);assert.equal(button().props['data-pressed'],undefined);
   button().props.onKeyDown({key:'Enter',preventDefault(){}});button().props.onBlur();button().props.onKeyUp({key:'Enter',preventDefault(){}});assert.equal(h.counts()[id],2);
