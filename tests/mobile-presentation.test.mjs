@@ -189,7 +189,7 @@ test('third-person header adjustments preserve first person and interpolate cont
  const view={width:844,height:390};
  for(const mobile of [false,true]){
   const first=domeHeaderPresentation(view,0,mobile);
-  assert.equal(first.scale,1);assert.equal(first.lift,0);assert.equal(first.socialLift,0);
+  assert.equal(first.scale,1.25);assert.equal(first.lift,0);assert.equal(first.socialLift,0);
   const end=domeHeaderPresentation(view,1,mobile),mid=domeHeaderPresentation(view,.5,mobile);
   assert.equal(end.scale,.72);
   assert.equal(mid.scale,(first.scale+end.scale)/2);
@@ -197,5 +197,13 @@ test('third-person header adjustments preserve first person and interpolate cont
   assert.equal(mid.socialLift,end.socialLift/2);
   assert.equal(end.ruleCurvature,mobile?.35:1);
   assert.equal(end.lift,mobile?view.height*.045:0);
+ }
+});
+
+test('larger first-person wordmark retains third-person size on desktop and mobile',()=>{
+ const {domeHeaderPresentation}=load('domeNavigation');
+ for(const mobile of [false,true])for(const view of [{width:1280,height:720},{width:390,height:844}]) {
+  assert.equal(domeHeaderPresentation(view,0,mobile).scale,1.25);
+  assert.equal(domeHeaderPresentation(view,1,mobile).scale,.72);
  }
 });
