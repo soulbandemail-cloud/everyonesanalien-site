@@ -151,7 +151,7 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
     </g>
     <g className="arcade-fixture cockpit-interactive-fixture" role="button" aria-label="Play SOUL arcade" {...interaction('arcade',onArcade)}
       style={{pointerEvents:onArcade ? 'auto' : 'none'}}>
-      <title>ARCADE</title>
+      <title>Arcade</title>
   {/* main upright cabinet */}
   {box(arcade,0,0,0,1.15,2.25,.72,'#303d46')}
 
