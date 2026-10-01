@@ -52,15 +52,15 @@ export const Fixtures = memo(function Fixtures({ config, view, onArcade, onTV, o
   function label(f: FixturePlacement, text: string, y: number, z = 0, x = 0) {
     return flatArt(f,x,y,z,1,<text textAnchor="middle" fill="#bdccc7" fontSize="13" letterSpacing="1">{text}</text>);
   }
-  function flatArt(f: FixturePlacement, x: number, y: number, z: number, width: number, children: React.ReactNode, plane: 'vertical' | 'horizontal' = 'vertical') {
+  function flatArt(f: FixturePlacement, x: number, y: number, z: number, width: number, children: React.ReactNode, plane: 'vertical' | 'horizontal' | 'side' = 'vertical') {
     const p = project(local(f,x,y,z), config, view);
     if (!p.visible) return null;
     if (f === FIXTURES.radio) return <g transform={`translate(${p.x} ${p.y}) scale(${(p.scale * f.scale * width / 100).toFixed(6)})`}>{children}</g>;
     // Small illustrated details inherit the local surface's perspective basis,
     // rather than remaining camera-facing billboards or being spun in screen space.
     const unit = width / 100;
-    const right = project(local(f,x+unit,y,z), config, view);
-    const down = project(local(f,x,plane === 'vertical' ? y-unit : y,plane === 'horizontal' ? z-unit : z), config, view);
+    const right = project(local(f,plane === 'side' ? x : x+unit,y,plane === 'side' ? z+unit : z), config, view);
+    const down = project(local(f,x,plane !== 'horizontal' ? y-unit : y,plane === 'horizontal' ? z-unit : z), config, view);
     const matrix = [right.x-p.x,right.y-p.y,down.x-p.x,down.y-p.y,p.x,p.y].map(n=>n.toFixed(6)).join(' ');
     return <g transform={`matrix(${matrix})`}>{children}</g>;
   }
@@ -239,6 +239,19 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
       {[-1.05,1.05].map(x=><g key={x}>{line(rail,[x,.04,-.38],[x,.04,.38],'#879c9c',4)}{line(rail,[x,0,0],[x,2.1,0],'#879c9c',4)}</g>)}
       {line(rail,[-1.05,2.1,0],[1.05,2.1,0],'#b0bcb4',5)}
       {line(rail,[-1.05,.15,0],[1.05,.15,0],'#61787b',2)}
+      {flatArt(rail,-.15,2.1,-.035,1.2,<g aria-label="White SOUL Ringer Tee with red trim hanging on a hanger" pointerEvents="none">
+        {/* Thin hanger hooks over the existing rail; the shirt drapes below it. */}
+        <path d="M0 12 V5 C10 3 7 -7 1 -5 C-3 -4 -4 -1 -3 1 M0 12 L-29 29 Q0 34 29 29 Z" fill="none" stroke="#b9c4c5" strokeWidth="1.7" strokeLinejoin="round" />
+        <path d="M-12 20 L-29 25 -49 44 -37 59 -26 51 -28 118 Q0 123 28 118 L26 51 37 59 49 44 29 25 12 20 Q0 29 -12 20Z" fill="#f7f6f2" stroke="#bac2c2" strokeWidth="1" strokeLinejoin="round" />
+        <path d="M-12 20 Q0 29 12 20 L11 26 Q0 35 -11 26Z M-49 44 L-37 59 -33 55 -45 40Z M49 44 L37 59 33 55 45 40Z" fill="#c5102e" />
+        <path d="M-24 52 Q-19 67 -24 108 M24 52 Q18 78 24 111 M-26 115 Q0 119 26 115" fill="none" stroke="#d8dcda" strokeWidth="1" />
+        {/* 30cm print on a 50cm body: roughly 60% of the torso width. */}
+        <g fill="#17191a" transform="translate(0 60) scale(.57) translate(0 -60)">
+          <path d="M-7 42 Q-11 48 -8 57 L-13 64 -11 73 -16 83 -10 97 8 98 13 91 10 78 18 69 15 65 8 69 6 59 Q13 50 6 44 L2 40Z" />
+          <path d="M-22 61 Q-28 63 -25 73 L-29 81 -25 95 -13 98 -10 90 -16 82 -15 74 -18 71 Q-14 63 -22 61Z M20 61 Q13 63 17 72 L12 78 15 83 11 90 15 98 27 95 28 83 24 76 25 69 Q27 63 20 61Z" />
+          <path d="M-27 89 Q-17 85 -8 91 L2 88 13 90 28 87 28 99 Q12 102 -2 99 L-27 100Z" />
+        </g>
+      </g>,'side')}
     </g>
     <g aria-label="Foremost coffee table with the current Hyper-Fix, a permanent ship fixture">
       {[-.78,.78].map(x=><g key={x}>{box(table,x,0,-.27,.09,.48,.09)}{box(table,x,0,.27,.09,.48,.09)}</g>)}
