@@ -83,12 +83,12 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
       </filter>
     </defs>
     <g className="show-posters cockpit-interactive-fixture" role="button" aria-label="Upcoming show posters" aria-expanded={domeMenu==='shows'} {...interaction('shows',onShows)} style={{pointerEvents:onShows ? 'auto' : 'none'}}>
-      <title>Upcoming shows — toggle THE SHOWS</title>
+      <title>THE SHOWS</title>
       <PosterArtwork config={config} view={view} />
     </g>
     <g className="console-tv cockpit-interactive-fixture" role="button" aria-label="Maximise TV" {...interaction('tv',onTV)}
       style={{pointerEvents:onTV ? 'auto' : 'none',transformBox:'view-box',transformOrigin:`${tvScreen.x+42*tvScreen.scale}px ${tvScreen.y+18*tvScreen.scale}px`}}>
-      <title>Portable TV fixed on the control panel to the alien’s right</title>
+      <title>Soul TV</title>
   {box(radio,0,0,0,1.05,.58,.38,'#655f5c')}
 
   {flatArt(
@@ -151,7 +151,7 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
     </g>
     <g className="arcade-fixture cockpit-interactive-fixture" role="button" aria-label="Play SOUL arcade" {...interaction('arcade',onArcade)}
       style={{pointerEvents:onArcade ? 'auto' : 'none'}}>
-      <title>SOUL arcade — play</title>
+      <title>ARCADE</title>
   {/* main upright cabinet */}
   {box(arcade,0,0,0,1.15,2.25,.72,'#303d46')}
 
@@ -234,7 +234,7 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
   )}
 </g>
     <g className="merch-rail cockpit-interactive-fixture" role="button" aria-label="SOUL merchandise clothes rail" aria-expanded={domeMenu==='merch'} {...interaction('merch',onMerch)} style={{pointerEvents:onMerch ? 'auto' : 'none'}}>
-      <title>All available SOUL wearable and non-vinyl merchandise — toggle THE MERCH</title>
+      <title>THE MERCH</title>
       <path d={path([local(rail,-1.05,0,0),local(rail,1.05,0,0),local(rail,1.05,2.1,0),local(rail,-1.05,2.1,0)])} fill="transparent" pointerEvents="all" />
       {[-1.05,1.05].map(x=><g key={x}>{line(rail,[x,.04,-.38],[x,.04,.38],'#879c9c',4)}{line(rail,[x,0,0],[x,2.1,0],'#879c9c',4)}</g>)}
       {line(rail,[-1.05,2.1,0],[1.05,2.1,0],'#b0bcb4',5)}
@@ -260,6 +260,7 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
         return <g stroke="#849396" strokeWidth="1"><path d={path(rim(.45))} fill="#45565f" /><path d={path(rim(.55))} fill="#6b7777" /></g>;
       })()}
       <g className="newsletter-fixture cockpit-interactive-fixture" role="button" aria-label="Open The Hyper-Fix" {...interaction('newsletter',onNewsletter)} style={{pointerEvents:onNewsletter ? 'auto' : 'none'}}>
+      <title>The Hyper-Fix</title>
       {box(table,-.17,.55,0,.82,.025,.61,'#fff')}
       {flatArt(table,-.17,.58,-.1,.67,<g><text textAnchor="middle" fill="#000" fontSize="14" fontFamily="HyperFixBlackletter, serif">The Hyper-Fix</text><text y="17" textAnchor="middle" fill="#222" fontSize="8">CURRENT ISSUE</text></g>,'horizontal')}
       </g>

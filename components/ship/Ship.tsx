@@ -66,7 +66,7 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
   <PilotMezzanine attention={attention} config={config} view={view} />
   <ManifestationPort config={config} view={view} />
   <header className={styles.toolbar}>
-    <span>{preview ? 'DEVELOPMENT PREVIEW · NO MATE SESSION' : ''}</span>
+    <span className={styles.alpha}>alpha{preview && <small className={styles.previewLabel}>DEVELOPMENT PREVIEW · NO MATE SESSION</small>}</span>
     {logout && <button className="cockpit-logout" onClick={logout} disabled={busy}>{busy ? 'LOGGING OUT…' : 'LOG OUT'}</button>}
     {development && <button aria-pressed={debug} onClick={()=>setDebug(!debug)}>Geometry {debug ? 'on' : 'off'}</button>}
   </header>

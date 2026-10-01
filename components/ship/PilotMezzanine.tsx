@@ -42,7 +42,7 @@ export function PilotMezzanine({ attention, config, view }: PilotMezzanineProps)
    </g>;
   })}
  </svg>
- <button type="button" className={styles.consoleObject} style={{ left: consoleBase.x, top: consoleTop, width: consoleWidth, visibility: consoleBase.visible ? 'visible' : 'hidden' }} data-room-object="pilot-console" aria-label="Pilot controls — reserved for future spacecraft travel" title="Pilot controls — future spacecraft travel" disabled>
+ <button type="button" className={styles.consoleObject} style={{ left: consoleBase.x, top: consoleTop, width: consoleWidth, visibility: consoleBase.visible ? 'visible' : 'hidden' }} data-room-object="pilot-console" aria-label="Pilot controls — reserved for future spacecraft travel" disabled>
  <svg viewBox={`0 0 600 ${consoleHeight}`} className={styles.console} role="img" aria-label="Physical pilot controls with switches and dials">
  <defs><linearGradient id="console" x2="0" y2="1"><stop stopColor="#6b7777" /><stop offset="1" stopColor="#2a393f" /></linearGradient></defs>
  <path d={fascia} fill="#1c2a33" stroke="#546666" strokeWidth="2" />

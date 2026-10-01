@@ -44,7 +44,7 @@ test('TV corner is CSS-anchored outside the moving camera frame; antennae are ce
  assert.match(frameCss,/\.public-tv-frame \{[^}]*position:fixed;[^}]*inset:0/);
  assert.match(frameCss,/\.public-tv-frame\[data-portrait-first\] \{[^}]*width:100svh; height:100svw/);
  const fixtures=fs.readFileSync('components/ship/Fixtures.tsx','utf8');
- assert.match(fixtures,/TV fixed on the control panel to the alien’s right/);
+ assert.match(fixtures,/<title>Soul TV<\/title>/);
  assert.match(fixtures,/line\(radio,\[0,\.58,\.1\],\[-\.15,\.98,\.1\]/);
  assert.match(fixtures,/line\(radio,\[0,\.58,\.1\],\[\.15,\.98,\.1\]/);
 });

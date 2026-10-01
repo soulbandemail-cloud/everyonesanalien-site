@@ -55,3 +55,6 @@
 .fixtures { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
 
 .chairBase::before { content: ""; position: absolute; bottom: 70%; left: 42%; width: 16%; height: var(--seat-lift, 0px); background: #536367; }
+
+.alpha { color:#fff; font-size:14px; text-transform:none; }
+.previewLabel { margin-left:18px; color:#afc4cd; font-size:10px; }
