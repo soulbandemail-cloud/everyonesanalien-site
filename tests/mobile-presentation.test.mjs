@@ -207,3 +207,28 @@ test('larger first-person wordmark retains third-person size on desktop and mobi
   assert.equal(domeHeaderPresentation(view,1,mobile).scale,.72);
  }
 });
+
+test('phone third person stays sideways with the intact landscape scene in either grip',()=>{
+ const portrait={width:390,height:844},landscape={width:844,height:390};
+ const upright=m.phoneCockpitPresentation(portrait,true,true,false,1,0);
+ assert.deepEqual(upright,{view:landscape,angle:-90,scale:1});
+ for(const angle of [-90,90]){
+  const sideways=m.phoneCockpitPresentation(landscape,true,true,true,1,angle);
+  assert.deepEqual(sideways.view,landscape);
+  assert.equal(sideways.angle,-angle);
+  assert.equal(sideways.scale,390/844);
+  assert.ok(sideways.view.width*sideways.scale<=landscape.height);
+  for(const t of [0,.25,.5,.75,1]) {
+   const next=m.phoneCockpitPresentation(landscape,true,true,true,t,angle);
+   assert.ok(Number.isFinite(next.scale));assert.ok(next.scale>0);
+  }
+ }
+ for(const [view,wide,angle] of [[portrait,false,0],[landscape,true,-90],[landscape,true,90]]) {
+  assert.deepEqual(m.phoneCockpitPresentation(view,true,true,wide,0,angle),{...m.cockpitPresentation(view,true,wide,0,angle),scale:1});
+  for(const t of [0,.5,1])assert.deepEqual(m.phoneCockpitPresentation(view,false,false,wide,t,angle),{view,angle:0,scale:1});
+  assert.deepEqual(m.phoneCockpitPresentation(view,true,false,wide,1,angle),{...m.cockpitPresentation(view,true,wide,1,angle),scale:1});
+ }
+ assert.equal(m.isPhoneScreen(portrait,true,5),true);
+ assert.equal(m.isPhoneScreen({width:768,height:1024},true,5),false);
+ assert.equal(m.isPhoneScreen(portrait,false,0),false);
+});

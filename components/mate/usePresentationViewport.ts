@@ -1,9 +1,9 @@
 'use client';
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
-import { isMobileViewport, viewportLandscape, portraitScreenAngle } from '@/lib/ship/mobilePresentation';
+import { isMobileViewport, isPhoneScreen, viewportLandscape, portraitScreenAngle } from '@/lib/ship/mobilePresentation';
 
 export function usePresentationViewport(ready: Dispatch<SetStateAction<boolean>>, mobilePreview=false) {
- const [viewport,setViewport]=useState({view:{width:1440,height:900},mobile:false,landscape:true,screenAngle:0,scale:1,left:0,top:0});
+ const [viewport,setViewport]=useState({view:{width:1440,height:900},mobile:false,phone:false,landscape:true,screenAngle:0,scale:1,left:0,top:0});
  useEffect(()=>{
   const coarse=window.matchMedia('(any-pointer: coarse)');
   let frame=0;
@@ -11,11 +11,12 @@ export function usePresentationViewport(ready: Dispatch<SetStateAction<boolean>>
    frame=0;
    const layout={width:window.innerWidth,height:window.innerHeight};
    const mobile=mobilePreview || isMobileViewport(layout,coarse.matches,navigator.maxTouchPoints);
+   const phone=mobilePreview || isPhoneScreen({width:screen.width || layout.width,height:screen.height || layout.height},coarse.matches,navigator.maxTouchPoints);
    const vv=window.visualViewport;
    const landscape=viewportLandscape(layout,mobilePreview ? undefined : screen.orientation?.type);
    const screenAngle=portraitScreenAngle(landscape,mobilePreview ? undefined : screen.orientation?.type,mobilePreview ? undefined : screen.orientation?.angle,mobilePreview ? undefined : window.orientation);
    const visual=mobile || (vv?.scale ?? 1)!==1;
-   const next={landscape,screenAngle,scale:vv?.scale ?? 1,view:visual && vv ? {width:vv.width,height:vv.height} : layout,mobile,left:visual ? vv?.offsetLeft ?? 0 : 0,top:visual ? vv?.offsetTop ?? 0 : 0};
+   const next={phone,landscape,screenAngle,scale:vv?.scale ?? 1,view:visual && vv ? {width:vv.width,height:vv.height} : layout,mobile,left:visual ? vv?.offsetLeft ?? 0 : 0,top:visual ? vv?.offsetTop ?? 0 : 0};
    setViewport(old=>JSON.stringify(old)===JSON.stringify(next) ? old : next);
    ready(true);
   };

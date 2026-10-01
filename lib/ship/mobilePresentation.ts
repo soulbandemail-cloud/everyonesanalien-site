@@ -26,6 +26,22 @@ export function cockpitPresentation(view:Viewport,mobile:boolean,landscape:boole
   const t=mobile ? (landscape ? 1-p : p) : 0;
   return {view:t===0 ? view : {width:view.width+(view.height-view.width)*t,height:view.height+(view.width-view.height)*t},angle:mobile ? (-90*p-screenAngle || 0) : 0};
 }
+/** Phone-only sideways cockpit. Keep the landscape scene intact, including in a
+ * landscape physical viewport where it must be fitted rather than cropped. */
+export function phoneCockpitPresentation(view:Viewport,mobile:boolean,phone:boolean,landscape:boolean,progress:number,screenAngle:number) {
+ const frame=cockpitPresentation(view,mobile,landscape,progress,screenAngle);
+ const p=Math.max(0,Math.min(1,progress));
+ if(!phone || !landscape)return {...frame,scale:1};
+ const targetAngle=screenAngle>0 ? -90 : 90;
+ const angle=-screenAngle+(targetAngle+screenAngle)*p;
+ const target=cockpitPresentation(view,true,landscape,1,screenAngle).view;
+ const fit=Math.min(1,view.width/target.height,view.height/target.width);
+ return {...frame,angle,scale:(1-p)+fit*p};
+}
+/** Physical screen size prevents a narrow tablet window from opting into phone mode. */
+export function isPhoneScreen(screen:Viewport,coarse:boolean,touches:number) {
+ return coarse && touches>0 && Math.min(screen.width,screen.height)<=600;
+}
 /** Undo an existing browser pinch without changing the calibrated scene scale. */
 export function cockpitViewport(view:Viewport,scale:number,active:boolean) {
   const zoom=active && Number.isFinite(scale) && scale>0 ? scale : 1;

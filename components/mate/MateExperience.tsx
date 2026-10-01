@@ -8,7 +8,7 @@ import PortableTV, { type TvController } from '@/components/home/PortableTV';
 import CanonicalHomepage from '@/components/home/CanonicalHomepage';
 import {toggleDomeMenu,type DomeMenu} from '@/lib/ship/domeNavigation';
 import { useCockpitViewportFit, usePresentationViewport } from './usePresentationViewport';
-import { mobileThirdCamera, cockpitPresentation, cockpitViewport } from '@/lib/ship/mobilePresentation';
+import { mobileThirdCamera, phoneCockpitPresentation, cockpitViewport } from '@/lib/ship/mobilePresentation';
 import Ship from '@/components/ship/Ship';
 import dynamic from 'next/dynamic';
 import { DEFAULT_DOME } from '@/lib/ship/domeGeometry';
@@ -39,8 +39,9 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
   const thirdActive=cockpit || progress>0;
   useCockpitZoomGuard(thirdActive && !arcadeOpen);
   const sceneViewport=useMemo(()=>cockpitViewport(viewport.view,viewport.scale,thirdActive),[viewport.view,viewport.scale,thirdActive]);
-  const presentation=useMemo(()=>cockpitPresentation(sceneViewport.view,mobile,viewport.landscape,progress,viewport.screenAngle),[sceneViewport.view,mobile,viewport.landscape,progress,viewport.screenAngle]);
+  const presentation=useMemo(()=>phoneCockpitPresentation(sceneViewport.view,mobile,viewport.phone,viewport.landscape,progress,viewport.screenAngle),[sceneViewport.view,mobile,viewport.phone,viewport.landscape,progress,viewport.screenAngle]);
   const view=presentation.view;
+  const presentationScale=sceneViewport.scale*presentation.scale;
   const portraitFirst=mobile && viewport.landscape && (!cockpit || progress<1);
   const mobileThird=mobile && (cockpit || progress>0);
   useCockpitViewportFit(mobileThird);
@@ -122,10 +123,10 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
   const tvDock=thirdActive ? consoleTvScreen(roomCamera,view) : undefined;
   const tvVisible=(!cockpit && progress===0) || (cockpit && progress===1 && tvDock?.visible);
   return <div className={`mate-experience ${cockpit ? 'mate-cockpit' : ''}`} ref={focusTarget} tabIndex={-1} data-mobile={mobile || undefined} data-cockpit-active={thirdActive && !arcadeOpen || undefined}>
-    <div data-cockpit-presentation data-presentation-angle={presentation.angle} data-presentation-scale={sceneViewport.scale} data-portrait-first={portraitFirst || undefined} data-portrait-settled={portraitFirst && progress===0 || undefined} style={mobileThird || (mobile && viewport.screenAngle!==0) || sceneViewport.scale!==1 ? {
+    <div data-cockpit-presentation data-presentation-angle={presentation.angle} data-presentation-scale={presentationScale} data-portrait-first={portraitFirst || undefined} data-portrait-settled={portraitFirst && progress===0 || undefined} style={mobileThird || (mobile && viewport.screenAngle!==0) || sceneViewport.scale!==1 ? {
       '--portrait-width':`${view.width}px`,'--portrait-height':`${view.height}px`,
       position:'fixed',left:0,top:0,width:view.width,height:view.height,transformOrigin:'0 0',
-      transform:`translate(${viewport.left+viewport.view.width/2}px,${viewport.top+viewport.view.height/2}px) scale(${sceneViewport.scale}) rotate(${presentation.angle}deg) translate(${-view.width/2}px,${-view.height/2}px)`,
+      transform:`translate(${viewport.left+viewport.view.width/2}px,${viewport.top+viewport.view.height/2}px) scale(${presentationScale}) rotate(${presentation.angle}deg) translate(${-view.width/2}px,${-view.height/2}px)`,
     } as React.CSSProperties : undefined}>
     <CanonicalHomepage domeMenu={domeMenu} animateEntry={entry} cockpit={cockpit} loginEnabled={loginEnabled && !preview} config={config} camera={camera} progress={progress} view={view} mobileThird={mobileThird} publicFrame={mobile ? presentation : undefined} />
     {(cockpit || progress>0) && <Ship domeMenu={domeMenu} onShows={cockpit && progress===1 ? ()=>setDomeMenu(current=>toggleDomeMenu(current,"shows")) : undefined} onMerch={cockpit && progress===1 ? ()=>setDomeMenu(current=>toggleDomeMenu(current,"merch")) : undefined} onNewsletter={cockpit && progress===1 ? ()=>setNewsletterOpen(true) : undefined} onTV={cockpit && progress===1 ? ()=>tvController.current?.open() : undefined} liveTv={!!tvVisible} config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
@@ -135,7 +136,7 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
     <div className="public-tv-frame site-atmosphere" data-tv-visible={!!tvVisible} data-mobile={mobile || undefined} style={thirdActive ? {
       '--tv-frame-width':`${view.width}px`,'--tv-frame-height':`${view.height}px`,
       left:0,top:0,width:view.width,height:view.height,transformOrigin:'0 0',
-      transform:`translate(${viewport.left+viewport.view.width/2}px,${viewport.top+viewport.view.height/2}px) scale(${sceneViewport.scale}) rotate(${presentation.angle}deg) translate(${-view.width/2}px,${-view.height/2}px)`,
+      transform:`translate(${viewport.left+viewport.view.width/2}px,${viewport.top+viewport.view.height/2}px) scale(${presentationScale}) rotate(${presentation.angle}deg) translate(${-view.width/2}px,${-view.height/2}px)`,
     } as React.CSSProperties : {'--tv-turn':`${-viewport.screenAngle}deg`} as React.CSSProperties} data-portrait-first={!thirdActive && mobile && viewport.landscape || undefined}>
       <PortableTV dock={tvDock} controllerRef={tvController} />
     </div>
