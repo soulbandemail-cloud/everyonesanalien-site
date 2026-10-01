@@ -8,7 +8,7 @@ export function posterSurfacePoint(p:Poster,u:number,v:number,config:DomeConfig,
 }
 export function posterMesh(p:Poster,config:DomeConfig,view:Viewport) {
  const triangles=[];
- const columns=8,rows=12;
+ const columns=4,rows=6;
  for(let y=0;y<rows;y++)for(let x=0;x<columns;x++) {
   const a=[x/columns,y/rows],b=[(x+1)/columns,y/rows],c=[x/columns,(y+1)/rows],d=[(x+1)/columns,(y+1)/rows];
   for(const uv of [[a,b,c],[d,c,b]]) {

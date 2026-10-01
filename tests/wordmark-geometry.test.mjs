@@ -167,3 +167,19 @@ test('poster artwork follows curved spherical edges and every mesh vertex maps t
   });
  }
 });
+
+test('lightweight poster mesh stays within half a pixel of the spherical surface',()=>{
+ const {posterSurfacePoint,posterMesh}=load('posterProjection');
+ const p=load('domeNavigation').UPCOMING_POSTERS[0];
+ assert.ok(p.src.endsWith('.png'),'reuse a decoded raster instead of rerendering complex SVG per triangle');
+ for(const view of [{width:1280,height:720},{width:1920,height:1080},{width:844,height:390}]){
+  const mesh=posterMesh(p,g.DEFAULT_DOME,view);
+  assert.equal(mesh.length,48);
+  for(const t of mesh){
+   const u=t.uv.reduce((s,p)=>s+p[0],0)/3,v=t.uv.reduce((s,p)=>s+p[1],0)/3;
+   const point=posterSurfacePoint(p,u,v,g.DEFAULT_DOME,view);
+   const [a,b,c,d,e,f]=t.matrix;
+   assert.ok(Math.hypot(a*u+c*v+e-point.x,b*u+d*v+f-point.y)<.5);
+  }
+ }
+});

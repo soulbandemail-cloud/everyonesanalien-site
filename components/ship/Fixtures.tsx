@@ -84,19 +84,7 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
     </defs>
     <g className="show-posters cockpit-interactive-fixture" role="button" aria-label="Upcoming show posters" aria-expanded={domeMenu==='shows'} {...interaction('shows',onShows)} style={{pointerEvents:onShows ? 'auto' : 'none'}}>
       <title>Upcoming shows — toggle THE SHOWS</title>
-      {UPCOMING_POSTERS.map(poster=>{
-        const imageId=`${outlineId}-${poster.id}`;
-        return <g key={poster.id} aria-label={poster.title}>
-          <defs><image id={imageId} href={poster.src} width="1" height="1" preserveAspectRatio="none" /></defs>
-          {posterMesh(poster,config,view).map((triangle,i)=>{
-            const clipId=`${imageId}-${i}`;
-            return <g key={i} transform={`matrix(${triangle.matrix.join(' ')})`}>
-              <defs><clipPath id={clipId}><polygon points={triangle.uv.map(p=>p.join(',')).join(' ')} /></clipPath></defs>
-              <use href={`#${imageId}`} clipPath={`url(#${clipId})`} />
-            </g>;
-          })}
-        </g>;
-      })}
+      <PosterArtwork config={config} view={view} />
     </g>
     <g className="console-tv cockpit-interactive-fixture" role="button" aria-label="Maximise TV" {...interaction('tv',onTV)}
       style={{pointerEvents:onTV ? 'auto' : 'none',transformBox:'view-box',transformOrigin:`${tvScreen.x+42*tvScreen.scale}px ${tvScreen.y+18*tvScreen.scale}px`}}>
@@ -264,4 +252,22 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
       </g>
     </g>
   </svg>;
+});
+
+/** Keep static glass artwork out of press/menu state updates. */
+const PosterArtwork=memo(function PosterArtwork({config,view}:{config:DomeConfig;view:Viewport}) {
+ const outlineId=useId();
+ return <g>      {UPCOMING_POSTERS.map(poster=>{
+        const imageId=`${outlineId}-${poster.id}`;
+        return <g key={poster.id} aria-label={poster.title}>
+          <defs><image id={imageId} href={poster.src} width="1" height="1" preserveAspectRatio="none" /></defs>
+          {posterMesh(poster,config,view).map((triangle,i)=>{
+            const clipId=`${imageId}-${i}`;
+            return <g key={i} transform={`matrix(${triangle.matrix.join(' ')})`}>
+              <defs><clipPath id={clipId}><polygon points={triangle.uv.map(p=>p.join(',')).join(' ')} /></clipPath></defs>
+              <use href={`#${imageId}`} clipPath={`url(#${clipId})`} />
+            </g>;
+          })}
+        </g>;
+      })}</g>;
 });
