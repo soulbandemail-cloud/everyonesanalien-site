@@ -1,10 +1,10 @@
-import { memo, useId, useState } from 'react';
+import { memo, useEffect, useId, useState } from 'react';
 import { project, type DomeConfig, type Vec3, type Viewport } from '@/lib/ship/domeGeometry';
 import { polygonPath } from '@/lib/ship/roomGeometry';
 import { FIXTURES, orientedFixtures, consoleTvScreen, type FixturePlacement } from '@/lib/ship/fixtureLayout';
 import {UPCOMING_POSTERS,type DomeMenu} from '@/lib/ship/domeNavigation';
 import styles from './ship.module.css';
-import {posterMesh} from '@/lib/ship/posterProjection';
+import {rasterPoster} from '@/lib/ship/posterRaster';
 
 type Props = { config: DomeConfig; view: Viewport; onArcade?: () => void; onTV?:()=>void; onNewsletter?:()=>void; onShows?:()=>void; onMerch?:()=>void; domeMenu?:DomeMenu; liveTv?:boolean };
 
@@ -254,20 +254,18 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
   </svg>;
 });
 
-/** Keep static glass artwork out of press/menu state updates. */
+/** One rasterised spherical surface per poster; no triangle DOM or hover repaint mesh. */
 const PosterArtwork=memo(function PosterArtwork({config,view}:{config:DomeConfig;view:Viewport}) {
- const outlineId=useId();
- return <g>      {UPCOMING_POSTERS.map(poster=>{
-        const imageId=`${outlineId}-${poster.id}`;
-        return <g key={poster.id} aria-label={poster.title}>
-          <defs><image id={imageId} href={poster.src} width="1" height="1" preserveAspectRatio="none" /></defs>
-          {posterMesh(poster,config,view).map((triangle,i)=>{
-            const clipId=`${imageId}-${i}`;
-            return <g key={i} transform={`matrix(${triangle.matrix.join(' ')})`}>
-              <defs><clipPath id={clipId}><polygon points={triangle.uv.map(p=>p.join(',')).join(' ')} /></clipPath></defs>
-              <use href={`#${imageId}`} clipPath={`url(#${clipId})`} />
-            </g>;
-          })}
-        </g>;
-      })}</g>;
+ return <g>{UPCOMING_POSTERS.map(poster=><CurvedPoster key={poster.id} poster={poster} config={config} view={view} />)}</g>;
 });
+function CurvedPoster({poster,config,view}:{poster:typeof UPCOMING_POSTERS[number];config:DomeConfig;view:Viewport}) {
+ const [image,setImage]=useState<Awaited<ReturnType<typeof rasterPoster>>|null>(null);
+ const geometry=JSON.stringify({poster,config,view});
+ useEffect(()=>{
+  let active=true;
+  const {poster,config,view}=JSON.parse(geometry);
+  void rasterPoster(poster,config,view).then(result=>{if(active)setImage(result);});
+  return ()=>{active=false;};
+ },[geometry]);
+ return image ? <image aria-label={poster.title} {...image} preserveAspectRatio="none" /> : null;
+}

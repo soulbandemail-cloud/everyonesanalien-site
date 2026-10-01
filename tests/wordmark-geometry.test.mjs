@@ -146,9 +146,9 @@ test('mobile socials centre TikTok and space the visible icons symmetrically',()
  }
 });
 
-test('poster artwork follows curved spherical edges and every mesh vertex maps to the dome',()=>{
- const {posterSurfacePoint,posterMesh}=load('posterProjection');
- const p=load('domeNavigation').UPCOMING_POSTERS[0],view={width:1280,height:720};
+test('poster artwork follows curved spherical edges',()=>{
+ const {posterSurfacePoint}=load('posterProjection');
+ const p={...load('domeNavigation').UPCOMING_POSTERS[0],latitude:.43},view={width:1280,height:720};
  for(const v of [0,1]) {
   const a=posterSurfacePoint(p,0,v,g.DEFAULT_DOME,view),b=posterSurfacePoint(p,1,v,g.DEFAULT_DOME,view),m=posterSurfacePoint(p,.5,v,g.DEFAULT_DOME,view);
   const chordY=a.y+(b.y-a.y)*(m.x-a.x)/(b.x-a.x);
@@ -159,27 +159,20 @@ test('poster artwork follows curved spherical edges and every mesh vertex maps t
   const chordX=a.x+(b.x-a.x)*(m.y-a.y)/(b.y-a.y);
   assert.ok(m.x<chordX,'side edges bow left from their chord');
  }
- for(const triangle of posterMesh(p,g.DEFAULT_DOME,view)) {
-  const [a,b,c,d,e,f]=triangle.matrix;
-  triangle.uv.forEach(([u,v],i)=>{
-   close(a*u+c*v+e,triangle.points[i].x);
-   close(b*u+d*v+f,triangle.points[i].y);
-  });
- }
 });
 
-test('lightweight poster mesh stays within half a pixel of the spherical surface',()=>{
- const {posterSurfacePoint,posterMesh}=load('posterProjection');
+test('single-piece poster inverse projection recovers source pixels on desktop and mobile',()=>{
+ const {posterSurfacePoint}=load('posterProjection'),{posterUv}=load('posterRaster');
  const p=load('domeNavigation').UPCOMING_POSTERS[0];
- assert.ok(p.src.endsWith('.png'),'reuse a decoded raster instead of rerendering complex SVG per triangle');
- for(const view of [{width:1280,height:720},{width:1920,height:1080},{width:844,height:390}]){
-  const mesh=posterMesh(p,g.DEFAULT_DOME,view);
-  assert.equal(mesh.length,48);
-  for(const t of mesh){
-   const u=t.uv.reduce((s,p)=>s+p[0],0)/3,v=t.uv.reduce((s,p)=>s+p[1],0)/3;
-   const point=posterSurfacePoint(p,u,v,g.DEFAULT_DOME,view);
-   const [a,b,c,d,e,f]=t.matrix;
-   assert.ok(Math.hypot(a*u+c*v+e-point.x,b*u+d*v+f-point.y)<.5);
+ for(const view of [{width:1280,height:720},{width:1920,height:1080},{width:844,height:390}])for(const pitch of [0,-10]) {
+  const camera={...g.DEFAULT_DOME,pitch};
+  for(let u=.05;u<1;u+=.1)for(let v=.05;v<1;v+=.1) {
+   const point=posterSurfacePoint(p,u,v,camera,view),uv=posterUv(p,point.x,point.y,camera,view);
+   assert.ok(uv);assert.ok(Math.abs(uv.u-u)<.000001);assert.ok(Math.abs(uv.v-v)<.000001);
   }
+  assert.equal(posterUv(p,view.width/2,view.height/2,camera,view),null);
  }
+ const source=fs.readFileSync('components/ship/Fixtures.tsx','utf8');
+ assert.doesNotMatch(source,/posterMesh|triangle\.uv/);
+ assert.match(source,/<image aria-label=\{poster.title\} \{\.\.\.image\}/);
 });
