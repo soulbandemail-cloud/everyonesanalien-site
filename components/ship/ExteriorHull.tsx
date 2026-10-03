@@ -26,6 +26,8 @@ export const ExteriorHull = memo(function ExteriorHull({config,hull,view,sharedS
   <defs>
    <linearGradient id={`${id}-metal`} x1="0" y1="0" x2="0" y2="1"><stop stopColor="#b1a18b"/><stop offset=".18" stopColor="#81776b"/><stop offset=".7" stopColor="#74695e"/><stop offset="1" stopColor="#9a8b76"/></linearGradient>
    <linearGradient id={`${id}-lamp`} x1="0" y1="0" x2="0" y2="1"><stop stopColor="#ffe6a0"/><stop offset=".5" stopColor="#fff0bd"/><stop offset="1" stopColor="#ffc776"/></linearGradient>
+   <linearGradient id={`${id}-depth`} x2="0" y2="1"><stop stopColor="#eed2a1" stopOpacity=".1"/><stop offset=".22" stopColor="#10151b" stopOpacity=".16"/><stop offset="1" stopColor="#080f18" stopOpacity=".36"/></linearGradient>
+   <radialGradient id={`${id}-spill`}><stop stopColor="#ffc477" stopOpacity=".23"/><stop offset="1" stopColor="#ffc477" stopOpacity="0"/></radialGradient>
   </defs>
   {patches.map((patch,i)=>{
    const tone=Math.round(155-patch.radial*35+Math.sin(patch.radial*Math.PI)*12);
@@ -44,6 +46,9 @@ export const ExteriorHull = memo(function ExteriorHull({config,hull,view,sharedS
     <path d={panelBand(a+step*.035,b-step*.035,.06,.58)} fill="none" stroke={PARAPET_PANEL_TRIM} strokeOpacity={PARAPET_TRIM_OPACITY} strokeWidth=".65" />
     <path d={inset} fill="#494a46" stroke="#4c4036" strokeWidth="1.6" />
     <path d={inset} fill="none" stroke="#c3a47b" strokeOpacity=".4" strokeWidth=".6" />
+    <path d={panelBand(a,b,0,.65)} fill={`url(#${id}-depth)`} pointerEvents="none"/>
+    <path d={band(a,b,0,plinthHeight)} fill={`url(#${id}-depth)`} pointerEvents="none"/>
+    {lit && <path d={panelBand(a,b,0,.6)} fill={`url(#${id}-spill)`} pointerEvents="none"/>}
     {lit && <g>
      <path d={lamp} fill="#ffc078" stroke="#ffbc6c" strokeOpacity=".08" strokeWidth="15" />
      <path d={lamp} fill="#ffd391" stroke="#ffb855" strokeOpacity=".19" strokeWidth="7" />

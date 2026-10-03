@@ -43,7 +43,7 @@ export const Fixtures = memo(function Fixtures({ config, view, onArcade, onTV, o
       const depth = (face: typeof faces[number]) => face.points.reduce((sum,p) => sum + project(p,config,view).depth,0);
       faces.sort((a,b) => depth(b) - depth(a));
     }
-    return <g stroke="#849396" strokeWidth="1" strokeLinejoin="round">{faces.map((face,i) => <path key={i} d={path(face.points)} fill={face.fill} />)}</g>;
+    return <g stroke="#849396" strokeWidth="1" strokeLinejoin="round">{faces.map((face,i) => <g key={i}><path d={path(face.points)} fill={face.fill} />{f !== FIXTURES.radio && <path d={path(face.points)} fill={`url(#${outlineId}-surface)`} stroke="none" pointerEvents="none"/>}</g>)}</g>;
   }
 
   function line(f: FixturePlacement, a: number[], b: number[], colour = '#a1aeac', width = 3) {
@@ -69,6 +69,7 @@ const radio = fixtures.radio, music = fixtures.musicStation, sofa = fixtures.sof
 const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtures.arcade;
   return <svg className={styles.fixtures} width={view.width} height={view.height} style={{'--fixture-hover-filter':`url(#${outlineId})`} as React.CSSProperties} role="group" aria-label="Empty base ship fixtures: radio left, gramophone and empty record cabinet right, empty sofa left, empty clothes rail right, coffee table with current Hyper-Fix foremost">
     <defs>
+      <linearGradient id={`${outlineId}-surface`} x1="1" y1="0" x2="0" y2="1"><stop stopColor="#c4d0df" stopOpacity=".07"/><stop offset=".3" stopColor="#111b24" stopOpacity="0"/><stop offset=".62" stopColor="#111b24" stopOpacity=".12"/><stop offset="1" stopColor="#060e17" stopOpacity=".36"/></linearGradient>
       <filter id={outlineId} x="-100%" y="-100%" width="300%" height="300%" colorInterpolationFilters="sRGB">
         {/* A softened alpha contour expands equally in every direction, rounding
             corners without morphology's square dilation kernel. */}
