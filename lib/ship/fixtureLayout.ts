@@ -1,5 +1,6 @@
 import { DEFAULT_DOME, project, type DomeConfig, type Viewport, type Vec3 } from './domeGeometry';
 import { ROOM } from './roomGeometry';
+import { COMMAND_DECK } from './commandDeck';
 
 export type FixturePlacement = { x: number; y: number; z: number; scale: number; yaw: number; widthScale?: number };
 
@@ -14,13 +15,21 @@ function wallPosition(radius: number, centre: Vec3, angle: number, halfWidth: nu
 export function perimeterFixtures(radius: number, centre: Vec3) {
   const sofaPos = wallPosition(radius, centre, -1.04, 1.45 * 1.15, .515 * 1.15);
 const arcadePos = wallPosition(radius, centre, -.68, .72, .42);
-const musicPos = wallPosition(radius, centre, .62, 1.5 * .72 * .77, .45 * 1.05);
-const railPos = wallPosition(radius, centre, .91, 1.05 * 1.05, .38 * 1.05);
+const railPos = wallPosition(radius, centre, .91 + Math.PI * 2 / 40, 1.05 * 1.05, .38 * 1.05);
+const railYaw = inwardYaw(railPos, centre);
+const railLeft = railPos.x - 1.05 * 1.05 * Math.cos(railYaw) - .38 * 1.05 * Math.sin(railYaw);
+const stageRight = centre.x + radius * Math.sin(4 * Math.PI * 2 / 40);
+const musicX = (stageRight + railLeft) / 2;
+const musicRadius = Math.sqrt(radius * radius - (1.5 * .72 * .77)**2) - .45 * 1.05 - ROOM.furnitureWallClearance;
+const musicPos = wallPosition(radius, centre, Math.asin((musicX-centre.x)/musicRadius), 1.5 * .72 * .77, .45 * 1.05);
 
+
+// Keep the rail in the rear half of the floor, clear of the music cabinet.
+const shiftedRail = wallPosition(radius, centre, 1.09, 1.05 * 1.05, .38 * 1.05);
 const sofaYaw = inwardYaw(sofaPos, centre);
 const arcadeYaw = inwardYaw(arcadePos, centre);
   return {
-    radio: { x: 1.65, y: ROOM.consoleAnchorY + 1.05, z: 7.65, scale: .85, yaw: .12 },
+    radio: { x: 1.65, y: COMMAND_DECK.panelTop, z: centre.z + Math.sqrt(radius * radius - (1.65-centre.x)**2) - COMMAND_DECK.bankDepth/2, scale: .85, yaw: .12 },
     sofa: { ...sofaPos, y: ROOM.floorY, scale: 1.15, yaw: sofaYaw },
     // Directly inward of the seat, with a short reachable gap to the circular tabletop.
     coffeeTable: { x: sofaPos.x - 1.79 * Math.sin(sofaYaw), z: sofaPos.z - 1.79 * Math.cos(sofaYaw), y: ROOM.floorY, scale: .9, yaw: sofaYaw },
@@ -31,7 +40,7 @@ const arcadeYaw = inwardYaw(arcadePos, centre);
   yaw: arcadeYaw,
 },
     musicStation: { ...musicPos, y: ROOM.floorY, scale: 1.05, widthScale: .72 * .77 / 1.05, yaw: inwardYaw(musicPos, centre) },
-    clothesRail: { ...railPos, y: ROOM.floorY, scale: 1.05, yaw: inwardYaw(railPos, centre) },
+    clothesRail: { ...shiftedRail, y: ROOM.floorY, scale: 1.05, yaw: inwardYaw(shiftedRail, centre) },
   } satisfies Record<string, FixturePlacement>;
 }
 export const FIXTURES = perimeterFixtures(DEFAULT_DOME.radius, DEFAULT_DOME.centre);

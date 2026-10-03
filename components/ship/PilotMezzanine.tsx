@@ -1,55 +1,67 @@
-import type { CSSProperties } from 'react';
+import {useId,type CSSProperties} from 'react';
 import { Alien, type Attention } from './Alien';
 import styles from './ship.module.css';
-import { project, type DomeConfig, type Viewport } from '@/lib/ship/domeGeometry';
-import { ROOM, pilotPosition, platformY, pilotDeck, polygonPath } from '@/lib/ship/roomGeometry';
+import { project, type DomeConfig, type Viewport, type Vec3 } from '@/lib/ship/domeGeometry';
+import { ROOM, pilotPosition, platformY, polygonPath } from '@/lib/ship/roomGeometry';
+import {COMMAND_DECK,commandWall,commandDeck,commandFront,commandStairs} from '@/lib/ship/commandDeck';
 
-type PilotMezzanineProps = {
- attention: Attention;
- config: DomeConfig;
- view: Viewport;
-
-};
+type PilotMezzanineProps = {attention:Attention;config:DomeConfig;view:Viewport};
 export function PilotMezzanine({ attention, config, view }: PilotMezzanineProps) {
- const floorAnchor = project(pilotPosition, config, view);
- const pilot = project({ ...pilotPosition, y: pilotPosition.y + ROOM.pilotSeatLift }, config, view);
- const consoleBase = project({ x: 0, y: ROOM.consoleAnchorY, z: ROOM.pilotZ + .45 }, config, view);
- const consoleWidth = ROOM.consoleWidth * consoleBase.scale;
- const consoleTop = consoleBase.y - consoleWidth * 210 / 600;
- // The calibrated control surface is lower. Its opaque fascia still terminates
- // on a curved footprint in the actual raised-floor plane.
- const floorEdge = Array.from({ length: 33 }, (_, i) => {
-  const fraction = i / 32 * 2 - 1;
-  const p = project({ x: fraction * ROOM.consoleWidth * 289 / 600,
-   y: platformY, z: ROOM.pilotZ + .45 - .2 * (1 - fraction * fraction) }, config, view);
-  return { x: (p.x - consoleBase.x) * 600 / consoleWidth + 300,
-   y: (p.y - consoleTop) * 600 / consoleWidth };
- });
- const fascia = `M11 142 Q300 68 589 142 ${[...floorEdge].reverse().map(p => `L${p.x.toFixed(4)} ${p.y.toFixed(4)}`).join(' ')} Z`;
- const consoleHeight = Math.max(210, ...floorEdge.map(p => p.y)) + 2;
-
+ const id=useId();
+ const floorAnchor=project(pilotPosition,config,view);
+ const pilot=project({...pilotPosition,y:pilotPosition.y+ROOM.pilotSeatLift},config,view);
+ const path=(points:Vec3[])=>polygonPath(points,config,view);
+ const deskFront=Array.from({length:33},(_,i)=>{const x=(i/16-1)*COMMAND_DECK.halfWidth;return {x,y:COMMAND_DECK.deskY,z:COMMAND_DECK.deskFrontZ+.16*(x/COMMAND_DECK.halfWidth)**2};});
+ const bankPoint=(x:number,y:number)=>{const p=commandWall(x,y,config);return {...p,z:p.z-COMMAND_DECK.bankDepth};};
+ const facePoint=(x:number,y:number)=>({x,y,z:COMMAND_DECK.deskFrontZ+.16*(x/COMMAND_DECK.halfWidth)**2});
+ const back=Array.from({length:33},(_,i)=>bankPoint(COMMAND_DECK.halfWidth*(1-i/16),COMMAND_DECK.deskY));
+ const panel=(x:number,width:number,bottom:number,top:number)=>path([bankPoint(x-width/2,bottom),bankPoint(x+width/2,bottom),bankPoint(x+width/2,top),bankPoint(x-width/2,top)]);
  return <div className={styles.pilotMezzanine}>
- <svg className={styles.platform} width={view.width} height={view.height} aria-label="Centred pilot mezzanine with three shallow visual steps" role="img">
-  {[0, 1, 2].map(i => {
-   const bottom = ROOM.floorY + ROOM.stepRise * i;
-   const top = bottom + ROOM.stepRise;
-   const deck = pilotDeck(i, top);
-   const left = deck[0], right = deck[1];
-   return <g key={i} data-step={i + 1}>
-    {/* Compact tapered deck; only the front has three shallow visual steps. */}
-    <path d={polygonPath(deck, config, view)} fill={i === 2 ? '#344249' : '#405056'} stroke="#617478" />
-    <path d={polygonPath([{ ...left, y: bottom }, { ...right, y: bottom }, right, left], config, view)} fill="#26363d" stroke="#718083" />
+ <svg className={styles.platform} width={view.width} height={view.height} role="img" aria-label="Compact curved command deck with a small central three-step staircase">
+  <defs><linearGradient id={`${id}-deck`} x2="0" y2="1"><stop stopColor="#425351"/><stop offset="1" stopColor="#2c4045"/></linearGradient></defs>
+  <path d={path([...commandFront(config),...commandFront(config,ROOM.floorY).reverse()])} fill="#263a40"/>
+  <path d={path(commandDeck(config))} fill={`url(#${id}-deck)`}/>
+  {commandStairs(config).map(({plane,riser,sides},i)=><g key={i} data-step={i+1}>
+   {sides.map((face,j)=><path key={j} d={path(face)} fill="#2c4045"/>)}
+   <path d={path(plane)} fill="#405657"/>
+   <path d={path(riser)} fill="#203239"/>
+  </g>)}
+
+ </svg>
+ <svg width={view.width} height={view.height} style={{position:'absolute',inset:0,zIndex:6,pointerEvents:'none'}} role="img" aria-label="Built-in parapet controls and shallow projecting control desk">
+  <defs><linearGradient id={`${id}-desk`} x2="0" y2="1"><stop stopColor="#8e8574"/><stop offset=".25" stopColor="#63726b"/><stop offset="1" stopColor="#35474b"/></linearGradient></defs>
+  {/* Continuous central parapet bank; nothing outside this compact bay changes. */}
+  {/* Solid return cheeks and cap join the deeper bank directly to the parapet. */}
+  {[-1,1].map(side=>{const x=side*COMMAND_DECK.halfWidth;return <path key={side} d={path([commandWall(x,platformY,config),bankPoint(x,platformY),bankPoint(x,COMMAND_DECK.panelTop),commandWall(x,COMMAND_DECK.panelTop,config)])} fill="#81776b" stroke="#b9a488" strokeWidth="1"/>;})}
+  <path d={path([...Array.from({length:33},(_,i)=>bankPoint((i/16-1)*COMMAND_DECK.halfWidth,COMMAND_DECK.panelTop)),...Array.from({length:33},(_,i)=>commandWall((1-i/16)*COMMAND_DECK.halfWidth,COMMAND_DECK.panelTop,config))])} fill="#9a8b76" stroke="#b9a488" strokeWidth="1"/>
+
+  <path d={panel(0,COMMAND_DECK.halfWidth*2,platformY,COMMAND_DECK.panelTop)} fill="#625d53" stroke="#a7997e" strokeWidth="1.2" />
+  {[-2.36,-1.57,-.78,0,.78,1.57,2.36].map((x,i)=><g key={x}>
+   <path d={panel(x,.72,.535,.845)} fill={i%2?'#353f3b':'#454b42'} stroke="#b09a76" strokeWidth=".8" />
+   {[0,1,2].map(n=>{const p=project(bankPoint(x+(n-1)*.18,.685),config,view);return <g key={n}><circle cx={p.x} cy={p.y} r={p.scale*.055} fill="#152b2b" stroke="#a4b4a2" strokeWidth=".7"/><circle cx={p.x} cy={p.y} r={p.scale*.016} fill={n===1?'#d8b87c':'#7aa898'}/></g>;})}
+  </g>)}
+  {/* Solid fascia reaches the one raised floor; shallow worktop meets the bank. */}
+  {[-1,1].map(side=>{const x=side*COMMAND_DECK.halfWidth;return <path key={side} d={path([bankPoint(x,platformY),facePoint(x,platformY),facePoint(x,COMMAND_DECK.deskY),bankPoint(x,COMMAND_DECK.deskY)])} fill="#4c5149" stroke="#ac9d81" strokeWidth="1"/>;})}
+
+  <path d={path([...deskFront,...[...deskFront].reverse().map(p=>({...p,y:platformY}))])} fill="#25373c" stroke="#65746a" strokeWidth="1" />
+  {[-2.35,-1.55,-.75,.75,1.55,2.35].map((x,i)=><g key={`rack-${x}`}>
+   {[-.105,.185].map((y,row)=><g key={row}>
+    <path d={path([facePoint(x-.34,y),facePoint(x+.34,y),facePoint(x+.34,y+.22),facePoint(x-.34,y+.22)])} fill="#182e30" stroke="#a59373" strokeWidth=".7"/>
+    {i%2===0 ? <>
+     <path d={path([facePoint(x-.26,y+.06),facePoint(x+.02,y+.06),facePoint(x+.02,y+.16),facePoint(x-.26,y+.16)])} fill={row?'#506c59':'#8e9e77'}/>
+     {[.12,.25].map(dx=>{const p=project(facePoint(x+dx,y+.11),config,view);return <circle key={dx} cx={p.x} cy={p.y} r={p.scale*.038} fill="#a89a7c" stroke="#34453c" strokeWidth=".6"/>;})}
+    </> : Array.from({length:5},(_,n)=>{const a=project(facePoint(x-.23+n*.11,y+.06),config,view),b=project(facePoint(x-.23+n*.11,y+.16),config,view);return <path key={n} d={`M${a.x} ${a.y}L${b.x} ${b.y}`} stroke="#7e8877" strokeWidth="1"/>;})}
+   </g>)}
+  </g>)}
+  <path d={path([...deskFront,...back])} fill={`url(#${id}-desk)`} stroke="#ac9d81" strokeWidth="1.2" />
+  {[-2.2,-1.25,-.45,.45,1.25,2.2].map((x,i)=>{
+   const z=8.2;
+   return <g key={x}>
+    <path d={path([{x:x-.31,y:.5,z:z-.22},{x:x+.31,y:.5,z:z-.22},{x:x+.31,y:.5,z:z+.3},{x:x-.31,y:.5,z:z+.3}])} fill="#243936" stroke="#879285" strokeWidth=".7" />
+    {[0,1,2].map(n=>{const a=project({x:x+(n-1)*.16,y:.505,z:z-.12},config,view),b=project({x:x+(n-1)*.16,y:.505,z:z+.18},config,view);return <g key={n}><path d={`M${a.x} ${a.y}L${b.x} ${b.y}`} stroke="#10292a" strokeWidth="2"/><circle cx={(a.x+b.x)/2} cy={(a.y+b.y)/2} r="1.15" fill={i%2?'#bfc4aa':'#bdae8d'}/></g>;})}
    </g>;
   })}
  </svg>
- <button type="button" className={styles.consoleObject} style={{ left: consoleBase.x, top: consoleTop, width: consoleWidth, visibility: consoleBase.visible ? 'visible' : 'hidden' }} data-room-object="pilot-console" aria-label="Pilot controls — reserved for future spacecraft travel" disabled>
- <svg viewBox={`0 0 600 ${consoleHeight}`} className={styles.console} role="img" aria-label="Physical pilot controls with switches and dials">
- <defs><linearGradient id="console" x2="0" y2="1"><stop stopColor="#6b7777" /><stop offset="1" stopColor="#2a393f" /></linearGradient></defs>
- <path d={fascia} fill="#1c2a33" stroke="#546666" strokeWidth="2" />
- <path d="M25 68 Q300 -30 575 68 L589 142 Q300 68 11 142 Z" fill="url(#console)" stroke="#9aadaa" strokeWidth="2" />
- {[95, 150, 450, 505].map((x, i) => <g key={x} transform={`translate(${x} ${i === 0 || i === 3 ? 93 : 79})`}><circle r="18" fill="#17232a" stroke="#9caaa1" strokeWidth="3" /><path d="M0 0 L8 -10" stroke="#b9e4cc" strokeWidth="3" /><circle r="3" fill="#abb8ae" /></g>)}
- {[205, 232, 259, 341, 368, 395].map((x, i) => <g key={x}><rect x={x - 8} y="65" width="16" height="26" rx="4" fill="#16232c" /><path d={`M${x} 83 l${i % 2 ? 3 : -3} -17`} stroke="#e2d8bb" strokeWidth="5" strokeLinecap="round" /><circle cx={x} cy="102" r="4" fill={i % 2 ? '#7fffd4' : '#ffb0ff'} /></g>)}
- </svg></button>
- <div className={styles.pilotOccupant} style={{ left: pilot.x, top: pilot.y, width: ROOM.alienWidth * pilot.scale, height: ROOM.alienHeight * pilot.scale, "--seat-lift": `${floorAnchor.y-pilot.y}px`, visibility: pilot.visible ? 'visible' : 'hidden' } as CSSProperties}><Alien attention={attention} /></div>
+ <div className={styles.pilotOccupant} style={{left:pilot.x,top:pilot.y,width:ROOM.alienWidth*pilot.scale,height:ROOM.alienHeight*pilot.scale,"--seat-lift":`${floorAnchor.y-pilot.y}px`,visibility:pilot.visible?'visible':'hidden'} as CSSProperties}><Alien attention={attention}/></div>
  </div>;
 }

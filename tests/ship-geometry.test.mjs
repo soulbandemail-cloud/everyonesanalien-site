@@ -75,14 +75,14 @@ test('height and pitch independently change projection without moving latitude p
   close(base.depth, raised.depth); assert.notEqual(base.depth, tilted.depth);
 });
 
-test('platform and three shallow steps share the forward centreline', () => {
-  close(platformY - ROOM.floorY, .24);
-  assert.equal(ROOM.stepCount, 3);
+test('platform and one shallow step share the forward centreline', () => {
+  close(platformY - ROOM.floorY, .135);
+  assert.equal(ROOM.stepCount, 1);
   assert.equal(pilotPosition.x, DEFAULT_DOME.centre.x);
   close(pilotPosition.z - DEFAULT_DOME.camera.z, 14.2);
   for (const pitch of [-15, 0, 25]) {
     const c = { ...DEFAULT_DOME, pitch };
-    for (let step = 0; step < 3; step++) {
+    for (let step = 0; step < ROOM.stepCount; step++) {
       const y = ROOM.floorY + ROOM.stepRise * (step + 1);
       const a = project({ x: -3, y, z: ROOM.pilotZ }, c, desktop);
       const b = project({ x: 3, y, z: ROOM.pilotZ }, c, desktop);
@@ -203,7 +203,9 @@ test('locked furniture has floor clearance and stays within the glass envelope',
  assert.ok(Math.hypot(table.x,table.z)+1.05*table.scale<DEFAULT_DOME.radius-.5);
  close(ROOM.consoleAnchorY,-.45);
  close(ROOM.pilotSeatLift,.18);
- close(FIXTURES.radio.y-ROOM.consoleAnchorY,1.05);
+ const {COMMAND_DECK}=load('commandDeck');
+ close(FIXTURES.radio.y,COMMAND_DECK.panelTop);
+ close(FIXTURES.radio.z,DEFAULT_DOME.centre.z+Math.sqrt(DEFAULT_DOME.radius**2-(FIXTURES.radio.x-DEFAULT_DOME.centre.x)**2)-COMMAND_DECK.bankDepth/2);
 });
 
 test('camera reveal ends exactly at locked calibration and starts at raised pilot eye',()=>{
@@ -227,4 +229,73 @@ test('reduced-motion and hidden-tab transitions resolve immediately without chan
   assert.deepEqual(transitionCamera(DEFAULT_DOME,1),DEFAULT_DOME);
  }
  assert.ok(cameraDuration(false,false)>0);
+});
+
+
+test('command deck has one curved front and its rear meets the parapet circle',()=>{
+ const {commandDeck,commandFront,COMMAND_DECK}=load('commandDeck');
+ const deck=commandDeck(DEFAULT_DOME),front=commandFront(DEFAULT_DOME);
+ assert.equal(ROOM.stepCount,1);close(platformY-ROOM.floorY,.135);
+ assert.ok(front[17].z<front[0].z);close(front[0].x,-front.at(-1).x);
+ for(const p of deck.slice(front.length))close(Math.hypot(p.x-DEFAULT_DOME.centre.x,p.z-DEFAULT_DOME.centre.z),DEFAULT_DOME.radius);
+ assert.ok(COMMAND_DECK.halfWidth<DEFAULT_DOME.radius/3);
+ assert.ok(COMMAND_DECK.deskFrontZ>ROOM.pilotZ);
+ for(const p of [front[0],front.at(-1)]){
+  assert.ok(Math.abs(Math.hypot(p.x-DEFAULT_DOME.centre.x,p.z-DEFAULT_DOME.centre.z)-DEFAULT_DOME.radius)<1e-9);
+  assert.equal(p.y,platformY);
+ }
+ // Every part of the desk front stays inside the platform with walking clearance.
+ const end=front[front.length-2],centre=front[17];
+ for(let i=0;i<=32;i++){
+  const x=(i/16-1)*COMMAND_DECK.halfWidth;
+  const stepZ=centre.z+(end.z-centre.z)*(x/COMMAND_DECK.frontHalfWidth)**2;
+  const deskZ=COMMAND_DECK.deskFrontZ+.16*(x/COMMAND_DECK.halfWidth)**2;
+  assert.ok(deskZ-stepZ>.3);
+ }
+ const source=fs.readFileSync(path.join(directory,'../components/ship/PilotMezzanine.tsx'),'utf8');
+ assert.equal((source.match(/data-step=/g)||[]).length,1);
+ assert.doesNotMatch(source,/\[0, 1, 2\]\.map/);
+});
+
+
+test('central staircase has three straight level treads, equal rises and quarter-platform width',()=>{
+ const {commandStairs,COMMAND_DECK}=load('commandDeck');
+ const stairs=commandStairs(DEFAULT_DOME);
+ assert.equal(stairs.length,3);
+ stairs.forEach(({y,plane,riser},i)=>{
+  close(y,platformY-.045*i);
+  for(const p of plane)close(p.y,y);
+  close(plane[1].x-plane[0].x,COMMAND_DECK.frontHalfWidth*2*.25);
+  close((plane[1].x+plane[0].x)/2,DEFAULT_DOME.centre.x);
+  close(plane[0].z,plane[1].z);close(plane[2].z-plane[1].z,.4);
+  close(riser[0].y-riser[3].y,.045);
+  if(i)close(stairs[i-1].riser[3].y,y);
+ });
+ close(stairs[2].riser[3].y,ROOM.floorY);
+});
+
+
+test('full raised platform joins the outer skirting seams while centre and stairs stay fixed',()=>{
+ const {commandFront,commandStairs,COMMAND_DECK,stageHalfWidth}=load('commandDeck');
+ const front=commandFront(DEFAULT_DOME);
+ for(const p of [front[0],front.at(-1)])close(Math.abs(Math.atan2(p.x-DEFAULT_DOME.centre.x,p.z-DEFAULT_DOME.centre.z)),4*Math.PI*2/40);
+ close(front[17].z,ROOM.stepStartZ-.25);
+ close(front.at(-1).x-front[0].x,2*stageHalfWidth(DEFAULT_DOME));
+ assert.ok(stageHalfWidth(DEFAULT_DOME)>5.4);
+ const oldEnd=DEFAULT_DOME.centre.z+Math.sqrt(DEFAULT_DOME.radius**2-COMMAND_DECK.frontHalfWidth**2);
+ close(commandStairs(DEFAULT_DOME)[0].plane[0].z,ROOM.stepStartZ-.25+(oldEnd-ROOM.stepStartZ+.25)*.25**2-.4);
+});
+
+
+test('clothes rail stays in the rear half of the floor without moving the music station',()=>{
+ const {FIXTURES}=load('fixtureLayout');
+ const rail=FIXTURES.clothesRail;
+ close(rail.yaw,1.09);
+ const nearestZ=rail.z-1.05*rail.scale*Math.sin(rail.yaw)-.38*rail.scale*Math.cos(rail.yaw);
+ assert.ok(nearestZ>ROOM.port.z);
+ const oldAngle=.91+Math.PI*2/40;
+ const r=Math.sqrt(DEFAULT_DOME.radius**2-(1.05*1.05)**2)-.38*1.05-ROOM.furnitureWallClearance;
+ const left=r*Math.sin(oldAngle)-1.05*rail.scale*Math.cos(oldAngle)-.38*rail.scale*Math.sin(oldAngle);
+ const right=DEFAULT_DOME.centre.x+DEFAULT_DOME.radius*Math.sin(4*Math.PI*2/40);
+ close(FIXTURES.musicStation.x,(right+left)/2);
 });

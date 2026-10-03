@@ -4,8 +4,8 @@ import { project, type DomeConfig, type Vec3, type Viewport } from './domeGeomet
 export const ROOM = {
   floorY: -.42,
   pilotZ: 7.2,
-  stepRise: .08,
-  stepCount: 3,
+  stepRise: .135,
+  stepCount: 1,
   stepStartZ: 5.9,
   stepRun: .28,
   platformBackZ: 8.55,
