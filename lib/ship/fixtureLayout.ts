@@ -30,9 +30,9 @@ const sofaYaw = inwardYaw(sofaPos, centre);
 const arcadeYaw = inwardYaw(arcadePos, centre);
   return {
     radio: { x: 1.65, y: COMMAND_DECK.panelTop, z: centre.z + Math.sqrt(radius * radius - (1.65-centre.x)**2) - COMMAND_DECK.bankDepth/2, scale: .85, yaw: .12 },
-    sofa: { ...sofaPos, y: ROOM.floorY, scale: 1.15, yaw: sofaYaw },
+    sofa: { ...sofaPos, x:sofaPos.x+.85, y: ROOM.floorY, scale: 1.15, yaw: sofaYaw },
     // Directly inward of the seat, with a short reachable gap to the circular tabletop.
-    coffeeTable: { x: sofaPos.x - 1.79 * Math.sin(sofaYaw), z: sofaPos.z - 1.79 * Math.cos(sofaYaw), y: ROOM.floorY, scale: .9, yaw: sofaYaw },
+    coffeeTable: { x: sofaPos.x - 2.14 * Math.sin(sofaYaw), z: sofaPos.z - 2.14 * Math.cos(sofaYaw), y: ROOM.floorY, scale: .9, yaw: sofaYaw },
     arcade: {
   ...arcadePos,
   y: ROOM.floorY,

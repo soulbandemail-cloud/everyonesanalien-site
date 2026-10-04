@@ -124,7 +124,7 @@ test('fixture fronts face inward and long axes follow independent hull tangents'
   const oriented = orientedFixtures(DEFAULT_DOME.centre);
   for (const key of ['sofa', 'musicStation', 'clothesRail']) {
     const fixture = oriented[key];
-    const dx = fixture.x - DEFAULT_DOME.centre.x, dz = fixture.z - DEFAULT_DOME.centre.z;
+    const dx = fixture.x - DEFAULT_DOME.centre.x - (key==='sofa' ? .85 : 0), dz = fixture.z - DEFAULT_DOME.centre.z;
     const radius = Math.hypot(dx,dz);
     close(Math.cos(fixture.yaw)*dx - Math.sin(fixture.yaw)*dz, 0);
     close(-Math.sin(fixture.yaw)*dx - Math.cos(fixture.yaw)*dz, -radius);
@@ -143,9 +143,11 @@ test('perimeter fixtures fit the circle and the lounge table remains reachable',
   for (const key of ['sofa','musicStation','clothesRail']) {
     const f = FIXTURES[key];
     assert.ok(Math.hypot(f.x,f.z) < radius);
-    assert.ok(Math.hypot(f.x,f.z) > radius - 1.5);
+    assert.ok(Math.hypot(f.x-(key==='sofa' ? .85 : 0),f.z) > radius - 1.5);
   }
-  close(Math.hypot(FIXTURES.sofa.x-FIXTURES.coffeeTable.x,FIXTURES.sofa.z-FIXTURES.coffeeTable.z),1.79);
+  close(FIXTURES.sofa.x-FIXTURES.coffeeTable.x,.85+2.14*Math.sin(FIXTURES.sofa.yaw));
+  close(FIXTURES.sofa.z-FIXTURES.coffeeTable.z,2.14*Math.cos(FIXTURES.sofa.yaw));
+  assert.ok(Math.hypot(FIXTURES.sofa.x-FIXTURES.coffeeTable.x,FIXTURES.sofa.z-FIXTURES.coffeeTable.z)<2.14);
   assert.ok(FIXTURES.coffeeTable.z < FIXTURES.sofa.z);
   assert.ok(FIXTURES.clothesRail.z < FIXTURES.musicStation.z);
   assert.ok(FIXTURES.clothesRail.x > FIXTURES.musicStation.x);

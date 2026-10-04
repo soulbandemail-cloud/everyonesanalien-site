@@ -5,6 +5,7 @@ import { orientedFixtures } from '@/lib/ship/fixtureLayout';
 import { commandFront } from '@/lib/ship/commandDeck';
 import { hullFloorBoundary } from '@/lib/ship/hullFloorSeam';
 import styles from './ship.module.css';
+import { PersianRug } from './PersianRug';
 
 export function ManifestationPort({ config, view }: { config: DomeConfig; view: Viewport }) {
   const port = ROOM.port;
@@ -68,6 +69,7 @@ export const CockpitFloor=memo(function CockpitFloor({ config, view, sharedSeam=
         return <path key={i} d={floorPath([edge(floorPortDiameter/2),edge(24)])} fill="none" stroke="#142e34" strokeOpacity=".4" strokeWidth="1"/>;
       })}
       {[2.5,4.8,7.2].map(radius=><path key={radius} d={floorPath(deckOutline(radius*2,radius*2,ROOM.floorY,ROOM.port.z))} fill="none" stroke="#82918a" strokeOpacity=".14" strokeWidth="1"/>)}
+      <PersianRug config={config} view={view}/>
       <g mask={`url(#${id}-spill-occlusion)`}>
       {Array.from({length:20},(_,i)=>{
         const angle=(i*2+.5)/40*Math.PI*2,points=Array.from({length:49},(_,j)=>{
