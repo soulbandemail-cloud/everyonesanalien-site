@@ -58,11 +58,11 @@ export function sofaBounds(config: DomeConfig) {
   });
   return points;
 }
-/** Fit the authoritative sofa to a small left margin; no furniture relocation. */
+/** Fit the sofa with breathing room for the plant and outer rail; no furniture relocation. */
 export function mobileThirdCamera(config: DomeConfig, view: Viewport) {
   const points=sofaBounds(config);
   const floorBounds=[...points,...deckOutline(floorPortDiameter,floorPortDiameter,ROOM.floorY,ROOM.port.z)];
-  const margin=Math.max(8,view.width*.015);
+  const margin=Math.max(8,view.width*.06);
   const fit=(pitch:number)=>{
     const posed={...config,pitch};
     const extent=Math.max(...points.map(p=>{

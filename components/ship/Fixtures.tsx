@@ -103,7 +103,7 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
     <g className="console-tv cockpit-interactive-fixture" role="button" aria-label="Maximise TV" {...interaction('tv',onTV)}
       style={{pointerEvents:onTV ? 'auto' : 'none',transformBox:'view-box',transformOrigin:`${tvScreen.x+42*tvScreen.scale}px ${tvScreen.y+18*tvScreen.scale}px`}}>
       <title>Soul TV</title>
-  {box(radio,0,0,0,1.05,.58,.38,'#655f5c')}
+  {box(radio,0,0,0,1.05,.58,.38,'#513522')}
 
   {flatArt(
     radio,
@@ -112,14 +112,25 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
     -.2,
     .95,
     <g>
-      {/* screen border */}
+      <defs>
+        <linearGradient id={`${outlineId}-tv-wood`} x2=".25" y2="1">
+          <stop stopColor="#956641"/><stop offset=".35" stopColor="#644129"/><stop offset="1" stopColor="#35251d"/>
+        </linearGradient>
+        <linearGradient id={`${outlineId}-tv-bezel`} x2="0" y2="1">
+          <stop stopColor="#292726"/><stop offset=".65" stopColor="#131c20"/><stop offset="1" stopColor="#71614d"/>
+        </linearGradient>
+      </defs>
+      <rect x="-54" y="-32" width="108" height="60" rx="5" fill={`url(#${outlineId}-tv-wood)`} stroke="#36251b" strokeWidth="1.2"/>
+      <path d="M-49 22V-25Q-49 -28 -45 -28H46" fill="none" stroke="#c39b67" strokeOpacity=".4" strokeWidth="1"/>
+      <path d="M50 -24V21Q50 24 46 24H-46" fill="none" stroke="#211b17" strokeOpacity=".6" strokeWidth="1.5"/>
+      {/* Rounded CRT surround; the entire front is devoted to the screen. */}
       <rect
         x="-45"
         y="-21"
         width="90"
         height="42"
         rx="4"
-        fill="#7b8787"
+        fill={`url(#${outlineId}-tv-bezel)`}
       />
 
       {/* thumbnail fills almost the entire frontage */}
@@ -135,8 +146,10 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
   )}
 
   {/* Centred bunny ears; the console TV has no carry handle. */}
-  {line(radio,[0,.58,.1],[-.15,.98,.1],'#a2aaa5',2)}
-  {line(radio,[0,.58,.1],[.15,.98,.1],'#a2aaa5',2)}
+  {flatArt(radio,0,.59,.1,.2,<ellipse cx="0" cy="0" rx="28" ry="12" fill="#72654e" stroke="#bcaa87" strokeWidth="3"/>)}
+  {line(radio,[0,.6,.1],[-.23,1.02,.1],'#bbae8c',1.5)}
+  {line(radio,[0,.6,.1],[.23,1.02,.1],'#bbae8c',1.5)}
+  {[-.23,.23].map(x=><g key={x}>{flatArt(radio,x,1.02,.1,.05,<circle r="30" fill="#d4c7a1"/>)}</g>)}
 </g>
     <g aria-label="Wooden record cabinet with gramophone, one stored EP sleeve and empty record stand">
       {[-1.3,1.3].flatMap(x=>[-.3,.28].map(z=><g key={`${x}-${z}`}><path d={path([local(music,x-.075,.2,z),local(music,x+.075,.2,z),local(music,x+.045,0,z-.035),local(music,x-.04,0,z-.035)])} fill="#67452d" stroke="#49321f" strokeWidth=".7"/></g>))}

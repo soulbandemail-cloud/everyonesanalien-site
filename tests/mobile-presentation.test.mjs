@@ -34,14 +34,14 @@ test('mobile first person stays portrait and cockpit stays landscape in either p
  assert.doesNotMatch(source,/orientation-gate|Rotate your phone|inert=|requestOrientation/);
  assert.match(source,/data-cockpit-presentation/);
 });
-test('mobile landscape FOV fits the unmodified sofa with a small left margin',()=>{
+test('mobile landscape FOV leaves extra furniture clearance without moving the camera',()=>{
  const before=JSON.stringify(g.DEFAULT_DOME);
  for(const view of samples){
   const camera=m.mobileThirdCamera(g.DEFAULT_DOME,view);
   assert.ok(camera.fov<g.DEFAULT_DOME.fov);
   const points=m.sofaBounds(camera).map(p=>g.project(p,camera,view));
   const left=Math.min(...points.map(p=>p.x));
-  assert.ok(Math.abs(left-Math.max(8,view.width*.015))<.001);
+  assert.ok(Math.abs(left-Math.max(8,view.width*.06))<.001);
   assert.ok(points.every(p=>p.visible && Number.isFinite(p.y) && p.x>=0 && p.x<=view.width && p.y>=0 && p.y<=view.height));
   assert.deepEqual(camera.camera,g.DEFAULT_DOME.camera);
  }

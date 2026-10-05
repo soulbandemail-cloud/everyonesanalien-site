@@ -45,8 +45,8 @@ test('TV corner is CSS-anchored outside the moving camera frame; antennae are ce
  assert.match(frameCss,/\.public-tv-frame\[data-portrait-first\] \{[^}]*width:100svh; height:100svw/);
  const fixtures=fs.readFileSync('components/ship/Fixtures.tsx','utf8');
  assert.match(fixtures,/<title>Soul TV<\/title>/);
- assert.match(fixtures,/line\(radio,\[0,\.58,\.1\],\[-\.15,\.98,\.1\]/);
- assert.match(fixtures,/line\(radio,\[0,\.58,\.1\],\[\.15,\.98,\.1\]/);
+ assert.match(fixtures,/line\(radio,\[0,\.6,\.1\],\[-\.23,1\.02,\.1\]/);
+ assert.match(fixtures,/line\(radio,\[0,\.6,\.1\],\[\.23,1\.02,\.1\]/);
 });
 
 test('one mounted iframe and playback/maximise state persist between both TV positions',()=>{
