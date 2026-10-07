@@ -44,8 +44,8 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
   function tick(time: number) {
    const dt = previous ? Math.min((time - previous) / 1000, .05) : 0; previous = time;
    const ease = reduced.matches ? 1 : 1 - Math.exp(-dt * 5);
-   const target = { x: Math.tanh(pointer.current.x * 1.5), back: smoothstep((pointer.current.y - .5) / .37), down: smoothstep((pointer.current.y - .76) / .24) };
-   setAttention(old => ({ x: old.x + (target.x - old.x) * ease, back: old.back + (target.back - old.back) * ease, down: old.down + (target.down - old.down) * ease }));
+   const target = { x: Math.tanh(pointer.current.x * 1.5), back: smoothstep((pointer.current.y - .5) / .37), down: Math.max(-1,Math.min(1,(pointer.current.y-.5)*3)) };
+   setAttention(old => ({ x: old.x + (target.x - old.x) * ease, back: old.back + (target.back - old.back) * ease, down: old.down + (target.down - old.down) * (reduced.matches ? 1 : 1-Math.exp(-dt*9)) }));
    id = requestAnimationFrame(tick);
   }
   id = requestAnimationFrame(tick);

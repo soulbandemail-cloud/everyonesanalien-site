@@ -32,7 +32,7 @@
 .alienSide svg { width: 100%; height: 100%; }
 .alienFront { transform: rotateY(180deg) translateZ(1px); }
 .alienBack { transform: translateZ(1px); }
-.chairBase { position: absolute; width: 40%; height: 8%; border-radius: 50%; background: #0a141b; border: 2px solid #536367; left: 30%; top: calc(95% + var(--seat-lift, 0px)); box-shadow: 0 3px 4px #0005; }
+.chairBase { position: absolute; width: 40%; height: 8%; border-radius: 50%; background: linear-gradient(165deg,#b69a69 0%,#6b5438 35%,#322c22 58%,#8c714b 82%,#c0a675 100%); border: 2px solid #5e4a32; left: 30%; top: calc(95% + var(--seat-lift, 0px)); box-shadow: 0 3px 4px #0005; }
 .toolbar { pointer-events: auto; position: absolute; z-index: 8; top: 22px; left: 28px; right: 28px; display: flex; align-items: center; gap: 18px; font-size: 10px; letter-spacing: .12em; color: #afc4cd; }
 .toolbar span { margin-right: auto; }
 .ship button { cursor: pointer; border: 1px solid #718b8955; background: #081327cc; color: #cce1dc; padding: 8px 10px; font: inherit; }
@@ -54,7 +54,7 @@
 
 .fixtures { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
 
-.chairBase::before { content: ""; position: absolute; bottom: 70%; left: 42%; width: 16%; height: var(--seat-lift, 0px); background: #536367; }
+.chairBase::before { content: ""; position: absolute; bottom: 70%; left: 42%; width: 16%; height: var(--seat-lift, 0px); background: linear-gradient(90deg,#3c3225,#b69a69 45%,#6b5438 70%,#342c22); }
 
 .alpha { color:#fff; font-size:14px; text-transform:none; }
 .previewLabel { margin-left:18px; color:#afc4cd; font-size:10px; }
