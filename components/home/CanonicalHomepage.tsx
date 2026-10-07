@@ -103,16 +103,10 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
 
 
            <ul className="space-y-2">
-              <li>
-                <a
-                  href="https://link.dice.fm/w4a23940adca"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="pink-border-glow inline-block border border-white bg-[#00082d] px-3 py-2 hover:bg-[#6ee7b7] hover:border-[#6ee7b7] hover:text-[#00082d] active:bg-[#6ee7b7] active:border-[#6ee7b7] active:text-[#00082d] transition-colors duration-200"
-                >
-                  The George Tavern, LONDON, 5th Oct
-                </a>
-              </li>
+                <p>
+              TBA
+              <span className="animate-pulse">_</span>
+            </p>
             </ul>
 
           </section>
