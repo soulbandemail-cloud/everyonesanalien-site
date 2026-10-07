@@ -19,10 +19,16 @@ export function PilotMezzanine({ attention, config, view }: PilotMezzanineProps)
  const panel=(x:number,width:number,bottom:number,top:number)=>path([bankPoint(x-width/2,bottom),bankPoint(x+width/2,bottom),bankPoint(x+width/2,top),bankPoint(x-width/2,top)]);
  return <div className={styles.pilotMezzanine}>
  <svg className={styles.platform} width={view.width} height={view.height} role="img" aria-label="Compact curved command deck with a small central three-step staircase">
-  <defs><linearGradient id={`${id}-deck`} x2="0" y2="1"><stop stopColor="#425351"/><stop offset="1" stopColor="#2c4045"/></linearGradient><radialGradient id={`${id}-shadow`}><stop stopColor="#030a10" stopOpacity=".65"/><stop offset="1" stopColor="#030a10" stopOpacity="0"/></radialGradient><linearGradient id={`${id}-ambient`}><stop stopColor="#deb884" stopOpacity="0"/><stop offset=".25" stopColor="#deb884" stopOpacity=".035"/><stop offset=".5" stopColor="#deb884" stopOpacity=".075"/><stop offset=".75" stopColor="#deb884" stopOpacity=".035"/><stop offset="1" stopColor="#deb884" stopOpacity="0"/></linearGradient></defs>
+  <defs><linearGradient id={`${id}-deck`} x2="0" y2="1"><stop stopColor="#425351"/><stop offset="1" stopColor="#2c4045"/></linearGradient><radialGradient id={`${id}-shadow`}><stop stopColor="#030a10" stopOpacity=".65"/><stop offset="1" stopColor="#030a10" stopOpacity="0"/></radialGradient><linearGradient id={`${id}-ambient`}><stop stopColor="#deb884" stopOpacity="0"/><stop offset=".25" stopColor="#deb884" stopOpacity=".035"/><stop offset=".5" stopColor="#deb884" stopOpacity=".075"/><stop offset=".75" stopColor="#deb884" stopOpacity=".035"/><stop offset="1" stopColor="#deb884" stopOpacity="0"/></linearGradient><clipPath id={`${id}-stage-top`}><path d={path(commandDeck(config))}/></clipPath><radialGradient id={`${id}-parapet-bounce`}><stop stopColor="#e4b874" stopOpacity=".09"/><stop offset=".45" stopColor="#d4a565" stopOpacity=".035"/><stop offset="1" stopColor="#d4a565" stopOpacity="0"/></radialGradient></defs>
   <path d={path([...commandFront(config),...commandFront(config,ROOM.floorY).reverse()])} fill="#263a40"/>
   <path d={path(commandDeck(config))} fill={`url(#${id}-deck)`}/>
   <path d={path(commandDeck(config))} fill={`url(#${id}-ambient)`} pointerEvents="none"/>
+  {/* Both flanking parapet lights land on the raised surface only. */}
+  {[36.5,2.5].map(sector=><path key={sector} clipPath={`url(#${id}-stage-top)`} d={path(Array.from({length:49},(_,j)=>{
+   const angle=sector/40*Math.PI*2,t=j/48*Math.PI*2;
+   const radial=config.radius-1.15+1.65*Math.cos(t),side=.65*Math.sin(t);
+   return {x:config.centre.x+radial*Math.sin(angle)+side*Math.cos(angle),y:platformY,z:config.centre.z+radial*Math.cos(angle)-side*Math.sin(angle)};
+  }))} fill={`url(#${id}-parapet-bounce)`} pointerEvents="none"/>)}
   {[{x:0,z:7.2,w:.75,d:.48},{x:0,z:7.5,w:3,d:.5}].map((p,i)=><path key={i} d={path(Array.from({length:49},(_,j)=>({x:p.x+p.w*Math.cos(j/48*Math.PI*2),y:platformY,z:p.z+p.d*Math.sin(j/48*Math.PI*2)})))} fill={`url(#${id}-shadow)`}/>)}
   {commandStairs(config).map(({plane,riser,sides},i)=><g key={i} data-step={i+1}>
    {sides.map((face,j)=><path key={j} d={path(face)} fill="#2c4045"/>)}

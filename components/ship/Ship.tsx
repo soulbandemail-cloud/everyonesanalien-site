@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { DomeConfig, Viewport } from '@/lib/ship/domeGeometry';
 import type { HullConfig } from '@/lib/ship/hullGeometry';
+import { alienNodTarget } from '@/lib/ship/alienVolume';
 import { ExteriorHull } from './ExteriorHull';
 import { Dome } from './Dome';
 import { PilotMezzanine } from './PilotMezzanine';
@@ -44,7 +45,7 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
   function tick(time: number) {
    const dt = previous ? Math.min((time - previous) / 1000, .05) : 0; previous = time;
    const ease = reduced.matches ? 1 : 1 - Math.exp(-dt * 5);
-   const target = { x: Math.tanh(pointer.current.x * 1.5), back: smoothstep((pointer.current.y - .5) / .37), down: Math.max(-1,Math.min(1,(pointer.current.y-.5)*3)) };
+   const target = { x: Math.tanh(pointer.current.x * 1.5), back: smoothstep((pointer.current.y - .5) / .37), down: alienNodTarget(pointer.current.x,pointer.current.y) };
    setAttention(old => ({ x: old.x + (target.x - old.x) * ease, back: old.back + (target.back - old.back) * ease, down: old.down + (target.down - old.down) * (reduced.matches ? 1 : 1-Math.exp(-dt*9)) }));
    id = requestAnimationFrame(tick);
   }

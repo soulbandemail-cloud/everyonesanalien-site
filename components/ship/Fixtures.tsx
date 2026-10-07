@@ -52,7 +52,10 @@ export const Fixtures = memo(function Fixtures({ config, view, onArcade, onTV, o
     const lounge=f===sofa,wood=f===table && colour!=='#eee5cd';
     return <g stroke={gameCabinet?'#b67fb7':cabinet?'#4b3020':lounge?'#393d2b':wood?'#503923':'#849396'} strokeWidth="1" strokeLinejoin="round">{faces.map((face,i) => {
       const d=lounge?paddedPath(face.points):path(face.points);
-      return <g key={i}><path d={d} fill={gameCabinet?`url(#${outlineId}-arcade-paint)`:cabinet?`url(#${outlineId}-veneer)`:lounge?`url(#${outlineId}-cloth)`:wood?`url(#${outlineId}-wood)`:face.fill}/>{f !== FIXTURES.radio && <path d={d} fill={`url(#${outlineId}-surface)`} stroke="none" pointerEvents="none"/>}{lounge && <path d={d} fill="none" stroke="#b2a37a" strokeOpacity=".32" strokeWidth=".55"/>}</g>;
+      return <g key={i}><path d={d} fill={gameCabinet?`url(#${outlineId}-arcade-paint)`:cabinet?`url(#${outlineId}-veneer)`:lounge?`url(#${outlineId}-cloth)`:wood?`url(#${outlineId}-wood)`:face.fill}/>{f !== FIXTURES.radio && <path d={d} fill={`url(#${outlineId}-surface)`} stroke="none" pointerEvents="none"/>}{(cabinet||lounge||gameCabinet) && face.points.every(point=>{
+        const dx=point.x-f.x,dz=point.z-f.z;
+        return dx*Math.sin(f.yaw)+dz*Math.cos(f.yaw)>0;
+      }) && <path d={d} fill="#e4b874" opacity=".045" stroke="none" pointerEvents="none"/>}{lounge && <path d={d} fill="none" stroke="#b2a37a" strokeOpacity=".32" strokeWidth=".55"/>}</g>;
     })}</g>;
   }
 

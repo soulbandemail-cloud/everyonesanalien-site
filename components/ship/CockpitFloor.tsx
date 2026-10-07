@@ -31,15 +31,19 @@ export const CockpitFloor=memo(function CockpitFloor({ config, view, sharedSeam=
   // Shadows are built from solid parts, never from an interactable's bounding box.
   const fixtures=orientedFixtures(config.centre,config.radius);
   const shadows=Object.entries(fixtures).filter(([name])=>name!=='radio').flatMap(([name,f])=>{
-    // local x/z centre, half-width/depth and strength; table/rail gaps stay open.
+    // Local solid-part footprints: x/z, half extents, contact strength, spill blockage.
+    // Occlusion is independent of shadow darkness; an opaque pot need not cast a black blob.
     const parts:Record<string,number[][]>={
-      sofa:[[0,-.3,1.55,.95,.9]],
-      arcade:[[0,-.2,.64,.65,.95]],
-      coffeeTable:[[0,-.18,1.05,1.05,.12],...[-.78,.78].flatMap(x=>[-.27,.27].map(z=>[x,z-.05,.13,.19,.65]))],
-      musicStation:[[-1.4,-.12,.16,.55,.6],[1.4,-.12,.16,.55,.6],[0,-.18,1.35,.4,.2]],
-      clothesRail:[[-1.05,-.05,.075,.48,.3],[1.05,-.05,.075,.48,.3],[-.15,-.3,.33,.4,.22]],
+      sofa:[[-.43,-.42,1.08,.9,.72,1],
+        ...[-1.22,.36].flatMap(x=>[-.4,.36].map(z=>[x,z,.1,.15,.6,1])),
+        [-1.62,-.18,.23,.3,.65,1],
+        ...Array.from({length:11},(_,i)=>[-1.62+Math.sin(i*2.4)*.32,-.48-(i%4)*.12,.1,.18,.12,.18])],
+      arcade:[[0,-.24,.61,.58,.85,1]],
+      coffeeTable:[[0,-.26,1.05,1.05,.10,.45],...[-.78,.78].flatMap(x=>[-.27,.27].map(z=>[x,z-.09,.09,.22,.55,.85]))],
+      musicStation:[[0,-.25,1.4,.58,.3,.9],...[-1.3,1.3].flatMap(x=>[-.3,.28].map(z=>[x,z-.06,.1,.16,.6,1]))],
+      clothesRail:[[-1.05,-.05,.055,.48,.22,.25],[1.05,-.05,.055,.48,.22,.25],[-.15,-.48,.3,.42,.2,.7]],
     };
-    return parts[name].map(([cx,cz,w,d,opacity],i)=>({key:`${name}-${i}`,opacity,path:floorPath(Array.from({length:49},(_,j)=>{
+    return parts[name].map(([cx,cz,w,d,opacity,block],i)=>({block,key:`${name}-${i}`,opacity,path:floorPath(Array.from({length:49},(_,j)=>{
       const t=j/48*Math.PI*2,x=(cx+w*Math.cos(t))*f.scale*('widthScale' in f ? f.widthScale : 1),z=(cz+d*Math.sin(t))*f.scale;
       return {x:f.x+x*Math.cos(f.yaw)+z*Math.sin(f.yaw),y:ROOM.floorY,z:f.z+z*Math.cos(f.yaw)-x*Math.sin(f.yaw)};
     }))}));
@@ -54,10 +58,10 @@ export const CockpitFloor=memo(function CockpitFloor({ config, view, sharedSeam=
       <linearGradient id={`${id}-command-width`}><stop stopColor="white" stopOpacity="0"/><stop offset=".25" stopColor="white" stopOpacity=".5"/><stop offset=".5" stopColor="white"/><stop offset=".75" stopColor="white" stopOpacity=".5"/><stop offset="1" stopColor="white" stopOpacity="0"/></linearGradient>
       <linearGradient id={`${id}-command-depth`} x2="0" y2="1"><stop stopColor="#dbb582" stopOpacity=".055"/><stop offset=".35" stopColor="#dbb582" stopOpacity=".025"/><stop offset="1" stopColor="#dbb582" stopOpacity="0"/></linearGradient>
       <mask id={`${id}-command-fade`}><path d={floorPath([{x:-5,y:ROOM.floorY,z:6},{x:5,y:ROOM.floorY,z:6},{x:5,y:ROOM.floorY,z:3.8},{x:-5,y:ROOM.floorY,z:3.8}])} fill={`url(#${id}-command-width)`}/></mask>
-      <radialGradient id={`${id}-block`}><stop stopColor="black"/><stop offset=".55" stopColor="black" stopOpacity=".8"/><stop offset="1" stopColor="black" stopOpacity="0"/></radialGradient>
+      <radialGradient id={`${id}-block`}><stop stopColor="black"/><stop offset=".5" stopColor="black"/><stop offset="1" stopColor="black" stopOpacity="0"/></radialGradient>
       <mask id={`${id}-spill-occlusion`} maskUnits="userSpaceOnUse" x="0" y="0" width={view.width} height={view.height}>
         <rect width={view.width} height={view.height} fill="white"/>
-        {shadows.map(s=><path key={s.key} d={s.path} fill={`url(#${id}-block)`} opacity={s.opacity}/>)}
+        {shadows.map(s=><path key={s.key} d={s.path} fill={`url(#${id}-block)`} opacity={s.block}/>)}
       </mask>
     </defs>
     <path d={boundary} fill={`url(#${id}-paint)`} stroke="#52636a" strokeWidth="2"/>
@@ -69,9 +73,12 @@ export const CockpitFloor=memo(function CockpitFloor({ config, view, sharedSeam=
         return <path key={i} d={floorPath([edge(floorPortDiameter/2),edge(24)])} fill="none" stroke="#142e34" strokeOpacity=".4" strokeWidth="1"/>;
       })}
       {[2.5,4.8,7.2].map(radius=><path key={radius} d={floorPath(deckOutline(radius*2,radius*2,ROOM.floorY,ROOM.port.z))} fill="none" stroke="#82918a" strokeOpacity=".14" strokeWidth="1"/>)}
+      <path d={floorPath(deckOutline(4.88,4.88,ROOM.floorY,ROOM.port.z))} fill="none" stroke="#071018" strokeOpacity=".12" strokeWidth="2"/>
       <PersianRug config={config} view={view}/>
       <g mask={`url(#${id}-spill-occlusion)`}>
       {Array.from({length:20},(_,i)=>{
+        // These fixtures are screened by the stage beside the console; no floor pools.
+        if(i===18||i===1)return null;
         const angle=(i*2+.5)/40*Math.PI*2,points=Array.from({length:49},(_,j)=>{
           const t=j/48*Math.PI*2,radial=config.radius-1.15+1.65*Math.cos(t),side=.65*Math.sin(t);
           return {x:config.centre.x+radial*Math.sin(angle)+side*Math.cos(angle),y:ROOM.floorY,z:config.centre.z+radial*Math.cos(angle)-side*Math.sin(angle)};

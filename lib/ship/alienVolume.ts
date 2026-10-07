@@ -94,3 +94,10 @@ export function alienVolume(yaw:number,down:number){
 export function alienLookYaw(x:number,back:number){
  return Math.atan2(-x*.55,Math.cos(back*Math.PI))*180/Math.PI;
 }
+
+/** Scene-relative cursor: x is -1..1 around the centred pilot; y is 0..1. */
+export function alienNodTarget(x:number,y:number){
+ const vertical=Math.max(-1,Math.min(1,(y-.5)*2));
+ // Smooth exponential falloff avoids a sudden change crossing the centre.
+ return vertical>0 ? vertical*Math.exp(-4*x*x) : vertical;
+}

@@ -35,3 +35,17 @@ test('head nod is capped at both ends even with out-of-range input',()=>{
   assert.deepEqual(alienVolume(yaw,3),alienVolume(yaw,1));
  }
 });
+
+test('full downward nod requires bottom centre and falls off exponentially sideways',()=>{
+ const {alienNodTarget:nod}=loaded.exports;
+ assert.equal(nod(0,1),1);
+ assert.equal(nod(0,.5),0);
+ for(const y of [.6,.75,.9,.99])assert.ok(nod(0,y)<1);
+ for(const x of [.1,.25,.5,1]){
+  assert.equal(nod(x,1),nod(-x,1));
+  assert.ok(Math.abs(nod(x,1)-Math.exp(-4*x*x))<1e-12);
+  assert.ok(nod(x,.8)<nod(0,.8));
+ }
+ assert.ok(nod(.5,.8)*45<11); // Lounge-area cursor does not force a groundward stare.
+ assert.equal(nod(0,0),-1);
+});
