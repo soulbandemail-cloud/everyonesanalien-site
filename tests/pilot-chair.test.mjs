@@ -11,6 +11,6 @@ test('pilot chair has a high back and retains physical thickness throughout its 
   const points=mesh.flatMap(f=>[...f.d.matchAll(/(-?\d+\.\d+),(-?\d+\.\d+)/g)].map(m=>({x:+m[1],y:+m[2]})));
   assert.ok(Math.max(...points.map(p=>p.x))-Math.min(...points.map(p=>p.x))>40);
   assert.equal(Math.min(...points.map(p=>p.y)),124);
-  assert.ok(Math.max(...points.map(p=>p.y))<225);
+  assert.equal(Math.max(...points.map(p=>p.y)),226);
  }
 });

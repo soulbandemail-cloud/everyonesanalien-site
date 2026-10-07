@@ -54,7 +54,7 @@
 
 .fixtures { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
 
-.chairBase::before { content: ""; position: absolute; bottom: 70%; left: 42%; width: 16%; height: var(--seat-lift, 0px); background: linear-gradient(90deg,#3c3225,#b69a69 45%,#6b5438 70%,#342c22); }
+.chairStem { position: absolute; left: 46.8%; width: 6.4%; top: 88%; height: calc(10% + var(--seat-lift, 0px)); background: linear-gradient(90deg,#3c3225,#b69a69 45%,#6b5438 70%,#342c22); }
 
 .alpha { color:#fff; font-size:14px; text-transform:none; }
 .previewLabel { margin-left:18px; color:#afc4cd; font-size:10px; }

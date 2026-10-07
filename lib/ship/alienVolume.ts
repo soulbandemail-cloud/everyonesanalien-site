@@ -101,3 +101,17 @@ export function alienNodTarget(x:number,y:number){
  // Smooth exponential falloff avoids a sudden change crossing the centre.
  return vertical>0 ? vertical*Math.exp(-4*x*x) : vertical;
 }
+
+/** Face the camera at/below the antennae; turn toward the dome only above them. */
+export function alienFacingTarget(y:number,antennaY:number,turnRange:number){
+ const t=Math.max(0,Math.min(1,1+(y-antennaY)/Math.max(turnRange,.0001)));
+ return t*t*(3-2*t);
+}
+
+/** Animate the shortest physical turn, including the centre-line 180° target flip. */
+export function advanceAlienYaw(current:number,target:number,dt:number){
+ const delta=((target-current+540)%360+360)%360-180;
+ if(Math.abs(delta)<.01)return current+delta;
+ const limit=240*Math.max(0,dt);
+ return current+Math.max(-limit,Math.min(limit,delta*(1-Math.exp(-10*Math.max(0,dt)))));
+}

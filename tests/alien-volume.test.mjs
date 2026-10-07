@@ -49,3 +49,26 @@ test('full downward nod requires bottom centre and falls off exponentially sidew
  assert.ok(nod(.5,.8)*45<11); // Lounge-area cursor does not force a groundward stare.
  assert.equal(nod(0,0),-1);
 });
+
+test('camera-facing range includes the whole head and turns away only above antennae',()=>{
+ const {alienFacingTarget:facing}=loaded.exports;
+ for(const antenna of [.35,.55,.7]){
+  for(const y of [antenna,antenna+.02,antenna+.1,1])assert.equal(facing(y,antenna,.12),1);
+  assert.equal(facing(antenna-.13,antenna,.12),0);
+  assert.ok(Math.abs(facing(antenna-.06,antenna,.12)-.5)<1e-12);
+ }
+});
+
+test('centre-line front/back transitions swivel through side views without snapping',()=>{
+ const {advanceAlienYaw:advance}=loaded.exports;
+ for(const [start,target] of [[180,0],[0,180],[179,-179]]){
+  let yaw=start;const samples=[];
+  for(let i=0;i<180;i++){
+   const next=advance(yaw,target,1/60);
+   assert.ok(Math.abs(next-yaw)<=4.000001);
+   yaw=next;samples.push(yaw);
+  }
+  assert.ok(Math.abs(Math.sin((yaw-target)*Math.PI/360))<.001);
+  if(Math.abs(start-target)===180)assert.ok(samples.some(y=>Math.abs(Math.abs(y)-90)<5));
+ }
+});

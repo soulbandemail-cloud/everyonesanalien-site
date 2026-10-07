@@ -79,6 +79,7 @@ const radio = fixtures.radio, music = fixtures.musicStation, sofa = fixtures.sof
 const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtures.arcade;
   return <svg className={styles.fixtures} width={view.width} height={view.height} style={{'--fixture-hover-filter':`url(#${outlineId})`} as React.CSSProperties} role="group" aria-label="Empty base ship fixtures: radio left, gramophone and empty record cabinet right, empty sofa left, empty clothes rail right, coffee table with current Hyper-Fix foremost">
     <defs>
+      <radialGradient id={`${outlineId}-fairy-glow`}><stop stopColor="#ffe6a9" stopOpacity=".25"/><stop offset=".35" stopColor="#ffd98d" stopOpacity=".1"/><stop offset="1" stopColor="#ffd98d" stopOpacity="0"/></radialGradient>
       <linearGradient id={`${outlineId}-arcade-paint`} x2=".3" y2="1"><stop stopColor="#30303e"/><stop offset=".25" stopColor="#181e2c"/><stop offset="1" stopColor="#101522"/></linearGradient>
       <linearGradient id={`${outlineId}-veneer`} x2=".25" y2="1"><stop stopColor="#956c43"/><stop offset=".2" stopColor="#704829"/><stop offset=".75" stopColor="#4c301f"/><stop offset="1" stopColor="#795034"/></linearGradient>
       <linearGradient id={`${outlineId}-brass`} x2=".8" y2="1"><stop stopColor="#ba9862"/><stop offset=".32" stopColor="#94713f"/><stop offset=".65" stopColor="#65502f"/><stop offset="1" stopColor="#a48651"/></linearGradient>
@@ -261,6 +262,35 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
         {line(rail,a,b,`url(#${outlineId}-brass)`,width*.7)}
         <g opacity=".45">{line(rail,a,b,'#c3a574',width*.18)}</g>
       </g>)}
+      <g pointerEvents="none" aria-hidden="true">
+        {(() => {
+          // Follow the existing frame in world space; keep the central shirt area open.
+          const top=(t:number)=>local(rail,-1.05+2.1*t,2.09-.045*(1-Math.cos(t*Math.PI*8)), -.025);
+          const side=(sign:number,t:number)=>local(rail,sign*1.05+.025*Math.sin(t*Math.PI*8),2.09-1.98*t,-.028);
+          const strands=[Array.from({length:65},(_,i)=>top(i/64)),...[-1,1].map(sign=>Array.from({length:65},(_,i)=>side(sign,i/64)))];
+          const bulbs=[...Array.from({length:14},(_,i)=>top((i+.3)/14)),...[-1,1].flatMap(sign=>Array.from({length:11},(_,i)=>side(sign,(i+.45)/11)))];
+          return <>
+            {strands.map((points,i)=><path key={i} d={path(points).replace(/Z$/,'')} fill="none" stroke="#b7a57b" strokeWidth=".65" strokeOpacity=".8"/>)}
+            {[-1,1].map(sign=><g key={sign}>
+              <path d={path(Array.from({length:40},(_,i)=>local(rail,sign*1.05+.034*Math.sin(i*.4),2.13-i*.045,-.04))).replace(/Z$/,'')} fill="none" stroke="#52603a" strokeWidth=".85"/>
+              {Array.from({length:13},(_,i)=>{
+                // Fixed irregular growth keeps the foliage stable during interaction.
+                const heights=sign<0?[2.12,2.085,2.01,1.89,1.85,1.69,1.53,1.48,1.25,1.08,.99,.76,.61]:[2.115,2.055,2.025,1.91,1.76,1.72,1.55,1.32,1.27,1.04,.86,.8,.62];
+                const variation=(n:number)=>{const v=Math.sin((i+1)*17.13+sign*8.7+n*31.71)*437.58;return v-Math.floor(v);};
+                const y=heights[i],x=sign*1.05+.034*Math.sin((2.13-y)/.045*.4);
+                const direction=variation(1)>.46?1:-1,size=.58+variation(2)*.62,angle=(variation(3)-.5)*1.25;
+                const leaf=(dx:number,dy:number)=>local(rail,x+direction*size*(dx*Math.cos(angle)-dy*Math.sin(angle)),y+size*(dx*Math.sin(angle)+dy*Math.cos(angle)),-.045);
+                const points=[leaf(0,0),leaf(.035,.055),leaf(.065,.04),leaf(.105,.065),leaf(.115,-.015),leaf(.06,-.055)];
+                return <g key={i}><path d={paddedPath(points)} fill={i%3===0?'#77834c':i%3===1?'#536d43':'#657c49'} stroke="#374a30" strokeWidth=".45"/><path d={path([leaf(0,0),leaf(.09,.02)])} fill="none" stroke="#a0a56a" strokeWidth=".4" opacity=".5"/></g>;
+              })}
+            </g>)}
+            {bulbs.map((point,i)=>{const p=project(point,config,view),r=p.scale*rail.scale*.012;return <g key={i}>
+              <circle cx={p.x} cy={p.y} r={r*5} fill={`url(#${outlineId}-fairy-glow)`}/>
+              <ellipse cx={p.x} cy={p.y} rx={r*.7} ry={r} fill="#fff0c6"/>
+            </g>;})}
+          </>;
+        })()}
+      </g>
       {flatArt(rail,-.15,2.1,-.035,1.2,<g aria-label="White SOUL Ringer Tee with red trim hanging on a hanger" pointerEvents="none">
         {/* Thin hanger hooks over the existing rail; the shirt drapes below it. */}
         <path d="M0 12 V5 C10 3 7 -7 1 -5 C-3 -4 -4 -1 -3 1" fill="none" stroke="#ad8d59" strokeWidth="1.7"/>
@@ -279,15 +309,15 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
         </g>
       </g>,'side')}
     </g>
-    <g aria-label="Foremost coffee table with the current Hyper-Fix, a permanent ship fixture">
+    <g className="cockpit-interactive-fixture" role="button" aria-label="Open The Hyper-Fix" {...interaction('newsletter',onNewsletter)} style={{pointerEvents:onNewsletter ? 'auto' : 'none'}}>
+      <title>The Hyper-Fix</title>
       {[-.78,.78].map(x=><g key={x}>{box(table,x,0,-.27,.09,.48,.09)}{box(table,x,0,.27,.09,.48,.09)}</g>)}
       {(() => {
         const rim = (height: number) => Array.from({length:65},(_,i) => local(table,1.05*Math.sin(i/64*Math.PI*2),height,1.05*Math.cos(i/64*Math.PI*2)));
         return <g stroke="#bc9865" strokeWidth="1"><path d={path(rim(.45))} fill="#62452d" /><path d={path(rim(.55))} fill={`url(#${outlineId}-wood)`} /></g>;
       })()}
       {[-.7,-.45,-.18,.12,.4,.66].map((z,i)=>{const w=Math.sqrt(1.05**2-z*z)*.91;return <path key={z} d={path(Array.from({length:25},(_,j)=>{const x=-w+j/24*w*2;return local(table,x,.553,z+.017*Math.sin(x*8+i));}))} fill="none" stroke={i%2?'#d2a470':'#66452d'} strokeOpacity=".28" strokeWidth=".65"/>;})}
-      <g className="newsletter-fixture cockpit-interactive-fixture" role="button" aria-label="Open The Hyper-Fix" {...interaction('newsletter',onNewsletter)} style={{pointerEvents:onNewsletter ? 'auto' : 'none'}}>
-      <title>The Hyper-Fix</title>
+      <g className="newsletter-fixture">
       {box(table,-.17,.55,0,.51,.025,.74,'#eee5cd')}
       {flatArt(table,-.17,.58,.13,.43,<g><text textAnchor="middle" fill="#000" fontSize="14" fontFamily="HyperFixBlackletter, serif">The Hyper-Fix</text><text y="17" textAnchor="middle" fill="#222" fontSize="8">CURRENT ISSUE</text></g>,'horizontal')}
       </g>

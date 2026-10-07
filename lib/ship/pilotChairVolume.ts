@@ -26,7 +26,7 @@ function cushion(cx:number,cy:number,cz:number,rx:number,ry:number,rz:number,col
 }
 cushion(0,216,-5,37,7,30,'#484631');
 for(const side of [-1,1]){
- cushion(side*34,207,-4,5,10,27,'#65462e');
+ cushion(side*34,216,-4,5,10,27,'#65462e');
  for(let i=4;i<28;i++){const p=back(side,i/28,false);cushion(p.x,p.y,p.z-3,2,3,4,'#795739');}
 }
 // Fine horizontal seams on both upholstery faces; subtle warm worn edging.

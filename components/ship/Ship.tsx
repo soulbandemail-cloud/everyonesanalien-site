@@ -1,8 +1,9 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import type { DomeConfig, Viewport } from '@/lib/ship/domeGeometry';
+import { project, type DomeConfig, type Viewport } from '@/lib/ship/domeGeometry';
 import type { HullConfig } from '@/lib/ship/hullGeometry';
-import { alienNodTarget } from '@/lib/ship/alienVolume';
+import { alienNodTarget, alienFacingTarget } from '@/lib/ship/alienVolume';
+import { ROOM, pilotPosition } from '@/lib/ship/roomGeometry';
 import { ExteriorHull } from './ExteriorHull';
 import { Dome } from './Dome';
 import { PilotMezzanine } from './PilotMezzanine';
@@ -11,8 +12,6 @@ import { Fixtures } from './Fixtures';
 import { GeometryCalibration } from './GeometryCalibration';
 import type {DomeMenu} from '@/lib/ship/domeNavigation';
 import styles from './ship.module.css';
-const clamp = (n: number) => Math.max(0, Math.min(1, n));
-const smoothstep = (n: number) => { const t = clamp(n); return t * t * (3 - 2 * t); };
 
 export default function Ship({ config, baseline, onConfigChange, hull, onHullChange, view, domeConfig=config, sharedSeam=false, reveal=1, development=false, preview=false, logout, busy, onArcade, onTV, onNewsletter, onShows, onMerch, domeMenu=null, liveTv=false }: {
  config:DomeConfig; baseline:DomeConfig; onConfigChange:(config:DomeConfig)=>void;
@@ -23,6 +22,11 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
  const pointer = useRef({ x: 0, y: .25 });
  const [attention, setAttention] = useState({ x: 0, back: 0, down: 0 });
  useEffect(() => {
+  const pilot=project({...pilotPosition,y:pilotPosition.y+ROOM.pilotSeatLift},config,view);
+  const alienHeight=ROOM.alienHeight*pilot.scale;
+  // Neutral antenna tips are at drawing y=-15.5 in the 250-unit occupant.
+  const antennaY=(pilot.y-alienHeight*1.062)/view.height;
+  const turnRange=alienHeight*.6/view.height;
   // Observe movement without making the click-through room overlay a hit target.
   const reset = () => { pointer.current = { x: 0, y: .25 }; };
   const move = (event: PointerEvent) => {
@@ -45,7 +49,7 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
   function tick(time: number) {
    const dt = previous ? Math.min((time - previous) / 1000, .05) : 0; previous = time;
    const ease = reduced.matches ? 1 : 1 - Math.exp(-dt * 5);
-   const target = { x: Math.tanh(pointer.current.x * 1.5), back: smoothstep((pointer.current.y - .5) / .37), down: alienNodTarget(pointer.current.x,pointer.current.y) };
+   const target = { x: Math.tanh(pointer.current.x * 1.5), back: alienFacingTarget(pointer.current.y,antennaY,turnRange), down: alienNodTarget(pointer.current.x,pointer.current.y) };
    setAttention(old => ({ x: old.x + (target.x - old.x) * ease, back: old.back + (target.back - old.back) * ease, down: old.down + (target.down - old.down) * (reduced.matches ? 1 : 1-Math.exp(-dt*9)) }));
    id = requestAnimationFrame(tick);
   }
@@ -56,7 +60,7 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
    window.removeEventListener('pointerout', leave);
    window.removeEventListener('blur', reset);
   };
- }, []);
+ }, [config,view]);
  const [debug,setDebug]=useState(false);
  const [grid,setGrid]=useState(true);
  return <div ref={root} className={styles.ship} style={{...(sharedSeam ? {width:view.width,height:view.height} : {}),opacity:Math.max(0,Math.min(1,(reveal-.12)/.6))}} aria-label="Mate cockpit">
