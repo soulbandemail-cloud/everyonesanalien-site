@@ -58,3 +58,15 @@ test('paper stays with the sofa reader and is put away before the next walk',()=
  h.advance();assert.equal(h.state().paper,1);
  h.api.walk({x:0,z:3});h.advance(.3);assert.equal(h.state().paper,0);h.advance();assert.equal(h.state().mode,'standing');
 });
+
+test('free floor arrival retains walking heading instead of the previous interaction heading',()=>{
+ const h=movementHarness();h.api.interact('merch');h.advance();
+ const anchorYaw=h.state().yaw;
+ h.api.walk({x:0,z:3});let before;
+ for(let i=0;i<1800;i++){before={...h.state()};h.advance(1/60);if(h.state().mode==='standing')break;}
+ assert.equal(h.state().mode,'standing');
+ const delta=(a,b)=>Math.abs(((a-b+540)%360+360)%360-180);
+ assert.ok(delta(h.state().yaw,before.yaw)<5);
+ assert.ok(delta(h.state().yaw,anchorYaw)>20);
+ const arrived=h.state().yaw;h.advance(2);assert.equal(h.state().yaw,arrived);
+});

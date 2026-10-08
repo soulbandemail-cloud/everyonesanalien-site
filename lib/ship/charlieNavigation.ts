@@ -5,7 +5,7 @@ import {commandFront,commandStairs,COMMAND_DECK} from './commandDeck';
 export type Point={x:number;z:number};
 export type Destination='chair'|'merch'|'shows'|'tv'|'newsletter'|'arcade';
 export type CharlieMode='pilot-seated'|'sofa-seated'|'walking'|'standing';
-export type Arrival={point:Point;yaw:number;mode:CharlieMode;seat?:Vec3;lookUp?:boolean};
+export type Arrival={point:Point;yaw:number;mode:CharlieMode;seat?:Vec3;lookUp?:boolean;retainHeading?:boolean};
 export const clearance=.42;
 export function localPoint(f:FixturePlacement,x:number,z:number):Point{return {x:f.x+f.scale*(x*Math.cos(f.yaw)+z*Math.sin(f.yaw)),z:f.z+f.scale*(z*Math.cos(f.yaw)-x*Math.sin(f.yaw))};}
 export function approaches(c:DomeConfig):Record<Destination,Arrival>{

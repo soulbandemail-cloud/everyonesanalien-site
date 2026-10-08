@@ -2,15 +2,15 @@
 type V = {x:number;y:number;z:number};
 type Face = {points:V[];colour:string;eye?:boolean;head?:boolean;leg?:boolean;arm?:boolean;side?:number};
 const faces:Face[]=[];
-const sphere=(centre:V,r:V,colour:string,rows=12,cols=24)=>{
+const sphere=(centre:V,r:V,colour:string,rows=12,cols=24,output:Face[]=faces)=>{
  const point=(a:number,b:number)=>({x:centre.x+r.x*Math.sin(a)*Math.cos(b),y:centre.y+r.y*Math.cos(a),z:centre.z+r.z*Math.sin(a)*Math.sin(b)});
- for(let i=0;i<rows;i++)for(let j=0;j<cols;j++) faces.push({colour,points:[point(i*Math.PI/rows,j*2*Math.PI/cols),point((i+1)*Math.PI/rows,j*2*Math.PI/cols),point((i+1)*Math.PI/rows,(j+1)*2*Math.PI/cols),point(i*Math.PI/rows,(j+1)*2*Math.PI/cols)]});
+ for(let i=0;i<rows;i++)for(let j=0;j<cols;j++) output.push({colour,points:[point(i*Math.PI/rows,j*2*Math.PI/cols),point((i+1)*Math.PI/rows,j*2*Math.PI/cols),point((i+1)*Math.PI/rows,(j+1)*2*Math.PI/cols),point(i*Math.PI/rows,(j+1)*2*Math.PI/cols)]});
 };
 // Rounded head has substantial front/back depth even at a quarter turn.
 sphere({x:0,y:85,z:0},{x:56,y:56,z:43},'#79cfb2',20,40);
 faces.forEach(face=>{face.head=true;});
 sphere({x:0,y:171,z:2},{x:15,y:39,z:11},'#79cfb2');
-const tube=(points:V[],radius:number,colour:string)=>{
+const tube=(points:V[],radius:number,colour:string,output:Face[]=faces)=>{
  for(let i=0;i<points.length-1;i++){
   const a=points[i],b=points[i+1];
   const length=Math.hypot(b.x-a.x,b.y-a.y,b.z-a.z);
@@ -19,9 +19,9 @@ const tube=(points:V[],radius:number,colour:string)=>{
   const u={x:axis.y/n,y:-axis.x/n,z:0};
   const v={x:-axis.z*u.y,y:axis.z*u.x,z:axis.x*u.y-axis.y*u.x};
   const ring=(p:V,t:number)=>({x:p.x+radius*(u.x*Math.cos(t)+v.x*Math.sin(t)),y:p.y+radius*(u.y*Math.cos(t)+v.y*Math.sin(t)),z:p.z+radius*v.z*Math.sin(t)});
-  for(let j=0;j<10;j++){const t=j*Math.PI/5,q=(j+1)*Math.PI/5;faces.push({colour,points:[ring(a,t),ring(b,t),ring(b,q),ring(a,q)]});}
-  sphere(a,{x:radius,y:radius,z:radius},colour,6,10);
-  sphere(b,{x:radius,y:radius,z:radius},colour,6,10);
+  for(let j=0;j<10;j++){const t=j*Math.PI/5,q=(j+1)*Math.PI/5;output.push({colour,points:[ring(a,t),ring(b,t),ring(b,q),ring(a,q)]});}
+  sphere(a,{x:radius,y:radius,z:radius},colour,6,10,output);
+  sphere(b,{x:radius,y:radius,z:radius},colour,6,10,output);
  }
 };
 // A short neck lifts the unchanged head clear of the chair back.
@@ -32,14 +32,14 @@ for(const side of [-1,1]){
  const armStart=faces.length;
  // Dropped shoulders, elbows beside the waist, forearms returning to the lap.
  const handY=side<0?198:196,handZ=side<0?-22:-25;
- tube([{x:side*12,y:138,z:0},{x:side*19,y:154,z:1},{x:side*25,y:181,z:-3},{x:side*22,y:191,z:-12},{x:side*13,y:handY,z:handZ}],2.8,'#7fffd4');
- sphere({x:side*13,y:handY+2,z:handZ},{x:4,y:5,z:3},'#7fffd4');
+ tube([{x:side*12,y:138,z:0},{x:side*19,y:154,z:1},{x:side*25,y:181,z:-3},{x:side*22,y:191,z:-12},{x:side*13,y:handY,z:handZ}],2.8,'#79cfb2');
+ sphere({x:side*13,y:handY+2,z:handZ},{x:4,y:5,z:3},'#79cfb2');
  for(let i=armStart;i<faces.length;i++){faces[i].arm=true;faces[i].side=side;}
  // Seated thighs extend forward from the planted hips before shins drop.
  const legStart=faces.length;
  const kneeZ=side<0?-43:-40;
- tube([{x:side*10,y:202,z:2},{x:side*15,y:203,z:-21},{x:side*18,y:206,z:kneeZ},{x:side*19,y:223,z:kneeZ+1},{x:side*20,y:244,z:kneeZ+5}],3,'#78c7ab');
- sphere({x:side*20,y:245,z:kneeZ},{x:6,y:3,z:8},'#78c7ab');
+ tube([{x:side*10,y:202,z:2},{x:side*15,y:203,z:-21},{x:side*18,y:206,z:kneeZ},{x:side*19,y:223,z:kneeZ+1},{x:side*20,y:244,z:kneeZ+5}],3,'#79cfb2');
+ sphere({x:side*20,y:245,z:kneeZ},{x:6,y:3,z:8},'#79cfb2');
  for(let i=legStart;i<faces.length;i++){faces[i].leg=true;faces[i].side=side;}
  const headStart=faces.length;
  tube([{x:side*28,y:38,z:0},{x:side*35,y:24,z:0},{x:side*43,y:15,z:2}],1.8,'#7fffd4');
@@ -81,34 +81,61 @@ export type AlienMotion={stand?:number;gait?:number;moving?:number;reading?:numb
 export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMotion={}){
  const stand=motion.stand??(standing?1:0),walk=motion.moving??0,phase=motion.gait??0,reading=motion.reading??0;
  const pose=(p:V,face:Face):V=>{
-  const step=Math.sin(phase+(face.side===-1?Math.PI:0)),bounce=(1-Math.cos(phase*2))*1.1*walk;
-  if(face.leg){const weight=Math.max(0,Math.min(1,(p.y-202)/43));return {...p,z:p.z*(1-.88*stand)+step*8*weight*walk,y:p.y-38*stand*(1-Math.max(0,Math.min(1,-p.z/40)))*Math.max(0,Math.min(1,(218-p.y)/12))-Math.max(0,step)*5*weight*walk-bounce*(1-weight)};}
-  if(face.arm){const weight=Math.max(0,Math.min(1,(p.y-138)/62));return {...p,y:p.y-38*stand-bounce-reading*22*weight,x:p.x+(Math.sign(p.x)*24-p.x)*reading*weight,z:p.z+step*7*weight*walk-reading*16*weight};}
+  const bounce=(1-Math.cos(phase*2))*1.1*walk;
+
+
   return {...p,x:p.x+Math.sin(phase)*1.2*walk,y:face.head?p.y:p.y-38*stand-bounce};
  };
+ // Rebuild round tubes around posed centre-lines. Deforming the original
+ // vertices compressed their cross-sections into flat ribbons.
+ const legs:Face[]=[];
+ for(const side of [-1,1]){
+  const kneeZ=side<0?-43:-40,step=Math.sin(phase+(side===-1?Math.PI:0));
+  const points=[{x:side*10,y:202,z:2},{x:side*15,y:203,z:-21},{x:side*18,y:206,z:kneeZ},{x:side*19,y:223,z:kneeZ+1},{x:side*20,y:244,z:kneeZ+5}];
+  const posed=points.map(p=>{
+   const weight=Math.max(0,Math.min(1,(p.y-202)/43));
+   return {x:p.x,y:p.y-38*stand*(1-Math.max(0,Math.min(1,-p.z/40)))*Math.max(0,Math.min(1,(218-p.y)/12))-Math.max(0,step)*5*weight*walk-(1-Math.cos(phase*2))*1.1*walk*(1-weight),z:p.z*(1-.88*stand)+step*8*weight*walk};
+  });
+  tube(posed,3,'#79cfb2',legs);
+  const foot=posed[posed.length-1];
+  sphere({...foot,y:foot.y+1,z:foot.z-5},{x:6,y:3,z:8},'#79cfb2',12,24,legs);
+ }
+ const arms:Face[]=[];
+ for(const side of [-1,1]){
+  const handY=side<0?198:196,handZ=side<0?-22:-25,step=Math.sin(phase+(side===-1?Math.PI:0)),bounce=(1-Math.cos(phase*2))*1.1*walk;
+  const armPose=(p:V)=>{const weight=Math.max(0,Math.min(1,(p.y-138)/62));return {x:p.x+side*42*reading*weight,y:p.y-38*stand-bounce-reading*65*weight,z:p.z+step*7*weight*walk-reading*38*weight};};
+  tube([{x:side*12,y:138,z:0},{x:side*19,y:154,z:1},{x:side*25,y:181,z:-3},{x:side*22,y:191,z:-12},{x:side*13,y:handY,z:handZ}].map(armPose),2.8,'#79cfb2',arms);
+  sphere(armPose({x:side*13,y:handY+2,z:handZ}),{x:4,y:5,z:3},'#79cfb2',12,24,arms);
+ }
+ const posedLimbs=new Set([...legs,...arms]);
  const paper:Face[]=[];
  if(reading>0){
-  const paperPoint=(x:number,y:number):V=>({x,y:178+(y-178)*reading+18*(1-reading),z:-36+(y-178)*.22+Math.abs(x)*.06});
+  const paperPoint=(x:number,y:number):V=>({x,y:90+(y-90)*reading+100*(1-reading),z:-67+(y-90)*.16+Math.abs(x)*.06});
   const panel=(x:number,y:number,w:number,h:number,colour:string)=>paper.push({colour,points:[paperPoint(x,y),paperPoint(x+w,y),paperPoint(x+w,y+h),paperPoint(x,y+h)]});
-  panel(-25,174,25,30,'#d9d3b9');panel(0,174,25,30,'#eee7d3');
+  panel(-60,45,60,110,'#d9d3b9');panel(0,45,60,110,'#eee7d3');
   const glyphs=['101101111101101','101101010010010','110101110100100','111100110100111','110101110101101','000000000000000','111100110100100','111010010010111','101101010101101'];
-  glyphs.forEach((glyph,index)=>[...glyph].forEach((ink,i)=>{if(ink==='1')panel(-21+index*4.7+(i%3)*1.05,177+Math.floor(i/3)*1.05,.8,.8,'#454638');}));
-  for(const x of [-21,3])for(let row=0;row<5;row++)panel(x,185+row*3,17-(row%2)*3,.7,'#777668');
+  glyphs.forEach((glyph,index)=>[...glyph].forEach((ink,i)=>{if(ink==='1')panel(-42+index*9.4+(i%3)*2.1,52+Math.floor(i/3)*2.1,1.6,1.6,'#454638');}));
+  for(const x of [-53,7])for(let row=0;row<13;row++)panel(x,72+row*5.6,45-(row%3)*4,.65,'#a6a18e');
  }
 
  const angle=yaw*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle),pitch=Math.max(-1,Math.min(1,down))*45*Math.PI/180;
  const rotate=(p:V,head=false)=>{let {x,y,z}=p;if(head){const t=Math.max(0,Math.min(1,(y-92)/49));const taper=t*t*(3-2*t);x*=1-.28*taper;y+=7*taper;const dy=y-120;y=120+dy*Math.cos(pitch)-z*Math.sin(pitch);z=dy*Math.sin(pitch)+z*Math.cos(pitch);y-=26+38*stand+(1-Math.cos(phase*2))*1.1*walk;}return {x:90+x*c+z*s,y,z:z*c-x*s};};
- return [...faces,...paper].filter(face=>{
+ // Keep each page's printed marks attached to its paper surface instead of
+ // sorting coplanar ink behind the much larger sheet polygon.
+ const pageDepth=paper.slice(0,2).map(face=>face.points.reduce((sum,p)=>sum+rotate(pose(p,face)).z,0)/face.points.length);
+ const paperOrder=new Map(paper.map((face,i)=>[face,i]));
+ return [...faces.filter(face=>!face.leg&&!face.arm),...legs,...arms,...paper].filter(face=>{
   if(!face.eye)return true;
   const centre=face.points.reduce((v,p)=>({x:v.x+p.x/face.points.length,y:0,z:v.z+p.z/face.points.length}),{x:0,y:0,z:0});
   return centre.z/43**2*c-centre.x/56**2*s>0;
  }).map(face=>{
-  const p=face.points.map(p=>rotate(pose(p,face),face.head)).map(v=>({x:+v.x.toFixed(6),y:+v.y.toFixed(6),z:+v.z.toFixed(6)})),a=p[0],b=p[1],d=p[2];
+  const p=face.points.map(p=>rotate(posedLimbs.has(face)?p:pose(p,face),face.head)).map(v=>({x:+v.x.toFixed(6),y:+v.y.toFixed(6),z:+v.z.toFixed(6)})),a=p[0],b=p[1],d=p[2];
   const nx=(b.y-a.y)*(d.z-a.z)-(b.z-a.z)*(d.y-a.y),ny=(b.z-a.z)*(d.x-a.x)-(b.x-a.x)*(d.z-a.z),nz=(b.x-a.x)*(d.y-a.y)-(b.y-a.y)*(d.x-a.x);
   const length=Math.hypot(nx,ny,nz)||1;
   const light=.83+.17*Math.max(0,(-nx*.3-ny*.5+nz*.8)/length);
   const rgb=face.colour.slice(1).match(/../g)!.map(v=>parseInt(v,16));
-  return {d:`M${p.map(v=>`${v.x.toFixed(2)},${v.y.toFixed(2)}`).join('L')}Z`,depth:(face.eye?100:0)+(+(p.reduce((sum,v)=>sum+v.z,0)/p.length).toFixed(5)),fill:face.colour==='#000000'?'#000000':`rgb(${rgb.map((v,i)=>Math.round(v*light+(i===0?5:0))).join(',')})`};
+  const printed=paperOrder.get(face),page=face.points[0].x<0?0:1;
+  return {d:`M${p.map(v=>`${v.x.toFixed(2)},${v.y.toFixed(2)}`).join('L')}Z`,depth:printed!==undefined?1000+pageDepth[page]+(printed>1?.001:0):(face.eye?100:0)+(+(p.reduce((sum,v)=>sum+v.z,0)/p.length).toFixed(5)),fill:face.colour==='#000000'?'#000000':`rgb(${rgb.map((v,i)=>Math.round(v*light+(i===0?5:0))).join(',')})`};
  }).sort((a,b)=>a.depth-b.depth);
 }
 

@@ -234,7 +234,7 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
   {flatArt(arcade,0,1.58,-.37,.92,<g>
     <rect x="-46" y="-39" width="92" height="78" rx="5" fill="#131722" stroke="#79627f" strokeWidth="3"/>
     <rect x="-40" y="-33" width="80" height="66" rx="3" fill="#00082d"/>
-    <g transform="translate(0 6)"><ellipse cx="0" cy="-10" rx="22" ry="8" fill="none" stroke="#7fffd4" strokeWidth="2" transform="rotate(-15 0 -10)"/><path d="M0 0C-22 -15 -8 -29 0 -17C8 -29 22 -15 0 0Z" fill="#7fffd4"/></g>
+    <g transform="translate(0 -4)"><ellipse rx="24" ry="10" fill="none" stroke="#7fffd4" strokeWidth="2.4"/><path d="M50 86C42 76 20 62 14 45C8 28 18 12 35 13C44 14 49 22 50 25C51 22 56 14 65 13C82 12 92 28 86 45C80 62 58 76 50 86Z" transform="translate(-13 -13) scale(.26)" fill="#7fffd4"/></g>
   </g>)}
   {/* One physical joystick on the left and one raised button on the right. */}
   {flatArt(arcade,0,1.205,-.49,.82,<g><ellipse cx="-21" rx="10" ry="7" fill="#11141c" stroke="#866b57"/><ellipse cx="20" rx="8" ry="7" fill="#1a1722" stroke="#9e779e"/><ellipse cx="20" cy="-1" rx="6" ry="5" fill="#ffb0ff"/></g>,'horizontal')}

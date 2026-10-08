@@ -63,7 +63,7 @@ export function useCharlieMovement(config:DomeConfig,seatedYaw=180){
      if(a.mode==='pilot-seated'||a.mode==='sofa-seated'){
       transition.current={from:value,to:a.mode==='pilot-seated'?pilotSeat:a.seat!,time:0,duration:1,kind:'sitting',seat:a.mode,yaw:a.mode==='pilot-seated'?180:a.yaw};
       publish({...value,mode:'standing',phase:'sitting'});
-     }else publish({...value,yaw:a.yaw,mode:a.mode,lookUp:!!a.lookUp});
+     }else publish({...value,yaw:a.retainHeading?value.yaw:a.yaw,mode:a.mode,lookUp:!!a.lookUp});
      active.done?.();
     }else publish({...value,mode:'walking'});
    }else if(old.moving>0)publish({...old,moving:Math.max(0,old.moving-dt*5)});
@@ -71,5 +71,5 @@ export function useCharlieMovement(config:DomeConfig,seatedYaw=180){
   };
   frame=requestAnimationFrame(tick);return ()=>cancelAnimationFrame(frame);
  },[config,publish]);
- return {state,interact,walk:(point:Point)=>go({point,yaw:current.current.yaw,mode:'standing'})};
+ return {state,interact,walk:(point:Point)=>go({point,yaw:current.current.yaw,mode:'standing',retainHeading:true})};
 }

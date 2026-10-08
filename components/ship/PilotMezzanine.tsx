@@ -10,6 +10,7 @@ type PilotMezzanineProps = {attention:Attention;config:DomeConfig;view:Viewport;
 export function PilotMezzanine({ attention, config, view, seated=true,onChair }: PilotMezzanineProps) {
  const id=useId();
  const [pressed,setPressed]=useState(false);
+ const [hovered,setHovered]=useState(false),[focused,setFocused]=useState(false);
  const floorAnchor=project(pilotPosition,config,view);
  const pilot=project({...pilotPosition,y:pilotPosition.y+ROOM.pilotSeatLift},config,view);
  const path=(points:Vec3[])=>polygonPath(points,config,view);
@@ -71,8 +72,8 @@ export function PilotMezzanine({ attention, config, view, seated=true,onChair }:
   </g>
  </svg>
  <div className={styles.pilotOccupant} style={{left:pilot.x,top:pilot.y,width:ROOM.alienWidth*pilot.scale,height:ROOM.alienHeight*pilot.scale,"--seat-lift":`${floorAnchor.y-pilot.y}px`,visibility:pilot.visible?'visible':'hidden'} as CSSProperties}><div role="button" aria-label="Sit in pilot chair" aria-disabled={seated||!onChair} tabIndex={!seated&&onChair?0:-1} onClick={!seated?onChair:undefined}
- onPointerDown={event=>{if(!seated&&onChair&&event.button===0){event.currentTarget.setPointerCapture(event.pointerId);setPressed(true);}}} onPointerUp={()=>setPressed(false)} onPointerCancel={()=>setPressed(false)} onBlur={()=>setPressed(false)}
+ onPointerDown={event=>{if(!seated&&onChair&&event.button===0){event.currentTarget.setPointerCapture(event.pointerId);setPressed(true);}}} onPointerUp={()=>setPressed(false)} onPointerCancel={()=>setPressed(false)} onPointerEnter={()=>setHovered(true)} onPointerLeave={()=>setHovered(false)} onFocus={()=>setFocused(true)} onBlur={()=>{setPressed(false);setFocused(false);}}
  onKeyDown={event=>{if(!seated&&onChair&&(event.key==='Enter'||event.key===' ')){event.preventDefault();setPressed(true);}}} onKeyUp={event=>{if(pressed&&(event.key==='Enter'||event.key===' ')){event.preventDefault();setPressed(false);onChair?.();}}}
- data-pressed={pressed||undefined} style={{'--fixture-hover-filter':`url(#${id}-chair-outline)`} as CSSProperties} className={`${styles.chairInteractable} cockpit-interactive-fixture`}><Alien attention={attention} occupant={seated} facing={seated?undefined:180}/></div></div>
+ data-pressed={pressed||undefined} style={{'--fixture-hover-filter':`url(#${id}-chair-outline)`} as CSSProperties} className={`${styles.chairInteractable} cockpit-interactive-fixture`}><Alien chairHighlighted={!seated&&!pressed&&(hovered||focused)} attention={attention} occupant={seated} facing={seated?undefined:180}/></div></div>
  </div>;
 }
