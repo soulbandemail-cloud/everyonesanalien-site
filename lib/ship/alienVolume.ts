@@ -1,6 +1,6 @@
 /** Small illustrated meshes in the pilot's existing 180 × 250 drawing space. */
 type V = {x:number;y:number;z:number};
-type Face = {points:V[];colour:string;eye?:boolean;head?:boolean};
+type Face = {points:V[];colour:string;eye?:boolean;head?:boolean;leg?:boolean;arm?:boolean;side?:number};
 const faces:Face[]=[];
 const sphere=(centre:V,r:V,colour:string,rows=12,cols=24)=>{
  const point=(a:number,b:number)=>({x:centre.x+r.x*Math.sin(a)*Math.cos(b),y:centre.y+r.y*Math.cos(a),z:centre.z+r.z*Math.sin(a)*Math.sin(b)});
@@ -29,14 +29,18 @@ sphere({x:0,y:133,z:0},{x:6,y:13,z:6},'#79cfb2');
 for(const side of [-1,1]){
  // Small shoulder bridges join the raised arms to the narrow upper torso.
  tube([{x:side*5,y:136,z:1},{x:side*9,y:136,z:.5},{x:side*12,y:138,z:0}],3.2,'#79cfb2');
+ const armStart=faces.length;
  // Dropped shoulders, elbows beside the waist, forearms returning to the lap.
  const handY=side<0?198:196,handZ=side<0?-22:-25;
  tube([{x:side*12,y:138,z:0},{x:side*19,y:154,z:1},{x:side*25,y:181,z:-3},{x:side*22,y:191,z:-12},{x:side*13,y:handY,z:handZ}],2.8,'#7fffd4');
  sphere({x:side*13,y:handY+2,z:handZ},{x:4,y:5,z:3},'#7fffd4');
+ for(let i=armStart;i<faces.length;i++){faces[i].arm=true;faces[i].side=side;}
  // Seated thighs extend forward from the planted hips before shins drop.
+ const legStart=faces.length;
  const kneeZ=side<0?-43:-40;
  tube([{x:side*10,y:202,z:2},{x:side*15,y:203,z:-21},{x:side*18,y:206,z:kneeZ},{x:side*19,y:223,z:kneeZ+1},{x:side*20,y:244,z:kneeZ+5}],3,'#78c7ab');
  sphere({x:side*20,y:245,z:kneeZ},{x:6,y:3,z:8},'#78c7ab');
+ for(let i=legStart;i<faces.length;i++){faces[i].leg=true;faces[i].side=side;}
  const headStart=faces.length;
  tube([{x:side*28,y:38,z:0},{x:side*35,y:24,z:0},{x:side*43,y:15,z:2}],1.8,'#7fffd4');
  sphere({x:side*43,y:15,z:2},{x:4.5,y:4.5,z:4.5},'#b6ffe5');
@@ -73,15 +77,33 @@ for(let i=0;i<=16;i++){
 tube(smile,.9,'#000000');
 for(let i=smileStart;i<faces.length;i++)faces[i].head=true;
 
-export function alienVolume(yaw:number,down:number){
+export type AlienMotion={stand?:number;gait?:number;moving?:number;reading?:number};
+export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMotion={}){
+ const stand=motion.stand??(standing?1:0),walk=motion.moving??0,phase=motion.gait??0,reading=motion.reading??0;
+ const pose=(p:V,face:Face):V=>{
+  const step=Math.sin(phase+(face.side===-1?Math.PI:0)),bounce=(1-Math.cos(phase*2))*1.1*walk;
+  if(face.leg){const weight=Math.max(0,Math.min(1,(p.y-202)/43));return {...p,z:p.z*(1-.88*stand)+step*8*weight*walk,y:p.y-38*stand*(1-Math.max(0,Math.min(1,-p.z/40)))*Math.max(0,Math.min(1,(218-p.y)/12))-Math.max(0,step)*5*weight*walk-bounce*(1-weight)};}
+  if(face.arm){const weight=Math.max(0,Math.min(1,(p.y-138)/62));return {...p,y:p.y-38*stand-bounce-reading*22*weight,x:p.x+(Math.sign(p.x)*24-p.x)*reading*weight,z:p.z+step*7*weight*walk-reading*16*weight};}
+  return {...p,x:p.x+Math.sin(phase)*1.2*walk,y:face.head?p.y:p.y-38*stand-bounce};
+ };
+ const paper:Face[]=[];
+ if(reading>0){
+  const paperPoint=(x:number,y:number):V=>({x,y:178+(y-178)*reading+18*(1-reading),z:-36+(y-178)*.22+Math.abs(x)*.06});
+  const panel=(x:number,y:number,w:number,h:number,colour:string)=>paper.push({colour,points:[paperPoint(x,y),paperPoint(x+w,y),paperPoint(x+w,y+h),paperPoint(x,y+h)]});
+  panel(-25,174,25,30,'#d9d3b9');panel(0,174,25,30,'#eee7d3');
+  const glyphs=['101101111101101','101101010010010','110101110100100','111100110100111','110101110101101','000000000000000','111100110100100','111010010010111','101101010101101'];
+  glyphs.forEach((glyph,index)=>[...glyph].forEach((ink,i)=>{if(ink==='1')panel(-21+index*4.7+(i%3)*1.05,177+Math.floor(i/3)*1.05,.8,.8,'#454638');}));
+  for(const x of [-21,3])for(let row=0;row<5;row++)panel(x,185+row*3,17-(row%2)*3,.7,'#777668');
+ }
+
  const angle=yaw*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle),pitch=Math.max(-1,Math.min(1,down))*45*Math.PI/180;
- const rotate=(p:V,head=false)=>{let {x,y,z}=p;if(head){const t=Math.max(0,Math.min(1,(y-92)/49));const taper=t*t*(3-2*t);x*=1-.28*taper;y+=7*taper;const dy=y-120;y=120+dy*Math.cos(pitch)-z*Math.sin(pitch);z=dy*Math.sin(pitch)+z*Math.cos(pitch);y-=26;}return {x:90+x*c+z*s,y,z:z*c-x*s};};
- return faces.filter(face=>{
+ const rotate=(p:V,head=false)=>{let {x,y,z}=p;if(head){const t=Math.max(0,Math.min(1,(y-92)/49));const taper=t*t*(3-2*t);x*=1-.28*taper;y+=7*taper;const dy=y-120;y=120+dy*Math.cos(pitch)-z*Math.sin(pitch);z=dy*Math.sin(pitch)+z*Math.cos(pitch);y-=26+38*stand+(1-Math.cos(phase*2))*1.1*walk;}return {x:90+x*c+z*s,y,z:z*c-x*s};};
+ return [...faces,...paper].filter(face=>{
   if(!face.eye)return true;
   const centre=face.points.reduce((v,p)=>({x:v.x+p.x/face.points.length,y:0,z:v.z+p.z/face.points.length}),{x:0,y:0,z:0});
   return centre.z/43**2*c-centre.x/56**2*s>0;
  }).map(face=>{
-  const p=face.points.map(p=>rotate(p,face.head)).map(v=>({x:+v.x.toFixed(6),y:+v.y.toFixed(6),z:+v.z.toFixed(6)})),a=p[0],b=p[1],d=p[2];
+  const p=face.points.map(p=>rotate(pose(p,face),face.head)).map(v=>({x:+v.x.toFixed(6),y:+v.y.toFixed(6),z:+v.z.toFixed(6)})),a=p[0],b=p[1],d=p[2];
   const nx=(b.y-a.y)*(d.z-a.z)-(b.z-a.z)*(d.y-a.y),ny=(b.z-a.z)*(d.x-a.x)-(b.x-a.x)*(d.z-a.z),nz=(b.x-a.x)*(d.y-a.y)-(b.y-a.y)*(d.x-a.x);
   const length=Math.hypot(nx,ny,nz)||1;
   const light=.83+.17*Math.max(0,(-nx*.3-ny*.5+nz*.8)/length);

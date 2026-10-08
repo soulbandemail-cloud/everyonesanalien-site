@@ -118,6 +118,7 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
     finally {logoutBusy.current=false;setBusy(false);}
   }
 
+  const [tvDockHost,setTvDockHost]=useState<HTMLDivElement|null>(null);
   const camera=transitionCamera(config,progress);
   const roomCamera=transitionCamera(mobileThird ? mobileThirdCamera(config,view) : config,progress);
   const tvDock=thirdActive ? consoleTvScreen(roomCamera,view) : undefined;
@@ -129,7 +130,7 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
       transform:`translate(${viewport.left+viewport.view.width/2}px,${viewport.top+viewport.view.height/2}px) scale(${presentationScale}) rotate(${presentation.angle}deg) translate(${-view.width/2}px,${-view.height/2}px)`,
     } as React.CSSProperties : undefined}>
     <CanonicalHomepage domeMenu={domeMenu} animateEntry={entry} cockpit={cockpit} loginEnabled={loginEnabled && !preview} config={config} camera={camera} progress={progress} view={view} mobileThird={mobileThird} publicFrame={mobile ? presentation : undefined} />
-    {(cockpit || progress>0) && <Ship domeMenu={domeMenu} onShows={cockpit && progress===1 ? ()=>setDomeMenu(current=>toggleDomeMenu(current,"shows")) : undefined} onMerch={cockpit && progress===1 ? ()=>setDomeMenu(current=>toggleDomeMenu(current,"merch")) : undefined} onNewsletter={cockpit && progress===1 ? ()=>setNewsletterOpen(true) : undefined} onTV={cockpit && progress===1 ? ()=>tvController.current?.open() : undefined} liveTv={!!tvVisible} config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
+    {(cockpit || progress>0) && <Ship onTvLayer={setTvDockHost} domeMenu={domeMenu} onShows={cockpit && progress===1 ? ()=>setDomeMenu(current=>toggleDomeMenu(current,"shows")) : undefined} onMerch={cockpit && progress===1 ? ()=>setDomeMenu(current=>toggleDomeMenu(current,"merch")) : undefined} onNewsletter={cockpit && progress===1 ? ()=>setNewsletterOpen(true) : undefined} onTV={cockpit && progress===1 ? ()=>tvController.current?.open() : undefined} liveTv={!!tvVisible} config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
     {cockpit && newsletterOpen && <NewsletterDialog viewport={viewport} onClose={()=>setNewsletterOpen(false)} />}
     {cockpit && arcadeOpen && <ArcadeDialog viewport={viewport} onExit={() => setArcadeOpen(false)} />}
     </div>
@@ -138,7 +139,7 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
       left:0,top:0,width:view.width,height:view.height,transformOrigin:'0 0',
       transform:`translate(${viewport.left+viewport.view.width/2}px,${viewport.top+viewport.view.height/2}px) scale(${presentationScale}) rotate(${presentation.angle}deg) translate(${-view.width/2}px,${-view.height/2}px)`,
     } as React.CSSProperties : {'--tv-turn':`${-viewport.screenAngle}deg`} as React.CSSProperties} data-portrait-first={!thirdActive && mobile && viewport.landscape || undefined}>
-      <PortableTV dock={tvDock} controllerRef={tvController} />
+      <PortableTV dockHost={thirdActive?tvDockHost:null} dock={tvDock} controllerRef={tvController} />
     </div>
     {development && preview && <button type="button" onClick={()=>setPreviewCockpit(value=>!value)} style={{position:'fixed',bottom:8,right:8,zIndex:30001,background:'#00082d',color:'white',border:'1px solid white',padding:8}}>Preview {cockpit ? '1st' : '3rd'} person</button>}
     {notice && <div role="status" className="mate-notice">{notice}<button onClick={()=>setNotice('')} aria-label="Dismiss message">×</button></div>}

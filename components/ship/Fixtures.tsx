@@ -6,10 +6,10 @@ import {UPCOMING_POSTERS,type DomeMenu} from '@/lib/ship/domeNavigation';
 import styles from './ship.module.css';
 import {rasterPoster} from '@/lib/ship/posterRaster';
 
-type Props = { config: DomeConfig; view: Viewport; onArcade?: () => void; onTV?:()=>void; onNewsletter?:()=>void; onShows?:()=>void; onMerch?:()=>void; domeMenu?:DomeMenu; liveTv?:boolean };
+type Props = { config: DomeConfig; view: Viewport; onArcade?: () => void; onTV?:()=>void; onNewsletter?:()=>void; onShows?:()=>void; onMerch?:()=>void; domeMenu?:DomeMenu; liveTv?:boolean; reading?:boolean };
 
 /** Crude world-space solids: no owned items, controls, playback or inventory state. */
-export const Fixtures = memo(function Fixtures({ config, view, onArcade, onTV, onNewsletter, onShows, onMerch, domeMenu=null, liveTv=false }: Props) {
+export const Fixtures = memo(function Fixtures({ config, view, onArcade, onTV, onNewsletter, onShows, onMerch, domeMenu=null, liveTv=false,reading=false }: Props) {
   const outlineId=useId();
   const [pressed,setPressed]=useState<'tv'|'arcade'|'newsletter'|'shows'|'merch'|null>(null);
   const interaction=(name:'tv'|'arcade'|'newsletter'|'shows'|'merch',action?:()=>void)=>({
@@ -317,10 +317,10 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
         return <g stroke="#bc9865" strokeWidth="1"><path d={path(rim(.45))} fill="#62452d" /><path d={path(rim(.55))} fill={`url(#${outlineId}-wood)`} /></g>;
       })()}
       {[-.7,-.45,-.18,.12,.4,.66].map((z,i)=>{const w=Math.sqrt(1.05**2-z*z)*.91;return <path key={z} d={path(Array.from({length:25},(_,j)=>{const x=-w+j/24*w*2;return local(table,x,.553,z+.017*Math.sin(x*8+i));}))} fill="none" stroke={i%2?'#d2a470':'#66452d'} strokeOpacity=".28" strokeWidth=".65"/>;})}
-      <g className="newsletter-fixture">
+      {!reading && <g className="newsletter-fixture">
       {box(table,-.17,.55,0,.51,.025,.74,'#eee5cd')}
       {flatArt(table,-.17,.58,.13,.43,<g><text textAnchor="middle" fill="#000" fontSize="14" fontFamily="HyperFixBlackletter, serif">The Hyper-Fix</text><text y="17" textAnchor="middle" fill="#222" fontSize="8">CURRENT ISSUE</text></g>,'horizontal')}
-      </g>
+      </g>}
     </g>
   </svg>;
 });

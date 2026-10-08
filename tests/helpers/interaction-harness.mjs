@@ -41,7 +41,7 @@ export function harness(width = 1280, height = 720, mode = 'arcade', frame) {
   const rules = compile('components/home/WishRules.tsx',{});
   const physics = compile('components/home/wishPhysics.ts',{});
   const dependencies = {'./presentation':presentation,'./discharge':electricalMath,'./useOrbitDischarge':electricalHook,'../home/useScopedLifecycle':lifecycle,'../home/PlanetHeart':{default:()=>null},'./arcade.css':{},'./useScopedLifecycle':lifecycle,'./WishRules':rules,'./wishes.css':{}};
-  const game = mode === 'tv' ? compile('components/home/PortableTV.tsx',{},source=>source.replace('return (','inspect({tvExpanded,tvStarted}); return (')) : compile(mode === 'arcade' ? 'components/arcade/ArcadeGame.tsx' : 'components/home/DomeWishes.tsx',dependencies,source => source.replace(mode === 'arcade' ? 'return (\n  <div ref={gameRoot}' : 'return <>',`inspect({${fields.join(',')}});\n${mode === 'arcade' ? 'return (\n  <div ref={gameRoot}' : 'return <>'}`));
+  const game = mode === 'tv' ? compile('components/home/PortableTV.tsx',{},source=>source.replace('const content = (','inspect({tvExpanded,tvStarted}); const content = (')) : compile(mode === 'arcade' ? 'components/arcade/ArcadeGame.tsx' : 'components/home/DomeWishes.tsx',dependencies,source => source.replace(mode === 'arcade' ? 'return (\n  <div ref={gameRoot}' : 'return <>',`inspect({${fields.join(',')}});\n${mode === 'arcade' ? 'return (\n  <div ref={gameRoot}' : 'return <>'}`));
   const rootListeners=new Map();
   const captured=new Set();
   const surface={

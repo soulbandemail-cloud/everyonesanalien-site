@@ -118,7 +118,7 @@
 .cockpit-interactive-fixture[aria-disabled="false"]:is(:hover,:focus-visible) { transform:scale(1.25); filter:var(--fixture-hover-filter); outline:none; }
 .cockpit-interactive-fixture[data-pressed], .ringer-tee-display:active { transform:scale(.9) !important; filter:none !important; outline:none; }
 /* The live screen follows the TV's SVG body, using the same screen-centre pivot. */
-.public-tv-frame .space-tv[data-console]:not(.space-tv-expanded) { pointer-events:none; }
+.space-tv[data-console]:not(.space-tv-expanded) { pointer-events:none; }
 .space-tv[data-console]:not(.space-tv-expanded) .space-tv-body { transition:transform 120ms ease; }
 .mate-experience:has(.console-tv[aria-disabled="false"]:is(:hover,:focus-visible)) .space-tv[data-console]:not(.space-tv-expanded) .space-tv-body { transform:scale(1.25); }
 .mate-experience:has(.console-tv[data-pressed]) .space-tv[data-console]:not(.space-tv-expanded) .space-tv-body { transform:scale(.9); }
@@ -172,3 +172,7 @@ button.object-back:focus-visible { text-decoration:none; }
 
 /* A quick tap must reach the pressed size before release, even without prior hover. */
 .cockpit-interactive-fixture[data-pressed] { transition:none; }
+
+/* Keep the same iframe mounted while expanding above the moving character. */
+.cockpit-tv-layer:has(.space-tv-expanded) { z-index:100 !important; }
+.cockpit-tv-layer .space-tv-expanded { position:absolute; inset:0; width:100%; height:100%; pointer-events:auto; }

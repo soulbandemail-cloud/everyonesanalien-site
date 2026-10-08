@@ -1,4 +1,4 @@
-import {useId,type CSSProperties} from 'react';
+import {useId,useState,type CSSProperties} from 'react';
 import { Alien, type Attention } from './Alien';
 import { ConsoleDetails } from './ConsoleDetails';
 import styles from './ship.module.css';
@@ -6,9 +6,10 @@ import { project, type DomeConfig, type Viewport, type Vec3 } from '@/lib/ship/d
 import { ROOM, pilotPosition, platformY, polygonPath } from '@/lib/ship/roomGeometry';
 import {COMMAND_DECK,commandWall,commandDeck,commandFront,commandStairs} from '@/lib/ship/commandDeck';
 
-type PilotMezzanineProps = {attention:Attention;config:DomeConfig;view:Viewport};
-export function PilotMezzanine({ attention, config, view }: PilotMezzanineProps) {
+type PilotMezzanineProps = {attention:Attention;config:DomeConfig;view:Viewport; seated?:boolean;onChair?:()=>void};
+export function PilotMezzanine({ attention, config, view, seated=true,onChair }: PilotMezzanineProps) {
  const id=useId();
+ const [pressed,setPressed]=useState(false);
  const floorAnchor=project(pilotPosition,config,view);
  const pilot=project({...pilotPosition,y:pilotPosition.y+ROOM.pilotSeatLift},config,view);
  const path=(points:Vec3[])=>polygonPath(points,config,view);
@@ -18,6 +19,9 @@ export function PilotMezzanine({ attention, config, view }: PilotMezzanineProps)
  const back=Array.from({length:33},(_,i)=>bankPoint(COMMAND_DECK.halfWidth*(1-i/16),COMMAND_DECK.deskY));
  const panel=(x:number,width:number,bottom:number,top:number)=>path([bankPoint(x-width/2,bottom),bankPoint(x+width/2,bottom),bankPoint(x+width/2,top),bankPoint(x-width/2,top)]);
  return <div className={styles.pilotMezzanine}>
+ <svg width="0" height="0" aria-hidden="true" style={{position:'absolute'}}><defs><filter id={`${id}-chair-outline`} x="-100%" y="-100%" width="300%" height="300%" colorInterpolationFilters="sRGB">
+ <feGaussianBlur in="SourceAlpha" stdDeviation="2.5" result="soft"/><feComponentTransfer in="soft" result="expanded"><feFuncA type="linear" slope="12" intercept="-1.5"/></feComponentTransfer><feComposite in="expanded" in2="SourceAlpha" operator="out" result="edge"/><feFlood floodColor="#6ee7b7" result="mint"/><feComposite in="mint" in2="edge" operator="in" result="outline"/><feMerge><feMergeNode in="outline"/><feMergeNode in="SourceGraphic"/></feMerge>
+ </filter></defs></svg>
  <svg className={styles.platform} width={view.width} height={view.height} role="img" aria-label="Compact curved command deck with a small central three-step staircase">
   <defs><linearGradient id={`${id}-deck`} x2="0" y2="1"><stop stopColor="#425351"/><stop offset="1" stopColor="#2c4045"/></linearGradient><radialGradient id={`${id}-shadow`}><stop stopColor="#030a10" stopOpacity=".65"/><stop offset="1" stopColor="#030a10" stopOpacity="0"/></radialGradient><linearGradient id={`${id}-ambient`}><stop stopColor="#deb884" stopOpacity="0"/><stop offset=".25" stopColor="#deb884" stopOpacity=".035"/><stop offset=".5" stopColor="#deb884" stopOpacity=".075"/><stop offset=".75" stopColor="#deb884" stopOpacity=".035"/><stop offset="1" stopColor="#deb884" stopOpacity="0"/></linearGradient><clipPath id={`${id}-stage-top`}><path d={path(commandDeck(config))}/></clipPath><radialGradient id={`${id}-parapet-bounce`}><stop stopColor="#e4b874" stopOpacity=".09"/><stop offset=".45" stopColor="#d4a565" stopOpacity=".035"/><stop offset="1" stopColor="#d4a565" stopOpacity="0"/></radialGradient></defs>
   <path d={path([...commandFront(config),...commandFront(config,ROOM.floorY).reverse()])} fill="#263a40"/>
@@ -66,6 +70,9 @@ export function PilotMezzanine({ attention, config, view }: PilotMezzanineProps)
    <path d={path([...deskFront,...[...deskFront].reverse().map(p=>({...p,y:platformY}))])}/>
   </g>
  </svg>
- <div className={styles.pilotOccupant} style={{left:pilot.x,top:pilot.y,width:ROOM.alienWidth*pilot.scale,height:ROOM.alienHeight*pilot.scale,"--seat-lift":`${floorAnchor.y-pilot.y}px`,visibility:pilot.visible?'visible':'hidden'} as CSSProperties}><Alien attention={attention}/></div>
+ <div className={styles.pilotOccupant} style={{left:pilot.x,top:pilot.y,width:ROOM.alienWidth*pilot.scale,height:ROOM.alienHeight*pilot.scale,"--seat-lift":`${floorAnchor.y-pilot.y}px`,visibility:pilot.visible?'visible':'hidden'} as CSSProperties}><div role="button" aria-label="Sit in pilot chair" aria-disabled={seated||!onChair} tabIndex={!seated&&onChair?0:-1} onClick={!seated?onChair:undefined}
+ onPointerDown={event=>{if(!seated&&onChair&&event.button===0){event.currentTarget.setPointerCapture(event.pointerId);setPressed(true);}}} onPointerUp={()=>setPressed(false)} onPointerCancel={()=>setPressed(false)} onBlur={()=>setPressed(false)}
+ onKeyDown={event=>{if(!seated&&onChair&&(event.key==='Enter'||event.key===' ')){event.preventDefault();setPressed(true);}}} onKeyUp={event=>{if(pressed&&(event.key==='Enter'||event.key===' ')){event.preventDefault();setPressed(false);onChair?.();}}}
+ data-pressed={pressed||undefined} style={{'--fixture-hover-filter':`url(#${id}-chair-outline)`} as CSSProperties} className={`${styles.chairInteractable} cockpit-interactive-fixture`}><Alien attention={attention} occupant={seated} facing={seated?undefined:180}/></div></div>
  </div>;
 }

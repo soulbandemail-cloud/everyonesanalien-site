@@ -1,29 +1,31 @@
 import { useLayoutEffect, useRef } from 'react';
 import { pilotChairVolume } from '@/lib/ship/pilotChairVolume';
-import { alienVolume, alienLookYaw, advanceAlienYaw } from '@/lib/ship/alienVolume';
+import { alienVolume, alienLookYaw, advanceAlienYaw, type AlienMotion } from '@/lib/ship/alienVolume';
 import styles from './ship.module.css';
 export type Attention = { x: number; back: number; down: number };
-export function Alien({ attention }: { attention: Attention }) {
+export function Alien({ attention, chair=true, occupant=true, facing, standing=false, motion={} }: { attention: Attention; chair?:boolean; occupant?:boolean; facing?:number; standing?:boolean; motion?:AlienMotion }) {
  const canvas=useRef<HTMLCanvasElement>(null);
- const yaw = alienLookYaw(attention.x,attention.back);
- const target=useRef({yaw,down:attention.down});
- useLayoutEffect(()=>{target.current={yaw,down:attention.down};},[yaw,attention.down]);
+ const yaw = facing ?? alienLookYaw(attention.x,attention.back);
+ const target=useRef({yaw,down:attention.down,chair,occupant,standing,motion});
+ useLayoutEffect(()=>{target.current={yaw,down:attention.down,chair,occupant,standing,motion};},[yaw,attention.down,chair,occupant,standing,motion]);
  useLayoutEffect(()=>{
   const context=canvas.current?.getContext('2d');
   if(!context)return;
   let frame=0,previous=performance.now(),currentYaw=target.current.yaw;
-  let paintedYaw=NaN,paintedDown=NaN;
+  let paintedYaw=NaN,paintedDown=NaN,paintedMode="";
   const draw=(time:number)=>{
   const dt=Math.min((time-previous)/1000,.05);previous=time;
   currentYaw=advanceAlienYaw(currentYaw,target.current.yaw,dt);
   const down=target.current.down;
-  if(currentYaw!==paintedYaw || down!==paintedDown){
+  const mode=`${target.current.chair}-${target.current.occupant}-${target.current.standing}-${JSON.stringify(target.current.motion)}`;
+  if(currentYaw!==paintedYaw || down!==paintedDown || mode!==paintedMode){
+  paintedMode=mode;
   paintedYaw=currentYaw;paintedDown=down;
   // Draw the same depth-sorted surfaces without reconciling thousands of SVG
   // elements on every pointer frame. Extra space above accommodates the neck.
-  context.setTransform(2,0,0,2,0,60);
-  context.clearRect(0,-30,180,280);
-  const mesh=[...alienVolume(currentYaw,down),...pilotChairVolume(currentYaw)].sort((a,b)=>a.depth-b.depth);
+  context.setTransform(2,0,0,2,0,140);
+  context.clearRect(0,-70,180,320);
+  const mesh=[...(target.current.occupant?alienVolume(currentYaw,down,target.current.standing,target.current.motion):[]),...(target.current.chair?pilotChairVolume(currentYaw):[])].sort((a,b)=>a.depth-b.depth);
   context.lineWidth=.3;context.lineJoin='round';
   for(const face of mesh){
    const path=new Path2D(face.d);
@@ -37,7 +39,7 @@ export function Alien({ attention }: { attention: Attention }) {
   return ()=>cancelAnimationFrame(frame);
  },[]);
  return <div className={styles.alien} aria-label="Seated alien sharing your attention">
- <div className={styles.chairStem} aria-hidden="true"/>
- <canvas ref={canvas} width={360} height={560} style={{position:'absolute',top:'-12%',width:'100%',height:'112%'}} aria-hidden="true"/>
- <div className={styles.chairBase}/></div>;
+ {chair && <div className={styles.chairStem} aria-hidden="true"/>}
+ <canvas ref={canvas} width={360} height={640} style={{position:'absolute',top:'-28%',width:'100%',height:'128%'}} aria-hidden="true"/>
+ {chair && <div className={styles.chairBase}/>}</div>;
 }

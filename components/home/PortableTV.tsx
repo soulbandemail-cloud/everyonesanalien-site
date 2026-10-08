@@ -1,11 +1,12 @@
 "use client";
+import {createPortal} from 'react-dom';
 import { useImperativeHandle, useState, type Ref } from 'react';
 export type TvController = { open:()=>void };
-export default function PortableTV({dock,controllerRef}:{dock?:{x:number;y:number;scale:number};controllerRef?:Ref<TvController>} = {}) {
+export default function PortableTV({dock,controllerRef,dockHost}:{dock?:{x:number;y:number;scale:number};controllerRef?:Ref<TvController>;dockHost?:HTMLElement|null} = {}) {
  const [tvExpanded, setTvExpanded] = useState(false);
  const [tvStarted, setTvStarted] = useState(false);
  useImperativeHandle(controllerRef,()=>({open(){setTvStarted(true);setTvExpanded(true);}}),[]);
-return (
+const content = (
   <aside
     data-console={!!dock || undefined}
     style={dock && !tvExpanded ? {left:dock.x,top:dock.y,right:'auto',bottom:'auto',width:84,height:36,transform:`scale(${dock.scale})`,transformOrigin:'0 0','--tv-dock-scale':dock.scale} as React.CSSProperties : undefined}
@@ -43,5 +44,6 @@ return (
     {tvExpanded && <button type="button" className="space-tv-close object-back" onClick={()=>setTvExpanded(false)}>BACK</button>}
   </aside>
 );
+return dock && dockHost ? createPortal(content,dockHost) : content;
 
 }
