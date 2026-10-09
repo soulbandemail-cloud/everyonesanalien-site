@@ -19,6 +19,7 @@ import {
 
 export default function CanonicalHomepage({ cockpit, loginEnabled, config, view, animateEntry = false, camera = config, progress = cockpit ? 1 : 0, mobileThird=false, publicFrame, domeMenu=null }: { cockpit: boolean; loginEnabled: boolean; config: DomeConfig; view: Viewport; animateEntry?: boolean; camera?: DomeConfig; progress?: number; mobileThird?:boolean; publicFrame?:{view:Viewport;angle:number};domeMenu?:DomeMenu }) {
  const teeOutlineId=useId();
+ const letterWeightId=useId();
  const homeRoot = useRef<HTMLDivElement>(null);
  // Blend the live header toward the final dome frame. The travelling eye crosses
  // that surface near its start; projecting through it would fling the header offscreen.
@@ -83,9 +84,15 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
           
 
           <div className="flex items-center justify-center w-full mt-0">
-            <svg data-dome-rules aria-hidden="true"><path fill="none" stroke="white" strokeWidth="2" /></svg>
+            <svg data-dome-rules aria-hidden="true">
+              <defs><filter id={letterWeightId} x="-60%" y="-60%" width="220%" height="220%" colorInterpolationFilters="sRGB">
+                <feMorphology in="SourceAlpha" operator="erode" radius="1.3" result="lighter-ink" />
+                <feComposite in="SourceGraphic" in2="lighter-ink" operator="in" />
+              </filter></defs>
+              <path fill="none" stroke="white" strokeWidth="2" />
+            </svg>
 
-            <h1 aria-label="SOUL" className="soul-wordmark relative z-10 font-bold text-center flex justify-center items-center text-white shrink-0">
+            <h1 aria-label="SOUL" style={{"--soul-letter-weight":`url(#${letterWeightId})`} as CSSProperties} className="soul-wordmark relative z-10 font-bold text-center flex justify-center items-center text-white shrink-0">
               <span data-soul-letter="S">S<i data-ink-baseline /></span>
 
               <RealPlanetHeart />
