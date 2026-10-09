@@ -24,7 +24,8 @@ const heart=component('components/home/RealPlanetHeart.tsx',{'@/lib/ship/wordmar
 const room=component('lib/ship/roomGeometry.ts',{'./domeGeometry':geometry});
 const transition=component('lib/ship/cameraTransition.ts',{'./roomGeometry':room});
 const exterior=component('lib/ship/exteriorSpace.ts',{'./domeGeometry':geometry,'./cameraTransition':transition});
-const space=component('components/home/ExteriorSpace.tsx',{'./exterior.css':{},'@/lib/ship/domeGeometry':geometry,'@/lib/ship/exteriorSpace':exterior});
+const starfield=component('lib/ship/starfield.ts');
+const space=component('components/home/ExteriorSpace.tsx',{'@/lib/ship/starfield':starfield,'./exterior.css':{},'@/lib/ship/domeGeometry':geometry,'@/lib/ship/exteriorSpace':exterior});
 const page=component('components/home/CanonicalHomepage.tsx',{'@/public/soul-ringer-tee.png':{default:{src:'/soul-ringer-tee.png',width:1397,height:1126}},'@/lib/ship/domeGeometry':geometry,'./ExteriorSpace':space,'@/lib/ship/exteriorSpace':exterior,'./DomeWishes':wishes,'./PortableTV':tv,'./RealPlanetHeart':heart,'./useDomeProjection':{useDomeProjection:()=>{}},'@/components/mate/MatePanel':panel});
 const render=cockpit=>renderToStaticMarkup(React.createElement(page.default,{cockpit,loginEnabled:true,config:geometry.DEFAULT_DOME,view:{width:1440,height:900}}));
 const links=html=>[...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/gs)].map(m=>[m[1],m[2]]);
@@ -88,12 +89,12 @@ test('third-person menus share the centre while keeping the original live conten
 
 test('public atmosphere stays intact and Wish UI/rules are absent before a catch',()=>{
  const html=render(false);
- assert.match(html,/class="stars"/);
+ assert.match(html,/class="exterior-sky"/);
  assert.equal((html.match(/class="shooting-star /g)||[]).length,11);
  assert.doesNotMatch(html,/aria-label="Wish Rules"|wish-rules-box|MAKE A WISH|Rule 1:/);
  assert.doesNotMatch(render(true),/wish-rules-box|wish-box/);
  assert.match(render(true),/exterior-shooting-inactive/);
- assert.match(render(true),/class="stars"/);
+ assert.match(render(true),/class="exterior-sky"/);
  const rulesSource=fs.readFileSync('components/home/WishRules.tsx','utf8');
  assert.doesNotMatch(rulesSource,/useState|useEffect|onClick|onPointer|setInterval|ArcadeGame/);
 });

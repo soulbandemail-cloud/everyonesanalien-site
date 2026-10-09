@@ -528,78 +528,78 @@ body {
   top: 24%;
   left: -35%;
   opacity: 1;
-  animation: shooting-star-launch 2.2s ease-out 3s forwards;
+  animation: shooting-star-launch 2.2s ease-out 6s forwards;
 }
 
 /* sparse background stars */
 .shooting-star-1 {
   top: 18%;
   left: -30%;
-  animation: shooting-star-one 32s ease-in-out infinite;
-  animation-delay: 4s;
+  animation: shooting-star-one 64s ease-in-out infinite;
+  animation-delay: 8s;
 }
 
 .shooting-star-2 {
   top: 45%;
   left: -30%;
-  animation: shooting-star-two 32s ease-in-out infinite;
-  animation-delay: 10s;
+  animation: shooting-star-two 64s ease-in-out infinite;
+  animation-delay: 20s;
 }
 
 .shooting-star-3 {
   top: 72%;
   right: -30%;
-  animation: shooting-star-three 32s ease-in-out infinite;
-  animation-delay: 16s;
+  animation: shooting-star-three 64s ease-in-out infinite;
+  animation-delay: 32s;
 }
 
 .shooting-star-4 {
   top: -20%;
   left: 22%;
-  animation: shooting-star-four 32s ease-in-out infinite;
-  animation-delay: 22s;
+  animation: shooting-star-four 64s ease-in-out infinite;
+  animation-delay: 44s;
 }
 
 .shooting-star-5 {
   bottom: -20%;
   left: 66%;
-  animation: shooting-star-five 32s ease-in-out infinite;
-  animation-delay: 28s;
+  animation: shooting-star-five 64s ease-in-out infinite;
+  animation-delay: 56s;
 }
 
 .shooting-star-6 {
   top: 58%;
   right: -35%;
-  animation: shooting-star-six 32s ease-in-out infinite;
-  animation-delay: 34s;
+  animation: shooting-star-six 64s ease-in-out infinite;
+  animation-delay: 68s;
 }
 
 .shooting-star-7 {
   bottom: -20%;
   left: 12%;
-  animation: shooting-star-seven 32s ease-in-out infinite;
-  animation-delay: 40s;
+  animation: shooting-star-seven 64s ease-in-out infinite;
+  animation-delay: 80s;
 }
 
 .shooting-star-8 {
   top: -25%;
   left: 78%;
-  animation: shooting-star-eight 32s ease-in-out infinite;
-  animation-delay: 46s;
+  animation: shooting-star-eight 64s ease-in-out infinite;
+  animation-delay: 92s;
 }
 
 .shooting-star-9 {
   top: 48%;
   left: -25%;
-  animation: shooting-star-nine 32s ease-in-out infinite;
-  animation-delay: 52s;
+  animation: shooting-star-nine 64s ease-in-out infinite;
+  animation-delay: 104s;
 }
 
 .shooting-star-10 {
   top: 90%;
   right: -20%;
-  animation: shooting-star-ten 32s ease-in-out infinite;
-  animation-delay: 58s;
+  animation: shooting-star-ten 64s ease-in-out infinite;
+  animation-delay: 116s;
 }
 
 @keyframes shooting-star-launch {
@@ -624,12 +624,12 @@ body {
     transform: translate(0, 0) rotate(9deg);
   }
 
-  8%,
-  18% {
+  4%,
+  9% {
     opacity: 0.9;
   }
 
-  30%,
+  15%,
   100% {
     opacity: 0;
     transform: translate(145vw, 23vh) rotate(9deg);
@@ -642,12 +642,12 @@ body {
     transform: translate(0, 0) rotate(-11deg);
   }
 
-  8%,
-  18% {
+  4%,
+  9% {
     opacity: 0.75;
   }
 
-  30%,
+  15%,
   100% {
     opacity: 0;
     transform: translate(145vw, -28vh) rotate(-11deg);
@@ -660,12 +660,12 @@ body {
     transform: translate(0, 0) rotate(196deg);
   }
 
-  8%,
-  18% {
+  4%,
+  9% {
     opacity: 0.75;
   }
 
-  30%,
+  15%,
   100% {
     opacity: 0;
     transform: translate(-145vw, 36vh) rotate(196deg);
@@ -678,12 +678,12 @@ body {
     transform: translate(0, 0) rotate(78deg);
   }
 
-  8%,
-  18% {
+  4%,
+  9% {
     opacity: 0.85;
   }
 
-  30%,
+  15%,
   100% {
     opacity: 0;
     transform: translate(18vw, 130vh) rotate(78deg);
@@ -696,12 +696,12 @@ body {
     transform: translate(0, 0) rotate(-102deg);
   }
 
-  8%,
-  18% {
+  4%,
+  9% {
     opacity: 0.75;
   }
 
-  30%,
+  15%,
   100% {
     opacity: 0;
     transform: translate(-12vw, -130vh) rotate(-102deg);
@@ -714,12 +714,12 @@ body {
     transform: translate(0, 0) rotate(188deg);
   }
 
-  8%,
-  18% {
+  4%,
+  9% {
     opacity: 0.75;
   }
 
-  30%,
+  15%,
   100% {
     opacity: 0;
     transform: translate(-150vw, -18vh) rotate(188deg);
@@ -732,12 +732,12 @@ body {
     transform: translate(0, 0) rotate(-72deg);
   }
 
-  8%,
-  18% {
+  4%,
+  9% {
     opacity: 0.85;
   }
 
-  30%,
+  15%,
   100% {
     opacity: 0;
     transform: translate(34vw, -140vh) rotate(-72deg);
@@ -750,12 +750,12 @@ body {
     transform: translate(0, 0) rotate(104deg);
   }
 
-  8%,
-  18% {
+  4%,
+  9% {
     opacity: 0.8;
   }
 
-  30%,
+  15%,
   100% {
     opacity: 0;
     transform: translate(-30vw, 150vh) rotate(104deg);
@@ -768,12 +768,12 @@ body {
     transform: translate(0, 0) rotate(5deg);
   }
 
-  8%,
-  18% {
+  4%,
+  9% {
     opacity: 0.7;
   }
 
-  30%,
+  15%,
   100% {
     opacity: 0;
     transform: translate(150vw, 12vh) rotate(5deg);
@@ -786,12 +786,12 @@ body {
     transform: translate(0, 0) rotate(205deg);
   }
 
-  8%,
-  18% {
+  4%,
+  9% {
     opacity: 0.8;
   }
 
-  30%,
+  15%,
   100% {
     opacity: 0;
     transform: translate(-145vw, -32vh) rotate(205deg);

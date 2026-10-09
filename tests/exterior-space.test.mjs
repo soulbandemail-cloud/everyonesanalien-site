@@ -25,11 +25,11 @@ test('distant star plane starts at the public layout and moves continuously with
  assert.doesNotMatch(source('components/home/ExteriorSpace.tsx'),/Math.random|cockpit|Date.now/);
  assert.doesNotMatch(source('components/ship/Ship.tsx'),/styles.space|73.31|31.71/);
 });
-test('exterior retains the same four-point twinkle and shooting animations behind ship structure',()=>{
+test('exterior keeps stationary stars and shooting animations behind ship structure',()=>{
  const css=source('app/globals.css');
  assert.match(css,/50% 0%,[\s\S]*58% 42%,[\s\S]*100% 50%/);
  assert.match(css,/animation: star-glint/);assert.match(css,/@keyframes shooting-star-one/);
- assert.match(source('components/home/ExteriorSpace.tsx'),/className="stars"/);
+ assert.match(source('components/home/ExteriorSpace.tsx'),/className="exterior-sky"/);
  assert.match(source('components/home/exterior.css'),/z-index:-1; pointer-events:none/);
  assert.match(source('components/ship/ship.module.css'),/\.ship \{[^}]*z-index: 2/);
  assert.match(source('components/home/DomeWishes.tsx'),/if \(!active\) return/);
@@ -92,4 +92,21 @@ test('dome frame maps DOM corners onto the spherical samples across desktop and 
    }
   }
  }
+});
+
+const sky=load('lib/ship/starfield.ts');
+test('stationary sky is seeded, predominantly tiny and includes a sparse bright population',()=>{
+ const stars=sky.skyStars();assert.deepEqual(stars,sky.skyStars());
+ assert.ok(stars.length>2000);assert.ok(stars.filter(s=>s.radius<.65).length>stars.length*.9);
+ assert.ok(stars.filter(s=>s.spike).length>0);assert.ok(stars.filter(s=>s.spike).length<stars.length*.01);
+ assert.ok(stars.every(s=>Number.isFinite(s.x+s.y+s.alpha)));
+});
+test('shooting-star cycles halve frequency without slowing their active flight',()=>{
+ const css=source('app/globals.css');
+ for(const name of ['one','two','three','four','five','six','seven','eight','nine','ten']){
+  assert.ok(css.includes('shooting-star-'+name+' 64s ease-in-out'));
+  const keyframes=css.split('@keyframes shooting-star-'+name+' {')[1].split('@keyframes')[0];
+  assert.match(keyframes,/4%,\s*9%/);assert.match(keyframes,/15%,\s*100%/);
+ }
+ assert.equal(64*.15,32*.30);
 });
