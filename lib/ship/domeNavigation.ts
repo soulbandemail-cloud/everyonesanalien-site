@@ -1,5 +1,5 @@
 import type {Viewport} from './domeGeometry';
-export type DomeMenu = 'shows' | 'merch' | null;
+export type DomeMenu = 'shows' | 'merch' | 'records' | null;
 export function toggleDomeMenu(current:DomeMenu,requested:Exclude<DomeMenu,null>):DomeMenu {
  return current===requested ? null : requested;
 }

@@ -142,3 +142,12 @@ test('tee uses a visible SVG silhouette and preserves its Square link in both vi
   assert.doesNotMatch(html,/<svg width="0" height="0"/);
  }
 });
+
+ test('Records uses the existing centre content slot with only the coming-soon placeholder',()=>{
+  const html=renderToStaticMarkup(React.createElement(page.default,{cockpit:true,loginEnabled:true,config:geometry.DEFAULT_DOME,view:{width:1440,height:900},domeMenu:'records'}));
+  const section=html.match(/<section data-dome-slot="live"[^>]*>(.*?)<\/section>/s)[1];
+  assert.match(section,/>THE RECORDS<\/h2>/);
+  assert.match(section,/<p>coming soon <span class="animate-pulse">_<\/span><\/p>/);
+  assert.doesNotMatch(section,/<a|<button|<audio|THE SHOWS/);
+  assert.doesNotMatch(render(false),/THE RECORDS/);
+ });

@@ -106,6 +106,10 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
 
         <div className="grid gap-8 md:gap-16 md:grid-cols-3 mt-2 mb-4 md:mb-16">
           <section data-dome-slot="live" className="md:col-start-1 mt-4 md:mt-0 md:max-w-sm md:mx-auto">
+            {cockpit && domeMenu==='records' ? <>
+              <h2 className="text-2xl mb-4">THE RECORDS</h2>
+              <p>coming soon <span className="animate-pulse">_</span></p>
+            </> : <>
             <h2 className="text-2xl mb-4">THE SHOWS</h2>
 
 
@@ -115,6 +119,7 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
               <span className="animate-pulse">_</span>
             </p>
             </ul>
+            </>}
 
           </section>
 

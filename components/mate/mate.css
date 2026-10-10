@@ -164,6 +164,7 @@ button.object-back:focus-visible { text-decoration:none; }
 
 /* The same live content is revealed by the physical room objects, never duplicated. */
 .on-glass [data-dome-slot="live"], .on-glass [data-dome-slot="merch"] { visibility:hidden; pointer-events:none; }
+.on-glass[data-dome-menu="records"] [data-dome-slot="live"],
 .on-glass[data-dome-menu="shows"] [data-dome-slot="live"],
 .on-glass[data-dome-menu="merch"] [data-dome-slot="merch"] { visibility:visible; pointer-events:auto; }
 .canonical-home[data-returning] [data-dome-slot="live"],

@@ -88,7 +88,7 @@ test('mid-walk reversal turns in place quickly before resuming the configured tr
 
 test('engagement disables immediately, rejects repeats, and survives arrival until redirected',()=>{
  const h=movementHarness();let opens=0;
- for(const name of ['shows','merch','newsletter']){
+ for(const name of ['shows','merch','records','newsletter']){
   h.api.interact(name,()=>opens++);const count=opens;
   assert.equal(h.api.available(name),false);
   h.api.interact(name,()=>opens++);assert.equal(opens,count);

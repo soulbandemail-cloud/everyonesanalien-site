@@ -6,13 +6,13 @@ import {UPCOMING_POSTERS,type DomeMenu} from '@/lib/ship/domeNavigation';
 import styles from './ship.module.css';
 import {rasterPoster} from '@/lib/ship/posterRaster';
 
-type Props = { config: DomeConfig; view: Viewport; onArcade?: () => void; onTV?:()=>void; onNewsletter?:()=>void; onShows?:()=>void; onMerch?:()=>void; domeMenu?:DomeMenu; liveTv?:boolean; reading?:boolean };
+type Props = { config: DomeConfig; view: Viewport; onArcade?: () => void; onTV?:()=>void; onNewsletter?:()=>void; onShows?:()=>void; onMerch?:()=>void; onRecords?:()=>void; domeMenu?:DomeMenu; liveTv?:boolean; reading?:boolean };
 
 /** Crude world-space solids: no owned items, controls, playback or inventory state. */
-export const Fixtures = memo(function Fixtures({ config, view, onArcade, onTV, onNewsletter, onShows, onMerch, domeMenu=null, liveTv=false,reading=false }: Props) {
+export const Fixtures = memo(function Fixtures({ config, view, onArcade, onTV, onNewsletter, onShows, onMerch, onRecords, domeMenu=null, liveTv=false,reading=false }: Props) {
   const outlineId=useId();
-  const [pressed,setPressed]=useState<'tv'|'arcade'|'newsletter'|'shows'|'merch'|null>(null);
-  const interaction=(name:'tv'|'arcade'|'newsletter'|'shows'|'merch',action?:()=>void)=>({
+  const [pressed,setPressed]=useState<'tv'|'arcade'|'newsletter'|'shows'|'merch'|'records'|null>(null);
+  const interaction=(name:'tv'|'arcade'|'newsletter'|'shows'|'merch'|'records',action?:()=>void)=>({
     tabIndex:action ? 0 : -1, 'aria-disabled':!action, 'data-pressed':!!action && pressed===name || undefined,
     onClick:action,
     onPointerMove:(event:React.PointerEvent<SVGGElement>)=>{delete event.currentTarget.dataset.resting;},
@@ -155,7 +155,8 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
   {line(radio,[0,.6,.1],[.23,1.02,.1],'#bbae8c',1.5)}
   {[-.23,.23].map(x=><g key={x}>{flatArt(radio,x,1.02,.1,.05,<circle r="30" fill="#d4c7a1"/>)}</g>)}
 </g>
-    <g aria-label="Wooden record cabinet with gramophone, one stored EP sleeve and empty record stand">
+    <g className="gramophone-fixture cockpit-interactive-fixture" role="button" aria-label="Gramophone — THE RECORDS" aria-expanded={domeMenu==='records'} {...interaction('records',onRecords)} style={{pointerEvents:'auto'}}>
+      {onRecords && <title>THE RECORDS</title>}
       {[-1.3,1.3].flatMap(x=>[-.3,.28].map(z=><g key={`${x}-${z}`}><path d={path([local(music,x-.075,.2,z),local(music,x+.075,.2,z),local(music,x+.045,0,z-.035),local(music,x-.04,0,z-.035)])} fill="#67452d" stroke="#49321f" strokeWidth=".7"/></g>))}
       {box(music,0,.2,.3,2.85,.94,.09)}
       {box(music,0,.2,0,2.8,.1,.75)}

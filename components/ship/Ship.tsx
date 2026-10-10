@@ -16,10 +16,10 @@ import { GeometryCalibration } from './GeometryCalibration';
 import type {DomeMenu} from '@/lib/ship/domeNavigation';
 import styles from './ship.module.css';
 
-export default function Ship({ config, baseline, onConfigChange, hull, onHullChange, view, domeConfig=config, sharedSeam=false, reveal=1, development=false, preview=false, logout, busy, onArcade, onTV, onNewsletter, onShows, onMerch, domeMenu=null, arcadeOpen=false, liveTv=false, onTvLayer }: {
+export default function Ship({ config, baseline, onConfigChange, hull, onHullChange, view, domeConfig=config, sharedSeam=false, reveal=1, development=false, preview=false, logout, busy, onArcade, onTV, onNewsletter, onShows, onMerch, onRecords, domeMenu=null, arcadeOpen=false, liveTv=false, onTvLayer }: {
  config:DomeConfig; baseline:DomeConfig; onConfigChange:(config:DomeConfig)=>void;
  hull:HullConfig; onHullChange:(hull:HullConfig)=>void; view:Viewport;
- domeConfig?:DomeConfig; sharedSeam?:boolean; reveal?:number; development?:boolean; preview?:boolean; logout?:()=>void; busy?:boolean; onArcade?:()=>void; onTV?:()=>void; onNewsletter?:()=>void; onShows?:()=>void; onMerch?:()=>void; domeMenu?:DomeMenu; arcadeOpen?:boolean; liveTv?:boolean; onTvLayer?:(node:HTMLDivElement|null)=>void;
+ domeConfig?:DomeConfig; sharedSeam?:boolean; reveal?:number; development?:boolean; preview?:boolean; logout?:()=>void; busy?:boolean; onArcade?:()=>void; onTV?:()=>void; onNewsletter?:()=>void; onShows?:()=>void; onMerch?:()=>void; onRecords?:()=>void; domeMenu?:DomeMenu; arcadeOpen?:boolean; liveTv?:boolean; onTvLayer?:(node:HTMLDivElement|null)=>void;
 }) {
  const [attention, setAttention] = useState({ x: 0, back: 0, down: 0 });
  const movement=useCharlieMovement(config,alienLookYaw(attention.x,attention.back));
@@ -29,15 +29,16 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
   if(wasArcadeOpen.current&&!arcadeOpen)closeArcade();
   wasArcadeOpen.current=arcadeOpen;
  },[arcadeOpen,closeArcade]);
- const showsAvailable=available('shows'),merchAvailable=available('merch'),arcadeAvailable=available('arcade'),newsletterAvailable=available('newsletter'),chairAvailable=available('chair');
+ const recordsAvailable=available('records'),showsAvailable=available('shows'),merchAvailable=available('merch'),arcadeAvailable=available('arcade'),newsletterAvailable=available('newsletter'),chairAvailable=available('chair');
  const actions=useMemo(()=>({
+  records:onRecords&&recordsAvailable?()=>interact('records',onRecords):undefined,
   shows:onShows&&showsAvailable?()=>interact('shows',onShows):undefined,
   merch:onMerch&&merchAvailable?()=>interact('merch',onMerch):undefined,
   arcade:onArcade&&arcadeAvailable?()=>interact('arcade',onArcade):undefined,
   tv:onTV?()=>interact('tv',onTV):undefined,
   newsletter:onNewsletter&&newsletterAvailable?()=>interact('newsletter',onNewsletter):undefined,
   chair:chairAvailable?()=>interact('chair'):undefined,
- }),[interact,onShows,onMerch,onArcade,onTV,onNewsletter,showsAvailable,merchAvailable,arcadeAvailable,newsletterAvailable,chairAvailable]);
+ }),[interact,onRecords,recordsAvailable,onShows,onMerch,onArcade,onTV,onNewsletter,showsAvailable,merchAvailable,arcadeAvailable,newsletterAvailable,chairAvailable]);
  const root = useRef<HTMLDivElement>(null);
  const pointer = useRef({ x: 0, y: .25 });
  useEffect(() => {
@@ -94,7 +95,7 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
     const point=floorPoint(x,y,config,view);if(point)movement.walk(point);
    }}/>
   </svg>
-  <Fixtures reading={movement.state.paper>0} onShows={actions.shows} onMerch={actions.merch} domeMenu={domeMenu} config={config} view={view} onArcade={actions.arcade} onTV={actions.tv} onNewsletter={actions.newsletter} liveTv={liveTv} />
+  <Fixtures onRecords={actions.records} reading={movement.state.paper>0} onShows={actions.shows} onMerch={actions.merch} domeMenu={domeMenu} config={config} view={view} onArcade={actions.arcade} onTV={actions.tv} onNewsletter={actions.newsletter} liveTv={liveTv} />
   <PilotMezzanine attention={attention} config={config} view={view} seated={movement.state.mode==='pilot-seated'&&!movement.state.phase} onChair={reveal===1?actions.chair:undefined} />
   <div className="cockpit-tv-layer" ref={onTvLayer} style={{position:'absolute',inset:0,zIndex:7,pointerEvents:'none','--tv-frame-width':view.width+'px','--tv-frame-height':view.height+'px'} as React.CSSProperties}/>
   <WalkingCharlie state={movement.state} config={config} view={view}/>

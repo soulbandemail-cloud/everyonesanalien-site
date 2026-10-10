@@ -3,7 +3,7 @@ import {orientedFixtures,type FixturePlacement} from './fixtureLayout';
 import {ROOM,pilotPosition,platformY} from './roomGeometry';
 import {commandFront,commandStairs,COMMAND_DECK} from './commandDeck';
 export type Point={x:number;z:number};
-export type Destination='chair'|'merch'|'shows'|'tv'|'newsletter'|'arcade';
+export type Destination='chair'|'records'|'merch'|'shows'|'tv'|'newsletter'|'arcade';
 export type CharlieMode='pilot-seated'|'sofa-seated'|'walking'|'standing';
 export type Arrival={point:Point;yaw:number;mode:CharlieMode;seat?:Vec3;lookUp?:boolean;retainHeading?:boolean};
 export const clearance=.42;
@@ -13,7 +13,7 @@ export function approaches(c:DomeConfig):Record<Destination,Arrival>{
  const facing=(p:Point,q:Point)=>Math.atan2(p.x-q.x,q.z-p.z)*180/Math.PI;
  const approach=(fixture:FixturePlacement,x:number,z:number):Arrival=>{const point=localPoint(fixture,x,z);return {point,yaw:facing(point,fixture),mode:'standing'};};
  const sofa=approach(f.sofa,.95,-1.1),seat=localPoint(f.sofa,-.43,-.07);
- return {chair:{point:{x:0,z:6.55},yaw:0,mode:'pilot-seated'},tv:{point:{x:.95,z:6.65},yaw:facing({x:.95,z:6.65},f.radio),mode:'standing'},merch:approach(f.clothesRail,0,-1),arcade:approach(f.arcade,0,-1.18),shows:{...approach(f.sofa,.9,-1.55),lookUp:true},newsletter:{...sofa,mode:'sofa-seated',yaw:180-f.sofa.yaw*180/Math.PI,seat:{...seat,y:ROOM.floorY+.59*f.sofa.scale-.4}}};
+ return {chair:{point:{x:0,z:6.55},yaw:0,mode:'pilot-seated'},tv:{point:{x:.95,z:6.65},yaw:facing({x:.95,z:6.65},f.radio),mode:'standing'},records:approach(f.musicStation,-1.1,-1.65),merch:approach(f.clothesRail,0,-1),arcade:approach(f.arcade,0,-1.18),shows:{...approach(f.sofa,.9,-1.55),lookUp:true},newsletter:{...sofa,mode:'sofa-seated',yaw:180-f.sofa.yaw*180/Math.PI,seat:{...seat,y:ROOM.floorY+.59*f.sofa.scale-.4}}};
 }
 export function stageFrontZ(x:number,c:DomeConfig){const edge=commandFront(c),half=edge[edge.length-1].x-c.centre.x;return ROOM.stepStartZ-.25+(edge[edge.length-1].z-ROOM.stepStartZ+.25)*((x-c.centre.x)/half)**2;}
 export function groundHeight(p:Point,c:DomeConfig){
