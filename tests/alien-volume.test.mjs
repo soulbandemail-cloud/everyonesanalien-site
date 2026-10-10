@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import ts from 'typescript';
 const loaded={exports:{}};
-new Function('module','exports',ts.transpileModule(fs.readFileSync('lib/ship/alienVolume.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText)(loaded,loaded.exports);
+new Function('module','exports',ts.transpileModule(fs.readFileSync('lib/ship/alienVolume.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(loaded,loaded.exports);
 const {alienVolume}=loaded.exports;
 test('alien retains head volume at front, quarter, side and rear angles',()=>{
  for(const yaw of [0,45,90,135,180,225,270,315]){
@@ -70,5 +70,20 @@ test('centre-line front/back transitions swivel through side views without snapp
   }
   assert.ok(Math.abs(Math.sin((yaw-target)*Math.PI/360))<.001);
   if(Math.abs(start-target)===180)assert.ok(samples.some(y=>Math.abs(Math.abs(y)-90)<5));
+ }
+});
+
+test('secondary motion stays subtle, preserves planted feet and keeps reading pages in front',()=>{
+ const points=mesh=>mesh.flatMap(f=>[...f.d.matchAll(/(-?\d+\.\d+),(-?\d+\.\d+)/g)].map(m=>({x:+m[1],y:+m[2]})));
+ const baseline=points(alienVolume(0,0,true,{stand:1,moving:0,life:0}));
+ const floor=Math.max(...baseline.map(p=>p.y));
+ for(const life of [1,3,7,13]){
+  const mesh=alienVolume(0,0,true,{stand:1,moving:0,life}),p=points(mesh);
+  assert.equal(Math.max(...p.map(v=>v.y)),floor);
+  assert.ok(mesh.every(f=>! /NaN|Infinity/.test(f.d)));
+  assert.ok(Math.abs(Math.min(...p.map(v=>v.y))-Math.min(...baseline.map(v=>v.y)))<2);
+  const reading=alienVolume(35,.16,false,{reading:1,life});
+  assert.ok(reading.some(f=>f.depth>900));
+  assert.ok(reading.every((f,i)=>i===0||f.depth>=reading[i-1].depth));
  }
 });

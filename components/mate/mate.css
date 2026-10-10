@@ -115,6 +115,7 @@
 
 /* Both fixtures share the same silhouette filter, scale and press behaviour. */
 .cockpit-interactive-fixture { cursor:pointer; transform-box:fill-box; transform-origin:center; transition:transform 120ms ease; }
+.cockpit-interactive-fixture[aria-disabled="true"] { cursor:default; outline:none; transform:none; filter:none; transition:none; }
 .cockpit-interactive-fixture[aria-disabled="false"]:is(:hover,:focus-visible) { transform:scale(1.25); filter:var(--fixture-hover-filter); outline:none; }
 .cockpit-interactive-fixture[data-pressed], .ringer-tee-display:active { transform:scale(.9) !important; filter:none !important; outline:none; }
 /* The live screen follows the TV's SVG body, using the same screen-centre pivot. */

@@ -6,7 +6,7 @@ import { consoleTvScreen } from '@/lib/ship/fixtureLayout';
 import NewsletterDialog from './NewsletterDialog';
 import PortableTV, { type TvController } from '@/components/home/PortableTV';
 import CanonicalHomepage from '@/components/home/CanonicalHomepage';
-import {toggleDomeMenu,type DomeMenu} from '@/lib/ship/domeNavigation';
+import {type DomeMenu} from '@/lib/ship/domeNavigation';
 import { useCockpitViewportFit, usePresentationViewport } from './usePresentationViewport';
 import { mobileThirdCamera, phoneCockpitPresentation, cockpitViewport } from '@/lib/ship/mobilePresentation';
 import Ship from '@/components/ship/Ship';
@@ -130,7 +130,7 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
       transform:`translate(${viewport.left+viewport.view.width/2}px,${viewport.top+viewport.view.height/2}px) scale(${presentationScale}) rotate(${presentation.angle}deg) translate(${-view.width/2}px,${-view.height/2}px)`,
     } as React.CSSProperties : undefined}>
     <CanonicalHomepage domeMenu={domeMenu} animateEntry={entry} cockpit={cockpit} loginEnabled={loginEnabled && !preview} config={config} camera={camera} progress={progress} view={view} mobileThird={mobileThird} publicFrame={mobile ? presentation : undefined} />
-    {(cockpit || progress>0) && <Ship onTvLayer={setTvDockHost} domeMenu={domeMenu} onShows={cockpit && progress===1 ? ()=>setDomeMenu(current=>toggleDomeMenu(current,"shows")) : undefined} onMerch={cockpit && progress===1 ? ()=>setDomeMenu(current=>toggleDomeMenu(current,"merch")) : undefined} onNewsletter={cockpit && progress===1 ? ()=>setNewsletterOpen(true) : undefined} onTV={cockpit && progress===1 ? ()=>tvController.current?.open() : undefined} liveTv={!!tvVisible} config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
+    {(cockpit || progress>0) && <Ship arcadeOpen={arcadeOpen} onTvLayer={setTvDockHost} domeMenu={domeMenu} onShows={cockpit && progress===1 ? ()=>setDomeMenu("shows") : undefined} onMerch={cockpit && progress===1 ? ()=>setDomeMenu("merch") : undefined} onNewsletter={cockpit && progress===1 ? ()=>setNewsletterOpen(true) : undefined} onTV={cockpit && progress===1 ? ()=>tvController.current?.open() : undefined} liveTv={!!tvVisible} config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
     {cockpit && newsletterOpen && <NewsletterDialog viewport={viewport} onClose={()=>setNewsletterOpen(false)} />}
     {cockpit && arcadeOpen && <ArcadeDialog viewport={viewport} onExit={() => setArcadeOpen(false)} />}
     </div>

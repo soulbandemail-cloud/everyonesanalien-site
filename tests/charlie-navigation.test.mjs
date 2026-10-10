@@ -70,3 +70,50 @@ test('free floor arrival retains walking heading instead of the previous interac
  assert.ok(delta(h.state().yaw,anchorYaw)>20);
  const arrived=h.state().yaw;h.advance(2);assert.equal(h.state().yaw,arrived);
 });
+
+test('mid-walk reversal turns in place quickly before resuming the configured travel speed',()=>{
+ const h=movementHarness();h.api.walk({x:0,z:3});h.advance();
+ h.api.walk({x:0,z:2});h.advance(.2);
+ const start={...h.state().position},yaw=h.state().yaw;
+ h.api.walk({x:0,z:4});h.advance(1/60);
+ assert.deepEqual(h.state().position,start,'no backwards/sideways travel during the reversal');
+ const delta=Math.abs(((h.state().yaw-yaw+540)%360+360)%360-180);
+ assert.ok(delta>0 && delta<=18.01,'turn is quick but not a one-frame snap');
+ h.advance(.3);assert.ok(h.state().position.z>start.z,'turn finishes promptly');
+ const z=h.state().position.z,gait=h.state().gait;h.advance(.1);
+ assert.ok(Math.abs(h.state().position.z-z-.24)<.00001,'cruising speed is 2.4 (25% faster)');
+ assert.ok(Math.abs(h.state().gait-gait-1.536)<.00001,'waddle tempo stays at the original 1.92 × 8 rate');
+ h.advance();assert.equal(h.state().position.z,4);
+});
+
+test('engagement disables immediately, rejects repeats, and survives arrival until redirected',()=>{
+ const h=movementHarness();let opens=0;
+ for(const name of ['shows','merch','newsletter']){
+  h.api.interact(name,()=>opens++);const count=opens;
+  assert.equal(h.api.available(name),false);
+  h.api.interact(name,()=>opens++);assert.equal(opens,count);
+  h.advance();assert.equal(h.api.available(name),false);
+  h.api.interact(name,()=>opens++);assert.equal(opens,count);
+  assert.equal(h.api.walk({x:30,z:0}),false,'invalid floor click does not end engagement');
+  assert.equal(h.api.available(name),false);
+  h.api.walk({x:0,z:3});h.advance();assert.equal(h.api.available(name),true);
+ }
+});
+test('chair is locked throughout approach and seating, then unlocks after standing',()=>{
+ const h=movementHarness();assert.equal(h.api.available('chair'),false);
+ h.api.walk({x:0,z:3});h.advance();assert.equal(h.api.available('chair'),true);
+ h.api.interact('chair');assert.equal(h.api.available('chair'),false);
+ h.advance(.2);const position={...h.state().position};h.api.interact('chair');assert.deepEqual(h.state().position,position);
+ h.advance();assert.equal(h.api.available('chair'),false);
+ h.api.walk({x:0,z:3});assert.equal(h.api.available('chair'),false);
+ h.advance(1);assert.equal(h.api.available('chair'),true);
+});
+test('arcade lock survives arrival, closes independently, and cancelled approaches can be retried',()=>{
+ const h=movementHarness();let opens=0;
+ h.api.interact('arcade',()=>opens++);assert.equal(h.api.available('arcade'),false);
+ h.api.interact('merch');assert.equal(h.api.available('arcade'),true);h.advance();assert.equal(opens,0);
+ h.api.interact('arcade',()=>opens++);h.advance();assert.equal(opens,1);assert.equal(h.api.available('arcade'),false);
+ h.api.interact('arcade',()=>opens++);assert.equal(opens,1);
+ h.api.closeArcade();assert.equal(h.api.available('arcade'),true);
+ h.api.interact('arcade',()=>opens++);h.advance();assert.equal(opens,2);
+});

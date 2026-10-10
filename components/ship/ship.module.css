@@ -62,3 +62,12 @@
  .chairInteractable { position:absolute; inset:0; pointer-events:auto; transform-origin:50% 85%; }
 .chairInteractable[aria-disabled="true"] { cursor:default; }
 @media (hover:none) { .chairInteractable:hover:not(:active):not(:focus-visible) {transform:none;filter:none;} }
+
+/* Flatten all chair layers before applying its single shared silhouette filter. */
+.chairInteractable .alien { perspective:none; }
+
+/* Outline the union once, rather than filtering the canvas and pedestal separately. */
+.chairOutline { position:absolute; inset:0; overflow:visible; pointer-events:none; opacity:0; }
+.chairInteractable[aria-disabled="false"]:is(:hover,:focus-visible) { filter:none; }
+.chairInteractable[aria-disabled="false"]:is(:hover,:focus-visible):not([data-pressed]) .chairOutline { opacity:1; }
+@media (hover:none) { .chairInteractable:hover:not(:active):not(:focus-visible) .chairOutline { opacity:0; } }

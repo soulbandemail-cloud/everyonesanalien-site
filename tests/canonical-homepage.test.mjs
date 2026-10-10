@@ -119,16 +119,16 @@ test('real planet ring has isolated SVG halos, crisp white cores and unique inst
   assert.match(attrs,/filterUnits="userSpaceOnUse"/);
   assert.match(attrs,/x="-200" y="-150" width="400" height="300"/);
   assert.match(attrs,/color-interpolation-filters="sRGB"/);
-  assert.deepEqual([...contents.matchAll(/stdDeviation="([^"]+)"/g)].map(x=>x[1]),['10','12','24']);
+  assert.deepEqual([...contents.matchAll(/stdDeviation="([^"]+)"/g)].map(x=>x[1]),['14','24','40']);
   assert.deepEqual([...contents.matchAll(/flood-opacity="([^"]+)"/g)].map(x=>x[1]),['.90','.65','.32']);
   assert.equal((contents.match(/flood-color="rgb\(255,176,255\)"/g)||[]).length,3);
   assert.match(contents,/<feMergeNode in="SourceGraphic"><\/feMergeNode><\/feMerge>$/);
   const rings=[...html.matchAll(/<path data-ring="(?:rear|front)"[^>]+>/g)].map(x=>x[0]).filter(x=>x.includes(`filter="url(#${id})"`));
   assert.equal(rings.length,2);
-  for(const ring of rings){assert.match(ring,/stroke="white"/);assert.match(ring,/stroke-width="9"/);}
+  for(const ring of rings){assert.match(ring,/fill="white"/);assert.doesNotMatch(ring,/stroke-width=/);}
  }
  const planetPaths=[...html.matchAll(/<path[^>]*fill="url\(#[^"]+\)"[^>]*>/g)];
- assert.equal(planetPaths.length,2);
+ assert.equal(planetPaths.length,4);
  for(const [path] of planetPaths)assert.doesNotMatch(path,/filter=/);
  assert.doesNotMatch(fs.readFileSync('components/home/exterior.css','utf8'),/\.planet-letter-ring\s*\{/);
 });

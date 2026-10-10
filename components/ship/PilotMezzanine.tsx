@@ -1,5 +1,7 @@
 import {useId,useState,type CSSProperties} from 'react';
 import { Alien, type Attention } from './Alien';
+import { pilotChairVolume } from '@/lib/ship/pilotChairVolume';
+const emptyChairFaces=pilotChairVolume(180);
 import { ConsoleDetails } from './ConsoleDetails';
 import styles from './ship.module.css';
 import { project, type DomeConfig, type Viewport, type Vec3 } from '@/lib/ship/domeGeometry';
@@ -10,9 +12,11 @@ type PilotMezzanineProps = {attention:Attention;config:DomeConfig;view:Viewport;
 export function PilotMezzanine({ attention, config, view, seated=true,onChair }: PilotMezzanineProps) {
  const id=useId();
  const [pressed,setPressed]=useState(false);
- const [hovered,setHovered]=useState(false),[focused,setFocused]=useState(false);
+
  const floorAnchor=project(pilotPosition,config,view);
  const pilot=project({...pilotPosition,y:pilotPosition.y+ROOM.pilotSeatLift},config,view);
+ const chairWidth=ROOM.alienWidth*pilot.scale,chairHeight=ROOM.alienHeight*pilot.scale;
+ const seatLift=floorAnchor.y-pilot.y;
  const path=(points:Vec3[])=>polygonPath(points,config,view);
  const deskFront=Array.from({length:33},(_,i)=>{const x=(i/16-1)*COMMAND_DECK.halfWidth;return {x,y:COMMAND_DECK.deskY,z:COMMAND_DECK.deskFrontZ+.16*(x/COMMAND_DECK.halfWidth)**2};});
  const bankPoint=(x:number,y:number)=>{const p=commandWall(x,y,config);return {...p,z:p.z-COMMAND_DECK.bankDepth};};
@@ -72,8 +76,18 @@ export function PilotMezzanine({ attention, config, view, seated=true,onChair }:
   </g>
  </svg>
  <div className={styles.pilotOccupant} style={{left:pilot.x,top:pilot.y,width:ROOM.alienWidth*pilot.scale,height:ROOM.alienHeight*pilot.scale,"--seat-lift":`${floorAnchor.y-pilot.y}px`,visibility:pilot.visible?'visible':'hidden'} as CSSProperties}><div role="button" aria-label="Sit in pilot chair" aria-disabled={seated||!onChair} tabIndex={!seated&&onChair?0:-1} onClick={!seated?onChair:undefined}
- onPointerDown={event=>{if(!seated&&onChair&&event.button===0){event.currentTarget.setPointerCapture(event.pointerId);setPressed(true);}}} onPointerUp={()=>setPressed(false)} onPointerCancel={()=>setPressed(false)} onPointerEnter={()=>setHovered(true)} onPointerLeave={()=>setHovered(false)} onFocus={()=>setFocused(true)} onBlur={()=>{setPressed(false);setFocused(false);}}
+ onPointerDown={event=>{if(!seated&&onChair&&event.button===0){event.currentTarget.setPointerCapture(event.pointerId);setPressed(true);}}} onPointerUp={()=>setPressed(false)} onPointerCancel={()=>setPressed(false)} onPointerLeave={()=>setPressed(false)} onBlur={()=>setPressed(false)}
  onKeyDown={event=>{if(!seated&&onChair&&(event.key==='Enter'||event.key===' ')){event.preventDefault();setPressed(true);}}} onKeyUp={event=>{if(pressed&&(event.key==='Enter'||event.key===' ')){event.preventDefault();setPressed(false);onChair?.();}}}
- data-pressed={pressed||undefined} style={{'--fixture-hover-filter':`url(#${id}-chair-outline)`} as CSSProperties} className={`${styles.chairInteractable} cockpit-interactive-fixture`}><Alien chairHighlighted={!seated&&!pressed&&(hovered||focused)} attention={attention} occupant={seated} facing={seated?undefined:180}/></div></div>
+ title={!seated&&onChair?"Sit Down":undefined} data-pressed={!seated&&!!onChair&&pressed||undefined} style={{'--fixture-hover-filter':`url(#${id}-chair-outline)`} as CSSProperties} className={`${styles.chairInteractable} cockpit-interactive-fixture`}>
+ {/* One SVG alpha silhouette combines the canvas seat with its DOM pedestal.
+     Browsers can omit accelerated canvas pixels from ancestor SVG filters. */}
+ <svg className={styles.chairOutline} width={chairWidth} height={chairHeight} aria-hidden="true">
+  <g fill="#6ee7b7" filter={`url(#${id}-chair-outline)`}>
+   <g transform={`scale(${chairWidth/180} ${chairHeight/250})`}>{emptyChairFaces.map((face,i)=><path key={i} d={face.d}/>)}</g>
+   <rect x={chairWidth*.468} y={chairHeight*.88} width={chairWidth*.064} height={chairHeight*.10+seatLift}/>
+   <ellipse cx={chairWidth*.5} cy={chairHeight*.99+seatLift} rx={chairWidth*.2} ry={chairHeight*.04}/>
+  </g>
+ </svg>
+ <Alien attention={attention} occupant={seated} facing={seated?undefined:180}/></div></div>
  </div>;
 }

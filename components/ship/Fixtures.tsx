@@ -13,7 +13,7 @@ export const Fixtures = memo(function Fixtures({ config, view, onArcade, onTV, o
   const outlineId=useId();
   const [pressed,setPressed]=useState<'tv'|'arcade'|'newsletter'|'shows'|'merch'|null>(null);
   const interaction=(name:'tv'|'arcade'|'newsletter'|'shows'|'merch',action?:()=>void)=>({
-    tabIndex:action ? 0 : -1, 'aria-disabled':!action, 'data-pressed':pressed===name || undefined,
+    tabIndex:action ? 0 : -1, 'aria-disabled':!action, 'data-pressed':!!action && pressed===name || undefined,
     onClick:action,
     onPointerMove:(event:React.PointerEvent<SVGGElement>)=>{delete event.currentTarget.dataset.resting;},
     onFocus:(event:React.FocusEvent<SVGGElement>)=>{delete event.currentTarget.dataset.resting;},
@@ -100,8 +100,8 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
         <feMerge><feMergeNode in="outline" /><feMergeNode in="SourceGraphic" /></feMerge>
       </filter>
     </defs>
-    <g className="show-posters cockpit-interactive-fixture" role="button" aria-label="Upcoming show posters" aria-expanded={domeMenu==='shows'} {...interaction('shows',onShows)} style={{pointerEvents:onShows ? 'auto' : 'none'}}>
-      <title>THE SHOWS</title>
+    <g className="show-posters cockpit-interactive-fixture" role="button" aria-label="Upcoming show posters" aria-expanded={domeMenu==='shows'} {...interaction('shows',onShows)} style={{pointerEvents:'auto'}}>
+      {onShows && <title>THE SHOWS</title>}
       <PosterArtwork config={config} view={view} />
     </g>
     <g className="console-tv cockpit-interactive-fixture" role="button" aria-label="Maximise TV" {...interaction('tv',onTV)}
@@ -212,8 +212,8 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
      </g>)}
     </g>
     <g className="arcade-fixture cockpit-interactive-fixture" role="button" aria-label="Play SOUL arcade" {...interaction('arcade',onArcade)}
-      style={{pointerEvents:onArcade ? 'auto' : 'none'}}>
-      <title>Arcade</title>
+      style={{pointerEvents:'auto'}}>
+      {onArcade && <title>Arcade</title>}
   {/* main upright cabinet */}
   {box(arcade,0,0,0,1.15,2.25,.72,'#303d46')}
 
@@ -250,8 +250,8 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
   {line(arcade,[-.55,1.2,-.6],[.55,1.2,-.6],'#ffb0ff',1)}
   {[-.48,-.16,.39].map((x,i)=><g key={x}>{line(arcade,[x,.12+i*.03,-.367],[x+.045,.13+i*.03,-.367],'#85786c',.7)}</g>)}
 </g>
-    <g className="merch-rail cockpit-interactive-fixture" role="button" aria-label="SOUL merchandise clothes rail" aria-expanded={domeMenu==='merch'} {...interaction('merch',onMerch)} style={{pointerEvents:onMerch ? 'auto' : 'none'}}>
-      <title>THE MERCH</title>
+    <g className="merch-rail cockpit-interactive-fixture" role="button" aria-label="SOUL merchandise clothes rail" aria-expanded={domeMenu==='merch'} {...interaction('merch',onMerch)} style={{pointerEvents:'auto'}}>
+      {onMerch && <title>THE MERCH</title>}
       <path d={path([local(rail,-1.05,0,0),local(rail,1.05,0,0),local(rail,1.05,2.1,0),local(rail,-1.05,2.1,0)])} fill="transparent" pointerEvents="all" />
       {[
         ...[-1.05,1.05].flatMap(x=>[{a:[x,.04,-.38],b:[x,.04,.38],width:4},{a:[x,0,0],b:[x,2.1,0],width:4}]),
@@ -309,8 +309,8 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
         </g>
       </g>,'side')}
     </g>
-    <g className="cockpit-interactive-fixture" role="button" aria-label="Open The Hyper-Fix" {...interaction('newsletter',onNewsletter)} style={{pointerEvents:onNewsletter ? 'auto' : 'none'}}>
-      <title>The Hyper-Fix</title>
+    <g className="cockpit-interactive-fixture" role="button" aria-label="Open The Hyper-Fix" {...interaction('newsletter',onNewsletter)} style={{pointerEvents:'auto'}}>
+      {onNewsletter && <title>The Hyper-Fix</title>}
       {[-.78,.78].map(x=><g key={x}>{box(table,x,0,-.27,.09,.48,.09)}{box(table,x,0,.27,.09,.48,.09)}</g>)}
       {(() => {
         const rim = (height: number) => Array.from({length:65},(_,i) => local(table,1.05*Math.sin(i/64*Math.PI*2),height,1.05*Math.cos(i/64*Math.PI*2)));

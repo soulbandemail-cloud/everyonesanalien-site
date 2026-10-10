@@ -1,11 +1,11 @@
 import {useCallback,useEffect,useRef,useState} from 'react';
 import type {DomeConfig,Vec3} from '@/lib/ship/domeGeometry';
 import {ROOM,pilotPosition} from '@/lib/ship/roomGeometry';
-import {advanceAlienYaw} from '@/lib/ship/alienVolume';
+import {advanceAlienYaw,walkingTurn} from '@/lib/ship/alienVolume';
 import {approaches,findPath,groundHeight,type Point,type Arrival,type CharlieMode,type Destination} from '@/lib/ship/charlieNavigation';
-export type CharlieState={mode:CharlieMode;position:Vec3;yaw:number;lookUp:boolean;phase:'rising'|'sitting'|null;stand:number;gait:number;moving:number;paper:number};
+export type CharlieState={engagement:Destination|null;arcadeActive:boolean;mode:CharlieMode;position:Vec3;yaw:number;lookUp:boolean;phase:'rising'|'sitting'|null;stand:number;gait:number;moving:number;paper:number};
 const pilotSeat={...pilotPosition,y:pilotPosition.y+ROOM.pilotSeatLift};
-const initial:CharlieState={mode:'pilot-seated',position:pilotSeat,yaw:180,lookUp:false,phase:null,stand:0,gait:0,moving:0,paper:0};
+const initial:CharlieState={engagement:'chair',arcadeActive:false,mode:'pilot-seated',position:pilotSeat,yaw:180,lookUp:false,phase:null,stand:0,gait:0,moving:0,paper:0};
 type Transition={from:CharlieState;to:Vec3;time:number;duration:number;kind:'rising'|'sitting';seat:'pilot-seated'|'sofa-seated';yaw:number};
 const ease=(t:number)=>t*t*(3-2*t);
 export function useCharlieMovement(config:DomeConfig,seatedYaw=180){
@@ -30,12 +30,25 @@ export function useCharlieMovement(config:DomeConfig,seatedYaw=180){
   }else publish({...old,mode:'walking',phase:null,lookUp:false,paper:0});
   return true;
  },[config,publish]);
+ // Physical engagement is independent of whichever domepage/dialog is visible.
+ const available=useCallback((name:Destination)=>{
+  const value=current.current;
+  if(name==='tv')return true;
+  if(value.engagement===name)return false;
+  if(name==='arcade'&&value.arcadeActive)return false;
+  if(name==='chair'&&(value.mode==='pilot-seated'||value.phase==='rising'))return false;
+  if(name==='newsletter'&&(value.mode==='sofa-seated'||value.paper>0))return false;
+  return true;
+ },[]);
+ const closeArcade=useCallback(()=>publish({...current.current,arcadeActive:false,engagement:current.current.engagement==='arcade'?null:current.current.engagement}),[publish]);
  const interact=useCallback((name:Destination,action?:()=>void)=>{
-  if(name==='chair'&&current.current.mode==='pilot-seated'&&!transition.current)return;
+  if(!available(name))return;
   if(name==='tv'&&current.current.mode==='pilot-seated'&&!transition.current){action?.();return;}
   if(name!=='arcade')action?.();
-  go(approaches(config)[name],name==='arcade'?action:undefined);
- },[config,go]);
+  if(go(approaches(config)[name],name==='arcade'?()=>{publish({...current.current,arcadeActive:true});action?.();}:undefined)){
+   publish({...current.current,engagement:name});
+  }
+ },[config,go,available,publish]);
  useEffect(()=>{
   let frame=0,previous=performance.now();
   const tick=(time:number)=>{
@@ -53,13 +66,22 @@ export function useCharlieMovement(config:DomeConfig,seatedYaw=180){
     if(t===1){transition.current=null;publish({...value,position:tween.to,stand:sitting?0:1,phase:null,mode:sitting?tween.seat:command.current?'walking':'standing',paper:sitting&&tween.seat==='sofa-seated'?1:0});}
     else publish(value);
    }else if(command.current){
-    const active=command.current;let distance=dt*1.92,position=old.position,yaw=old.yaw,travelled=0;
-    while(active.path.length&&distance>0){const next=active.path[0],dx=next.x-position.x,dz=next.z-position.z,length=Math.hypot(dx,dz);if(length>.001)yaw=Math.atan2(-dx,dz)*180/Math.PI;
+    const active=command.current;
+    while(active.path.length&&Math.hypot(active.path[0].x-old.position.x,active.path[0].z-old.position.z)<.001)active.path.shift();
+    const next=active.path[0];
+    const heading=next?Math.atan2(old.position.x-next.x,next.z-old.position.z)*180/Math.PI:old.yaw;
+    const turn=walkingTurn(old.yaw,heading,dt);
+    let distance=turn.canTravel?dt*2.4:0,position=old.position,travelled=0;
+    const yaw=turn.yaw;
+    while(active.path.length&&distance>0){const next=active.path[0],dx=next.x-position.x,dz=next.z-position.z,length=Math.hypot(dx,dz);if(length>.001){
+      const nextHeading=Math.atan2(-dx,dz)*180/Math.PI;
+      if(Math.abs(((nextHeading-yaw+540)%360+360)%360-180)>22)break;
+     }
      const run=Math.min(length,distance);travelled+=run;
      if(length<=distance){position={...next,y:groundHeight(next,config)};active.path.shift();distance-=length;}else{const p={x:position.x+dx/length*distance,z:position.z+dz/length*distance};position={...p,y:groundHeight(p,config)};distance=0;}
     }
-    const value={...old,position,yaw:advanceAlienYaw(old.yaw,yaw,dt),stand:1,gait:old.gait+travelled*8,moving:Math.min(1,old.moving+dt*5),phase:null,paper:0,lookUp:false};
-    if(!active.path.length){command.current=null;lastStanding.current=active.arrival.point;const a=active.arrival;
+    const value={...old,position,yaw,stand:1,gait:old.gait+travelled*6.4,moving:travelled>0?Math.min(1,old.moving+dt*5):Math.max(0,old.moving-dt*12),phase:null,paper:0,lookUp:false};
+    if(!active.path.length){value.position={...active.arrival.point,y:groundHeight(active.arrival.point,config)};command.current=null;lastStanding.current=active.arrival.point;const a=active.arrival;
      if(a.mode==='pilot-seated'||a.mode==='sofa-seated'){
       transition.current={from:value,to:a.mode==='pilot-seated'?pilotSeat:a.seat!,time:0,duration:1,kind:'sitting',seat:a.mode,yaw:a.mode==='pilot-seated'?180:a.yaw};
       publish({...value,mode:'standing',phase:'sitting'});
@@ -71,5 +93,9 @@ export function useCharlieMovement(config:DomeConfig,seatedYaw=180){
   };
   frame=requestAnimationFrame(tick);return ()=>cancelAnimationFrame(frame);
  },[config,publish]);
- return {state,interact,walk:(point:Point)=>go({point,yaw:current.current.yaw,mode:'standing',retainHeading:true})};
+ return {state,interact,available,closeArcade,walk:(point:Point)=>{
+  const accepted=go({point,yaw:current.current.yaw,mode:'standing',retainHeading:true});
+  if(accepted)publish({...current.current,engagement:null});
+  return accepted;
+ }};
 }

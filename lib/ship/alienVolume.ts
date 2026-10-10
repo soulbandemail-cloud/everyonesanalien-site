@@ -1,6 +1,6 @@
 /** Small illustrated meshes in the pilot's existing 180 × 250 drawing space. */
 type V = {x:number;y:number;z:number};
-type Face = {points:V[];colour:string;eye?:boolean;head?:boolean;leg?:boolean;arm?:boolean;side?:number};
+type Face = {points:V[];colour:string;eye?:boolean;head?:boolean;leg?:boolean;arm?:boolean;antenna?:boolean;side?:number};
 const faces:Face[]=[];
 const sphere=(centre:V,r:V,colour:string,rows=12,cols=24,output:Face[]=faces)=>{
  const point=(a:number,b:number)=>({x:centre.x+r.x*Math.sin(a)*Math.cos(b),y:centre.y+r.y*Math.cos(a),z:centre.z+r.z*Math.sin(a)*Math.sin(b)});
@@ -44,6 +44,7 @@ for(const side of [-1,1]){
  const headStart=faces.length;
  tube([{x:side*28,y:38,z:0},{x:side*35,y:24,z:0},{x:side*43,y:15,z:2}],1.8,'#7fffd4');
  sphere({x:side*43,y:15,z:2},{x:4.5,y:4.5,z:4.5},'#b6ffe5');
+ for(let i=headStart;i<faces.length;i++){faces[i].antenna=true;faces[i].side=side;}
  // Eyes are surface patches on the FRONT hemisphere, never rear-facing decals.
  const eye=(r:number,t:number)=>{
   // Rounded teardrops with downward, slightly inward points.
@@ -77,14 +78,17 @@ for(let i=0;i<=16;i++){
 tube(smile,.9,'#000000');
 for(let i=smileStart;i<faces.length;i++)faces[i].head=true;
 
-export type AlienMotion={stand?:number;gait?:number;moving?:number;reading?:number};
+export type AlienMotion={stand?:number;gait?:number;moving?:number;reading?:number;life?:number};
 export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMotion={}){
  const stand=motion.stand??(standing?1:0),walk=motion.moving??0,phase=motion.gait??0,reading=motion.reading??0;
+ const life=motion.life??0,breath=motion.life===undefined?0:Math.sin(life*1.35)*.48;
  const pose=(p:V,face:Face):V=>{
   const bounce=(1-Math.cos(phase*2))*1.1*walk;
 
 
-  return {...p,x:p.x+Math.sin(phase)*1.2*walk,y:face.head?p.y:p.y-38*stand-bounce};
+  const flex=face.antenna?Math.max(0,(38-p.y)/23):0;
+  const antenna=flex*(Math.sin(phase-.65)*2.2*walk+(motion.life===undefined?0:Math.sin(life*(face.side===-1?1.13:.91)+(face.side??0))*.7));
+  return {...p,x:p.x+antenna,y:face.head?p.y:p.y-38*stand-bounce};
  };
  // Rebuild round tubes around posed centre-lines. Deforming the original
  // vertices compressed their cross-sections into flat ribbons.
@@ -94,7 +98,7 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
   const points=[{x:side*10,y:202,z:2},{x:side*15,y:203,z:-21},{x:side*18,y:206,z:kneeZ},{x:side*19,y:223,z:kneeZ+1},{x:side*20,y:244,z:kneeZ+5}];
   const posed=points.map(p=>{
    const weight=Math.max(0,Math.min(1,(p.y-202)/43));
-   return {x:p.x,y:p.y-38*stand*(1-Math.max(0,Math.min(1,-p.z/40)))*Math.max(0,Math.min(1,(218-p.y)/12))-Math.max(0,step)*5*weight*walk-(1-Math.cos(phase*2))*1.1*walk*(1-weight),z:p.z*(1-.88*stand)+step*8*weight*walk};
+   return {x:p.x,y:p.y-38*stand*(1-Math.max(0,Math.min(1,-p.z/40)))*Math.max(0,Math.min(1,(218-p.y)/12))-Math.max(0,step)*6*weight*walk-(1-Math.cos(phase*2))*1.1*walk*(1-weight),z:p.z*(1-.88*stand)+step*8*weight*walk};
   });
   tube(posed,3,'#79cfb2',legs);
   const foot=posed[posed.length-1];
@@ -103,7 +107,7 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
  const arms:Face[]=[];
  for(const side of [-1,1]){
   const handY=side<0?198:196,handZ=side<0?-22:-25,step=Math.sin(phase+(side===-1?Math.PI:0)),bounce=(1-Math.cos(phase*2))*1.1*walk;
-  const armPose=(p:V)=>{const weight=Math.max(0,Math.min(1,(p.y-138)/62));return {x:p.x+side*42*reading*weight,y:p.y-38*stand-bounce-reading*65*weight,z:p.z+step*7*weight*walk-reading*38*weight};};
+  const armPose=(p:V)=>{const weight=Math.max(0,Math.min(1,(p.y-138)/62));return {x:p.x+side*42*reading*weight,y:p.y-38*stand-bounce-reading*65*weight,z:p.z-step*9*weight*walk-reading*38*weight};};
   tube([{x:side*12,y:138,z:0},{x:side*19,y:154,z:1},{x:side*25,y:181,z:-3},{x:side*22,y:191,z:-12},{x:side*13,y:handY,z:handZ}].map(armPose),2.8,'#79cfb2',arms);
   sphere(armPose({x:side*13,y:handY+2,z:handZ}),{x:4,y:5,z:3},'#79cfb2',12,24,arms);
  }
@@ -119,7 +123,12 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
  }
 
  const angle=yaw*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle),pitch=Math.max(-1,Math.min(1,down))*45*Math.PI/180;
- const rotate=(p:V,head=false)=>{let {x,y,z}=p;if(head){const t=Math.max(0,Math.min(1,(y-92)/49));const taper=t*t*(3-2*t);x*=1-.28*taper;y+=7*taper;const dy=y-120;y=120+dy*Math.cos(pitch)-z*Math.sin(pitch);z=dy*Math.sin(pitch)+z*Math.cos(pitch);y-=26+38*stand+(1-Math.cos(phase*2))*1.1*walk;}return {x:90+x*c+z*s,y,z:z*c-x*s};};
+ const rotate=(p:V,head=false)=>{let {x,y,z}=p;if(head){const t=Math.max(0,Math.min(1,(y-92)/49));const taper=t*t*(3-2*t);x*=1-.28*taper;y+=7*taper;const dy=y-120;y=120+dy*Math.cos(pitch)-z*Math.sin(pitch);z=dy*Math.sin(pitch)+z*Math.cos(pitch);y-=26+38*stand+(1-Math.cos(phase*2))*1.1*walk;}// Breathing settles around planted hips/feet; head and held paper share the lift.
+ const supported=Math.max(0,Math.min(1,(244-y)/100));
+ const settle=motion.life===undefined?0:Math.sin(life*.23)*Math.sin(life*.37)*.45*(1-walk);
+ x+=(settle+Math.sin(phase)*3.5*walk)*supported;
+ y-=breath*(reading>.5?1:supported);
+ return {x:90+x*c+z*s,y,z:z*c-x*s};};
  // Keep each page's printed marks attached to its paper surface instead of
  // sorting coplanar ink behind the much larger sheet polygon.
  const pageDepth=paper.slice(0,2).map(face=>face.points.reduce((sum,p)=>sum+rotate(pose(p,face)).z,0)/face.points.length);
@@ -163,4 +172,12 @@ export function advanceAlienYaw(current:number,target:number,dt:number){
  if(Math.abs(delta)<.01)return current+delta;
  const limit=240*Math.max(0,dt);
  return current+Math.max(-limit,Math.min(limit,delta*(1-Math.exp(-10*Math.max(0,dt)))));
+}
+
+/** Fast locomotion steering only; seated cursor tracking retains its existing response. */
+export function walkingTurn(current:number,target:number,dt:number){
+ const delta=((target-current+540)%360+360)%360-180;
+ const step=Math.min(1080*Math.max(0,dt),Math.abs(delta)*(1-Math.exp(-28*Math.max(0,dt))));
+ const yaw=Math.abs(delta)<.15?current+delta:current+Math.sign(delta)*step;
+ return {yaw,canTravel:Math.abs(delta)<=22};
 }

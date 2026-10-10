@@ -16,22 +16,28 @@ import { GeometryCalibration } from './GeometryCalibration';
 import type {DomeMenu} from '@/lib/ship/domeNavigation';
 import styles from './ship.module.css';
 
-export default function Ship({ config, baseline, onConfigChange, hull, onHullChange, view, domeConfig=config, sharedSeam=false, reveal=1, development=false, preview=false, logout, busy, onArcade, onTV, onNewsletter, onShows, onMerch, domeMenu=null, liveTv=false, onTvLayer }: {
+export default function Ship({ config, baseline, onConfigChange, hull, onHullChange, view, domeConfig=config, sharedSeam=false, reveal=1, development=false, preview=false, logout, busy, onArcade, onTV, onNewsletter, onShows, onMerch, domeMenu=null, arcadeOpen=false, liveTv=false, onTvLayer }: {
  config:DomeConfig; baseline:DomeConfig; onConfigChange:(config:DomeConfig)=>void;
  hull:HullConfig; onHullChange:(hull:HullConfig)=>void; view:Viewport;
- domeConfig?:DomeConfig; sharedSeam?:boolean; reveal?:number; development?:boolean; preview?:boolean; logout?:()=>void; busy?:boolean; onArcade?:()=>void; onTV?:()=>void; onNewsletter?:()=>void; onShows?:()=>void; onMerch?:()=>void; domeMenu?:DomeMenu; liveTv?:boolean; onTvLayer?:(node:HTMLDivElement|null)=>void;
+ domeConfig?:DomeConfig; sharedSeam?:boolean; reveal?:number; development?:boolean; preview?:boolean; logout?:()=>void; busy?:boolean; onArcade?:()=>void; onTV?:()=>void; onNewsletter?:()=>void; onShows?:()=>void; onMerch?:()=>void; domeMenu?:DomeMenu; arcadeOpen?:boolean; liveTv?:boolean; onTvLayer?:(node:HTMLDivElement|null)=>void;
 }) {
  const [attention, setAttention] = useState({ x: 0, back: 0, down: 0 });
  const movement=useCharlieMovement(config,alienLookYaw(attention.x,attention.back));
- const {interact}=movement;
+ const {interact,available,closeArcade}=movement;
+ const wasArcadeOpen=useRef(arcadeOpen);
+ useEffect(()=>{
+  if(wasArcadeOpen.current&&!arcadeOpen)closeArcade();
+  wasArcadeOpen.current=arcadeOpen;
+ },[arcadeOpen,closeArcade]);
+ const showsAvailable=available('shows'),merchAvailable=available('merch'),arcadeAvailable=available('arcade'),newsletterAvailable=available('newsletter'),chairAvailable=available('chair');
  const actions=useMemo(()=>({
-  shows:onShows?()=>interact('shows',onShows):undefined,
-  merch:onMerch?()=>interact('merch',onMerch):undefined,
-  arcade:onArcade?()=>interact('arcade',onArcade):undefined,
+  shows:onShows&&showsAvailable?()=>interact('shows',onShows):undefined,
+  merch:onMerch&&merchAvailable?()=>interact('merch',onMerch):undefined,
+  arcade:onArcade&&arcadeAvailable?()=>interact('arcade',onArcade):undefined,
   tv:onTV?()=>interact('tv',onTV):undefined,
-  newsletter:onNewsletter?()=>interact('newsletter',onNewsletter):undefined,
-  chair:()=>interact('chair'),
- }),[interact,onShows,onMerch,onArcade,onTV,onNewsletter]);
+  newsletter:onNewsletter&&newsletterAvailable?()=>interact('newsletter',onNewsletter):undefined,
+  chair:chairAvailable?()=>interact('chair'):undefined,
+ }),[interact,onShows,onMerch,onArcade,onTV,onNewsletter,showsAvailable,merchAvailable,arcadeAvailable,newsletterAvailable,chairAvailable]);
  const root = useRef<HTMLDivElement>(null);
  const pointer = useRef({ x: 0, y: .25 });
  useEffect(() => {

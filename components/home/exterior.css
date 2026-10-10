@@ -32,5 +32,7 @@
 /* Spicy Rice has one native weight: thin its ink, not its spacing or proportions. */
 .soul-wordmark [data-soul-letter] {
  text-shadow:none;
- filter:var(--soul-letter-weight) drop-shadow(0 0 6px var(--soul-glow-near)) drop-shadow(0 0 16px var(--soul-glow-far));
+ filter:var(--soul-letter-weight) drop-shadow(0 0 8px var(--soul-glow-near)) drop-shadow(0 0 24px var(--soul-glow-far));
 }
+/* Let the broader logo halo fade naturally beyond its unchanged layout box. */
+.canonical-home [data-dome-slot="brand"] { overflow:visible; }
