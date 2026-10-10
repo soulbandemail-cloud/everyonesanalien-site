@@ -41,9 +41,9 @@ test('wordmark reuses the shaded real planet with white rings in the correct dep
  assert.ok(scene.indexOf('fill={`url(#${id})`}')<scene.indexOf('data-ring="front"'));
  assert.match(source('components/home/CanonicalHomepage.tsx'),/<RealPlanetHeart \/>/);
  assert.equal((scene.match(/fill="white"/g)||[]).length,2);
- assert.match(scene,/stopColor="#326e63"/);
- assert.match(scene,/stopColor="#94c5ae"/);
- assert.match(scene,/stopColor="#204a46"/);
+ assert.match(scene,/stopColor="#16C7C5"/);
+ assert.match(scene,/stopColor="#A5F5A1"/);
+ assert.match(scene,/stopColor="#006C83"/);
  assert.doesNotMatch(scene,/#9eccc4|#41646f|#101e36/);
  assert.match(scene,/rotate\(-18\)/);
  assert.doesNotMatch(source('components/home/ExteriorSpace.tsx'),/planet-heart|<svg/);
