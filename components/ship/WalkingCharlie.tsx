@@ -1,10 +1,11 @@
+import type {Outfit,ClothesSpin} from '@/lib/ship/clothing';
 import {Alien} from './Alien';
 import type {CharlieState} from './useCharlieMovement';
 import {project,type DomeConfig,type Viewport} from '@/lib/ship/domeGeometry';
 import {ROOM} from '@/lib/ship/roomGeometry';
 import {orientedFixtures} from '@/lib/ship/fixtureLayout';
 import {localPoint} from '@/lib/ship/charlieNavigation';
-export function WalkingCharlie({state,config,view}:{state:CharlieState;config:DomeConfig;view:Viewport}){
+export function WalkingCharlie({state,config,view,outfit=null,spin}:{outfit?:Outfit;spin?:ClothesSpin;state:CharlieState;config:DomeConfig;view:Viewport}){
  if(state.mode==='pilot-seated'&&!state.phase)return null;
  const p=project(state.position,config,view);
  if(!p.visible)return null;
@@ -24,7 +25,7 @@ export function WalkingCharlie({state,config,view}:{state:CharlieState;config:Do
  <svg width={view.width} height={view.height} style={{position:'absolute',inset:0}}><ellipse cx={p.x} cy={p.y} rx={w*.2} ry={h*.025} fill="#000" opacity=".2"/></svg>
  <div style={{position:'absolute',left:p.x-w/2,top:p.y-h*1.32,width:w,height:h*1.4}}>
  <div style={{position:'relative',marginTop:h*.32,width:w,height:h}}>
- <Alien chair={false} attention={{x:0,back:0,down:state.paper>0?.16:state.lookUp?-.3:0}} facing={state.yaw} standing={state.stand>0} motion={{stand:state.stand,gait:state.gait,moving:state.moving,reading:state.paper}}/>
+ <Alien outfit={outfit} spin={spin} ambient={state.mode==='standing'&&!state.phase&&!state.engagement&&state.moving<.02?'standing':undefined} chair={false} attention={{x:0,back:0,down:state.paper>0?.16:state.lookUp?-.3:0}} facing={state.yaw} standing={state.stand>0} motion={{stand:state.stand,gait:state.gait,moving:state.moving,reading:state.paper}}/>
  </div>
  </div>
  </div>;

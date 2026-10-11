@@ -162,15 +162,27 @@ button.object-back:focus-visible { text-decoration:none; }
 
 .mate-cockpit:not([data-mobile]) .cockpit-logout { translate:-24px 0; }
 
-/* The same live content is revealed by the physical room objects, never duplicated. */
-.on-glass [data-dome-slot="live"], .on-glass [data-dome-slot="merch"] { visibility:hidden; pointer-events:none; }
-.on-glass[data-dome-menu="records"] [data-dome-slot="live"],
-.on-glass[data-dome-menu="shows"] [data-dome-slot="live"],
-.on-glass[data-dome-menu="merch"] [data-dome-slot="merch"] { visibility:visible; pointer-events:auto; }
-.canonical-home[data-returning] [data-dome-slot="live"],
-.canonical-home[data-returning] [data-dome-slot="merch"] { visibility:hidden; pointer-events:none; }
-.on-glass[data-mobile-third] [data-dome-slot="merch"] .ringer-tee-art { width:100px; }
-.on-glass[data-mobile-third] [data-dome-slot="merch"] h2 { margin-bottom:8px; }
+/* One shared website grid, with a contextual wardrobe replacing it on glass. */
+.dome-information { grid-template-columns:minmax(0,1fr) minmax(0,3fr); gap:32px; }
+.dome-columns { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:32px; min-width:0; }
+.dome-information section { min-width:0; grid-column-start:auto; max-width:none; margin:0; }
+.dome-information h2 { white-space:nowrap; font-size:clamp(18px,1.7vw,24px); }
+.dome-information input { min-width:0; width:100%; }
+.dome-wardrobe { display:none; }
+.on-glass .dome-information { display:block; pointer-events:auto; z-index:20; }
+.on-glass .dome-columns { gap:20px; }
+.on-glass .dome-information h2 { font-size:clamp(12px,1.35vw,20px); margin-bottom:10px; }
+.on-glass .dome-information { font-size:clamp(11px,1vw,14px); }
+.on-glass .dome-information .ringer-tee-art { width:clamp(54px,6vw,90px); }
+.on-glass[data-dome-menu="merch"] .dome-columns { display:none; }
+.on-glass[data-dome-menu="merch"] .dome-wardrobe { display:block; }
+.canonical-home[data-returning] .dome-information { visibility:hidden; pointer-events:none; }
+@media(max-width:767px) {
+ .canonical-home:not(.on-glass) .dome-information,
+ .canonical-home:not(.on-glass) .dome-columns { grid-template-columns:1fr; gap:32px; }
+ .on-glass .dome-columns { gap:10px; }
+}
+[data-portrait-first] .dome-columns { grid-template-columns:1fr; }
 
 /* A quick tap must reach the pressed size before release, even without prior hover. */
 .cockpit-interactive-fixture[data-pressed] { transition:none; }
@@ -178,3 +190,14 @@ button.object-back:focus-visible { text-decoration:none; }
 /* Keep the same iframe mounted while expanding above the moving character. */
 .cockpit-tv-layer:has(.space-tv-expanded) { z-index:100 !important; }
 .cockpit-tv-layer .space-tv-expanded { position:absolute; inset:0; width:100%; height:100%; pointer-events:auto; }
+
+.clothing-collection { display:flex; flex-direction:column; gap:8px; width:min(100%,320px); margin:0 auto; }
+.clothing-row { display:grid; grid-template-columns:38px minmax(0,1fr); align-items:center; gap:12px; text-align:left; color:white; cursor:pointer; touch-action:manipulation; }
+.clothing-thumbnail { width:38px; height:38px; display:grid; place-items:center; }
+.clothing-thumbnail img { width:100%; height:100%; object-fit:contain; }
+.clothing-row[aria-pressed="true"] { background:#4a9e87; border-color:#4a9e87; color:#00082d; box-shadow:none; filter:none; text-shadow:none; }
+@media(hover:hover) { .clothing-row:hover { background:#6ee7b7; border-color:#6ee7b7; color:#00082d; text-shadow:none; } }
+.clothing-row:active { background:#6ee7b7; border-color:#6ee7b7; color:#00082d; text-shadow:none; }
+.clothing-row:focus-visible { outline:2px solid #6ee7b7; outline-offset:3px; }
+.on-glass[data-mobile-third] .clothing-row { grid-template-columns:30px minmax(0,1fr); gap:8px; padding:6px 10px; }
+.on-glass[data-mobile-third] .clothing-thumbnail { width:30px; height:30px; }

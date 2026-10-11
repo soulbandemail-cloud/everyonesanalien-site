@@ -100,7 +100,7 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
         <feMerge><feMergeNode in="outline" /><feMergeNode in="SourceGraphic" /></feMerge>
       </filter>
     </defs>
-    <g className="show-posters cockpit-interactive-fixture" role="button" aria-label="Upcoming show posters" aria-expanded={domeMenu==='shows'} {...interaction('shows',onShows)} style={{pointerEvents:'auto'}}>
+    <g className="show-posters cockpit-interactive-fixture" role="button" aria-label="Upcoming show posters" {...interaction('shows',onShows)} style={{pointerEvents:'auto'}}>
       {onShows && <title>THE SHOWS</title>}
       <PosterArtwork config={config} view={view} />
     </g>
@@ -155,7 +155,7 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
   {line(radio,[0,.6,.1],[.23,1.02,.1],'#bbae8c',1.5)}
   {[-.23,.23].map(x=><g key={x}>{flatArt(radio,x,1.02,.1,.05,<circle r="30" fill="#d4c7a1"/>)}</g>)}
 </g>
-    <g className="gramophone-fixture cockpit-interactive-fixture" role="button" aria-label="Gramophone — THE RECORDS" aria-expanded={domeMenu==='records'} {...interaction('records',onRecords)} style={{pointerEvents:'auto'}}>
+    <g className="gramophone-fixture cockpit-interactive-fixture" role="button" aria-label="Gramophone — THE RECORDS" {...interaction('records',onRecords)} style={{pointerEvents:'auto'}}>
       {onRecords && <title>THE RECORDS</title>}
       {[-1.3,1.3].flatMap(x=>[-.3,.28].map(z=><g key={`${x}-${z}`}><path d={path([local(music,x-.075,.2,z),local(music,x+.075,.2,z),local(music,x+.045,0,z-.035),local(music,x-.04,0,z-.035)])} fill="#67452d" stroke="#49321f" strokeWidth=".7"/></g>))}
       {box(music,0,.2,.3,2.85,.94,.09)}
@@ -172,7 +172,12 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
       {box(music,0,1.14,0,3,.12,.9)}
       {[-1.44,1.44].map(x=><g key={x}>{[0,1,2,3].map(i=><path key={i} d={path(Array.from({length:18},(_,j)=>local(music,x,.28+j/17*.78,-.26+i*.15+.012*Math.sin(j*.7+i))))} fill="none" stroke="#b18c59" strokeOpacity=".22" strokeWidth=".6"/>)}</g>)}
       {box(music,-.72,1.26,0,1.2,.13,.65)}
-      {flatArt(music,-.72,1.405,-.08,.95,<g><ellipse rx="38" ry="35" fill="#302c24" stroke="#aa8b58" strokeWidth="2"/><circle r="29" fill="#191e1c" stroke="#5a5945"/><circle r="11" fill="#9e8050"/><circle r="2" fill="#d7bd88"/><path d="M41 -24L35 -21 20 8 10 12" fill="none" stroke="#b49a6d" strokeWidth="3"/><rect x="7" y="10" width="8" height="5" fill="#5a4931"/></g>,'horizontal')}
+      {flatArt(music,-.72,1.405,-.08,.95,<g aria-label="Empty felt-lined turntable platter">
+       <ellipse rx="38" ry="35" fill="#867d5a" stroke="#bba274" strokeWidth="2.4"/>
+       <ellipse rx="34" ry="31" fill="#686e53"/>
+       <path d="M-30-12Q-24-29-4-29" fill="none" stroke="#a5a581" strokeWidth="1.5" strokeOpacity=".65"/>
+       <circle r="1.8" fill="#d3bd8e"/>
+      </g>,'horizontal')}
       {flatArt(music,-.65,1.4,.15,1.35,<g stroke="#725333" strokeWidth="1.4">
         {/* One continuous outer shell: curved neck, widening throat and long bell wall. */}
         <path d="M12 0C24 -12 22 -22 12 -29C-1 -38 -10 -39 -25 -34L-65 -25Q-87 -39 -83 -63Q-81 -86 -61 -98C-40 -80 -19 -62 1 -49C19 -41 33 -27 29 -14L20 0Z" fill={`url(#${outlineId}-brass)`}/>
@@ -184,6 +189,22 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
         <path d="M-104 -83C-79 -77 -49 -65 -24 -56M-112 -52C-81 -46 -50 -48 -24 -56" fill="none" stroke="#c6a875" strokeOpacity=".14" strokeWidth=".8"/>
         <path d="M-44 -85Q-20 -59 4 -45C22 -35 30 -22 23 -8M-51 -30Q-12 -43 13 -30" fill="none" stroke="#c3a06b" strokeOpacity=".48" strokeWidth="1.1"/>
       </g>)}
+      {/* Foreground resting assembly: drawn after the horn so the tube stays behind it.
+          Pivot remains the future rotation origin.
+          The whole arm sits outside the platter's right edge, with its needle raised. */}
+      <g data-gramophone-tonearm="resting" aria-label="Resting gramophone tonearm beside the empty platter">
+       {flatArt(music,-.23,1.415,.19,.17,<g><circle r="42" fill="#584331" stroke="#b99a65" strokeWidth="8"/><circle r="18" fill="#c4a36b"/></g>,'horizontal')}
+       {line(music,[-.23,1.42,.19],[-.23,1.53,.19],'#a98a56',2.5)}
+       <g data-tonearm-pivot="-0.23 1.53 0.19">
+        {line(music,[-.23,1.53,.27],[-.23,1.53,.15],'#654a32',4)}
+        {line(music,[-.23,1.53,.19],[-.16,1.50,-.10],'#9d8050',3.3)}
+        {line(music,[-.16,1.50,-.10],[-.22,1.48,-.27],'#bba271',3)}
+        {flatArt(music,-.16,1.51,-.1,.065,<circle r="35" fill="#59442e" stroke="#d0b481" strokeWidth="8"/>,'horizontal')}
+        {line(music,[-.22,1.48,-.23],[-.22,1.47,-.31],'#624832',4.2)}
+        {line(music,[-.22,1.465,-.29],[-.22,1.425,-.29],'#d1bb8b',1)}
+       </g>
+       {line(music,[-.22,1.40,-.21],[-.22,1.47,-.21],'#816d4a',1.5)}
+      </g>
       {/* Empty two-arm sleeve easel, with no display board or extra electronics. */}
       {[.58,1.02].map(x=><g key={x}>{line(music,[x,1.27,-.23],[x,1.65,.12],'#986a3f',2.3)}{line(music,[x,1.27,.28],[x,1.65,.12],'#67482c',2)}{line(music,[x-.08,1.3,-.24],[x+.08,1.3,-.24],'#b58a53',2.5)}</g>)}
     </g>

@@ -1,4 +1,6 @@
 "use client";
+import ClothingCollection from './ClothingCollection';
+import type {Outfit,ClothingId} from '@/lib/ship/clothing';
 import ringerTee from '@/public/soul-ringer-tee.png';
 import { useId, useRef, type CSSProperties } from 'react';
 import MatePanel from '@/components/mate/MatePanel';
@@ -17,7 +19,7 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 
-export default function CanonicalHomepage({ cockpit, loginEnabled, config, view, animateEntry = false, camera = config, progress = cockpit ? 1 : 0, mobileThird=false, publicFrame, domeMenu=null }: { cockpit: boolean; loginEnabled: boolean; config: DomeConfig; view: Viewport; animateEntry?: boolean; camera?: DomeConfig; progress?: number; mobileThird?:boolean; publicFrame?:{view:Viewport;angle:number};domeMenu?:DomeMenu }) {
+export default function CanonicalHomepage({ cockpit, loginEnabled, config, view, animateEntry = false, camera = config, progress = cockpit ? 1 : 0, mobileThird=false, publicFrame, domeMenu=null, outfit=null, onChooseClothing }: { cockpit: boolean; loginEnabled: boolean; config: DomeConfig; view: Viewport; animateEntry?: boolean; camera?: DomeConfig; progress?: number; mobileThird?:boolean; publicFrame?:{view:Viewport;angle:number};domeMenu?:DomeMenu;outfit?:Outfit;onChooseClothing?:(id:ClothingId)=>void }) {
  const teeOutlineId=useId();
  const letterWeightId=useId();
  const homeRoot = useRef<HTMLDivElement>(null);
@@ -104,12 +106,10 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
 
         <DomeWishes active={!cockpit} frame={publicFrame} spaceTransform={exteriorPlane(config,camera,view)} />
 
-        <div className="grid gap-8 md:gap-16 md:grid-cols-3 mt-2 mb-4 md:mb-16">
+        <div data-dome-slot="information" className="dome-information grid mt-2 mb-4 md:mb-16">
+          {!cockpit && <MatePanel enabled={loginEnabled} />}
+          <div className="dome-columns">
           <section data-dome-slot="live" className="md:col-start-1 mt-4 md:mt-0 md:max-w-sm md:mx-auto">
-            {cockpit && domeMenu==='records' ? <>
-              <h2 className="text-2xl mb-4">THE RECORDS</h2>
-              <p>coming soon <span className="animate-pulse">_</span></p>
-            </> : <>
             <h2 className="text-2xl mb-4">THE SHOWS</h2>
 
 
@@ -119,11 +119,13 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
               <span className="animate-pulse">_</span>
             </p>
             </ul>
-            </>}
 
           </section>
 
-          {!cockpit && <MatePanel enabled={loginEnabled} />}
+          <section data-dome-slot="records">
+            <h2 className="text-2xl mb-4">THE RECORDS</h2>
+            <p>coming soon<span className="animate-pulse">_</span></p>
+          </section>
 
           <section data-dome-slot="merch" className="md:col-start-3 md:max-w-sm md:mx-auto">
             <h2 className="text-2xl mb-4">THE MERCH</h2>
@@ -150,6 +152,11 @@ export default function CanonicalHomepage({ cockpit, loginEnabled, config, view,
             </a>
 
           </section>
+          </div>
+          {cockpit && <section className="dome-wardrobe">
+            <h2 className="text-2xl mb-4">CHARLIE&apos;S COLLECTION</h2>
+            <ClothingCollection outfit={outfit} onChoose={onChooseClothing}/>
+          </section>}
         </div>
 
 

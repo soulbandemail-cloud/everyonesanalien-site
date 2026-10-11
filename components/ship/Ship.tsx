@@ -15,14 +15,18 @@ import { Fixtures } from './Fixtures';
 import { GeometryCalibration } from './GeometryCalibration';
 import type {DomeMenu} from '@/lib/ship/domeNavigation';
 import styles from './ship.module.css';
+import {useClothesSpin} from './useClothing';
+import type {Outfit} from '@/lib/ship/clothing';
 
-export default function Ship({ config, baseline, onConfigChange, hull, onHullChange, view, domeConfig=config, sharedSeam=false, reveal=1, development=false, preview=false, logout, busy, onArcade, onTV, onNewsletter, onShows, onMerch, onRecords, domeMenu=null, arcadeOpen=false, liveTv=false, onTvLayer }: {
+export default function Ship({ config, baseline, onConfigChange, hull, onHullChange, view, domeConfig=config, sharedSeam=false, reveal=1, development=false, preview=false, logout, busy, onArcade, onTV, onNewsletter, onShows, onMerch, onRecords, onLeaveContext, domeMenu=null, arcadeOpen=false, liveTv=false, onTvLayer, clothing={outfit:null,revision:0} }: {
+ clothing?:{outfit:Outfit;revision:number};
  config:DomeConfig; baseline:DomeConfig; onConfigChange:(config:DomeConfig)=>void;
  hull:HullConfig; onHullChange:(hull:HullConfig)=>void; view:Viewport;
- domeConfig?:DomeConfig; sharedSeam?:boolean; reveal?:number; development?:boolean; preview?:boolean; logout?:()=>void; busy?:boolean; onArcade?:()=>void; onTV?:()=>void; onNewsletter?:()=>void; onShows?:()=>void; onMerch?:()=>void; onRecords?:()=>void; domeMenu?:DomeMenu; arcadeOpen?:boolean; liveTv?:boolean; onTvLayer?:(node:HTMLDivElement|null)=>void;
+ domeConfig?:DomeConfig; sharedSeam?:boolean; reveal?:number; development?:boolean; preview?:boolean; logout?:()=>void; busy?:boolean; onArcade?:()=>void; onTV?:()=>void; onNewsletter?:()=>void; onShows?:()=>void; onMerch?:()=>void; onRecords?:()=>void; onLeaveContext?:()=>void; domeMenu?:DomeMenu; arcadeOpen?:boolean; liveTv?:boolean; onTvLayer?:(node:HTMLDivElement|null)=>void;
 }) {
  const [attention, setAttention] = useState({ x: 0, back: 0, down: 0 });
  const movement=useCharlieMovement(config,alienLookYaw(attention.x,attention.back));
+ const appearance=useClothesSpin(clothing,movement.state.engagement==='merch',movement.state.mode==='standing'&&!movement.state.phase&&movement.state.moving===0);
  const {interact,available,closeArcade}=movement;
  const wasArcadeOpen=useRef(arcadeOpen);
  useEffect(()=>{
@@ -34,11 +38,11 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
   records:onRecords&&recordsAvailable?()=>interact('records',onRecords):undefined,
   shows:onShows&&showsAvailable?()=>interact('shows',onShows):undefined,
   merch:onMerch&&merchAvailable?()=>interact('merch',onMerch):undefined,
-  arcade:onArcade&&arcadeAvailable?()=>interact('arcade',onArcade):undefined,
+  arcade:onArcade&&arcadeAvailable?()=>{onLeaveContext?.();interact('arcade',onArcade);}:undefined,
   tv:onTV?()=>interact('tv',onTV):undefined,
   newsletter:onNewsletter&&newsletterAvailable?()=>interact('newsletter',onNewsletter):undefined,
-  chair:chairAvailable?()=>interact('chair'):undefined,
- }),[interact,onRecords,recordsAvailable,onShows,onMerch,onArcade,onTV,onNewsletter,showsAvailable,merchAvailable,arcadeAvailable,newsletterAvailable,chairAvailable]);
+  chair:chairAvailable?()=>{onLeaveContext?.();interact('chair');}:undefined,
+ }),[interact,onLeaveContext,onRecords,recordsAvailable,onShows,onMerch,onArcade,onTV,onNewsletter,showsAvailable,merchAvailable,arcadeAvailable,newsletterAvailable,chairAvailable]);
  const root = useRef<HTMLDivElement>(null);
  const pointer = useRef({ x: 0, y: .25 });
  useEffect(() => {
@@ -92,13 +96,13 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
     const bounds=root.current!.getBoundingClientRect(),scene=root.current?.closest<HTMLElement>('[data-cockpit-presentation]'),angle=Number(scene?.dataset.presentationAngle??0)*Math.PI/180,scale=Number(scene?.dataset.presentationScale??1);
     const dx=event.clientX-bounds.left-bounds.width/2,dy=event.clientY-bounds.top-bounds.height/2;
     const x=(dx*Math.cos(angle)+dy*Math.sin(angle))/scale+view.width/2,y=(-dx*Math.sin(angle)+dy*Math.cos(angle))/scale+view.height/2;
-    const point=floorPoint(x,y,config,view);if(point)movement.walk(point);
+    const point=floorPoint(x,y,config,view);if(point && movement.walk(point))onLeaveContext?.();
    }}/>
   </svg>
   <Fixtures onRecords={actions.records} reading={movement.state.paper>0} onShows={actions.shows} onMerch={actions.merch} domeMenu={domeMenu} config={config} view={view} onArcade={actions.arcade} onTV={actions.tv} onNewsletter={actions.newsletter} liveTv={liveTv} />
-  <PilotMezzanine attention={attention} config={config} view={view} seated={movement.state.mode==='pilot-seated'&&!movement.state.phase} onChair={reveal===1?actions.chair:undefined} />
+  <PilotMezzanine outfit={appearance.outfit} attention={attention} config={config} view={view} seated={movement.state.mode==='pilot-seated'&&!movement.state.phase} onChair={reveal===1?actions.chair:undefined} />
   <div className="cockpit-tv-layer" ref={onTvLayer} style={{position:'absolute',inset:0,zIndex:7,pointerEvents:'none','--tv-frame-width':view.width+'px','--tv-frame-height':view.height+'px'} as React.CSSProperties}/>
-  <WalkingCharlie state={movement.state} config={config} view={view}/>
+  <WalkingCharlie outfit={appearance.outfit} spin={appearance.spin} state={movement.state} config={config} view={view}/>
   <ManifestationPort config={config} view={view} />
   <header className={styles.toolbar}>
     <span className={styles.alpha}>alpha{preview && <small className={styles.previewLabel}>DEVELOPMENT PREVIEW · NO MATE SESSION</small>}</span>

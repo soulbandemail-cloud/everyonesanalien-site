@@ -1,3 +1,4 @@
+import type {Outfit} from '@/lib/ship/clothing';
 import {useId,useState,type CSSProperties} from 'react';
 import { Alien, type Attention } from './Alien';
 import { pilotChairVolume } from '@/lib/ship/pilotChairVolume';
@@ -8,8 +9,8 @@ import { project, type DomeConfig, type Viewport, type Vec3 } from '@/lib/ship/d
 import { ROOM, pilotPosition, platformY, polygonPath } from '@/lib/ship/roomGeometry';
 import {COMMAND_DECK,commandWall,commandDeck,commandFront,commandStairs} from '@/lib/ship/commandDeck';
 
-type PilotMezzanineProps = {attention:Attention;config:DomeConfig;view:Viewport; seated?:boolean;onChair?:()=>void};
-export function PilotMezzanine({ attention, config, view, seated=true,onChair }: PilotMezzanineProps) {
+type PilotMezzanineProps = {outfit?:Outfit;attention:Attention;config:DomeConfig;view:Viewport; seated?:boolean;onChair?:()=>void};
+export function PilotMezzanine({ attention, config, view, seated=true,onChair,outfit=null }: PilotMezzanineProps) {
  const id=useId();
  const [pressed,setPressed]=useState(false);
 
@@ -88,6 +89,6 @@ export function PilotMezzanine({ attention, config, view, seated=true,onChair }:
    <ellipse cx={chairWidth*.5} cy={chairHeight*.99+seatLift} rx={chairWidth*.2} ry={chairHeight*.04}/>
   </g>
  </svg>
- <Alien attention={attention} occupant={seated} facing={seated?undefined:180}/></div></div>
+ <Alien outfit={outfit} ambient={seated?'pilot':undefined} attention={attention} occupant={seated} facing={seated?undefined:180}/></div></div>
  </div>;
 }

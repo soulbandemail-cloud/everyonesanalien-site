@@ -17,7 +17,7 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
   useLayoutEffect(() => {
     const node = root.current;
     if (!node) return;
-    const slots = Array.from(node.querySelectorAll<HTMLElement>('[data-dome-slot]'));
+    const slots = Array.from(node.querySelectorAll<HTMLElement>('[data-dome-slot="socials"], [data-dome-slot="brand"], [data-dome-slot="information"]'));
     const changedMode = mounted.current ? priorMode.current !== cockpit : animateEntry;
     mounted.current = true; priorMode.current = cockpit;
     const old = slots.map(el => el.getBoundingClientRect());
@@ -26,7 +26,7 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
     const layout = domePageLayout(config);
     const positions: Record<string, [number, number]> = {
       socials: [0,layout.socials], brand: [0,layout.brand],
-      mate: [0,layout.information], live: [-.67,layout.information], merch: [.67,layout.information],
+      information: [0,layout.information],
     };
     const desktop = view.width >= 760;
     if (cockpit) slots.forEach(el => {
@@ -40,9 +40,8 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
       const x=desktop ? point.x : Math.max(width*scale/2+view.width*.04,Math.min(view.width*.96-width*scale/2,point.x));
       Object.assign(el.style,{position:'fixed',left:`${x}px`,top:`${point.y+(side ? view.height*.015 : 0)}px`,width:`${width}px`,margin:'0',transformOrigin:'center',transform:`translate(-50%, -50%) scale(${scale})`});
     });
-    if(cockpit) for(const el of slots.filter(el=>['live','merch'].includes(el.dataset.domeSlot!))) {
-      const scale=mobileThird ? .7 : .78;
-      Object.assign(el.style,{left:`${view.width/2}px`,top:`${view.height*.35}px`,width:`${Math.min(350,view.width*.48)}px`,transformOrigin:'top center',transform:`translateX(-50%) scale(${scale})`});
+    if(cockpit) for(const el of slots.filter(el=>el.dataset.domeSlot==='information')) {
+      Object.assign(el.style,{left:`${view.width/2}px`,top:`${view.height*.35}px`,width:`${Math.min(660,view.width*.52)}px`,transformOrigin:'top center',transform:'translateX(-50%)'});
     }
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const duration = cameraDuration(motion.matches,document.hidden);
@@ -86,10 +85,9 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
     icons.forEach(svg=>{svg?.style.removeProperty('width');svg?.style.removeProperty('height');});
     node.classList.remove('on-glass');
     const returning=!cockpit && progress>0;
-    const sides=Array.from(node.querySelectorAll<HTMLElement>('[data-dome-slot="live"], [data-dome-slot="merch"]'));
+    const sides=Array.from(node.querySelectorAll<HTMLElement>('[data-dome-slot="information"]'));
     if(!cockpit) sides.forEach(el=>{el.removeAttribute('style');el.querySelector('h2')?.removeAttribute('style');});
     // Measure the complete first-person grid before taking header pieces out of flow.
-    const destinations=returning ? sides.map(el=>el.getBoundingClientRect()) : [];
     const slotHeights=returning ? slots.map(el=>el.getBoundingClientRect().height) : [];
     const natural=headerParts.map(el=>el.getBoundingClientRect());
     const surfaceRects=natural;
@@ -169,34 +167,6 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
         const ax=startX+(sx-startX)*t, ay=sy*t, bx=tx*t, by=startY+(ty-startY)*t;
         Object.assign(el.style,{position:'fixed',left:'0',top:'0',width:`${rect.width}px`,height:`${rect.height}px`,margin:'0',transformOrigin:'0 0',transform:`matrix(${ax},${ay},${bx},${by},${x},${y})`});
       });
-    }
-    if(returning) sides.forEach((el,i)=>{
-      const dest=destinations[i];
-      const tuning=mobileThird ? mobileSideContent(el.dataset.domeSlot!) : null;
-      const theta=tuning?.theta ?? (el.dataset.domeSlot==='live' ? -.67 : .67);
-      const point=domePoint(theta,layout.information,config,view);
-      const desktop=view.width>=760;
-      const projectedWidth=Math.min(350,view.width*(desktop ? .27 : .43));
-      const scale=tuning?.scale ?? .78;
-      const centre=desktop ? point.x : Math.max(projectedWidth*scale/2+view.width*.04,Math.min(view.width*.96-projectedWidth*scale/2,point.x));
-      const width=dest.width+(projectedWidth-dest.width)*progress;
-      const currentScale=1+(scale-1)*progress;
-      // Preserve third-person typography at its endpoint, with no CSS-class snap.
-      const heading=el.querySelector<HTMLElement>('h2');
-      if(heading){heading.style.fontSize=`${24+(view.width<760 ? -8 : 0)*progress}px`;heading.style.marginBottom=`${16+(view.width<760 ? -8 : 0)*progress}px`;}
-      Object.assign(el.style,{position:'fixed',left:'0',top:'0',width:`${width}px`,margin:'0',fontSize:`${16+(view.width<760 ? -4 : 0)*progress}px`,transform:'none',transformOrigin:'0 0'});
-      const height=el.getBoundingClientRect().height;
-      const x=dest.left+(centre-projectedWidth*scale/2-dest.left)*progress;
-      const y=dest.top+(point.y+(tuning ? view.height*.015 : 0)-height*scale/2-dest.top)*progress;
-      el.style.transform=`translate(${x}px,${y}px) scale(${currentScale})`;
-    });
-    if(returning) {
-      const shows=sides.find(el=>el.dataset.domeSlot==='live');
-      const merch=sides.find(el=>el.dataset.domeSlot==='merch');
-      if(shows && merch) {
-        const scale=mobileThird ? mobileSideContent('live').scale : .78;
-        shows.style.translate=`0 ${(shows.offsetHeight-merch.offsetHeight)*scale*progress/2}px`;
-      }
     }
     if(!cockpit && progress===0) sides.forEach(el=>el.querySelector('h2')?.removeAttribute('style'));
     } finally {

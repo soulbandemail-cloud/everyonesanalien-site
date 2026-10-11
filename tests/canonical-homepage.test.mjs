@@ -26,19 +26,26 @@ const transition=component('lib/ship/cameraTransition.ts',{'./roomGeometry':room
 const exterior=component('lib/ship/exteriorSpace.ts',{'./domeGeometry':geometry,'./cameraTransition':transition});
 const starfield=component('lib/ship/starfield.ts');
 const space=component('components/home/ExteriorSpace.tsx',{'@/lib/ship/starfield':starfield,'./exterior.css':{},'@/lib/ship/domeGeometry':geometry,'@/lib/ship/exteriorSpace':exterior});
-const page=component('components/home/CanonicalHomepage.tsx',{'@/public/soul-ringer-tee.png':{default:{src:'/soul-ringer-tee.png',width:1397,height:1126}},'@/lib/ship/domeGeometry':geometry,'./ExteriorSpace':space,'@/lib/ship/exteriorSpace':exterior,'./DomeWishes':wishes,'./PortableTV':tv,'./RealPlanetHeart':heart,'./useDomeProjection':{useDomeProjection:()=>{}},'@/components/mate/MatePanel':panel});
+const clothing=component('lib/ship/clothing.ts');
+const collection=component('components/home/ClothingCollection.tsx',{'@/lib/ship/clothing':clothing});
+const page=component('components/home/CanonicalHomepage.tsx',{'./ClothingCollection':collection,'@/public/soul-ringer-tee.png':{default:{src:'/soul-ringer-tee.png',width:1397,height:1126}},'@/lib/ship/domeGeometry':geometry,'./ExteriorSpace':space,'@/lib/ship/exteriorSpace':exterior,'./DomeWishes':wishes,'./PortableTV':tv,'./RealPlanetHeart':heart,'./useDomeProjection':{useDomeProjection:()=>{}},'@/components/mate/MatePanel':panel});
 const render=cockpit=>renderToStaticMarkup(React.createElement(page.default,{cockpit,loginEnabled:true,config:geometry.DEFAULT_DOME,view:{width:1440,height:900}}));
 const links=html=>[...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/gs)].map(m=>[m[1],m[2]]);
-test('one canonical content tree: public SHOWS/MATES/THE MERCH, cockpit SHOWS/empty/THE MERCH',()=>{
+test('one canonical content tree: first-person MATES/SHOWS/RECORDS/MERCH, third-person SHOWS/RECORDS/MERCH',()=>{
  const publicPage=render(false),cockpit=render(true);
  assert.deepEqual(links(cockpit),links(publicPage));
- assert.ok(publicPage.indexOf('THE SHOWS')<publicPage.indexOf('>THE MATES<'));
+ assert.ok(publicPage.indexOf('>THE MATES<')<publicPage.indexOf('THE SHOWS'));
+ assert.ok(publicPage.indexOf('THE SHOWS')<publicPage.indexOf('THE RECORDS'));
+ assert.ok(publicPage.indexOf('THE RECORDS')<publicPage.indexOf('THE MERCH'));
+ assert.ok(cockpit.indexOf('THE SHOWS')<cockpit.indexOf('THE RECORDS'));
+ assert.ok(cockpit.indexOf('THE RECORDS')<cockpit.indexOf('THE MERCH'));
  assert.ok(publicPage.indexOf('>THE MATES<')<publicPage.indexOf('>THE MERCH<'));
  assert.match(publicPage,/SIGN UP/);assert.match(publicPage,/LOG IN/);
  assert.doesNotMatch(cockpit,/data-dome-slot="mate"|>THE MATES<|Get The Hyper-Fix|SIGN UP|LOG IN|<form/);
  for(const html of [publicPage,cockpit]){
   assert.match(html,/data-dome-slot="live" class="md:col-start-1/);
-  assert.match(html,/<a[^>]*class="[^"]*bg-\[#00082d\][^"]*active:bg-\[#6ee7b7\][^"]*"[^>]*>The George Tavern,/);
+  assert.match(html,/TBA/);
+  assert.match(html,/coming soon<span class="animate-pulse">_<\/span>/);
   assert.match(html,/data-dome-slot="merch" class="md:col-start-3/);
  }
  for(const html of [publicPage,cockpit]) {
@@ -75,16 +82,17 @@ test('inline mode selectors persist and expose only the selected form',()=>{
   }
  }
 });
-test('third-person menus share the centre while keeping the original live content',()=>{
- const elements=['live','merch'].map(name=>({dataset:{domeSlot:name},style:{},getBoundingClientRect:()=>({width:100,x:0,y:0,height:100}),removeAttribute(){}}));
+test('third-person shared grid remains compact and centred',()=>{
+ const elements=['information'].map(name=>({dataset:{domeSlot:name},style:{},getBoundingClientRect:()=>({width:100,x:0,y:0,height:100}),removeAttribute(){}}));
  const root={current:{closest:()=>null,querySelectorAll:selector=>selector.includes("h1")?[]:elements,classList:{toggle(){},remove(){}}}};
  const loaded={exports:{}};
  const {outputText}=ts.transpileModule(fs.readFileSync('components/home/useDomeProjection.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}});
  const deps={'react':{useRef:value=>({current:value}),useLayoutEffect:fn=>fn()},'@/lib/ship/domeGeometry':{domePoint:theta=>({x:theta,y:0})},'@/lib/ship/domePageLayout':{domePageLayout:()=>({information:1})},'@/lib/ship/cameraTransition':{cameraDuration:()=>0},'@/lib/ship/domeNavigation':component('lib/ship/domeNavigation.ts'),'@/lib/ship/mobilePresentation':{mobileSideContent:()=>({theta:0,scale:.6})}};
  new Function('module','exports','require','window','document',outputText)(loaded,loaded.exports,name=>deps[name],{matchMedia:()=>({addEventListener(){},removeEventListener(){}}),addEventListener(){}},{addEventListener(){}});
  loaded.exports.useDomeProjection(root,true,{}, {width:1440,height:900});
- assert.equal(elements[0].style.left,'720px');assert.equal(elements[1].style.left,'720px');
- assert.equal(elements[0].style.top,elements[1].style.top);
+ assert.equal(elements[0].style.left,'720px');
+ assert.equal(elements[0].style.width,'660px');
+ assert.equal(elements[0].style.top,'315px');
 });
 
 test('public atmosphere stays intact and Wish UI/rules are absent before a catch',()=>{
@@ -143,11 +151,18 @@ test('tee uses a visible SVG silhouette and preserves its Square link in both vi
  }
 });
 
- test('Records uses the existing centre content slot with only the coming-soon placeholder',()=>{
-  const html=renderToStaticMarkup(React.createElement(page.default,{cockpit:true,loginEnabled:true,config:geometry.DEFAULT_DOME,view:{width:1440,height:900},domeMenu:'records'}));
-  const section=html.match(/<section data-dome-slot="live"[^>]*>(.*?)<\/section>/s)[1];
+test('Records is the same placeholder column in both perspectives',()=>{
+ for(const cockpit of [false,true]) {
+  const section=render(cockpit).match(/<section data-dome-slot="records"[^>]*>(.*?)<\/section>/s)[1];
   assert.match(section,/>THE RECORDS<\/h2>/);
-  assert.match(section,/<p>coming soon <span class="animate-pulse">_<\/span><\/p>/);
+  assert.match(section,/<p>coming soon<span class="animate-pulse">_<\/span><\/p>/);
   assert.doesNotMatch(section,/<a|<button|<audio|THE SHOWS/);
-  assert.doesNotMatch(render(false),/THE RECORDS/);
- });
+ }
+});
+test('wardrobe context preserves the shared website tree and has no back button',()=>{
+ const html=renderToStaticMarkup(React.createElement(page.default,{cockpit:true,config:geometry.DEFAULT_DOME,view:{width:1440,height:900},domeMenu:'merch'}));
+ assert.match(html,/data-dome-menu="merch"/);
+ assert.match(html,/CHARLIE&#x27;S COLLECTION/);
+ assert.doesNotMatch(html,/>BACK</);
+ for(const name of ['THE SHOWS','THE RECORDS','THE MERCH'])assert.equal(html.split(name).length-1,1);
+});

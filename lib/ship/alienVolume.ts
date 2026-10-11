@@ -1,6 +1,8 @@
+import type {Outfit} from './clothing';
+import type {AmbientPose} from './charlieAmbient';
 /** Small illustrated meshes in the pilot's existing 180 × 250 drawing space. */
 type V = {x:number;y:number;z:number};
-type Face = {points:V[];colour:string;eye?:boolean;head?:boolean;leg?:boolean;arm?:boolean;antenna?:boolean;side?:number};
+type Face = {uv?:{x:number;y:number}[];points:V[];colour:string;eye?:boolean;head?:boolean;leg?:boolean;arm?:boolean;antenna?:boolean;side?:number};
 const faces:Face[]=[];
 const sphere=(centre:V,r:V,colour:string,rows=12,cols=24,output:Face[]=faces)=>{
  const point=(a:number,b:number)=>({x:centre.x+r.x*Math.sin(a)*Math.cos(b),y:centre.y+r.y*Math.cos(a),z:centre.z+r.z*Math.sin(a)*Math.sin(b)});
@@ -78,9 +80,15 @@ for(let i=0;i<=16;i++){
 tube(smile,.9,'#000000');
 for(let i=smileStart;i<faces.length;i++)faces[i].head=true;
 
-export type AlienMotion={stand?:number;gait?:number;moving?:number;reading?:number;life?:number};
+export type AlienMotion={outfit?:Outfit;ambient?:AmbientPose;stand?:number;gait?:number;moving?:number;reading?:number;life?:number};
 export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMotion={}){
  const stand=motion.stand??(standing?1:0),walk=motion.moving??0,phase=motion.gait??0,reading=motion.reading??0;
+ const ambient=motion.ambient;
+ const amount=ambient?.amount??0,gestureTime=ambient?.time??0;
+ const scratch=ambient?.kind==='scratch'?amount:0,stretch=ambient?.kind==='stretch'?amount:0;
+ const glance=ambient?.kind==='look'?amount:0;
+ const headTurn=glance*(ambient?.side??1)*(.55*Math.cos(gestureTime*.65));
+ const headPitch=glance*(-.32+.14*Math.sin(gestureTime*1.1))-stretch*.16;
  const life=motion.life??0,breath=motion.life===undefined?0:Math.sin(life*1.35)*.48;
  const pose=(p:V,face:Face):V=>{
   const bounce=(1-Math.cos(phase*2))*1.1*walk;
@@ -88,7 +96,7 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
 
   const flex=face.antenna?Math.max(0,(38-p.y)/23):0;
   const antenna=flex*(Math.sin(phase-.65)*2.2*walk+(motion.life===undefined?0:Math.sin(life*(face.side===-1?1.13:.91)+(face.side??0))*.7));
-  return {...p,x:p.x+antenna,y:face.head?p.y:p.y-38*stand-bounce};
+  return {...p,x:p.x+antenna+flex*amount*Math.sin(gestureTime*2.1-.5)*2,y:face.head?p.y:p.y-38*stand-bounce};
  };
  // Rebuild round tubes around posed centre-lines. Deforming the original
  // vertices compressed their cross-sections into flat ribbons.
@@ -108,8 +116,39 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
  for(const side of [-1,1]){
   const handY=side<0?198:196,handZ=side<0?-22:-25,step=Math.sin(phase+(side===-1?Math.PI:0)),bounce=(1-Math.cos(phase*2))*1.1*walk;
   const armPose=(p:V)=>{const weight=Math.max(0,Math.min(1,(p.y-138)/62));return {x:p.x+side*42*reading*weight,y:p.y-38*stand-bounce-reading*65*weight,z:p.z-step*9*weight*walk-reading*38*weight};};
-  tube([{x:side*12,y:138,z:0},{x:side*19,y:154,z:1},{x:side*25,y:181,z:-3},{x:side*22,y:191,z:-12},{x:side*13,y:handY,z:handZ}].map(armPose),2.8,'#79cfb2',arms);
-  sphere(armPose({x:side*13,y:handY+2,z:handZ}),{x:4,y:5,z:3},'#79cfb2',12,24,arms);
+  const points=[{x:side*12,y:138,z:0},{x:side*19,y:154,z:1},{x:side*25,y:181,z:-3},{x:side*22,y:191,z:-12},{x:side*13,y:handY,z:handZ}].map(armPose);
+  const scratching=side===(ambient?.side??1)?scratch:0;
+  // Lift through the elbow, then make three small fingertip strokes at the temple.
+  const rub=gestureTime>1.2&&gestureTime<3.4?Math.sin((gestureTime-1.2)*9)*2:0;
+  const reach=[{x:side*12,y:138,z:0},{x:side*39,y:139,z:-2},{x:side*65,y:115,z:-5},{x:side*60,y:86,z:-9},{x:side*53,y:65+rub,z:-12}];
+  const opening=[{x:side*12,y:138,z:0},{x:side*27,y:142,z:-3},{x:side*46,y:150,z:-12},{x:side*48,y:131,z:-20},{x:side*40,y:118,z:-24}];
+  const blend=(p:V,q:V,t:number)=>({x:p.x+(q.x-p.x)*t,y:p.y+(q.y-38*stand-p.y)*t,z:p.z+(q.z-p.z)*t});
+  const posed=points.map((p,i)=>blend(blend(p,reach[i],scratching),opening[i],stretch));
+  tube(posed,2.8,'#79cfb2',arms);
+  if(motion.outfit==='soul-ringer-1'){
+   const end={x:posed[0].x+(posed[1].x-posed[0].x)*.9,y:posed[0].y+(posed[1].y-posed[0].y)*.9,z:posed[0].z+(posed[1].z-posed[0].z)*.9};
+   tube([posed[0],end],5.5,'#edece3',arms);
+   const cuff={x:end.x+(posed[1].x-posed[0].x)*.08,y:end.y+(posed[1].y-posed[0].y)*.08,z:end.z+(posed[1].z-posed[0].z)*.08};
+   tube([end,cuff],5.6,'#a62936',arms);
+  }
+  sphere(scratching||stretch?{...posed[4],y:posed[4].y+2}:armPose({x:side*13,y:handY+2,z:handZ}),{x:4,y:5,z:3},'#79cfb2',12,24,arms);
+ }
+ const garment:Face[]=[];
+ if(motion.outfit==='soul-ringer-1'){
+  // A hollow, softly tapered garment follows the torso, not a billboard.
+  const rings=[{y:134,x:7,z:6.8},{y:142,x:17,z:11},{y:164,x:18,z:13},{y:193,x:17,z:12}];
+  const ring=(r:typeof rings[number],a:number)=>({x:r.x*Math.cos(a),y:r.y,z:2+r.z*Math.sin(a)});
+  for(let k=0;k<rings.length-1;k++)for(let j=0;j<32;j++){
+   const a=j*Math.PI/16,b=(j+1)*Math.PI/16;
+   garment.push({colour:'#edece3',points:[ring(rings[k],a),ring(rings[k+1],a),ring(rings[k+1],b),ring(rings[k],b)]});
+  }
+  tube(Array.from({length:33},(_,j)=>ring(rings[0],j*Math.PI/16)),1.5,'#a62936',garment);
+  // The actual merchandise illustration wraps over the curved front in small cells.
+  const surface=(u:number,v:number)=>{const x=(u-.5)*25;return {x,y:153+v*20,z:2-13.5*Math.sqrt(1-(x/18)**2)};};
+  for(let y=0;y<6;y++)for(let x=0;x<8;x++){
+   const uv=[{x:x/8,y:y/6},{x:(x+1)/8,y:y/6},{x:(x+1)/8,y:(y+1)/6},{x:x/8,y:(y+1)/6}];
+   for(const indices of [[0,1,2],[0,2,3]])garment.push({colour:'#edece3',uv:indices.map(i=>uv[i]),points:indices.map(i=>surface(uv[i].x,uv[i].y))});
+  }
  }
  const posedLimbs=new Set([...legs,...arms]);
  const paper:Face[]=[];
@@ -122,10 +161,14 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
   for(const x of [-53,7])for(let row=0;row<13;row++)panel(x,72+row*5.6,45-(row%3)*4,.65,'#a6a18e');
  }
 
- const angle=yaw*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle),pitch=Math.max(-1,Math.min(1,down))*45*Math.PI/180;
- const rotate=(p:V,head=false)=>{let {x,y,z}=p;if(head){const t=Math.max(0,Math.min(1,(y-92)/49));const taper=t*t*(3-2*t);x*=1-.28*taper;y+=7*taper;const dy=y-120;y=120+dy*Math.cos(pitch)-z*Math.sin(pitch);z=dy*Math.sin(pitch)+z*Math.cos(pitch);y-=26+38*stand+(1-Math.cos(phase*2))*1.1*walk;}// Breathing settles around planted hips/feet; head and held paper share the lift.
+ const angle=yaw*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle),pitch=Math.max(-1,Math.min(1,down+headPitch))*45*Math.PI/180;
+ const rotate=(p:V,head=false)=>{let {x,y,z}=p;if(head){const hx=x;x=hx*Math.cos(headTurn)+z*Math.sin(headTurn);z=z*Math.cos(headTurn)-hx*Math.sin(headTurn);const t=Math.max(0,Math.min(1,(y-92)/49));const taper=t*t*(3-2*t);x*=1-.28*taper;y+=7*taper;const dy=y-120;y=120+dy*Math.cos(pitch)-z*Math.sin(pitch);z=dy*Math.sin(pitch)+z*Math.cos(pitch);y-=26+38*stand+(1-Math.cos(phase*2))*1.1*walk;}// Breathing settles around planted hips/feet; head and held paper share the lift.
  const supported=Math.max(0,Math.min(1,(244-y)/100));
  const settle=motion.life===undefined?0:Math.sin(life*.23)*Math.sin(life*.37)*.45*(1-walk);
+ // A seated adjustment pivots above planted hips; the chair and feet stay fixed.
+ const upper=Math.max(0,Math.min(1,(202-38*stand-y)/75));
+ x+=stretch*2.8*Math.sin(gestureTime*.8)*upper;
+ z-=stretch*3*upper;
  x+=(settle+Math.sin(phase)*3.5*walk)*supported;
  y-=breath*(reading>.5?1:supported);
  return {x:90+x*c+z*s,y,z:z*c-x*s};};
@@ -133,10 +176,10 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
  // sorting coplanar ink behind the much larger sheet polygon.
  const pageDepth=paper.slice(0,2).map(face=>face.points.reduce((sum,p)=>sum+rotate(pose(p,face)).z,0)/face.points.length);
  const paperOrder=new Map(paper.map((face,i)=>[face,i]));
- return [...faces.filter(face=>!face.leg&&!face.arm),...legs,...arms,...paper].filter(face=>{
+ return [...faces.filter(face=>!face.leg&&!face.arm),...legs,...arms,...garment,...paper].filter(face=>{
   if(!face.eye)return true;
   const centre=face.points.reduce((v,p)=>({x:v.x+p.x/face.points.length,y:0,z:v.z+p.z/face.points.length}),{x:0,y:0,z:0});
-  return centre.z/43**2*c-centre.x/56**2*s>0;
+  return centre.z/43**2*Math.cos(angle+headTurn)-centre.x/56**2*Math.sin(angle+headTurn)>0;
  }).map(face=>{
   const p=face.points.map(p=>rotate(posedLimbs.has(face)?p:pose(p,face),face.head)).map(v=>({x:+v.x.toFixed(6),y:+v.y.toFixed(6),z:+v.z.toFixed(6)})),a=p[0],b=p[1],d=p[2];
   const nx=(b.y-a.y)*(d.z-a.z)-(b.z-a.z)*(d.y-a.y),ny=(b.z-a.z)*(d.x-a.x)-(b.x-a.x)*(d.z-a.z),nz=(b.x-a.x)*(d.y-a.y)-(b.y-a.y)*(d.x-a.x);
@@ -144,7 +187,7 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
   const light=.83+.17*Math.max(0,(-nx*.3-ny*.5+nz*.8)/length);
   const rgb=face.colour.slice(1).match(/../g)!.map(v=>parseInt(v,16));
   const printed=paperOrder.get(face),page=face.points[0].x<0?0:1;
-  return {d:`M${p.map(v=>`${v.x.toFixed(2)},${v.y.toFixed(2)}`).join('L')}Z`,depth:printed!==undefined?1000+pageDepth[page]+(printed>1?.001:0):(face.eye?100:0)+(+(p.reduce((sum,v)=>sum+v.z,0)/p.length).toFixed(5)),fill:face.colour==='#000000'?'#000000':`rgb(${rgb.map((v,i)=>Math.round(v*light+(i===0?5:0))).join(',')})`};
+  return {texture:face.uv?{points:p,uv:face.uv}:undefined,d:`M${p.map(v=>`${v.x.toFixed(2)},${v.y.toFixed(2)}`).join('L')}Z`,depth:printed!==undefined?1000+pageDepth[page]+(printed>1?.001:0):(face.eye?100:0)+(+(p.reduce((sum,v)=>sum+v.z,0)/p.length).toFixed(5)),fill:face.colour==='#000000'?'#000000':`rgb(${rgb.map((v,i)=>Math.round(v*light+(i===0?5:0))).join(',')})`};
  }).sort((a,b)=>a.depth-b.depth);
 }
 
