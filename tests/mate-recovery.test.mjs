@@ -83,7 +83,7 @@ function pageHarness(saveOK=true) {
  const state=[];const refs=[];let index=0,refIndex=0;const effects=[];const calls=[];
  const window={location:{search:'?code=one-use&sb_flow_id=abcdefgh',href:'/auth/reset-password?code=one-use'},history:{state:{},replaceState(_s,_t,url){calls.push(['history',url]);}}};
  const react={useState:initial=>{const i=index++;if(!(i in state))state[i]=initial;return [state[i],value=>{state[i]=value;}];},useRef:initial=>{const i=refIndex++;return refs[i]??=( {current:initial});},useEffect:fn=>effects.push(fn)};
- const page=load('app/auth/reset-password/page.tsx',{'react':react},{window,fetch:async(path,options)=>{calls.push([path,options]);return json(path.endsWith('/session')?{ready:true}:saveOK?{success:true}:{error:'Rejected'},path.endsWith('/session')||saveOK?200:400);}}).default;
+ const page=load('components/mate/DormantResetPassword.tsx',{'react':react},{window,fetch:async(path,options)=>{calls.push([path,options]);return json(path.endsWith('/session')?{ready:true}:saveOK?{success:true}:{error:'Rejected'},path.endsWith('/session')||saveOK?200:400);}}).default;
  return {state,effects,calls,window,render(){index=0;refIndex=0;return page();}};
 }
 function find(node,predicate){if(!node||typeof node!=='object')return null;if(predicate(node))return node;for(const child of [node.props?.children].flat(Infinity)){const result=find(child,predicate);if(result)return result;}return null;}

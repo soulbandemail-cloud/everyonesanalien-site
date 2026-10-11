@@ -41,7 +41,7 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
       Object.assign(el.style,{position:'fixed',left:`${x}px`,top:`${point.y+(side ? view.height*.015 : 0)}px`,width:`${width}px`,margin:'0',transformOrigin:'center',transform:`translate(-50%, -50%) scale(${scale})`});
     });
     if(cockpit) for(const el of slots.filter(el=>el.dataset.domeSlot==='information')) {
-      Object.assign(el.style,{left:`${view.width/2}px`,top:`${view.height*.35}px`,width:`${Math.min(660,view.width*.52)}px`,transformOrigin:'top center',transform:'translateX(-50%)'});
+      Object.assign(el.style,{left:`${view.width*.5}px`,top:`${view.height*.35}px`,width:`${view.width*.9}px`,transformOrigin:'top center',transform:'translateX(-50%)'});
     }
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const duration = cameraDuration(motion.matches,document.hidden);

@@ -2,6 +2,8 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { mateConfig } from './lib/mate/config';
 export async function proxy(request: NextRequest) {
+  // Public cockpit entry does not inspect or refresh an authentication session.
+  if(request.nextUrl.pathname==='/' || request.nextUrl.pathname==='/ship') return NextResponse.next({request});
   const config = mateConfig();
   let response = NextResponse.next({ request });
   if (!config.enabled) return response;

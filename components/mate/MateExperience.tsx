@@ -18,8 +18,8 @@ import { cameraDuration, transitionCamera } from '@/lib/ship/cameraTransition';
 
 const ArcadeDialog = dynamic(() => import('@/components/arcade/ArcadeDialog'), { ssr: false });
 
-export default function MateExperience({ initialAuthenticated = false, loginEnabled = false, entry = false, error = false, development = false, preview = false, mobilePreview = false }: {
-  initialAuthenticated?: boolean; loginEnabled?: boolean; entry?: boolean; error?: boolean; development?: boolean; preview?: boolean; mobilePreview?: boolean;
+export default function MateExperience({ initialAuthenticated = false, loginEnabled = false, entry = false, error = false, development = false, preview = false, mobilePreview = false, universal = true }: {
+  initialAuthenticated?: boolean; loginEnabled?: boolean; entry?: boolean; error?: boolean; development?: boolean; preview?: boolean; mobilePreview?: boolean; universal?:boolean;
 }) {
   const clothing=useClothing();
   const tvController=useRef<TvController>(null);
@@ -29,12 +29,12 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
   const [authenticated,setAuthenticated] = useState(initialAuthenticated);
   const [entryReady,setEntryReady] = useState(!entry);
   const [previewCockpit,setPreviewCockpit]=useState(preview);
-  const cockpit = (preview && previewCockpit) || (authenticated && entryReady);
+  const cockpit = universal || (preview && previewCockpit) || (authenticated && entryReady);
   // Losing access must also discard the open game before any later login.
   if (!cockpit && domeMenu) setDomeMenu(null);
   if (!cockpit && newsletterOpen) setNewsletterOpen(false);
   if (!cockpit && arcadeOpen) setArcadeOpen(false);
-  const [progress,setProgress] = useState(cockpit && !entry ? 1 : 0);
+  const [progress,setProgress] = useState(cockpit && (universal || !entry) ? 1 : 0);
   const progressRef = useRef(progress);
   const viewport=usePresentationViewport(setEntryReady,mobilePreview);
   const {mobile}=viewport;
@@ -50,7 +50,7 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
   const [config,setConfig] = useState(DEFAULT_DOME);
   const [hull,setHull] = useState(DEFAULT_HULL);
   const [busy,setBusy] = useState(false);
-  const [notice,setNotice] = useState(error ? 'That password reset link could not be used. Request a fresh RESET PASSWORD email and open it in the same browser.' : '');
+  const [notice,setNotice] = useState(!universal && error ? 'That password reset link could not be used. Request a fresh RESET PASSWORD email and open it in the same browser.' : '');
   const requestVersion = useRef(0);
   const logoutBusy = useRef(false);
   const focusTarget = useRef<HTMLDivElement>(null);
@@ -82,7 +82,7 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
   },[cockpit]);
 
   const checkSession=useCallback(async()=>{
-    if (!loginEnabled || preview || logoutBusy.current) return;
+    if (universal || !loginEnabled || preview || logoutBusy.current) return;
     const version=++requestVersion.current;
     try {
       const response=await fetch('/api/mate/session',{cache:'no-store',signal:AbortSignal.timeout(15000)});
@@ -90,9 +90,9 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
       const data=await response.json();
       if(version===requestVersion.current) {setAuthenticated(data.authenticated===true);setNotice(current=>current.startsWith('Unable to check your session.') ? '' : current);}
     } catch { if(version===requestVersion.current) setNotice('Unable to check your session. Reconnect to continue; you can retry by returning to this tab.'); }
-  },[loginEnabled,preview]);
+  },[universal,loginEnabled,preview]);
   useEffect(()=>{
-    if(!loginEnabled || preview) return;
+    if(universal || !loginEnabled || preview) return;
     const check=()=>{if(!document.hidden) void checkSession();};
     const channel=typeof BroadcastChannel!=='undefined' ? new BroadcastChannel('eaa-mate-session') : null;
     if(entry) channel?.postMessage('changed');
@@ -102,7 +102,7 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
     check();
     const invalidate=()=>{requestVersion.current++;};
     return ()=>{invalidate();channel?.close();clearInterval(timer);window.removeEventListener('focus',check);window.removeEventListener('pageshow',check);document.removeEventListener('visibilitychange',check);};
-  },[checkSession,loginEnabled,preview,entry]);
+  },[universal,checkSession,loginEnabled,preview,entry]);
 
   async function logout() {
     if(logoutBusy.current) return;
@@ -131,8 +131,8 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
       position:'fixed',left:0,top:0,width:view.width,height:view.height,transformOrigin:'0 0',
       transform:`translate(${viewport.left+viewport.view.width/2}px,${viewport.top+viewport.view.height/2}px) scale(${presentationScale}) rotate(${presentation.angle}deg) translate(${-view.width/2}px,${-view.height/2}px)`,
     } as React.CSSProperties : undefined}>
-    <CanonicalHomepage outfit={clothing.selection.outfit} onChooseClothing={clothing.choose} domeMenu={domeMenu} animateEntry={entry} cockpit={cockpit} loginEnabled={loginEnabled && !preview} config={config} camera={camera} progress={progress} view={view} mobileThird={mobileThird} publicFrame={mobile ? presentation : undefined} />
-    {(cockpit || progress>0) && <Ship clothing={clothing.selection} onLeaveContext={()=>setDomeMenu(null)} onRecords={cockpit && progress===1 ? ()=>setDomeMenu(null) : undefined} arcadeOpen={arcadeOpen} onTvLayer={setTvDockHost} domeMenu={domeMenu} onShows={cockpit && progress===1 ? ()=>setDomeMenu(null) : undefined} onMerch={cockpit && progress===1 ? ()=>setDomeMenu("merch") : undefined} onNewsletter={cockpit && progress===1 ? ()=>{setDomeMenu(null);setNewsletterOpen(true);} : undefined} onTV={cockpit && progress===1 ? ()=>{setDomeMenu(null);tvController.current?.open();} : undefined} liveTv={!!tvVisible} config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
+    <CanonicalHomepage outfit={clothing.selection.outfit} onChooseClothing={clothing.choose} domeMenu={domeMenu} animateEntry={!universal && entry} cockpit={cockpit} loginEnabled={loginEnabled && !preview} config={config} camera={camera} progress={progress} view={view} mobileThird={mobileThird} publicFrame={mobile ? presentation : undefined} />
+    {(cockpit || progress>0) && <Ship clothing={clothing.selection} onLeaveContext={()=>setDomeMenu(null)} onRecords={cockpit && progress===1 ? ()=>setDomeMenu(null) : undefined} arcadeOpen={arcadeOpen} onTvLayer={setTvDockHost} domeMenu={domeMenu} onShows={cockpit && progress===1 ? ()=>setDomeMenu(null) : undefined} onMerch={cockpit && progress===1 ? ()=>setDomeMenu("merch") : undefined} onNewsletter={cockpit && progress===1 ? ()=>{setDomeMenu(null);setNewsletterOpen(true);} : undefined} onTV={cockpit && progress===1 ? ()=>{setDomeMenu(null);tvController.current?.open();} : undefined} liveTv={!!tvVisible} config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={!universal && authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
     {cockpit && newsletterOpen && <NewsletterDialog viewport={viewport} onClose={()=>setNewsletterOpen(false)} />}
     {cockpit && arcadeOpen && <ArcadeDialog viewport={viewport} onExit={() => setArcadeOpen(false)} />}
     </div>
@@ -143,7 +143,7 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
     } as React.CSSProperties : {'--tv-turn':`${-viewport.screenAngle}deg`} as React.CSSProperties} data-portrait-first={!thirdActive && mobile && viewport.landscape || undefined}>
       <PortableTV dockHost={thirdActive?tvDockHost:null} dock={tvDock} controllerRef={tvController} />
     </div>
-    {development && preview && <button type="button" onClick={()=>setPreviewCockpit(value=>!value)} style={{position:'fixed',bottom:8,right:8,zIndex:30001,background:'#00082d',color:'white',border:'1px solid white',padding:8}}>Preview {cockpit ? '1st' : '3rd'} person</button>}
+    {!universal && development && preview && <button type="button" onClick={()=>setPreviewCockpit(value=>!value)} style={{position:'fixed',bottom:8,right:8,zIndex:30001,background:'#00082d',color:'white',border:'1px solid white',padding:8}}>Preview {cockpit ? '1st' : '3rd'} person</button>}
     {notice && <div role="status" className="mate-notice">{notice}<button onClick={()=>setNotice('')} aria-label="Dismiss message">×</button></div>}
   </div>;
 }

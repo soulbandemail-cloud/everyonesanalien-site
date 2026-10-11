@@ -26,19 +26,13 @@ test('signup validates origin/email and fails safely without credentials',async(
 test('newsletter-only mode preserves successful new and existing signup without authentication',async()=>{
  for(const alreadySubscribed of [true,false]) {
   const api=route({alreadySubscribed});const response=await api.POST(request());
-  assert.deepEqual(await response.json(),{success:true,alreadySubscribed});assert.deepEqual(api.calls,['subscribe']);assert.equal(response.headers.get('set-cookie'),null);
+  assert.deepEqual(await response.json(),{success:true,alreadySubscribed,message:alreadySubscribed?"You're already a Mate, mate":'Welcome aboard!'});assert.deepEqual(api.calls,['subscribe']);assert.equal(response.headers.get('set-cookie'),null);
  }
 });
-test('signup authenticates only after membership success and preserves partial success for retry',async()=>{
- for(const [options,expected,calls] of [
-  [{},'email',['subscribe','entry']],
-  [{eligible:false},'pending',['subscribe']],
-  [{entryError:true},'retry',['subscribe','entry']],
-  [{entry:false},'pending',['subscribe','entry']],
- ]) {
-  const api=route({enabled:true,...options});const response=await api.POST(request());
-  assert.deepEqual(await response.json(),{success:true,alreadySubscribed:false,entry:expected});assert.deepEqual(api.calls,calls);
- }
+test('pending memberships and outages never claim success or contact authentication',async()=>{
+ const pending=route({enabled:true,eligible:false});const response=await pending.POST(request());
+ assert.equal(response.status,202);const body=await response.json();
+ assert.equal(body.success,false);assert.equal(body.pending,true);assert.deepEqual(pending.calls,['subscribe']);
  const failed=route({enabled:true,signupError:true});assert.equal((await failed.POST(request())).status,503);assert.deepEqual(failed.calls,['subscribe']);
 });
 
@@ -51,8 +45,8 @@ test('signup uses the real production validator for both domains and both member
     const req=new Request('http://internal-proxy/api/subscribe',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify({email:alreadySubscribed?'existing@example.test':'new@example.test'})});
     const response=await api.POST(req);
     assert.equal(response.status,200);
-    assert.deepEqual(await response.json(),{success:true,alreadySubscribed,entry:'email'});
-    assert.deepEqual(api.calls,['subscribe','entry']);
+    assert.deepEqual(await response.json(),{success:true,alreadySubscribed,message:alreadySubscribed?"You're already a Mate, mate":'Welcome aboard!'});
+    assert.deepEqual(api.calls,['subscribe']);
    }
   }
  }
@@ -76,4 +70,9 @@ test('configured local origins and newsletter-only same-origin fallback still wo
    assert.deepEqual(api.calls,['subscribe']);
   }
  }
+});
+
+test('subscription imports no authentication or recovery implementation',()=>{
+ const source=fs.readFileSync('app/api/subscribe/route.ts','utf8');
+ assert.doesNotMatch(source,/from ['"][^'"]*(?:server|recovery|supabase)/);
 });

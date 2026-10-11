@@ -121,16 +121,16 @@ test('live centre menus use responsive scale while preserving first-person layou
  const deps={'react':{useRef:value=>({current:value}),useLayoutEffect:fn=>fn()},'@/lib/ship/domeGeometry':g,'@/lib/ship/domeNavigation':load('domeNavigation'),'@/lib/ship/domePageLayout':load('domePageLayout'),'@/lib/ship/mobilePresentation':m,'@/lib/ship/cameraTransition':{cameraDuration:()=>0}};
  new Function('module','exports','require','window','document',code)(loaded,loaded.exports,name=>deps[name],{matchMedia:()=>({addEventListener(){},removeEventListener(){}}),addEventListener(){}},{addEventListener(){}});
  const run=(cockpit,mobileThird)=>{
-  const slots=['live','merch'].map(name=>({dataset:{domeSlot:name},style:{},getBoundingClientRect:()=>({width:100,height:100,x:0,y:0}),removeAttribute(){this.style={};}}));
-  const root={current:{closest:()=>null,querySelectorAll:selector=>selector==='[data-dome-slot]'?slots:[],classList:{toggle(){},remove(){}}}};
+  const slots=['information'].map(name=>({dataset:{domeSlot:name},style:{},getBoundingClientRect:()=>({width:100,height:100,x:0,y:0}),removeAttribute(){this.style={};}}));
+  const root={current:{closest:()=>null,querySelectorAll:selector=>selector.includes('information')?slots:[],classList:{toggle(){},remove(){}}}};
   loaded.exports.useDomeProjection(root,cockpit,g.DEFAULT_DOME,samples[0],false,undefined,undefined,mobileThird);
   return slots.map(el=>el.style);
  };
  const desktop=run(true,false),mobile=run(true,true),publicPage=run(false,false);
  assert.equal(parseFloat(mobile[0].left),samples[0].width/2);
- assert.equal(mobile[0].left,mobile[1].left);
- for(let i=0;i<2;i++){
-  assert.match(desktop[i].transform,/scale\(0.78\)/);assert.match(mobile[i].transform,/scale\(0.7\)/);
+ assert.equal(mobile[0].width,`${samples[0].width*.9}px`);
+ for(let i=0;i<1;i++){
+  assert.equal(desktop[i].transform,'translateX(-50%)');assert.equal(mobile[i].transform,'translateX(-50%)');
   assert.equal(mobile[i].width,desktop[i].width);assert.equal(mobile[i].pointerEvents,undefined);
   assert.deepEqual(publicPage[i],{});
  }

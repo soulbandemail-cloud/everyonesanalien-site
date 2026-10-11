@@ -31,7 +31,7 @@ const collection=component('components/home/ClothingCollection.tsx',{'@/lib/ship
 const page=component('components/home/CanonicalHomepage.tsx',{'./ClothingCollection':collection,'@/public/soul-ringer-tee.png':{default:{src:'/soul-ringer-tee.png',width:1397,height:1126}},'@/lib/ship/domeGeometry':geometry,'./ExteriorSpace':space,'@/lib/ship/exteriorSpace':exterior,'./DomeWishes':wishes,'./PortableTV':tv,'./RealPlanetHeart':heart,'./useDomeProjection':{useDomeProjection:()=>{}},'@/components/mate/MatePanel':panel});
 const render=cockpit=>renderToStaticMarkup(React.createElement(page.default,{cockpit,loginEnabled:true,config:geometry.DEFAULT_DOME,view:{width:1440,height:900}}));
 const links=html=>[...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/gs)].map(m=>[m[1],m[2]]);
-test('one canonical content tree: first-person MATES/SHOWS/RECORDS/MERCH, third-person SHOWS/RECORDS/MERCH',()=>{
+test('one canonical content tree: first-person MATES/SHOWS/RECORDS/MERCH, third-person SHOWS/MATES/RECORDS/MERCH',()=>{
  const publicPage=render(false),cockpit=render(true);
  assert.deepEqual(links(cockpit),links(publicPage));
  assert.ok(publicPage.indexOf('>THE MATES<')<publicPage.indexOf('THE SHOWS'));
@@ -40,8 +40,13 @@ test('one canonical content tree: first-person MATES/SHOWS/RECORDS/MERCH, third-
  assert.ok(cockpit.indexOf('THE SHOWS')<cockpit.indexOf('THE RECORDS'));
  assert.ok(cockpit.indexOf('THE RECORDS')<cockpit.indexOf('THE MERCH'));
  assert.ok(publicPage.indexOf('>THE MATES<')<publicPage.indexOf('>THE MERCH<'));
- assert.match(publicPage,/SIGN UP/);assert.match(publicPage,/LOG IN/);
- assert.doesNotMatch(cockpit,/data-dome-slot="mate"|>THE MATES<|Get The Hyper-Fix|SIGN UP|LOG IN|<form/);
+ assert.ok(cockpit.indexOf('THE SHOWS')<cockpit.indexOf('>THE MATES<'));
+ assert.ok(cockpit.indexOf('>THE MATES<')<cockpit.indexOf('THE RECORDS'));
+ for(const html of [publicPage,cockpit]) {
+  assert.match(html,/name="email"/);assert.match(html,/>ENTER</);
+  assert.equal((html.match(/<form/g)||[]).length,1);
+  assert.doesNotMatch(html,/SIGN UP|LOG IN|RESET PASSWORD|name="password"/);
+ }
  for(const html of [publicPage,cockpit]){
   assert.match(html,/data-dome-slot="live" class="md:col-start-1/);
   assert.match(html,/TBA/);
@@ -58,10 +63,10 @@ test('one canonical content tree: first-person MATES/SHOWS/RECORDS/MERCH, third-
  const source=fs.readFileSync('components/home/CanonicalHomepage.tsx','utf8');
  assert.doesNotMatch(source,/useState|setInterval|addEventListener|ArcadeGame|minigameEnabled/);
 });
-test('inline mode selectors persist and expose only the selected form',()=>{
+test('dormant auth mode selectors persist and expose only the selected form',()=>{
  for(const mode of ['signup','login']) {
   let stateIndex=0;
-  const loaded=component('components/mate/MatePanel.tsx',{'react':{...React,useState:initial=>[stateIndex++===0?mode:initial,()=>{}]}});
+  const loaded=component('components/mate/DormantAuthPanel.tsx',{'react':{...React,useState:initial=>[stateIndex++===0?mode:initial,()=>{}]}});
   const html=renderToStaticMarkup(React.createElement(loaded.default,{enabled:true}));
   assert.match(html,/SIGN UP/);assert.match(html,/LOG IN/);assert.match(html,/name="email"/);assert.match(html,/>ENTER</);
   assert.doesNotMatch(html,/<dialog/);assert.equal((html.match(/<form/g)||[]).length,1);
@@ -82,7 +87,7 @@ test('inline mode selectors persist and expose only the selected form',()=>{
   }
  }
 });
-test('third-person shared grid remains compact and centred',()=>{
+test('third-person shared grid remains split around the wordmark with a centred collection',()=>{
  const elements=['information'].map(name=>({dataset:{domeSlot:name},style:{},getBoundingClientRect:()=>({width:100,x:0,y:0,height:100}),removeAttribute(){}}));
  const root={current:{closest:()=>null,querySelectorAll:selector=>selector.includes("h1")?[]:elements,classList:{toggle(){},remove(){}}}};
  const loaded={exports:{}};
@@ -90,8 +95,8 @@ test('third-person shared grid remains compact and centred',()=>{
  const deps={'react':{useRef:value=>({current:value}),useLayoutEffect:fn=>fn()},'@/lib/ship/domeGeometry':{domePoint:theta=>({x:theta,y:0})},'@/lib/ship/domePageLayout':{domePageLayout:()=>({information:1})},'@/lib/ship/cameraTransition':{cameraDuration:()=>0},'@/lib/ship/domeNavigation':component('lib/ship/domeNavigation.ts'),'@/lib/ship/mobilePresentation':{mobileSideContent:()=>({theta:0,scale:.6})}};
  new Function('module','exports','require','window','document',outputText)(loaded,loaded.exports,name=>deps[name],{matchMedia:()=>({addEventListener(){},removeEventListener(){}}),addEventListener(){}},{addEventListener(){}});
  loaded.exports.useDomeProjection(root,true,{}, {width:1440,height:900});
- assert.equal(elements[0].style.left,'720px');
- assert.equal(elements[0].style.width,'660px');
+ assert.ok(Math.abs(parseFloat(elements[0].style.left)-720)<.001);
+ assert.equal(elements[0].style.width,'1296px');
  assert.equal(elements[0].style.top,'315px');
 });
 
