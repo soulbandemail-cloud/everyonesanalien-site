@@ -229,3 +229,9 @@ button.object-back:focus-visible { text-decoration:none; }
 .mobile-email-card form button { min-height:44px; font-size:16px; }
 .mobile-email-close { position:absolute; right:0; top:-8px; min-width:64px; height:44px; font-size:16px; cursor:pointer; }
 .mobile-email-overlay :focus-visible { outline:2px solid #6ee7b7; outline-offset:3px; }
+
+.mobile-email-close { border:1px solid white; color:white; background:#00082d; padding:0 10px; }
+@media (hover:hover) { .mobile-email-close:hover { border-color:#6ee7b7; color:#6ee7b7; } }
+.mobile-email-close:active { border-color:#6ee7b7; color:#6ee7b7; }
+.mobile-email-close:focus:not(:focus-visible) { outline:none; }
+.mobile-email-overlay:focus { outline:none; }

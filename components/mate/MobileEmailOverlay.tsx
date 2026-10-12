@@ -17,7 +17,7 @@ export default function MobileEmailOverlay({children,onClose}:{children:ReactNod
   };
   fit();node.showModal();
   // Focus a non-input control: opening the overlay must not summon the keyboard.
-  node.querySelector<HTMLButtonElement>('button')?.focus({preventScroll:true});
+  node.focus({preventScroll:true});
   viewport?.addEventListener('resize',fit);viewport?.addEventListener('scroll',fit);
   window.addEventListener('resize',fit);
   return ()=>{
@@ -26,7 +26,7 @@ export default function MobileEmailOverlay({children,onClose}:{children:ReactNod
    window.dispatchEvent(new Event('resize'));
   };
  },[]);
- return createPortal(<dialog ref={dialog} className="mobile-email-overlay" aria-labelledby="mobile-email-heading" onCancel={event=>{event.preventDefault();onClose();}}>
+ return createPortal(<dialog ref={dialog} tabIndex={-1} className="mobile-email-overlay" aria-labelledby="mobile-email-heading" onCancel={event=>{event.preventDefault();onClose();}}>
   <div className="mobile-email-card">
    <button type="button" className="mobile-email-close" aria-label="Back to cockpit" autoFocus onClick={onClose}>Back</button>
    <h2 id="mobile-email-heading">THE MATES</h2>

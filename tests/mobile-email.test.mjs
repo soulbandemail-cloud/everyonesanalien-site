@@ -29,7 +29,7 @@ test('mobile email is a button; only the opened portrait overlay contains the fo
 });
 test('desktop retains inline email/ENTER and no overlay entry point',()=>{
  const tree=panel(false).render();assert.ok(tree.some(n=>n.type==='input'));
- assert.equal(tree.find(n=>n.type==='button').props.children,'ENTER');
+ assert.equal(tree.find(n=>n.props?.role==='status').props.children,'ENTER');
  assert.equal(tree.some(n=>n.props?.['aria-haspopup']==='dialog'),false);
 });
 test('button and keyboard share one guarded handler; responses remain in the open overlay',async()=>{
