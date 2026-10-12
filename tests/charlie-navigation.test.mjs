@@ -47,10 +47,10 @@ test('seating, interruptions and immediate versus arrival UI responses',()=>{
 test('occupied chair is inert, floor clicks stand, and seating can be redirected without teleporting',()=>{
  const h=movementHarness();h.api.interact('chair');assert.equal(h.state().phase,null);assert.equal(h.state().mode,'pilot-seated');
  h.api.walk({x:0,z:3});assert.equal(h.state().phase,'rising');const start={...h.state().position};
- h.advance(.2);assert.equal(h.state().phase,'rising');assert.ok(Math.hypot(h.state().position.x-start.x,h.state().position.z-start.z)<.2);
+ h.advance(.2/2.5);assert.equal(h.state().phase,'rising');assert.ok(Math.hypot(h.state().position.x-start.x,h.state().position.z-start.z)<.2);
  h.api.interact('merch');h.advance();assert.equal(h.state().mode,'standing');
  h.api.interact('chair');for(let i=0;i<1200&&h.state().phase!=='sitting';i++)h.advance(1/60);
- assert.equal(h.state().phase,'sitting');h.advance(.45);const before={...h.state().position};
+ assert.equal(h.state().phase,'sitting');h.advance(.45/2.5);const before={...h.state().position};
  h.api.walk({x:0,z:2});assert.deepEqual(h.state().position,before);assert.equal(h.state().phase,'rising');h.advance();assert.equal(h.state().mode,'standing');assert.equal(h.state().position.z,2);
 });
 test('paper stays with the sofa reader and is put away before the next walk',()=>{
@@ -81,7 +81,7 @@ test('mid-walk reversal turns in place quickly before resuming the configured tr
  assert.ok(delta>0 && delta<=18.01,'turn is quick but not a one-frame snap');
  h.advance(.3);assert.ok(h.state().position.z>start.z,'turn finishes promptly');
  const z=h.state().position.z,gait=h.state().gait;h.advance(.1);
- assert.ok(Math.abs(h.state().position.z-z-.24)<.00001,'cruising speed is 2.4 (25% faster)');
+ assert.ok(Math.abs(h.state().position.z-z-.36)<.00001,'cruising speed is 3.6 (50% faster)');
  assert.ok(Math.abs(h.state().gait-gait-1.536)<.00001,'waddle tempo stays at the original 1.92 × 8 rate');
  h.advance();assert.equal(h.state().position.z,4);
 });

@@ -25,7 +25,7 @@ export function useCharlieMovement(config:DomeConfig,seatedYaw=180){
   if(active?.kind==='rising')return true;
   if(seated||active){
    const from={...old,yaw:old.mode==='pilot-seated'&&!active?pilotYaw.current:old.yaw};
-   transition.current={from,to:{...start,y:groundHeight(start,config)},time:0,duration:.75,kind:'rising',seat,yaw:seat==='pilot-seated'?180:from.yaw};
+   transition.current={from,to:{...start,y:groundHeight(start,config)},time:0,duration:.75/2.5,kind:'rising',seat,yaw:seat==='pilot-seated'?180:from.yaw};
    publish({...from,phase:'rising',lookUp:false});
   }else publish({...old,mode:'walking',phase:null,lookUp:false,paper:0});
   return true;
@@ -71,7 +71,7 @@ export function useCharlieMovement(config:DomeConfig,seatedYaw=180){
     const next=active.path[0];
     const heading=next?Math.atan2(old.position.x-next.x,next.z-old.position.z)*180/Math.PI:old.yaw;
     const turn=walkingTurn(old.yaw,heading,dt);
-    let distance=turn.canTravel?dt*2.4:0,position=old.position,travelled=0;
+    let distance=turn.canTravel?dt*(2.4*1.5):0,position=old.position,travelled=0;
     const yaw=turn.yaw;
     while(active.path.length&&distance>0){const next=active.path[0],dx=next.x-position.x,dz=next.z-position.z,length=Math.hypot(dx,dz);if(length>.001){
       const nextHeading=Math.atan2(-dx,dz)*180/Math.PI;
@@ -80,10 +80,10 @@ export function useCharlieMovement(config:DomeConfig,seatedYaw=180){
      const run=Math.min(length,distance);travelled+=run;
      if(length<=distance){position={...next,y:groundHeight(next,config)};active.path.shift();distance-=length;}else{const p={x:position.x+dx/length*distance,z:position.z+dz/length*distance};position={...p,y:groundHeight(p,config)};distance=0;}
     }
-    const value={...old,position,yaw,stand:1,gait:old.gait+travelled*6.4,moving:travelled>0?Math.min(1,old.moving+dt*5):Math.max(0,old.moving-dt*12),phase:null,paper:0,lookUp:false};
+    const value={...old,position,yaw,stand:1,gait:old.gait+travelled*(6.4/1.5),moving:travelled>0?Math.min(1,old.moving+dt*5):Math.max(0,old.moving-dt*12),phase:null,paper:0,lookUp:false};
     if(!active.path.length){value.position={...active.arrival.point,y:groundHeight(active.arrival.point,config)};command.current=null;lastStanding.current=active.arrival.point;const a=active.arrival;
      if(a.mode==='pilot-seated'||a.mode==='sofa-seated'){
-      transition.current={from:value,to:a.mode==='pilot-seated'?pilotSeat:a.seat!,time:0,duration:1,kind:'sitting',seat:a.mode,yaw:a.mode==='pilot-seated'?180:a.yaw};
+      transition.current={from:value,to:a.mode==='pilot-seated'?pilotSeat:a.seat!,time:0,duration:1/2.5,kind:'sitting',seat:a.mode,yaw:a.mode==='pilot-seated'?180:a.yaw};
       publish({...value,mode:'standing',phase:'sitting'});
      }else publish({...value,yaw:a.retainHeading?value.yaw:a.yaw,mode:a.mode,lookUp:!!a.lookUp});
      active.done?.();

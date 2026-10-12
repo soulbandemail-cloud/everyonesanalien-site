@@ -28,7 +28,7 @@ export default function MobileEmailOverlay({children,onClose}:{children:ReactNod
  },[]);
  return createPortal(<dialog ref={dialog} className="mobile-email-overlay" aria-labelledby="mobile-email-heading" onCancel={event=>{event.preventDefault();onClose();}}>
   <div className="mobile-email-card">
-   <button type="button" className="mobile-email-close" aria-label="Close email signup" autoFocus onClick={onClose}>×</button>
+   <button type="button" className="mobile-email-close" aria-label="Back to cockpit" autoFocus onClick={onClose}>Back</button>
    <h2 id="mobile-email-heading">THE MATES</h2>
    <p>Get The Hyper-Fix, SOUL’s official newsletter, for news and Mates Rate offers.</p>
    {children}
