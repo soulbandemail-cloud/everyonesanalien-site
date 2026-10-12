@@ -9,6 +9,8 @@ export function usePresentationViewport(ready: Dispatch<SetStateAction<boolean>>
   let frame=0;
   const measure=()=>{
    frame=0;
+   // The portrait signup owns keyboard resizing; keep the hidden cockpit framing stable.
+   if(document.querySelector('dialog.mobile-email-overlay[open]'))return;
    const layout={width:window.innerWidth,height:window.innerHeight};
    const mobile=mobilePreview || isMobileViewport(layout,coarse.matches,navigator.maxTouchPoints);
    const phone=mobilePreview || isPhoneScreen({width:screen.width || layout.width,height:screen.height || layout.height},coarse.matches,navigator.maxTouchPoints);

@@ -97,11 +97,11 @@ test('viewport hook follows usable viewport and rotation events without reloadin
  const orientation={...target(),type:'portrait-primary'};
  const media={...target(),matches:true};
  const win={...target(),innerWidth:390,innerHeight:844,visualViewport:vv,matchMedia:()=>media};
- let state,cleanup,frame,ready=false,observed=false;
+ let state,cleanup,frame,ready=false,observed=false,signupOpen=false;
  const react={useState:initial=>{state=initial;return [state,fn=>{state=fn(state);}];},useEffect:fn=>{cleanup=fn();}};
  const loaded={exports:{}};
  const code=ts.transpileModule(fs.readFileSync('components/mate/usePresentationViewport.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
- new Function('module','exports','require','window','screen','navigator','document','ResizeObserver','requestAnimationFrame','cancelAnimationFrame',code)(loaded,loaded.exports,name=>name==='react'?react:m,win,{orientation},{maxTouchPoints:5},{documentElement:{}},class {observe(){observed=true;}disconnect(){observed=false;}},fn=>{frame=fn;return 1;},()=>{frame=null;});
+ new Function('module','exports','require','window','screen','navigator','document','ResizeObserver','requestAnimationFrame','cancelAnimationFrame',code)(loaded,loaded.exports,name=>name==='react'?react:m,win,{orientation},{maxTouchPoints:5},{documentElement:{},querySelector:()=>signupOpen?{}:null},class {observe(){observed=true;}disconnect(){observed=false;}},fn=>{frame=fn;return 1;},()=>{frame=null;});
  loaded.exports.usePresentationViewport(value=>{ready=value;});
  frame();
  assert.equal(ready,true);assert.equal(observed,true);assert.equal(state.mobile,true);
@@ -111,6 +111,8 @@ test('viewport hook follows usable viewport and rotation events without reloadin
  orientation.events.get('change')();frame();
  assert.deepEqual(state.view,{width:844,height:290});
  assert.equal(m.cockpitPresentation(state.view,state.mobile,state.landscape,1).angle,0);
+ signupOpen=true;vv.height=180;vv.events.get('resize')();frame();assert.equal(state.view.height,290,'keyboard must not reframe cockpit behind signup');
+ signupOpen=false;win.events.get('resize')();frame();assert.equal(state.view.height,180,'closing signup restores normal viewport measurements');
  vv.height=250;vv.events.get('resize')();frame();assert.equal(state.view.height,250);
  cleanup();assert.equal(observed,false);assert.equal(win.events.size,0);assert.equal(vv.events.size,0);assert.equal(orientation.events.size,0);assert.equal(media.events.size,0);
 });
