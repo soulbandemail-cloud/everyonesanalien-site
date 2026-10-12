@@ -13,8 +13,8 @@ export default function MatePanel(){
   }catch{setMessage('Unable to connect. Please try again.');}finally{setBusy(false);}
  }
  return <section data-dome-slot="mate">
-  <h2 className="text-2xl mb-4">THE MATES</h2>
-  <p className="mb-4">Get The Hyper-Fix (the official SOUL newsletter) for MATES RATE discounts on merch and tickets!</p>
+  <h2 className="text-2xl mb-4">THE HYPER-FIX</h2>
+  <p className="mb-4">Get the official SOUL newsletter for MATES RATE discounts!</p>
   <form className="flex flex-col gap-3" onSubmit={submit}>
    <input name="email" aria-label="EMAIL" type="email" placeholder="EMAIL" autoComplete="email" maxLength={254} value={email} onChange={event=>setEmail(event.target.value)} className="pink-border-glow border border-white bg-[#00082d] p-2" required />
    <button type="submit" className={buttonClass} disabled={busy}>{busy?'...':'ENTER'}</button>

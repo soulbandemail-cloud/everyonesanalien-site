@@ -34,14 +34,14 @@ const links=html=>[...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/gs)
 test('one canonical content tree: first-person MATES/SHOWS/RECORDS/MERCH, third-person SHOWS/MATES/RECORDS/MERCH',()=>{
  const publicPage=render(false),cockpit=render(true);
  assert.deepEqual(links(cockpit),links(publicPage));
- assert.ok(publicPage.indexOf('>THE MATES<')<publicPage.indexOf('THE SHOWS'));
+ assert.ok(publicPage.indexOf('>THE HYPER-FIX<')<publicPage.indexOf('THE SHOWS'));
  assert.ok(publicPage.indexOf('THE SHOWS')<publicPage.indexOf('THE RECORDS'));
  assert.ok(publicPage.indexOf('THE RECORDS')<publicPage.indexOf('THE MERCH'));
  assert.ok(cockpit.indexOf('THE SHOWS')<cockpit.indexOf('THE RECORDS'));
  assert.ok(cockpit.indexOf('THE RECORDS')<cockpit.indexOf('THE MERCH'));
- assert.ok(publicPage.indexOf('>THE MATES<')<publicPage.indexOf('>THE MERCH<'));
- assert.ok(cockpit.indexOf('THE SHOWS')<cockpit.indexOf('>THE MATES<'));
- assert.ok(cockpit.indexOf('>THE MATES<')<cockpit.indexOf('THE RECORDS'));
+ assert.ok(publicPage.indexOf('>THE HYPER-FIX<')<publicPage.indexOf('>THE MERCH<'));
+ assert.ok(cockpit.indexOf('THE SHOWS')<cockpit.indexOf('>THE HYPER-FIX<'));
+ assert.ok(cockpit.indexOf('>THE HYPER-FIX<')<cockpit.indexOf('THE RECORDS'));
  for(const html of [publicPage,cockpit]) {
   assert.match(html,/name="email"/);assert.match(html,/>ENTER</);
   assert.equal((html.match(/<form/g)||[]).length,1);
@@ -150,7 +150,7 @@ test('tee uses a visible SVG silhouette and preserves its Square link in both vi
  for(const cockpit of [false,true]) {
   const html=render(cockpit);
   assert.match(html,/href="https:\/\/square.link\/u\/lXbPiLpe"/);
-  assert.match(html,/class="ringer-tee-art" width="180"/);
+  assert.match(html,/class="ringer-tee-art" width="270"/);
   assert.match(html,/<g class="ringer-tee-silhouette"><image href="\/soul-ringer-tee.png"/);
   assert.doesNotMatch(html,/<svg width="0" height="0"/);
  }

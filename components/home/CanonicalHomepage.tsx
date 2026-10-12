@@ -123,6 +123,10 @@ export default function CanonicalHomepage({ cockpit, config, view, animateEntry 
           </section>
 
           {cockpit && <MatePanel />}
+          {cockpit && <section className="dome-wardrobe">
+            <h2 className="text-2xl mb-4">CHARLIE&apos;S COLLECTION</h2>
+            <ClothingCollection outfit={outfit} onChoose={onChooseClothing}/>
+          </section>}
           <section data-dome-slot="records">
             <h2 className="text-2xl mb-4">THE RECORDS</h2>
             <p>coming soon<span className="animate-pulse">_</span></p>
@@ -136,7 +140,7 @@ export default function CanonicalHomepage({ cockpit, config, view, animateEntry 
               onPointerMove={event=>{if(event.pointerType==='mouse')delete event.currentTarget.dataset.resting;}}
               onPointerEnter={event=>{if(event.pointerType==='mouse')delete event.currentTarget.dataset.resting;}}
               onBlur={event=>{event.currentTarget.dataset.resting='true';}}>
-              <svg className="ringer-tee-art" width="180" viewBox={`0 0 180 ${180*ringerTee.height/ringerTee.width}`} role="img" aria-label="SOUL Ringer Tee" style={{overflow:'visible',display:'block'}}>
+              <svg className="ringer-tee-art" width="270" viewBox={`0 0 180 ${180*ringerTee.height/ringerTee.width}`} role="img" aria-label="SOUL Ringer Tee" style={{overflow:'visible',display:'block'}}>
   <defs>
    <filter id={teeOutlineId} x="-100%" y="-100%" width="300%" height="300%" colorInterpolationFilters="sRGB">
     <feGaussianBlur in="SourceAlpha" stdDeviation="2.5" result="softSilhouette" />
@@ -154,10 +158,7 @@ export default function CanonicalHomepage({ cockpit, config, view, animateEntry 
 
           </section>
           </div>
-          {cockpit && <section className="dome-wardrobe">
-            <h2 className="text-2xl mb-4">CHARLIE&apos;S COLLECTION</h2>
-            <ClothingCollection outfit={outfit} onChoose={onChooseClothing}/>
-          </section>}
+
         </div>
 
 

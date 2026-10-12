@@ -4,13 +4,18 @@ import { polygonPath } from '@/lib/ship/roomGeometry';
 import { FIXTURES, orientedFixtures, consoleTvScreen, type FixturePlacement } from '@/lib/ship/fixtureLayout';
 import {UPCOMING_POSTERS,type DomeMenu} from '@/lib/ship/domeNavigation';
 import styles from './ship.module.css';
+import {loadWearableInk} from '@/lib/ship/wearableArtwork';
+import type {Outfit} from '@/lib/ship/clothing';
 import {rasterPoster} from '@/lib/ship/posterRaster';
+import {posterSurfacePoint} from '@/lib/ship/posterProjection';
 
-type Props = { config: DomeConfig; view: Viewport; onArcade?: () => void; onTV?:()=>void; onNewsletter?:()=>void; onShows?:()=>void; onMerch?:()=>void; onRecords?:()=>void; domeMenu?:DomeMenu; liveTv?:boolean; reading?:boolean };
+type Props = { outfit?:Outfit; config: DomeConfig; view: Viewport; onArcade?: () => void; onTV?:()=>void; onNewsletter?:()=>void; onShows?:()=>void; onMerch?:()=>void; onRecords?:()=>void; domeMenu?:DomeMenu; liveTv?:boolean; reading?:boolean };
 
 /** Crude world-space solids: no owned items, controls, playback or inventory state. */
-export const Fixtures = memo(function Fixtures({ config, view, onArcade, onTV, onNewsletter, onShows, onMerch, onRecords, domeMenu=null, liveTv=false,reading=false }: Props) {
+export const Fixtures = memo(function Fixtures({ config, view, onArcade, onTV, onNewsletter, onShows, onMerch, onRecords, domeMenu=null, liveTv=false,reading=false,outfit=null }: Props) {
   const outlineId=useId();
+  const [shirtInk,setShirtInk]=useState<string>();
+  useEffect(()=>{const ink=loadWearableInk(()=>setShirtInk(ink.canvas.toDataURL('image/png')));return ()=>ink.dispose();},[]);
   const [pressed,setPressed]=useState<'tv'|'arcade'|'newsletter'|'shows'|'merch'|'records'|null>(null);
   const interaction=(name:'tv'|'arcade'|'newsletter'|'shows'|'merch'|'records',action?:()=>void)=>({
     tabIndex:action ? 0 : -1, 'aria-disabled':!action, 'data-pressed':!!action && pressed===name || undefined,
@@ -275,6 +280,8 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
     <g className="merch-rail cockpit-interactive-fixture" role="button" aria-label="SOUL merchandise clothes rail" aria-expanded={domeMenu==='merch'} {...interaction('merch',onMerch)} style={{pointerEvents:'auto'}}>
       {onMerch && <title>THE MERCH</title>}
       <path d={path([local(rail,-1.05,0,0),local(rail,1.05,0,0),local(rail,1.05,2.1,0),local(rail,-1.05,2.1,0)])} fill="transparent" pointerEvents="all" />
+      {/* The outward-facing hook's far tip sits behind the physical top bar. */}
+      {flatArt(rail,-.15,2.1,-.035,1.2,<path d="M-1 -5 C3 -4 4 -1 3 1" fill="none" stroke="#ad8d59" strokeWidth="1.7" pointerEvents="none"/>,'side')}
       {[
         ...[-1.05,1.05].flatMap(x=>[{a:[x,.04,-.38],b:[x,.04,.38],width:4},{a:[x,0,0],b:[x,2.1,0],width:4}]),
         {a:[-1.05,2.1,0],b:[1.05,2.1,0],width:5},
@@ -313,22 +320,18 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
           </>;
         })()}
       </g>
-      {flatArt(rail,-.15,2.1,-.035,1.2,<g aria-label="White SOUL Ringer Tee with red trim hanging on a hanger" pointerEvents="none">
+      {flatArt(rail,-.15,2.1,-.035,1.2,<g aria-label={outfit==='soul-ringer-1'?'Empty brass hanger':'White SOUL Ringer Tee with red trim hanging on a hanger'} pointerEvents="none">
         {/* Thin hanger hooks over the existing rail; the shirt drapes below it. */}
-        <path d="M0 12 V5 C10 3 7 -7 1 -5 C-3 -4 -4 -1 -3 1" fill="none" stroke="#ad8d59" strokeWidth="1.7"/>
-        <path d="M0 12 L-29 29 Q0 34 29 29 Z" fill="#503421" stroke="#35271c" strokeWidth="1.7" strokeLinejoin="round"/>
-        <path d="M-24 28L0 16 24 28" fill="none" stroke="#906a43" strokeWidth="1"/>
+        <path d="M0 12 V5 C-10 3 -7 -7 -1 -5" fill="none" stroke="#ad8d59" strokeWidth="1.7"/>
+        <path d="M0 12 L-29 29 Q0 34 29 29 Z" fill="none" stroke="#ad8d59" strokeWidth="1.7" strokeLinejoin="round"/>
+        {outfit!=='soul-ringer-1' && <g>
         <path d="M-12 20 L-29 25 -49 44 -37 59 -26 51 -28 118 Q0 123 28 118 L26 51 37 59 49 44 29 25 12 20 Q0 29 -12 20Z" fill="#f7f6f2" stroke="#bac2c2" strokeWidth="1" strokeLinejoin="round" />
         <path d="M-12 20 Q0 29 12 20 L11 26 Q0 35 -11 26Z M-49 44 L-37 59 -33 55 -45 40Z M49 44 L37 59 33 55 45 40Z" fill="#c5102e" />
         <path d="M-24 52 Q-19 67 -24 108 M24 52 Q18 78 24 111 M-26 115 Q0 119 26 115" fill="none" stroke="#d8dcda" strokeWidth="1" />
         <path d="M-25 52Q-16 64 -22 95L-25 115Q-20 79 -25 52ZM24 51Q14 78 23 115L26 117Q21 85 24 51ZM-9 95Q-6 109 -12 119L-3 119Q-5 108 -9 95Z" fill="#8d9083" opacity=".12"/>
         <path d="M-17 57Q-10 79 -15 103M16 62Q12 87 18 108" fill="none" stroke="#fffdf5" strokeWidth="1.6" opacity=".55"/>
-        {/* 30cm print on a 50cm body: roughly 60% of the torso width. */}
-        <g fill="#17191a" transform="translate(0 60) scale(.57) translate(0 -60)">
-          <path d="M-7 42 Q-11 48 -8 57 L-13 64 -11 73 -16 83 -10 97 8 98 13 91 10 78 18 69 15 65 8 69 6 59 Q13 50 6 44 L2 40Z" />
-          <path d="M-22 61 Q-28 63 -25 73 L-29 81 -25 95 -13 98 -10 90 -16 82 -15 74 -18 71 Q-14 63 -22 61Z M20 61 Q13 63 17 72 L12 78 15 83 11 90 15 98 27 95 28 83 24 76 25 69 Q27 63 20 61Z" />
-          <path d="M-27 89 Q-17 85 -8 91 L2 88 13 90 28 87 28 99 Q12 102 -2 99 L-27 100Z" />
-        </g>
+        {shirtInk && <image href={shirtInk} x="-17" y="45" width="34" height="26.15" preserveAspectRatio="xMidYMid meet" />}
+        </g>}
       </g>,'side')}
     </g>
     <g className="cockpit-interactive-fixture" role="button" aria-label="Open The Hyper-Fix" {...interaction('newsletter',onNewsletter)} style={{pointerEvents:'auto'}}>
@@ -360,5 +363,18 @@ function CurvedPoster({poster,config,view}:{poster:typeof UPCOMING_POSTERS[numbe
   void rasterPoster(poster,config,view).then(result=>{if(active)setImage(result);});
   return ()=>{active=false;};
  },[geometry]);
- return image ? <image aria-label={poster.title} {...image} preserveAspectRatio="none" /> : null;
+ // Tape shares the poster's curved glass projection and its existing interaction group.
+ const tape = [[.025,.025,-.48],[.975,.025,.42],[.025,.975,.38],[.975,.975,-.44]];
+ return image ? <g>
+  <image aria-label={poster.title} {...image} preserveAspectRatio="none" />
+  <g aria-hidden="true" pointerEvents="none" fill="#947048" fillOpacity=".9" stroke="#b08a5b" strokeWidth=".35" strokeLinejoin="round">
+   {tape.map(([u,v,angle],index)=>{
+    const points=[[-.15,-.025],[.15,-.025],[.15,.025],[-.15,.025]].map(([x,y])=>{
+     const p=posterSurfacePoint(poster,u+x*Math.cos(angle)-y*Math.sin(angle),v+(x*Math.sin(angle)+y*Math.cos(angle))/poster.aspect,config,view);
+     return `${p.x},${p.y}`;
+    }).join(' ');
+    return <polygon key={index} points={points} />;
+   })}
+  </g>
+ </g> : null;
 }

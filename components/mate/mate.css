@@ -162,7 +162,7 @@ button.object-back:focus-visible { text-decoration:none; }
 
 .mate-cockpit:not([data-mobile]) .cockpit-logout { translate:-24px 0; }
 
-/* One shared website grid, with a contextual wardrobe replacing it on glass. */
+/* Shared website columns with a contextual collection in the central gap. */
 .dome-information { grid-template-columns:minmax(0,1fr) minmax(0,3fr); gap:32px; }
 .dome-columns { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:32px; min-width:0; }
 .dome-information section { min-width:0; grid-column-start:auto; max-width:none; margin:0; }
@@ -170,13 +170,15 @@ button.object-back:focus-visible { text-decoration:none; }
 .dome-information input { min-width:0; width:100%; }
 .dome-wardrobe { display:none; }
 .on-glass .dome-information { display:block; pointer-events:auto; z-index:20; }
-.on-glass .dome-columns { grid-template-columns:minmax(0,1fr) minmax(0,1.1fr) minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr); gap:20px; width:94%; margin:0 auto; transform:translateY(-3vh); }
+.on-glass .dome-columns { grid-template-columns:minmax(0,1fr) minmax(0,1.1fr) minmax(0,1.1fr) minmax(0,1.1fr) minmax(0,1fr); gap:20px; width:94%; margin:0 auto; transform:translateY(-3vh); }
 .on-glass .dome-columns [data-dome-slot="records"] { grid-column:4; }
 .on-glass .dome-columns [data-dome-slot="merch"] { grid-column:5; }
 .on-glass .dome-information h2 { font-size:clamp(12px,1.35vw,20px); margin-bottom:10px; }
 .on-glass .dome-information { font-size:clamp(11px,1vw,14px); }
-.on-glass .dome-information .ringer-tee-art { width:clamp(54px,6vw,90px); }
-.on-glass[data-dome-menu="merch"] .dome-columns { display:none; }
+.on-glass .dome-information .ringer-tee-art { width:clamp(81px,9vw,135px); }
+.on-glass .dome-columns .dome-wardrobe { grid-column:3; grid-row:1; }
+.on-glass .dome-wardrobe .clothing-row { grid-template-columns:28px minmax(0,1fr); gap:7px; padding:6px 8px; font-size:clamp(11px,1vw,14px); line-height:28px; }
+.on-glass .dome-wardrobe .clothing-thumbnail { width:28px; height:28px; }
 .on-glass[data-dome-menu="merch"] .dome-wardrobe { display:block; }
 .canonical-home[data-returning] .dome-information { visibility:hidden; pointer-events:none; }
 @media(max-width:767px) {
