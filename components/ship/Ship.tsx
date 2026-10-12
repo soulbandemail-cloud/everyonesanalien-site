@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { project, type DomeConfig, type Viewport } from '@/lib/ship/domeGeometry';
 import type { HullConfig } from '@/lib/ship/hullGeometry';
 import { alienNodTarget, alienFacingTarget, alienLookYaw } from '@/lib/ship/alienVolume';
@@ -17,6 +17,8 @@ import type {DomeMenu} from '@/lib/ship/domeNavigation';
 import styles from './ship.module.css';
 import {useClothesSpin} from './useClothing';
 import type {Outfit} from '@/lib/ship/clothing';
+
+const MemoizedPilotMezzanine=memo(PilotMezzanine);
 
 export default function Ship({ config, baseline, onConfigChange, hull, onHullChange, view, domeConfig=config, sharedSeam=false, reveal=1, development=false, preview=false, logout, busy, onArcade, onTV, onNewsletter, onShows, onMerch, onRecords, onLeaveContext, domeMenu=null, arcadeOpen=false, liveTv=false, onTvLayer, clothing={outfit:null,revision:0} }: {
  clothing?:{outfit:Outfit;revision:number};
@@ -74,7 +76,11 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
    const dt = previous ? Math.min((time - previous) / 1000, .05) : 0; previous = time;
    const ease = reduced.matches ? 1 : 1 - Math.exp(-dt * 5);
    const target = { x: Math.tanh(pointer.current.x * 1.5), back: alienFacingTarget(pointer.current.y,antennaY,turnRange), down: alienNodTarget(pointer.current.x,pointer.current.y) };
-   setAttention(old => ({ x: old.x + (target.x - old.x) * ease, back: old.back + (target.back - old.back) * ease, down: old.down + (target.down - old.down) * (reduced.matches ? 1 : 1-Math.exp(-dt*9)) }));
+   setAttention(old => {
+    // A settled pointer must not reconcile the room every frame.
+    if(Math.abs(old.x-target.x)<.0001 && Math.abs(old.back-target.back)<.0001 && Math.abs(old.down-target.down)<.0001)return old;
+    return {x:old.x+(target.x-old.x)*ease,back:old.back+(target.back-old.back)*ease,down:old.down+(target.down-old.down)*(reduced.matches?1:1-Math.exp(-dt*9))};
+   });
    id = requestAnimationFrame(tick);
   }
   id = requestAnimationFrame(tick);
@@ -100,7 +106,7 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
    }}/>
   </svg>
   <Fixtures outfit={appearance.spin?.to ?? appearance.outfit} onRecords={actions.records} reading={movement.state.paper>0} onShows={actions.shows} onMerch={actions.merch} domeMenu={domeMenu} config={config} view={view} onArcade={actions.arcade} onTV={actions.tv} onNewsletter={actions.newsletter} liveTv={liveTv} />
-  <PilotMezzanine outfit={appearance.outfit} attention={attention} config={config} view={view} seated={movement.state.mode==='pilot-seated'&&!movement.state.phase} onChair={reveal===1?actions.chair:undefined} />
+  <MemoizedPilotMezzanine outfit={appearance.outfit} attention={attention} config={config} view={view} seated={movement.state.mode==='pilot-seated'&&!movement.state.phase} onChair={reveal===1?actions.chair:undefined} />
   <div className="cockpit-tv-layer" ref={onTvLayer} style={{position:'absolute',inset:0,zIndex:7,pointerEvents:'none','--tv-frame-width':view.width+'px','--tv-frame-height':view.height+'px'} as React.CSSProperties}/>
   <WalkingCharlie outfit={appearance.outfit} spin={appearance.spin} state={movement.state} config={config} view={view}/>
   <ManifestationPort config={config} view={view} />

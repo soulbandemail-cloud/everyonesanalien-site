@@ -62,9 +62,10 @@ export function sofaBounds(config: DomeConfig) {
 export function mobileThirdCamera(config: DomeConfig, view: Viewport) {
   const points=sofaBounds(config);
   const floorBounds=[...points,...deckOutline(floorPortDiameter,floorPortDiameter,ROOM.floorY,ROOM.port.z)];
-  const margin=Math.max(8,view.width*.06);
+  const margin=Math.max(8,view.width*.04);
+  const closer={...config,camera:{...config.camera,z:config.camera.z+.65}};
   const fit=(pitch:number)=>{
-    const posed={...config,pitch};
+    const posed={...closer,pitch};
     const extent=Math.max(...points.map(p=>{
       const q=project(p,posed,view);
       return (view.width/2-q.x)/lens(posed,view).focal;
@@ -78,7 +79,7 @@ export function mobileThirdCamera(config: DomeConfig, view: Viewport) {
   for(let i=0;i<32;i++){
     const mid=(low+high)/2,camera=fit(mid);
     const bottom=Math.max(...floorBounds.map(p=>project(p,camera,view).y));
-    if(bottom>view.height-8) high=mid; else low=mid;
+    if(bottom>view.height-4) high=mid; else low=mid;
   }
   return fit(low);
 }

@@ -7,8 +7,8 @@ import {createRequire} from 'node:module';
 import {nodes} from './helpers/interaction-harness.mjs';
 const require=createRequire(import.meta.url);
 function fixtureHarness(){
- let pressed=null;const cache=new Map();
- const react={memo:fn=>fn,useId:()=> 'fixture-test',useState:()=>[pressed,value=>{pressed=value;}]};
+ let pressed=null,stateIndex=0;const cache=new Map();
+ const react={memo:fn=>fn,useId:()=> 'fixture-test',useEffect:()=>{},useState:()=>stateIndex++===0?[undefined,()=>{}]:[pressed,value=>{pressed=value;}]};
  function load(file){
   if(file.endsWith('.css'))return {default:{fixtures:'fixtures'}};
   if(cache.has(file))return cache.get(file);
@@ -23,7 +23,7 @@ function fixtureHarness(){
  }
  const {Fixtures}=load('components/ship/Fixtures.tsx'),{DEFAULT_DOME}=load('lib/ship/domeGeometry.ts');
  let tv=0,arcade=0,newsletter=0,shows=0,merch=0,records=0;
- const render=(enabled=true)=>Fixtures({config:DEFAULT_DOME,view:{width:1280,height:720},onTV:enabled?()=>tv++:undefined,onArcade:enabled?()=>arcade++:undefined,onNewsletter:enabled?()=>newsletter++:undefined,onShows:enabled?()=>shows++:undefined,onMerch:enabled?()=>merch++:undefined,onRecords:enabled?()=>records++:undefined,liveTv:true});
+ const render=(enabled=true)=>{stateIndex=0;return Fixtures({config:DEFAULT_DOME,view:{width:1280,height:720},onTV:enabled?()=>tv++:undefined,onArcade:enabled?()=>arcade++:undefined,onNewsletter:enabled?()=>newsletter++:undefined,onShows:enabled?()=>shows++:undefined,onMerch:enabled?()=>merch++:undefined,onRecords:enabled?()=>records++:undefined,liveTv:true});};
  return {render,counts:()=>({tv,arcade,newsletter,shows,merch,records})};
 }
 test('TV, arcade and newspaper use identical press/release and cancellation behaviour',()=>{

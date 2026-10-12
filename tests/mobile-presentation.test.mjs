@@ -34,16 +34,16 @@ test('mobile first person stays portrait and cockpit stays landscape in either p
  assert.doesNotMatch(source,/orientation-gate|Rotate your phone|inert=|requestOrientation/);
  assert.match(source,/data-cockpit-presentation/);
 });
-test('mobile landscape FOV leaves extra furniture clearance without moving the camera',()=>{
+test('mobile camera moves closer while retaining furniture clearance',()=>{
  const before=JSON.stringify(g.DEFAULT_DOME);
  for(const view of samples){
   const camera=m.mobileThirdCamera(g.DEFAULT_DOME,view);
   assert.ok(camera.fov<g.DEFAULT_DOME.fov);
   const points=m.sofaBounds(camera).map(p=>g.project(p,camera,view));
   const left=Math.min(...points.map(p=>p.x));
-  assert.ok(Math.abs(left-Math.max(8,view.width*.06))<.001);
+  assert.ok(Math.abs(left-Math.max(8,view.width*.04))<.001);
   assert.ok(points.every(p=>p.visible && Number.isFinite(p.y) && p.x>=0 && p.x<=view.width && p.y>=0 && p.y<=view.height));
-  assert.deepEqual(camera.camera,g.DEFAULT_DOME.camera);
+  assert.deepEqual(camera.camera,{...g.DEFAULT_DOME.camera,z:g.DEFAULT_DOME.camera.z+.65});
  }
  assert.equal(JSON.stringify(g.DEFAULT_DOME),before);
 });
@@ -142,7 +142,7 @@ test('mobile camera retains the entire flush hatch above the bottom edge',()=>{
   const camera=m.mobileThirdCamera(g.DEFAULT_DOME,view);
   for(const point of hatch) {
    const p=g.project(point,camera,view);
-   assert.ok(p.visible && p.x>=0 && p.x<=view.width && p.y>=0 && p.y<=view.height-8+.001);
+   assert.ok(p.visible && p.x>=0 && p.x<=view.width && p.y>=0 && p.y<=view.height-4+.001);
   }
  }
 });
