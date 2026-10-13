@@ -34,7 +34,7 @@ export function recordRitual(initial:GramophoneScene,album:AlbumId,index:number)
   add('lift-tonearm',.55,{lift:.11,hands:[home[0],needle(scene.tone,.11)]});
   if(old!==album){
    add('rest-tonearm',.8,{tone:0,hands:[home[0],needle(0,.11)]});
-   add('lower-to-rest',.4,{lift:0,hands:[home[0],needle(0,0)]});
+   add('lower-to-rest',.55,{lift:0,hands:[home[0],needle(0,0)]});
    add('reach-displayed-sleeve',.4,{hands:[null,grip(displaySleeve)]});
    add('take-displayed-sleeve',.65,{sleeves:sleeve(old,held),hands:[null,grip(held)]});
    add('reach-record',.35,{hands:[[-.40,1.43,-.08],grip(held)]});
