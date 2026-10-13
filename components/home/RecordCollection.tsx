@@ -10,7 +10,7 @@ export default function RecordCollection({record=INITIAL_RECORD_STATE,onChoose}:
    <img src={album.artwork} alt={`${album.name} cover`} width="40" height="40"/><span>{album.name}</span><span aria-hidden="true">{expanded===album.id?'−':'+'}</span>
   </button>
   <ol id={`${id}-${album.id}`} hidden={expanded!==album.id} className="record-tracks">{album.tracks.map((song,index)=><li key={song}>
-   <button type="button" className="record-song pink-border-glow" aria-label={`Select ${song} preview`} aria-pressed={record.selectedSong?.album===album.id&&record.selectedSong.index===index} disabled={record.busy} onClick={()=>onChoose?.(album.id,index)}><span>{index+1}.</span><span>{song}</span></button>
+   <button type="button" className="record-song pink-border-glow" aria-label={`Select ${song} preview`} aria-pressed={record.selectedSong?.album===album.id&&record.selectedSong.index===index} disabled={record.busy} onClick={()=>onChoose?.(album.id,index)}><span>{index+1}.</span><span>{song}</span>{record.busy&&record.selectedSong?.album===album.id&&record.selectedSong.index===index&&<span className="record-loading" role="status" aria-label="Preparing record"/>}</button>
   </li>)}</ol>
  </div>)}</div>;
 }

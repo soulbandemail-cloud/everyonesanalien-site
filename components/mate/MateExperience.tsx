@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './mate.css';
+import RotationReminder from './RotationReminder';
 import {useRecords} from '@/components/ship/useRecords';
 import {useClothing} from '@/components/ship/useClothing';
 import { useCockpitZoomGuard } from './useCockpitZoomGuard';
@@ -135,6 +136,7 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
     } as React.CSSProperties : undefined}>
     <CanonicalHomepage records={records.state} onChooseRecord={records.choose} outfit={clothing.selection.outfit} onChooseClothing={clothing.choose} domeMenu={domeMenu} animateEntry={!universal && entry} cockpit={cockpit} loginEnabled={loginEnabled && !preview} config={config} camera={camera} progress={progress} view={view} mobileThird={mobileThird} publicFrame={mobile ? presentation : undefined} />
     {(cockpit || progress>0) && <Ship records={records.state} onRecordPhysical={records.physical} clothing={clothing.selection} onLeaveContext={()=>setDomeMenu(null)} onRecords={cockpit && progress===1 ? ()=>setDomeMenu('records') : undefined} arcadeOpen={arcadeOpen} onTvLayer={setTvDockHost} domeMenu={domeMenu} onShows={cockpit && progress===1 ? ()=>setDomeMenu(null) : undefined} onMerch={cockpit && progress===1 ? ()=>setDomeMenu("merch") : undefined} onNewsletter={cockpit && progress===1 ? ()=>{setDomeMenu(null);setNewsletterOpen(true);} : undefined} onTV={cockpit && progress===1 ? ()=>{setDomeMenu(null);tvController.current?.open();} : undefined} liveTv={!!tvVisible} config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={!universal && authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
+    {mobile && viewport.ready && <RotationReminder hidden={domeMenu==='merch'||domeMenu==='records'} />}
     {cockpit && newsletterOpen && <NewsletterDialog viewport={viewport} onClose={()=>setNewsletterOpen(false)} />}
     {cockpit && arcadeOpen && <ArcadeDialog viewport={viewport} onExit={() => setArcadeOpen(false)} />}
     </div>

@@ -117,3 +117,14 @@ test('arcade lock survives arrival, closes independently, and cancelled approach
  h.api.closeArcade();assert.equal(h.api.available('arcade'),true);
  h.api.interact('arcade',()=>opens++);h.advance();assert.equal(opens,2);
 });
+
+test('sofa reading settles to its original heading after every interaction',()=>{
+ const expected=n.approaches(g.DEFAULT_DOME).newsletter.yaw;
+ for(const source of ['shows','records','merch','tv','arcade']){
+  const h=movementHarness();h.api.interact(source);h.advance();
+  h.api.interact('newsletter');h.advance();
+  assert.equal(h.state().mode,'sofa-seated');
+  assert.ok(Math.abs(Math.sin((h.state().yaw-expected)*Math.PI/180))<1e-9,source);
+  assert.ok(Math.cos((h.state().yaw-expected)*Math.PI/180)>.999999,source);
+ }
+});

@@ -1,7 +1,7 @@
 import {useCallback,useEffect,useRef,useState} from 'react';
 import type {DomeConfig,Vec3} from '@/lib/ship/domeGeometry';
 import {ROOM,pilotPosition} from '@/lib/ship/roomGeometry';
-import {advanceAlienYaw,walkingTurn} from '@/lib/ship/alienVolume';
+import {walkingTurn} from '@/lib/ship/alienVolume';
 import {approaches,findPath,groundHeight,type Point,type Arrival,type CharlieMode,type Destination} from '@/lib/ship/charlieNavigation';
 export type CharlieState={engagement:Destination|null;arcadeActive:boolean;mode:CharlieMode;position:Vec3;yaw:number;lookUp:boolean;phase:'rising'|'sitting'|null;stand:number;gait:number;moving:number;paper:number};
 const pilotSeat={...pilotPosition,y:pilotPosition.y+ROOM.pilotSeatLift};
@@ -62,7 +62,7 @@ export function useCharlieMovement(config:DomeConfig,seatedYaw=180){
     const hop=sitting?.085*Math.sin(Math.PI*Math.max(0,(t-.28)/.72)): .045*Math.sin(Math.PI*t);
     const position={x:tween.from.position.x+(tween.to.x-tween.from.position.x)*travel,y:tween.from.position.y+(tween.to.y-tween.from.position.y)*travel+hop,z:tween.from.position.z+(tween.to.z-tween.from.position.z)*travel};
     const stand=sitting?1-ease(Math.max(0,(t-.4)/.6)):tween.from.stand+(1-tween.from.stand)*s;
-    const value={...old,position,stand,yaw:advanceAlienYaw(old.yaw,tween.yaw,dt),moving:0,paper:sitting&&tween.seat==='sofa-seated'?Math.max(0,(t-.7)/.3):tween.from.paper*(1-Math.min(1,t*4))};
+    const value={...old,position,stand,yaw:tween.from.yaw+(((tween.yaw-tween.from.yaw+540)%360+360)%360-180)*s,moving:0,paper:sitting&&tween.seat==='sofa-seated'?Math.max(0,(t-.7)/.3):tween.from.paper*(1-Math.min(1,t*4))};
     if(t===1){transition.current=null;publish({...value,position:tween.to,stand:sitting?0:1,phase:null,mode:sitting?tween.seat:command.current?'walking':'standing',paper:sitting&&tween.seat==='sofa-seated'?1:0});}
     else publish(value);
    }else if(command.current){
