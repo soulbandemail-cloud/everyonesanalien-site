@@ -29,7 +29,8 @@ const starfield=component('lib/ship/starfield.ts');
 const space=component('components/home/ExteriorSpace.tsx',{'@/lib/ship/starfield':starfield,'./exterior.css':{},'@/lib/ship/domeGeometry':geometry,'@/lib/ship/exteriorSpace':exterior});
 const clothing=component('lib/ship/clothing.ts');
 const collection=component('components/home/ClothingCollection.tsx',{'@/lib/ship/clothing':clothing});
-const page=component('components/home/CanonicalHomepage.tsx',{'./ClothingCollection':collection,'@/public/soul-ringer-tee.png':{default:{src:'/soul-ringer-tee.png',width:1397,height:1126}},'@/lib/ship/domeGeometry':geometry,'./ExteriorSpace':space,'@/lib/ship/exteriorSpace':exterior,'./DomeWishes':wishes,'./PortableTV':tv,'./RealPlanetHeart':heart,'./useDomeProjection':{useDomeProjection:()=>{}},'@/components/mate/MatePanel':panel});
+const records=component('components/home/RecordCollection.tsx',{'@/lib/ship/records':component('lib/ship/records.ts')});
+const page=component('components/home/CanonicalHomepage.tsx',{'./RecordCollection':records,'./ClothingCollection':collection,'@/public/soul-ringer-tee.png':{default:{src:'/soul-ringer-tee.png',width:1397,height:1126}},'@/lib/ship/domeGeometry':geometry,'./ExteriorSpace':space,'@/lib/ship/exteriorSpace':exterior,'./DomeWishes':wishes,'./PortableTV':tv,'./RealPlanetHeart':heart,'./useDomeProjection':{useDomeProjection:()=>{}},'@/components/mate/MatePanel':panel});
 const render=cockpit=>renderToStaticMarkup(React.createElement(page.default,{cockpit,loginEnabled:true,config:geometry.DEFAULT_DOME,view:{width:1440,height:900}}));
 const links=html=>[...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/gs)].map(m=>[m[1],m[2]]);
 test('one canonical content tree: first-person MATES/SHOWS/RECORDS/MERCH, third-person SHOWS/MATES/RECORDS/MERCH',()=>{

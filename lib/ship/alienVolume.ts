@@ -80,7 +80,7 @@ for(let i=0;i<=16;i++){
 tube(smile,.9,'#000000');
 for(let i=smileStart;i<faces.length;i++)faces[i].head=true;
 
-export type AlienMotion={outfit?:Outfit;ambient?:AmbientPose;stand?:number;gait?:number;moving?:number;reading?:number;life?:number};
+export type AlienMotion={ritualHands?:(V|undefined)[];ritualReach?:number[];ritualAmount?:number;outfit?:Outfit;ambient?:AmbientPose;stand?:number;gait?:number;moving?:number;reading?:number;life?:number};
 export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMotion={}){
  const stand=motion.stand??(standing?1:0),walk=motion.moving??0,phase=motion.gait??0,reading=motion.reading??0;
  const ambient=motion.ambient;
@@ -124,6 +124,12 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
   const opening=[{x:side*12,y:138,z:0},{x:side*27,y:142,z:-3},{x:side*46,y:150,z:-12},{x:side*48,y:131,z:-20},{x:side*40,y:118,z:-24}];
   const blend=(p:V,q:V,t:number)=>({x:p.x+(q.x-p.x)*t,y:p.y+(q.y-38*stand-p.y)*t,z:p.z+(q.z-p.z)*t});
   const posed=points.map((p,i)=>blend(blend(p,reach[i],scratching),opening[i],stretch));
+  const hand=motion.ritualHands?.[side<0?0:1],reachAmount=(motion.ritualAmount??0)*(motion.ritualReach?.[side<0?0:1]??1);
+  if(hand&&reachAmount>0){
+   const shoulder=posed[0],elbow={x:shoulder.x+(hand.x-shoulder.x)*.48+side*5,y:shoulder.y+(hand.y-shoulder.y)*.60+9,z:shoulder.z+(hand.z-shoulder.z)*.45};
+   const reach=[shoulder,{x:shoulder.x+(elbow.x-shoulder.x)*.5,y:shoulder.y+(elbow.y-shoulder.y)*.5,z:shoulder.z+(elbow.z-shoulder.z)*.5},elbow,{x:elbow.x+(hand.x-elbow.x)*.6,y:elbow.y+(hand.y-elbow.y)*.6,z:elbow.z+(hand.z-elbow.z)*.6},hand];
+   for(let i=1;i<posed.length;i++)posed[i]={x:posed[i].x+(reach[i].x-posed[i].x)*reachAmount,y:posed[i].y+(reach[i].y-posed[i].y)*reachAmount,z:posed[i].z+(reach[i].z-posed[i].z)*reachAmount};
+  }
   tube(posed,2.8,'#79cfb2',arms);
   if(motion.outfit==='soul-ringer-1'){
    const end={x:posed[0].x+(posed[1].x-posed[0].x)*.9,y:posed[0].y+(posed[1].y-posed[0].y)*.9,z:posed[0].z+(posed[1].z-posed[0].z)*.9};
@@ -131,7 +137,7 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
    const cuff={x:end.x+(posed[1].x-posed[0].x)*.08,y:end.y+(posed[1].y-posed[0].y)*.08,z:end.z+(posed[1].z-posed[0].z)*.08};
    tube([end,cuff],5.6,'#a62936',arms);
   }
-  sphere(scratching||stretch?{...posed[4],y:posed[4].y+2}:armPose({x:side*13,y:handY+2,z:handZ}),{x:4,y:5,z:3},'#79cfb2',12,24,arms);
+  sphere(hand&&reachAmount>0?posed[4]:scratching||stretch?{...posed[4],y:posed[4].y+2}:armPose({x:side*13,y:handY+2,z:handZ}),{x:4,y:5,z:3},'#79cfb2',12,24,arms);
  }
  const garment:Face[]=[];
  if(motion.outfit==='soul-ringer-1'){

@@ -1,15 +1,24 @@
 import type {Outfit,ClothesSpin} from '@/lib/ship/clothing';
+import {gramophoneWorld} from './RecordProps';
+import type {GramophoneScene} from '@/lib/ship/recordRitual';
 import {Alien} from './Alien';
 import type {CharlieState} from './useCharlieMovement';
 import {project,type DomeConfig,type Viewport} from '@/lib/ship/domeGeometry';
 import {ROOM} from '@/lib/ship/roomGeometry';
 import {orientedFixtures} from '@/lib/ship/fixtureLayout';
 import {localPoint} from '@/lib/ship/charlieNavigation';
-export function WalkingCharlie({state,config,view,outfit=null,spin}:{outfit?:Outfit;spin?:ClothesSpin;state:CharlieState;config:DomeConfig;view:Viewport}){
+export function WalkingCharlie({state,config,view,outfit=null,spin,gramophone}:{gramophone?:GramophoneScene;outfit?:Outfit;spin?:ClothesSpin;state:CharlieState;config:DomeConfig;view:Viewport}){
  if(state.mode==='pilot-seated'&&!state.phase)return null;
  const p=project(state.position,config,view);
  if(!p.visible)return null;
  const w=ROOM.alienWidth*p.scale,h=ROOM.alienHeight*p.scale;
+ const hands=gramophone&&gramophone.amount>0 ? gramophone.hands.map(target=>{
+  if(!target)return undefined;
+  const q=project(gramophoneWorld(orientedFixtures(config.centre,config.radius).musicStation,target),config,view);
+  const x=(q.x-p.x)*180/w,y=(q.y-p.y+h)*250/h,depth=30;
+  const angle=state.yaw*Math.PI/180;
+  return {x:x*Math.cos(angle)-depth*Math.sin(angle),y,z:x*Math.sin(angle)+depth*Math.cos(angle)};
+ }) : undefined;
  const table=orientedFixtures(config.centre,config.radius).coffeeTable;
  const tablePoint=(x:number,y:number,z:number)=>({...localPoint(table,x,z),y:table.y+y*table.scale});
  // Clip the HTML/canvas layer itself: Safari does not reliably mask a
@@ -25,7 +34,7 @@ export function WalkingCharlie({state,config,view,outfit=null,spin}:{outfit?:Out
  <svg width={view.width} height={view.height} style={{position:'absolute',inset:0}}><ellipse cx={p.x} cy={p.y} rx={w*.2} ry={h*.025} fill="#000" opacity=".2"/></svg>
  <div style={{position:'absolute',left:p.x-w/2,top:p.y-h*1.32,width:w,height:h*1.4}}>
  <div style={{position:'relative',marginTop:h*.32,width:w,height:h}}>
- <Alien outfit={outfit} spin={spin} ambient={state.mode==='standing'&&!state.phase&&!state.engagement&&state.moving<.02?'standing':undefined} chair={false} attention={{x:0,back:0,down:state.paper>0?.16:state.lookUp?-.3:0}} facing={state.yaw} standing={state.stand>0} motion={{stand:state.stand,gait:state.gait,moving:state.moving,reading:state.paper}}/>
+ <Alien outfit={outfit} spin={spin} ambient={state.mode==='standing'&&!state.phase&&!state.engagement&&state.moving<.02?'standing':undefined} chair={false} attention={{x:0,back:0,down:gramophone&&gramophone.amount>0?.2*gramophone.amount:state.paper>0?.16:state.lookUp?-.3:0}} facing={state.yaw} standing={state.stand>0} motion={{stand:state.stand,gait:state.gait,moving:state.moving,reading:state.paper,ritualHands:hands,ritualReach:gramophone?.reach,ritualAmount:gramophone?.amount}}/>
  </div>
  </div>
  </div>;

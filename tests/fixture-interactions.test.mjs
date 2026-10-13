@@ -10,6 +10,7 @@ function fixtureHarness(){
  let pressed=null,stateIndex=0;const cache=new Map();
  const react={memo:fn=>fn,useId:()=> 'fixture-test',useEffect:()=>{},useState:()=>stateIndex++===0?[undefined,()=>{}]:[pressed,value=>{pressed=value;}]};
  function load(file){
+  if(!fs.existsSync(file)&&file.endsWith('.ts')&&fs.existsSync(file+'x'))file+='x';
   if(file.endsWith('.css'))return {default:{fixtures:'fixtures'}};
   if(cache.has(file))return cache.get(file);
   const mod={exports:{}};

@@ -1,4 +1,7 @@
 "use client";
+import type {RecordSelection} from '@/components/ship/useRecords';
+import type {AlbumId} from '@/lib/ship/records';
+import RecordCollection from './RecordCollection';
 import ClothingCollection from './ClothingCollection';
 import type {Outfit,ClothingId} from '@/lib/ship/clothing';
 import ringerTee from '@/public/soul-ringer-tee.png';
@@ -19,7 +22,7 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 
-export default function CanonicalHomepage({ cockpit, config, view, animateEntry = false, camera = config, progress = cockpit ? 1 : 0, mobileThird=false, publicFrame, domeMenu=null, outfit=null, onChooseClothing }: { cockpit: boolean; loginEnabled: boolean; config: DomeConfig; view: Viewport; animateEntry?: boolean; camera?: DomeConfig; progress?: number; mobileThird?:boolean; publicFrame?:{view:Viewport;angle:number};domeMenu?:DomeMenu;outfit?:Outfit;onChooseClothing?:(id:ClothingId)=>void }) {
+export default function CanonicalHomepage({ cockpit, config, view, animateEntry = false, camera = config, progress = cockpit ? 1 : 0, mobileThird=false, publicFrame, domeMenu=null, outfit=null, onChooseClothing, records, onChooseRecord }: { records?:RecordSelection;onChooseRecord?:(album:AlbumId,index:number)=>void; cockpit: boolean; loginEnabled: boolean; config: DomeConfig; view: Viewport; animateEntry?: boolean; camera?: DomeConfig; progress?: number; mobileThird?:boolean; publicFrame?:{view:Viewport;angle:number};domeMenu?:DomeMenu;outfit?:Outfit;onChooseClothing?:(id:ClothingId)=>void }) {
  const teeOutlineId=useId();
  const letterWeightId=useId();
  const homeRoot = useRef<HTMLDivElement>(null);
@@ -126,6 +129,10 @@ export default function CanonicalHomepage({ cockpit, config, view, animateEntry 
           {cockpit && <section className="dome-wardrobe">
             <h2 className="text-2xl mb-4">CHARLIE&apos;S COLLECTION</h2>
             <ClothingCollection outfit={outfit} onChoose={onChooseClothing}/>
+          </section>}
+          {cockpit && <section className="dome-records">
+            <h2 className="text-2xl mb-4">CHARLIE&apos;S COLLECTION</h2>
+            <RecordCollection record={records} onChoose={onChooseRecord}/>
           </section>}
           <section data-dome-slot="records">
             <h2 className="text-2xl mb-4">THE RECORDS</h2>

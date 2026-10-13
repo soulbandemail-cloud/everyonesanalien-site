@@ -15,12 +15,18 @@ import { Fixtures } from './Fixtures';
 import { GeometryCalibration } from './GeometryCalibration';
 import type {DomeMenu} from '@/lib/ship/domeNavigation';
 import styles from './ship.module.css';
+import {RecordProps} from './RecordProps';
+import {orientedFixtures} from '@/lib/ship/fixtureLayout';
+import {useRecordRitual} from './useRecordRitual';
+import {INITIAL_RECORD_SELECTION,type RecordSelection} from './useRecords';
+import type {AlbumId} from '@/lib/ship/records';
 import {useClothesSpin} from './useClothing';
 import type {Outfit} from '@/lib/ship/clothing';
 
 const MemoizedPilotMezzanine=memo(PilotMezzanine);
 
-export default function Ship({ config, baseline, onConfigChange, hull, onHullChange, view, domeConfig=config, sharedSeam=false, reveal=1, development=false, preview=false, logout, busy, onArcade, onTV, onNewsletter, onShows, onMerch, onRecords, onLeaveContext, domeMenu=null, arcadeOpen=false, liveTv=false, onTvLayer, clothing={outfit:null,revision:0} }: {
+export default function Ship({ config, baseline, onConfigChange, hull, onHullChange, view, domeConfig=config, sharedSeam=false, reveal=1, development=false, preview=false, logout, busy, onArcade, onTV, onNewsletter, onShows, onMerch, onRecords, onLeaveContext, domeMenu=null, arcadeOpen=false, liveTv=false, onTvLayer, clothing={outfit:null,revision:0},records=INITIAL_RECORD_SELECTION,onRecordPhysical=()=>{} }: {
+ records?:RecordSelection;onRecordPhysical?:(album:AlbumId|null,done?:boolean)=>void;
  clothing?:{outfit:Outfit;revision:number};
  config:DomeConfig; baseline:DomeConfig; onConfigChange:(config:DomeConfig)=>void;
  hull:HullConfig; onHullChange:(hull:HullConfig)=>void; view:Viewport;
@@ -28,14 +34,29 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
 }) {
  const [attention, setAttention] = useState({ x: 0, back: 0, down: 0 });
  const movement=useCharlieMovement(config,alienLookYaw(attention.x,attention.back));
+ const gramophone=useRecordRitual(records,movement.performRecords,onRecordPhysical);
+ const deferred=useRef<(()=>void)|null>(null);
+ const [queuedTarget,setQueuedTarget]=useState<Parameters<typeof movement.interact>[0]|null>(null);
+ const queuedTargetRef=useRef<typeof queuedTarget>(null);
+ const ritualBusy=useRef(records.busy);
+ useEffect(()=>{ritualBusy.current=records.busy;},[records.busy]);
+ useEffect(()=>{if(!records.busy&&deferred.current){const action=deferred.current;deferred.current=null;queuedTargetRef.current=null;setQueuedTarget(null);action();}},[records.busy]);
  const appearance=useClothesSpin(clothing,movement.state.engagement==='merch',movement.state.mode==='standing'&&!movement.state.phase&&movement.state.moving===0);
- const {interact,available,closeArcade}=movement;
+ const {available,closeArcade,interact:moveInteract}=movement;
+ const interact=useMemo(()=>((name:Parameters<typeof moveInteract>[0],action?:()=>void)=>{
+  if(ritualBusy.current){
+   if(queuedTargetRef.current===name)return;
+   queuedTargetRef.current=name;setQueuedTarget(name);
+   if(name!=='arcade')action?.();
+   deferred.current=()=>moveInteract(name,name==='arcade'?action:undefined);
+  }else moveInteract(name,action);
+ }),[moveInteract]);
  const wasArcadeOpen=useRef(arcadeOpen);
  useEffect(()=>{
   if(wasArcadeOpen.current&&!arcadeOpen)closeArcade();
   wasArcadeOpen.current=arcadeOpen;
  },[arcadeOpen,closeArcade]);
- const recordsAvailable=available('records'),showsAvailable=available('shows'),merchAvailable=available('merch'),arcadeAvailable=available('arcade'),newsletterAvailable=available('newsletter'),chairAvailable=available('chair');
+ const recordsAvailable=queuedTarget!=='records'&&available('records'),showsAvailable=queuedTarget!=='shows'&&available('shows'),merchAvailable=queuedTarget!=='merch'&&available('merch'),arcadeAvailable=queuedTarget!=='arcade'&&available('arcade'),newsletterAvailable=queuedTarget!=='newsletter'&&available('newsletter'),chairAvailable=queuedTarget!=='chair'&&available('chair');
  const actions=useMemo(()=>({
   records:onRecords&&recordsAvailable?()=>interact('records',onRecords):undefined,
   shows:onShows&&showsAvailable?()=>interact('shows',onShows):undefined,
@@ -102,13 +123,16 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
     const bounds=root.current!.getBoundingClientRect(),scene=root.current?.closest<HTMLElement>('[data-cockpit-presentation]'),angle=Number(scene?.dataset.presentationAngle??0)*Math.PI/180,scale=Number(scene?.dataset.presentationScale??1);
     const dx=event.clientX-bounds.left-bounds.width/2,dy=event.clientY-bounds.top-bounds.height/2;
     const x=(dx*Math.cos(angle)+dy*Math.sin(angle))/scale+view.width/2,y=(-dx*Math.sin(angle)+dy*Math.cos(angle))/scale+view.height/2;
-    const point=floorPoint(x,y,config,view);if(point && movement.walk(point))onLeaveContext?.();
+    const point=floorPoint(x,y,config,view);if(point){if(ritualBusy.current){queuedTargetRef.current=null;setQueuedTarget(null);deferred.current=()=>{movement.walk(point);};onLeaveContext?.();}else if(movement.walk(point))onLeaveContext?.();}
    }}/>
   </svg>
-  <Fixtures outfit={appearance.spin?.to ?? appearance.outfit} onRecords={actions.records} reading={movement.state.paper>0} onShows={actions.shows} onMerch={actions.merch} domeMenu={domeMenu} config={config} view={view} onArcade={actions.arcade} onTV={actions.tv} onNewsletter={actions.newsletter} liveTv={liveTv} />
+  <Fixtures gramophone={gramophone} outfit={appearance.spin?.to ?? appearance.outfit} onRecords={actions.records} reading={movement.state.paper>0} onShows={actions.shows} onMerch={actions.merch} domeMenu={domeMenu} config={config} view={view} onArcade={actions.arcade} onTV={actions.tv} onNewsletter={actions.newsletter} liveTv={liveTv} />
   <MemoizedPilotMezzanine outfit={appearance.outfit} attention={attention} config={config} view={view} seated={movement.state.mode==='pilot-seated'&&!movement.state.phase} onChair={reveal===1?actions.chair:undefined} />
   <div className="cockpit-tv-layer" ref={onTvLayer} style={{position:'absolute',inset:0,zIndex:7,pointerEvents:'none','--tv-frame-width':view.width+'px','--tv-frame-height':view.height+'px'} as React.CSSProperties}/>
-  <WalkingCharlie outfit={appearance.outfit} spin={appearance.spin} state={movement.state} config={config} view={view}/>
+  <WalkingCharlie gramophone={gramophone} outfit={appearance.outfit} spin={appearance.spin} state={movement.state} config={config} view={view}/>
+  <svg width={view.width} height={view.height} style={{position:'absolute',inset:0,zIndex:9,pointerEvents:'none'}} aria-label="Charlie’s handled records and sleeves">
+   <RecordProps scene={gramophone} fixture={orientedFixtures(config.centre,config.radius).musicStation} config={config} view={view} layer="carried"/>
+  </svg>
   <ManifestationPort config={config} view={view} />
   <header className={styles.toolbar}>
     <span className={styles.alpha}>alpha{preview && <small className={styles.previewLabel}>DEVELOPMENT PREVIEW · NO MATE SESSION</small>}</span>

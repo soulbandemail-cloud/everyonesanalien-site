@@ -93,7 +93,12 @@ export function useCharlieMovement(config:DomeConfig,seatedYaw=180){
   };
   frame=requestAnimationFrame(tick);return ()=>cancelAnimationFrame(frame);
  },[config,publish]);
- return {state,interact,available,closeArcade,walk:(point:Point)=>{
+ const performRecords=useCallback((done:()=>void)=>{
+  const accepted=go(approaches(config).records,done);
+  if(accepted)publish({...current.current,engagement:'records'});
+  return accepted;
+ },[config,go,publish]);
+ return {state,interact,available,closeArcade,performRecords,walk:(point:Point)=>{
   const accepted=go({point,yaw:current.current.yaw,mode:'standing',retainHeading:true});
   if(accepted)publish({...current.current,engagement:null});
   return accepted;

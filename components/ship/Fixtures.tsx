@@ -6,13 +6,16 @@ import {UPCOMING_POSTERS,type DomeMenu} from '@/lib/ship/domeNavigation';
 import styles from './ship.module.css';
 import {loadWearableInk} from '@/lib/ship/wearableArtwork';
 import type {Outfit} from '@/lib/ship/clothing';
+import {RecordProps} from './RecordProps';
+import {restingGramophone,tonearmPoint,type GramophoneScene} from '@/lib/ship/recordRitual';
+import {crankPoint,CRANK_PIVOT} from '@/lib/ship/records';
 import {rasterPoster} from '@/lib/ship/posterRaster';
 import {posterSurfacePoint} from '@/lib/ship/posterProjection';
 
-type Props = { outfit?:Outfit; config: DomeConfig; view: Viewport; onArcade?: () => void; onTV?:()=>void; onNewsletter?:()=>void; onShows?:()=>void; onMerch?:()=>void; onRecords?:()=>void; domeMenu?:DomeMenu; liveTv?:boolean; reading?:boolean };
+type Props = { gramophone?:GramophoneScene; outfit?:Outfit; config: DomeConfig; view: Viewport; onArcade?: () => void; onTV?:()=>void; onNewsletter?:()=>void; onShows?:()=>void; onMerch?:()=>void; onRecords?:()=>void; domeMenu?:DomeMenu; liveTv?:boolean; reading?:boolean };
 
 /** Crude world-space solids: no owned items, controls, playback or inventory state. */
-export const Fixtures = memo(function Fixtures({ config, view, onArcade, onTV, onNewsletter, onShows, onMerch, onRecords, domeMenu=null, liveTv=false,reading=false,outfit=null }: Props) {
+export const Fixtures = memo(function Fixtures({ config, view, onArcade, onTV, onNewsletter, onShows, onMerch, onRecords, domeMenu=null, liveTv=false,reading=false,outfit=null,gramophone=restingGramophone() }: Props) {
   const outlineId=useId();
   const [shirtInk,setShirtInk]=useState<string>();
   useEffect(()=>{const ink=loadWearableInk(()=>setShirtInk(ink.canvas.toDataURL('image/png')));return ()=>ink.dispose();},[]);
@@ -27,6 +30,7 @@ export const Fixtures = memo(function Fixtures({ config, view, onArcade, onTV, o
     onKeyDown:(event:React.KeyboardEvent)=>{if(action && (event.key==='Enter' || event.key===' ')){event.preventDefault();setPressed(name);}},
     onKeyUp:(event:React.KeyboardEvent)=>{if(action && pressed===name && (event.key==='Enter' || event.key===' ')){event.preventDefault();setPressed(null);action();}},
   });
+  const tonePoint=(p:number[])=>tonearmPoint(p,gramophone.tone,gramophone.lift);
   const tvScreen=consoleTvScreen(config,view);
   const path = (points: Vec3[]) => polygonPath(points, config, view);
   const local = (f: FixturePlacement, x: number, y: number, z: number): Vec3 => ({
@@ -166,13 +170,7 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
       {box(music,0,.2,.3,2.85,.94,.09)}
       {box(music,0,.2,0,2.8,.1,.75)}
       {box(music,-1.4,.2,0,.12,.94,.75)}
-      {/* One unframed sleeve: its plane faces across the cabinet, leaning left at the top. */}
-      {(()=>{
-        const a=project(local(music,-1.28,1.02,.28),config,view);
-        const b=project(local(music,-1.28,1.02,-.34),config,view);
-        const c=project(local(music,-1.03,.31,.28),config,view);
-        return <image href="/records/experiencing-the-role.png" width="100" height="100" preserveAspectRatio="none" aria-label="Experiencing the Role EP sleeve leaning against the left inner wall" transform={`matrix(${(b.x-a.x)/100} ${(b.y-a.y)/100} ${(c.x-a.x)/100} ${(c.y-a.y)/100} ${a.x} ${a.y})`}/>;
-      })()}
+      <RecordProps scene={gramophone} fixture={music} config={config} view={view} layer="storage"/>
       {box(music,1.4,.2,0,.12,.94,.75)}
       {box(music,0,1.14,0,3,.12,.9)}
       {[-1.44,1.44].map(x=><g key={x}>{[0,1,2,3].map(i=><path key={i} d={path(Array.from({length:18},(_,j)=>local(music,x,.28+j/17*.78,-.26+i*.15+.012*Math.sin(j*.7+i))))} fill="none" stroke="#b18c59" strokeOpacity=".22" strokeWidth=".6"/>)}</g>)}
@@ -183,6 +181,7 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
        <path d="M-30-12Q-24-29-4-29" fill="none" stroke="#a5a581" strokeWidth="1.5" strokeOpacity=".65"/>
        <circle r="1.8" fill="#d3bd8e"/>
       </g>,'horizontal')}
+      <RecordProps scene={gramophone} fixture={music} config={config} view={view} layer="disc"/>
       {flatArt(music,-.65,1.4,.15,1.35,<g stroke="#725333" strokeWidth="1.4">
         {/* One continuous outer shell: curved neck, widening throat and long bell wall. */}
         <path d="M12 0C24 -12 22 -22 12 -29C-1 -38 -10 -39 -25 -34L-65 -25Q-87 -39 -83 -63Q-81 -86 -61 -98C-40 -80 -19 -62 1 -49C19 -41 33 -27 29 -14L20 0Z" fill={`url(#${outlineId}-brass)`}/>
@@ -194,24 +193,30 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
         <path d="M-104 -83C-79 -77 -49 -65 -24 -56M-112 -52C-81 -46 -50 -48 -24 -56" fill="none" stroke="#c6a875" strokeOpacity=".14" strokeWidth=".8"/>
         <path d="M-44 -85Q-20 -59 4 -45C22 -35 30 -22 23 -8M-51 -30Q-12 -43 13 -30" fill="none" stroke="#c3a06b" strokeOpacity=".48" strokeWidth="1.1"/>
       </g>)}
-      {/* Foreground resting assembly: drawn after the horn so the tube stays behind it.
-          Pivot remains the future rotation origin.
-          The whole arm sits outside the platter's right edge, with its needle raised. */}
-      <g data-gramophone-tonearm="resting" aria-label="Resting gramophone tonearm beside the empty platter">
-       {flatArt(music,-.23,1.415,.19,.17,<g><circle r="42" fill="#584331" stroke="#b99a65" strokeWidth="8"/><circle r="18" fill="#c4a36b"/></g>,'horizontal')}
-       {line(music,[-.23,1.42,.19],[-.23,1.53,.19],'#a98a56',2.5)}
-       <g data-tonearm-pivot="-0.23 1.53 0.19">
-        {line(music,[-.23,1.53,.27],[-.23,1.53,.15],'#654a32',4)}
-        {line(music,[-.23,1.53,.19],[-.16,1.50,-.10],'#9d8050',3.3)}
-        {line(music,[-.16,1.50,-.10],[-.22,1.48,-.27],'#bba271',3)}
-        {flatArt(music,-.16,1.51,-.1,.065,<circle r="35" fill="#59442e" stroke="#d0b481" strokeWidth="8"/>,'horizontal')}
-        {line(music,[-.22,1.48,-.23],[-.22,1.47,-.31],'#624832',4.2)}
-        {line(music,[-.22,1.465,-.29],[-.22,1.425,-.29],'#d1bb8b',1)}
+      {/* Slender resting tonearm mounted on the right edge; independent pivot for later playback. */}
+      <g data-gramophone-tonearm={gramophone.lift>0?"raised":gramophone.tone>0?"lowered":"resting"} aria-label={`${gramophone.lift>0?"Raised":gramophone.tone>0?"Lowered":"Resting"} gramophone tonearm`}>
+       {flatArt(music,-.23,1.415,.19,.11,<g><circle r="42" fill="#584331" stroke="#b99a65" strokeWidth="6"/><circle r="18" fill="#c4a36b"/></g>,'horizontal')}
+       {line(music,[-.23,1.42,.19],[-.23,1.51,.19],'#a98a56',1.7)}
+       <g data-tonearm-pivot="-0.23 1.51 0.19">
+        {line(music,tonePoint([-.23,1.51,.26]),tonePoint([-.23,1.51,.15]),'#654a32',2.4)}
+        {line(music,tonePoint([-.23,1.51,.19]),tonePoint([-.20,1.51,-.04]),'#9d8050',1.9)}
+        {line(music,tonePoint([-.20,1.51,-.04]),tonePoint([-.27,1.51,-.22]),'#bba271',1.8)}
+        {flatArt(music,...(tonePoint([-.20,1.52,-.04]) as [number,number,number]),.045,<circle r="35" fill="#59442e" stroke="#d0b481" strokeWidth="6"/>,'horizontal')}
+        {line(music,tonePoint([-.27,1.51,-.19]),tonePoint([-.27,1.46,-.26]),'#624832',2.6)}
+        {line(music,tonePoint([-.27,1.455,-.24]),tonePoint([-.27,1.42,-.24]),'#d1bb8b',.8)}
        </g>
-       {line(music,[-.22,1.40,-.21],[-.22,1.47,-.21],'#816d4a',1.5)}
+       {line(music,[-.27,1.40,-.17],[-.27,1.46,-.17],'#816d4a',1)}
       </g>
-      {/* Empty two-arm sleeve easel, with no display board or extra electronics. */}
-      {[.58,1.02].map(x=><g key={x}>{line(music,[x,1.27,-.23],[x,1.65,.12],'#986a3f',2.3)}{line(music,[x,1.27,.28],[x,1.65,.12],'#67482c',2)}{line(music,[x-.08,1.3,-.24],[x+.08,1.3,-.24],'#b58a53',2.5)}</g>)}
+      <g aria-label="Slim front-centred brass wind-up crank with rounded black knob" data-record-phase={gramophone.phase} data-crank-pivot={CRANK_PIVOT.join(' ')} data-crank-axis="z">
+       {flatArt(music,...CRANK_PIVOT,.055,<circle r="35" fill="#9c7d50"/>)}
+       <path d={path([crankPoint(0,0,0,gramophone.crank),crankPoint(0,0,-.09,gramophone.crank),crankPoint(.15,-.08,-.09,gramophone.crank)].map(p=>local(music,p[0],p[1],p[2])))} fill="none" stroke="#b69a67" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+       {line(music,crankPoint(.15,-.08,-.09,gramophone.crank),crankPoint(.15,-.08,-.20,gramophone.crank),'#b69a67',1.6)}
+       {flatArt(music,...(crankPoint(.15,-.08,-.20,gramophone.crank) as [number,number,number]),.075,<g><ellipse rx="34" ry="27" fill="#171c20" stroke="#383c3e" strokeWidth="3"/><path d="M-20-9Q-10-19 6-16" fill="none" stroke="#767977" strokeWidth="3" opacity=".55"/></g>)}
+      </g>
+      {/* Rear easel first, sleeve next, retaining lips last. */}
+      {[.58,1.02].map(x=><g key={x}>{line(music,[x,1.27,-.23],[x,1.65,.12],'#986a3f',2.3)}{line(music,[x,1.27,.28],[x,1.65,.12],'#67482c',2)}</g>)}
+      <RecordProps scene={gramophone} fixture={music} config={config} view={view} layer="sleeves"/>
+      {[.58,1.02].map(x=><g key={x}>{line(music,[x-.08,1.3,-.24],[x+.08,1.3,-.24],'#b58a53',2.5)}</g>)}
     </g>
     <g aria-label="Compact two-seat sofa on left main floor">
       {(() => {

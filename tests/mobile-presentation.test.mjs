@@ -103,7 +103,9 @@ test('viewport hook follows usable viewport and rotation events without reloadin
  const code=ts.transpileModule(fs.readFileSync('components/mate/usePresentationViewport.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
  new Function('module','exports','require','window','screen','navigator','document','ResizeObserver','requestAnimationFrame','cancelAnimationFrame',code)(loaded,loaded.exports,name=>name==='react'?react:m,win,{orientation},{maxTouchPoints:5},{documentElement:{},querySelector:()=>signupOpen?{}:null},class {observe(){observed=true;}disconnect(){observed=false;}},fn=>{frame=fn;return 1;},()=>{frame=null;});
  loaded.exports.usePresentationViewport(value=>{ready=value;});
+ assert.equal(state.ready,false,'initial server-sized scene must not be exposed');
  frame();
+ assert.equal(state.ready,true,'only reveal after actual viewport measurement');
  assert.equal(ready,true);assert.equal(observed,true);assert.equal(state.mobile,true);
  assert.deepEqual(state.view,{width:390,height:700});assert.equal(state.landscape,false);
  assert.equal(m.cockpitPresentation(state.view,state.mobile,state.landscape,1).angle,-90);

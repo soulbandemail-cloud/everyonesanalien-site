@@ -235,3 +235,24 @@ button.object-back:focus-visible { text-decoration:none; }
 .mobile-email-close:active { border-color:#6ee7b7; color:#6ee7b7; }
 .mobile-email-close:focus:not(:focus-visible) { outline:none; }
 .mobile-email-overlay:focus { outline:none; }
+
+.dome-records { display:none; }
+.on-glass[data-dome-menu="records"] .dome-columns > .dome-records { display:block; grid-column:3; grid-row:1; width:100%; margin:0; }
+.record-collection { display:grid; grid-template-columns:minmax(0,1fr); gap:6px; text-align:left; max-height:18vh; overflow-y:auto; padding:3px; overscroll-behavior:contain; }
+.record-row,.record-song { width:100%; border:1px solid white; background:#00082d; color:white; cursor:pointer; text-align:left; }
+.record-row { display:grid; grid-template-columns:28px minmax(0,1fr) auto; gap:5px; padding:5px; align-items:center; line-height:1.3; }
+.record-row img { width:28px; height:28px; object-fit:contain; }
+.record-tracks { margin:6px 0 0; padding:0 3px 3px; list-style:none; display:grid; grid-template-columns:minmax(0,1fr); }
+.record-tracks[hidden] { display:none; }
+.record-song { display:grid; grid-template-columns:18px minmax(0,1fr); gap:4px; padding:5px 8px; margin-top:4px; line-height:1.3; }
+.record-song[aria-pressed="true"],.record-row[aria-expanded="true"] { background:#4a9e87; border-color:#4a9e87; color:#00082d; box-shadow:none; }
+@media(hover:hover) { .record-row:hover,.record-song:hover { background:#6ee7b7; border-color:#6ee7b7; color:#00082d; } }
+.record-row:active,.record-song:active { background:#6ee7b7; border-color:#6ee7b7; color:#00082d; }
+.record-row:focus-visible,.record-song:focus-visible { outline:2px solid #6ee7b7; outline-offset:2px; }
+.on-glass[data-mobile-third] .record-row { grid-template-columns:22px minmax(0,1fr) auto; gap:4px; padding:3px; }
+.on-glass[data-mobile-third] .record-row img { width:22px; height:22px; }
+.on-glass[data-mobile-third] .record-collection { max-height:10vh; }
+
+.record-song:disabled { cursor:wait; opacity:.65; }
+.record-song:disabled:hover { background:#00082d; color:white; border-color:white; }
+.record-song[aria-pressed="true"]:disabled { background:#4a9e87; color:#00082d; border-color:#4a9e87; }
