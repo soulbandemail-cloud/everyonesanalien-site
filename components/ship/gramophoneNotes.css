@@ -1,0 +1,31 @@
+.gramophone-note-flight {
+ animation: gramophone-note-flight var(--flight) linear var(--delay) infinite both;
+}
+.gramophone-note-glyph {
+ animation: gramophone-note-presence var(--flight) linear var(--delay) infinite both;
+}
+.gramophone-note-pop {
+ animation: gramophone-note-pop var(--flight) linear var(--delay) infinite both;
+ transform-box: fill-box;
+ transform-origin: center;
+}
+@keyframes gramophone-note-flight {
+ 0% { transform: translate(0,0) scale(.45); }
+ 28% { transform: translate(var(--x1),var(--y1)) scale(1); }
+ 65% { transform: translate(var(--x2),var(--y2)) scale(1); }
+ 96%,100% { transform: translate(var(--x3),var(--y3)) scale(1); }
+}
+@keyframes gramophone-note-presence {
+ 0% { visibility: hidden; }
+ 1%,95.99% { visibility: visible; }
+ 96%,100% { visibility: hidden; }
+}
+@keyframes gramophone-note-pop {
+ 0%,95.99% { visibility: hidden; transform: scale(.75); }
+ 96% { visibility: visible; transform: scale(.75); }
+ 99.99% { visibility: visible; transform: scale(1.2); }
+ 100% { visibility: hidden; transform: scale(1.2); }
+}
+@media (prefers-reduced-motion: reduce) {
+ .gramophone-notes { display: none; }
+}

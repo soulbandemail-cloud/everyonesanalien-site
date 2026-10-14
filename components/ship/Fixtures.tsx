@@ -7,6 +7,7 @@ import styles from './ship.module.css';
 import {loadWearableInk} from '@/lib/ship/wearableArtwork';
 import type {Outfit} from '@/lib/ship/clothing';
 import {RecordProps} from './RecordProps';
+import {GramophoneNotes} from './GramophoneNotes';
 import {restingGramophone,tonearmPoint,type GramophoneScene} from '@/lib/ship/recordRitual';
 import {crankPoint,CRANK_PIVOT} from '@/lib/ship/records';
 import {rasterPoster} from '@/lib/ship/posterRaster';
@@ -192,6 +193,7 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
         <path d="M-114 -53C-91 -35 -52 -32 -30 -40" fill="none" stroke="#d0ae75" strokeOpacity=".3" strokeWidth="2.2"/>
         <path d="M-104 -83C-79 -77 -49 -65 -24 -56M-112 -52C-81 -46 -50 -48 -24 -56" fill="none" stroke="#c6a875" strokeOpacity=".14" strokeWidth=".8"/>
         <path d="M-44 -85Q-20 -59 4 -45C22 -35 30 -22 23 -8M-51 -30Q-12 -43 13 -30" fill="none" stroke="#c3a06b" strokeOpacity=".48" strokeWidth="1.1"/>
+        {gramophone.playing&&<GramophoneNotes/>}
       </g>)}
       {/* Slender resting tonearm mounted on the right edge; independent pivot for later playback. */}
       <g data-gramophone-tonearm={gramophone.lift>0?"raised":gramophone.tone>0?"lowered":"resting"} aria-label={`${gramophone.lift>0?"Raised":gramophone.tone>0?"Lowered":"Resting"} gramophone tonearm`}>
