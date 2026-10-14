@@ -1,3 +1,4 @@
+import type {EmotePose} from './charlieEmotes';
 import type {Outfit} from './clothing';
 import type {AmbientPose} from './charlieAmbient';
 /** Small illustrated meshes in the pilot's existing 180 × 250 drawing space. */
@@ -80,9 +81,10 @@ for(let i=0;i<=16;i++){
 tube(smile,.9,'#000000');
 for(let i=smileStart;i<faces.length;i++)faces[i].head=true;
 
-export type AlienMotion={ritualHands?:(V|undefined)[];ritualReach?:number[];ritualAmount?:number;outfit?:Outfit;ambient?:AmbientPose;stand?:number;gait?:number;moving?:number;reading?:number;life?:number};
+export type AlienMotion={emote?:EmotePose;ritualHands?:(V|undefined)[];ritualReach?:number[];ritualAmount?:number;outfit?:Outfit;ambient?:AmbientPose;stand?:number;gait?:number;moving?:number;reading?:number;life?:number};
 export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMotion={}){
  const stand=motion.stand??(standing?1:0),walk=motion.moving??0,phase=motion.gait??0,reading=motion.reading??0;
+ const wave=motion.emote;
  const ambient=motion.ambient;
  const amount=ambient?.amount??0,gestureTime=ambient?.time??0;
  const scratch=ambient?.kind==='scratch'?amount:0,stretch=ambient?.kind==='stretch'?amount:0;
@@ -124,6 +126,13 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
   const opening=[{x:side*12,y:138,z:0},{x:side*27,y:142,z:-3},{x:side*46,y:150,z:-12},{x:side*48,y:131,z:-20},{x:side*40,y:118,z:-24}];
   const blend=(p:V,q:V,t:number)=>({x:p.x+(q.x-p.x)*t,y:p.y+(q.y-38*stand-p.y)*t,z:p.z+(q.z-p.z)*t});
   const posed=points.map((p,i)=>blend(blend(p,reach[i],scratching),opening[i],stretch));
+  if(wave&&wave.raise>0){
+   if(side===1){
+    const handX=wave.sweep*65,handY=-5;
+    const reaching=[posed[0],{x:24+wave.sweep*9,y:78,z:-18},{x:35+wave.sweep*29,y:55,z:-45},{x:handX,y:15,z:-62},{x:handX,y:handY,z:-65}];
+    for(let i=1;i<posed.length;i++)posed[i]={x:posed[i].x+(reaching[i].x-posed[i].x)*wave.raise,y:posed[i].y+(reaching[i].y-posed[i].y)*wave.raise,z:posed[i].z+(reaching[i].z-posed[i].z)*wave.raise};
+   }else for(let i=1;i<posed.length;i++)posed[i]={...posed[i],x:posed[i].x-wave.raise*4*i/4,z:posed[i].z-wave.raise*3};
+  }
   const hand=motion.ritualHands?.[side<0?0:1],reachAmount=(motion.ritualAmount??0)*(motion.ritualReach?.[side<0?0:1]??1);
   if(hand&&reachAmount>0){
    const shoulder=posed[0],elbow={x:shoulder.x+(hand.x-shoulder.x)*.48+side*5,y:shoulder.y+(hand.y-shoulder.y)*.60+9,z:shoulder.z+(hand.z-shoulder.z)*.45};
@@ -137,7 +146,7 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
    const cuff={x:end.x+(posed[1].x-posed[0].x)*.08,y:end.y+(posed[1].y-posed[0].y)*.08,z:end.z+(posed[1].z-posed[0].z)*.08};
    tube([end,cuff],5.6,'#a62936',arms);
   }
-  sphere(hand&&reachAmount>0?posed[4]:scratching||stretch?{...posed[4],y:posed[4].y+2}:armPose({x:side*13,y:handY+2,z:handZ}),{x:4,y:5,z:3},'#79cfb2',12,24,arms);
+  sphere(wave&&wave.raise>0?posed[4]:hand&&reachAmount>0?posed[4]:scratching||stretch?{...posed[4],y:posed[4].y+2}:armPose({x:side*13,y:handY+2,z:handZ}),{x:4,y:5,z:3},'#79cfb2',12,24,arms);
  }
  const garment:Face[]=[];
  if(motion.outfit==='soul-ringer-1'){
@@ -156,7 +165,7 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
    for(const indices of [[0,1,2],[0,2,3]])garment.push({colour:'#edece3',uv:indices.map(i=>uv[i]),points:indices.map(i=>surface(uv[i].x,uv[i].y))});
   }
  }
- const posedLimbs=new Set([...legs,...arms]);
+ const posedLimbs=new Set([...legs,...arms]),posedLegs=new Set(legs);
  const paper:Face[]=[];
  if(reading>0){
   const paperPoint=(x:number,y:number):V=>({x,y:90+(y-90)*reading+100*(1-reading),z:-67+(y-90)*.16+Math.abs(x)*.06});
@@ -168,7 +177,7 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
  }
 
  const angle=yaw*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle),pitch=Math.max(-1,Math.min(1,down+headPitch))*45*Math.PI/180;
- const rotate=(p:V,head=false)=>{let {x,y,z}=p;if(head){const hx=x;x=hx*Math.cos(headTurn)+z*Math.sin(headTurn);z=z*Math.cos(headTurn)-hx*Math.sin(headTurn);const t=Math.max(0,Math.min(1,(y-92)/49));const taper=t*t*(3-2*t);x*=1-.28*taper;y+=7*taper;const dy=y-120;y=120+dy*Math.cos(pitch)-z*Math.sin(pitch);z=dy*Math.sin(pitch)+z*Math.cos(pitch);y-=26+38*stand+(1-Math.cos(phase*2))*1.1*walk;}// Breathing settles around planted hips/feet; head and held paper share the lift.
+ const rotate=(p:V,head=false,leg=false)=>{let {x,y,z}=p;if(head){const hx=x;x=hx*Math.cos(headTurn)+z*Math.sin(headTurn);z=z*Math.cos(headTurn)-hx*Math.sin(headTurn);const t=Math.max(0,Math.min(1,(y-92)/49));const taper=t*t*(3-2*t);x*=1-.28*taper;y+=7*taper;const dy=y-120;y=120+dy*Math.cos(pitch)-z*Math.sin(pitch);z=dy*Math.sin(pitch)+z*Math.cos(pitch);y-=26+38*stand+(1-Math.cos(phase*2))*1.1*walk;}// Breathing settles around planted hips/feet; head and held paper share the lift.
  const supported=Math.max(0,Math.min(1,(244-y)/100));
  const settle=motion.life===undefined?0:Math.sin(life*.23)*Math.sin(life*.37)*.45*(1-walk);
  // A seated adjustment pivots above planted hips; the chair and feet stay fixed.
@@ -177,6 +186,7 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
  z-=stretch*3*upper;
  x+=(settle+Math.sin(phase)*3.5*walk)*supported;
  y-=breath*(reading>.5?1:supported);
+ if(wave&&!leg){const a=wave.lean,dy=y-(202-38*stand),oldX=x;x=x*Math.cos(a)+dy*Math.sin(a);y=202-38*stand+dy*Math.cos(a)-oldX*Math.sin(a);}
  return {x:90+x*c+z*s,y,z:z*c-x*s};};
  // Keep each page's printed marks attached to its paper surface instead of
  // sorting coplanar ink behind the much larger sheet polygon.
@@ -187,7 +197,7 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
   const centre=face.points.reduce((v,p)=>({x:v.x+p.x/face.points.length,y:0,z:v.z+p.z/face.points.length}),{x:0,y:0,z:0});
   return centre.z/43**2*Math.cos(angle+headTurn)-centre.x/56**2*Math.sin(angle+headTurn)>0;
  }).map(face=>{
-  const p=face.points.map(p=>rotate(posedLimbs.has(face)?p:pose(p,face),face.head)).map(v=>({x:+v.x.toFixed(6),y:+v.y.toFixed(6),z:+v.z.toFixed(6)})),a=p[0],b=p[1],d=p[2];
+  const p=face.points.map(p=>rotate(posedLimbs.has(face)?p:pose(p,face),face.head,posedLegs.has(face))).map(v=>({x:+v.x.toFixed(6),y:+v.y.toFixed(6),z:+v.z.toFixed(6)})),a=p[0],b=p[1],d=p[2];
   const nx=(b.y-a.y)*(d.z-a.z)-(b.z-a.z)*(d.y-a.y),ny=(b.z-a.z)*(d.x-a.x)-(b.x-a.x)*(d.z-a.z),nz=(b.x-a.x)*(d.y-a.y)-(b.y-a.y)*(d.x-a.x);
   const length=Math.hypot(nx,ny,nz)||1;
   const light=.83+.17*Math.max(0,(-nx*.3-ny*.5+nz*.8)/length);

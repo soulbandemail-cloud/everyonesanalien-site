@@ -1,3 +1,6 @@
+import {useEffect,useLayoutEffect,useRef,useState} from 'react';
+import {canEmote,emotePose,type EmoteControl} from '@/lib/ship/charlieEmotes';
+import {EmoteWheel} from './EmoteWheel';
 import type {Outfit,ClothesSpin} from '@/lib/ship/clothing';
 import {gramophoneWorld} from './RecordProps';
 import type {GramophoneScene} from '@/lib/ship/recordRitual';
@@ -7,7 +10,18 @@ import {project,type DomeConfig,type Viewport} from '@/lib/ship/domeGeometry';
 import {ROOM} from '@/lib/ship/roomGeometry';
 import {orientedFixtures} from '@/lib/ship/fixtureLayout';
 import {localPoint} from '@/lib/ship/charlieNavigation';
-export function WalkingCharlie({state,config,view,outfit=null,spin,gramophone}:{gramophone?:GramophoneScene;outfit?:Outfit;spin?:ClothesSpin;state:CharlieState;config:DomeConfig;view:Viewport}){
+export function WalkingCharlie({state,config,view,outfit=null,spin,gramophone,scripted=false}:{scripted?:boolean;gramophone?:GramophoneScene;outfit?:Outfit;spin?:ClothesSpin;state:CharlieState;config:DomeConfig;view:Viewport}){
+ const [wheel,setWheel]=useState(false),[screenScale,setScreenScale]=useState(1);
+ const emote=useRef<EmoteControl>({command:null}),element=useRef<HTMLDivElement>(null);
+ const clickable=canEmote(state,scripted||!!spin||(gramophone?.amount??0)>0);
+ const recover=()=>{const now=performance.now();emote.current.command={kind:'recover',started:now,from:emotePose(emote.current.command,now)};};
+ useLayoutEffect(()=>{if(!clickable&&emote.current.command?.kind==='wave'){const now=performance.now();emote.current.command={kind:'recover',started:now,from:emotePose(emote.current.command,now)};}},[clickable]);
+ useEffect(()=>{
+  const dismiss=(event:Event)=>{if(event.target instanceof Element&&event.target.closest('[data-charlie-emote-ui]'))return;setWheel(false);const now=performance.now();emote.current.command={kind:'recover',started:now,from:emotePose(emote.current.command,now)};};
+  document.addEventListener('pointerdown',dismiss,true);document.addEventListener('click',dismiss,true);
+  const escape=(event:KeyboardEvent)=>{if(event.key==='Escape')dismiss(event);};document.addEventListener('keydown',escape);
+  return()=>{document.removeEventListener('pointerdown',dismiss,true);document.removeEventListener('click',dismiss,true);document.removeEventListener('keydown',escape);};
+ },[]);
  if(state.mode==='pilot-seated'&&!state.phase)return null;
  const p=project(state.position,config,view);
  if(!p.visible)return null;
@@ -30,12 +44,15 @@ export function WalkingCharlie({state,config,view,outfit=null,spin,gramophone}:{
  const tableCutout='M'+hull.map(p=>p.x+','+p.y).join('L')+'Z';
  const behindTable=state.mode==='sofa-seated'||state.position.z>table.z;
  const clip=behindTable ? `path(evenodd, "M0 0H${view.width}V${view.height}H0Z ${tableCutout}")` : undefined;
- return <div data-charlie-mode={state.mode} style={{position:'absolute',inset:0,zIndex:8,pointerEvents:'none',overflow:'hidden',clipPath:clip}}>
+ return <><div ref={element} data-charlie-mode={state.mode} style={{position:'absolute',inset:0,zIndex:8,pointerEvents:'none',overflow:'hidden',clipPath:clip}}>
  <svg width={view.width} height={view.height} style={{position:'absolute',inset:0}}><ellipse cx={p.x} cy={p.y} rx={w*.2} ry={h*.025} fill="#000" opacity=".2"/></svg>
  <div style={{position:'absolute',left:p.x-w/2,top:p.y-h*1.32,width:w,height:h*1.4}}>
- <div style={{position:'relative',marginTop:h*.32,width:w,height:h}}>
- <Alien outfit={outfit} spin={spin} ambient={state.mode==='standing'&&!state.phase&&!state.engagement&&state.moving<.02?'standing':undefined} chair={false} attention={{x:0,back:0,down:gramophone&&gramophone.amount>0?.2*gramophone.amount:state.paper>0?.16:state.lookUp?-.3:0}} facing={state.yaw} standing={state.stand>0} motion={{stand:state.stand,gait:state.gait,moving:state.moving,reading:state.paper,ritualHands:hands,ritualReach:gramophone?.reach,ritualAmount:gramophone?.amount}}/>
+ <div className="charlie-emote-character" style={{position:'relative',marginTop:h*.32,width:w,height:h}}>
+ <Alien emote={emote} outfit={outfit} spin={spin} ambient={clickable?'standing':undefined} chair={false} attention={{x:0,back:0,down:gramophone&&gramophone.amount>0?.2*gramophone.amount:state.paper>0?.16:state.lookUp?-.3:0}} facing={state.yaw} standing={state.stand>0} motion={{stand:state.stand,gait:state.gait,moving:state.moving,reading:state.paper,ritualHands:hands,ritualReach:gramophone?.reach,ritualAmount:gramophone?.amount}}/>
+ {clickable&&<button type="button" className="charlie-emote-target" data-charlie-emote-ui aria-label="Charlie's emotes" aria-expanded={wheel} onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();recover();setScreenScale(Number(element.current?.closest<HTMLElement>('[data-cockpit-presentation]')?.dataset.presentationScale??1));setWheel(!wheel);}}/>}
  </div>
  </div>
- </div>;
+ </div>
+ {wheel&&clickable&&<EmoteWheel x={p.x} y={p.y-h*.65} width={view.width} height={view.height} scale={screenScale} onWave={()=>{const now=performance.now();emote.current.command={kind:'wave',started:now,from:emotePose(emote.current.command,now)};setWheel(false);}}/>}
+ </>;
 }

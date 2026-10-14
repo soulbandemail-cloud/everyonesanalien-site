@@ -1,0 +1,9 @@
+.charlie-emote-character button.charlie-emote-target { position:absolute; inset:-20% 0 0; padding:0; border:0; background:transparent; pointer-events:auto; cursor:pointer; border-radius:45%; }
+.charlie-emote-character button.charlie-emote-target:focus-visible { outline:1px solid #fff; outline-offset:3px; }
+.charlie-emote-character:has(.charlie-emote-target:hover) canvas,
+.charlie-emote-character:has(.charlie-emote-target:focus-visible) canvas { filter:drop-shadow(0 0 2px #ffb0ff99) drop-shadow(0 0 5px #ffb0ff55); }
+.charlie-emote-wheel { position:absolute; inset:0; z-index:12; pointer-events:none; }
+.charlie-emote-wheel button.charlie-emote-icon { position:absolute; transform:translate(-50%,-50%); display:grid; place-items:center; padding:7px; border-radius:50%; border:1px solid #ffffff94; color:#fff; background:#00082de0; pointer-events:auto; cursor:pointer; box-shadow:0 0 7px #ffdbff60; }
+.charlie-emote-icon svg { width:100%; height:100%; }
+.charlie-emote-wheel button.charlie-emote-icon:disabled { color:#c4cbd0; border-color:#b7c1d15c; box-shadow:none; background:#00082db0; cursor:default; }
+.charlie-emote-wheel button.charlie-emote-icon:not(:disabled):hover,.charlie-emote-wheel button.charlie-emote-icon:focus-visible { background:#25334de8; box-shadow:0 0 9px #ffe4ff99; outline:1px solid white; }

@@ -129,7 +129,7 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
   <Fixtures gramophone={gramophone} outfit={appearance.spin?.to ?? appearance.outfit} onRecords={actions.records} reading={movement.state.paper>0} onShows={actions.shows} onMerch={actions.merch} domeMenu={domeMenu} config={config} view={view} onArcade={actions.arcade} onTV={actions.tv} onNewsletter={actions.newsletter} liveTv={liveTv} />
   <MemoizedPilotMezzanine outfit={appearance.outfit} attention={attention} config={config} view={view} seated={movement.state.mode==='pilot-seated'&&!movement.state.phase} onChair={reveal===1?actions.chair:undefined} />
   <div className="cockpit-tv-layer" ref={onTvLayer} style={{position:'absolute',inset:0,zIndex:7,pointerEvents:'none','--tv-frame-width':view.width+'px','--tv-frame-height':view.height+'px'} as React.CSSProperties}/>
-  <WalkingCharlie gramophone={gramophone} outfit={appearance.outfit} spin={appearance.spin} state={movement.state} config={config} view={view}/>
+  <WalkingCharlie scripted={records.busy} gramophone={gramophone} outfit={appearance.outfit} spin={appearance.spin} state={movement.state} config={config} view={view}/>
   <svg width={view.width} height={view.height} style={{position:'absolute',inset:0,zIndex:9,pointerEvents:'none'}} aria-label="Charlie’s handled records and sleeves">
    <RecordProps scene={gramophone} fixture={orientedFixtures(config.centre,config.radius).musicStation} config={config} view={view} layer="carried"/>
   </svg>

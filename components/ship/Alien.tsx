@@ -1,3 +1,5 @@
+import {emotePose,type EmoteControl} from '@/lib/ship/charlieEmotes';
+import type {RefObject} from 'react';
 import {clothesFrame,type Outfit,type ClothesSpin} from '@/lib/ship/clothing';
 import {loadWearableInk,paintWearableInk} from '@/lib/ship/wearableArtwork';
 import { useLayoutEffect, useRef } from 'react';
@@ -6,11 +8,11 @@ import { pilotChairVolume } from '@/lib/ship/pilotChairVolume';
 import { alienVolume, alienLookYaw, advanceAlienYaw, type AlienMotion } from '@/lib/ship/alienVolume';
 import styles from './ship.module.css';
 export type Attention = { x: number; back: number; down: number };
-export function Alien({ attention, chair=true, occupant=true, facing, standing=false, motion={}, ambient, outfit=null, spin }: { attention: Attention; outfit?:Outfit;spin?:ClothesSpin;chair?:boolean; occupant?:boolean; facing?:number; standing?:boolean; motion?:AlienMotion; ambient?:'pilot'|'standing' }) {
+export function Alien({ attention, chair=true, occupant=true, facing, standing=false, motion={}, ambient, outfit=null, spin, emote }: { emote?:RefObject<EmoteControl>;attention: Attention; outfit?:Outfit;spin?:ClothesSpin;chair?:boolean; occupant?:boolean; facing?:number; standing?:boolean; motion?:AlienMotion; ambient?:'pilot'|'standing' }) {
  const canvas=useRef<HTMLCanvasElement>(null);
  const yaw = facing ?? alienLookYaw(attention.x,attention.back);
- const target=useRef({yaw,controlled:facing!==undefined,down:attention.down,chair,occupant,standing,motion,ambient,outfit,spin});
- useLayoutEffect(()=>{target.current={yaw,controlled:facing!==undefined,down:attention.down,chair,occupant,standing,motion,ambient,outfit,spin};},[yaw,facing,attention.down,chair,occupant,standing,motion,ambient,outfit,spin]);
+ const target=useRef({yaw,controlled:facing!==undefined,down:attention.down,chair,occupant,standing,motion,ambient,outfit,spin,emote});
+ useLayoutEffect(()=>{target.current={yaw,controlled:facing!==undefined,down:attention.down,chair,occupant,standing,motion,ambient,outfit,spin,emote};},[yaw,facing,attention.down,chair,occupant,standing,motion,ambient,outfit,spin,emote]);
  useLayoutEffect(()=>{
   const screen=canvas.current?.getContext('2d');
   if(!screen)return;
@@ -37,8 +39,10 @@ export function Alien({ attention, chair=true, occupant=true, facing, standing=f
   if(Math.abs(walkBlend-(target.current.motion.moving??0))<.001)walkBlend=target.current.motion.moving??0;
   const life=reduced.matches||!target.current.occupant?undefined:Math.floor(time/100)*.1;
   const change=clothesFrame(reduced.matches?undefined:target.current.spin,time,target.current.spin&&reduced.matches?target.current.spin.to:target.current.outfit);
-  const ambientPose=personality.tick(dt,target.current.occupant&&!target.current.spin&&!document.querySelector('dialog[open]')?target.current.ambient:undefined,time<inputUntil,reduced.matches);
-  const motion={...target.current.motion,moving:reduced.matches?0:walkBlend,life,ambient:ambientPose,outfit:change.outfit};
+  const gesture=emotePose(target.current.emote?.current.command??null,time,reduced.matches);
+  const gesturing=gesture.raise>.001||Math.abs(gesture.lean)>.001;
+  const ambientPose=personality.tick(dt,target.current.occupant&&!gesturing&&!target.current.spin&&!document.querySelector('dialog[open]')?target.current.ambient:undefined,time<inputUntil,reduced.matches);
+  const motion={...target.current.motion,moving:reduced.matches?0:walkBlend,life,ambient:ambientPose,emote:gesture,outfit:change.outfit};
   const mode=`${target.current.chair}-${target.current.occupant}-${target.current.standing}-${JSON.stringify(motion)}-${change.yaw}`;
   if(currentYaw!==paintedYaw || down!==paintedDown || mode!==paintedMode){
   paintedMode=mode;
