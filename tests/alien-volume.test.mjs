@@ -2,8 +2,10 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import ts from 'typescript';
+const emotes={exports:{}};
+new Function('module','exports',ts.transpileModule(fs.readFileSync('lib/ship/charlieEmotes.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText)(emotes,emotes.exports);
 const loaded={exports:{}};
-new Function('module','exports',ts.transpileModule(fs.readFileSync('lib/ship/alienVolume.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(loaded,loaded.exports);
+new Function('module','exports','require',ts.transpileModule(fs.readFileSync('lib/ship/alienVolume.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(loaded,loaded.exports,()=>emotes.exports);
 const {alienVolume}=loaded.exports;
 test('alien retains head volume at front, quarter, side and rear angles',()=>{
  for(const yaw of [0,45,90,135,180,225,270,315]){

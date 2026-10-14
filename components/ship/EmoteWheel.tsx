@@ -1,4 +1,4 @@
-import {EMOTES,emoteWheelLayout} from '@/lib/ship/charlieEmotes';
+import {EMOTES,emoteWheelLayout,type EmoteId} from '@/lib/ship/charlieEmotes';
 import './emotes.css';
 function Icon({kind}:{kind:string}){
  const paths:Record<string,string>={
@@ -17,9 +17,9 @@ function Icon({kind}:{kind:string}){
  };
  return <svg viewBox="-4 -4 32 32" aria-hidden="true"><path d={paths[kind]} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 }
-export function EmoteWheel({x,y,width,height,scale,onWave}:{x:number;y:number;width:number;height:number;scale:number;onWave:()=>void}){
+export function EmoteWheel({x,y,width,height,scale,onSelect}:{x:number;y:number;width:number;height:number;scale:number;onSelect:(id:EmoteId)=>void}){
  const layout=emoteWheelLayout(x,y,width,height,scale);
  return <div className="charlie-emote-wheel" data-charlie-emote-ui role="group" aria-label="Charlie's emotes" onPointerDown={e=>e.stopPropagation()} onClick={e=>e.stopPropagation()}>
- {EMOTES.map((item,i)=>{const angle=i*Math.PI/6;return <button key={item.id} type="button" className="charlie-emote-icon" disabled={item.id!=='wave'} aria-label={item.id==='wave'?'Wave':`${item.label} (coming later)`} title={item.label} onClick={onWave} style={{left:layout.x+Math.sin(angle)*layout.radius,top:layout.y-Math.cos(angle)*layout.radius,width:layout.button,height:layout.button}}><Icon kind={item.icon}/></button>;})}
+ {EMOTES.map((item,i)=>{const angle=i*Math.PI/6;return <button key={item.id} type="button" className="charlie-emote-icon" aria-label={item.label} title={item.label} onClick={()=>onSelect(item.id)} style={{left:layout.x+Math.sin(angle)*layout.radius,top:layout.y-Math.cos(angle)*layout.radius,width:layout.button,height:layout.button}}><Icon kind={item.icon}/></button>;})}
  </div>;
 }

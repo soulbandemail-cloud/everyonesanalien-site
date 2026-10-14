@@ -15,7 +15,7 @@ export function WalkingCharlie({state,config,view,outfit=null,spin,gramophone,sc
  const emote=useRef<EmoteControl>({command:null}),element=useRef<HTMLDivElement>(null);
  const clickable=canEmote(state,scripted||!!spin||(gramophone?.amount??0)>0);
  const recover=()=>{const now=performance.now();emote.current.command={kind:'recover',started:now,from:emotePose(emote.current.command,now)};};
- useLayoutEffect(()=>{if(!clickable&&emote.current.command?.kind==='wave'){const now=performance.now();emote.current.command={kind:'recover',started:now,from:emotePose(emote.current.command,now)};}},[clickable]);
+ useLayoutEffect(()=>{if(!clickable&&emote.current.command&&emote.current.command.kind!=='recover'){const now=performance.now();emote.current.command={kind:'recover',started:now,from:emotePose(emote.current.command,now)};}},[clickable]);
  useEffect(()=>{
   const dismiss=(event:Event)=>{if(event.target instanceof Element&&event.target.closest('[data-charlie-emote-ui]'))return;setWheel(false);const now=performance.now();emote.current.command={kind:'recover',started:now,from:emotePose(emote.current.command,now)};};
   document.addEventListener('pointerdown',dismiss,true);document.addEventListener('click',dismiss,true);
@@ -53,6 +53,6 @@ export function WalkingCharlie({state,config,view,outfit=null,spin,gramophone,sc
  </div>
  </div>
  </div>
- {wheel&&clickable&&<EmoteWheel x={p.x} y={p.y-h*.65} width={view.width} height={view.height} scale={screenScale} onWave={()=>{const now=performance.now();emote.current.command={kind:'wave',started:now,from:emotePose(emote.current.command,now)};setWheel(false);}}/>}
+ {wheel&&clickable&&<EmoteWheel x={p.x} y={p.y-h*.65} width={view.width} height={view.height} scale={screenScale} onSelect={kind=>{const now=performance.now();emote.current.command={kind,started:now,from:emotePose(emote.current.command,now)};setWheel(false);}}/>}
  </>;
 }

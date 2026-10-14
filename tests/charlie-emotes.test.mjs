@@ -19,7 +19,7 @@ test('wave raises left immediately, alternates left/right and settles together a
  const ending=emotePose(command,1750);assert.ok(ending.raise>0&&ending.raise<1);assert.ok(Math.abs(ending.lean)<.17);
  assert.deepEqual(emotePose(command,2000),neutralEmote);
  const pose=emotePose(command,700),cancel={kind:'recover',started:700,from:pose};
- assert.deepEqual(emotePose(cancel,700),pose);assert.deepEqual(emotePose(cancel,880),neutralEmote);
+ assert.deepEqual(emotePose(cancel,700),pose);assert.deepEqual(emotePose(cancel,920),neutralEmote);
 });
 test('wheel uses a uniform radius, safe viewport bounds and touch-sized targets',()=>{
  for(const [width,height,scale] of [[1280,720,1],[844,390,1],[1200,550,.7]])for(const [x,y] of [[width/2,height/2],[20,30],[width-20,height-30]]){
@@ -29,12 +29,40 @@ test('wheel uses a uniform radius, safe viewport bounds and touch-sized targets'
  }
 });
 test('wave keeps feet planted, supports the tee, and returns to identical neutral geometry',()=>{
- const m={exports:{}};new Function('module','exports',ts.transpileModule(fs.readFileSync('lib/ship/alienVolume.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(m,m.exports);
+ const m={exports:{}};new Function('module','exports','require',ts.transpileModule(fs.readFileSync('lib/ship/alienVolume.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(m,m.exports,()=>loaded.exports);
  const {alienVolume}=m.exports;
  const feet=mesh=>mesh.flatMap(f=>[...f.d.matchAll(/(-?\d+\.\d+),(-?\d+\.\d+)/g)].map(m=>[+m[1],+m[2]]).filter(p=>p[1]>225)).sort().map(p=>p.join(',')).join('|');
  for(const outfit of [null,'soul-ringer-1']){
   const base=alienVolume(180,0,true,{stand:1,outfit});
   for(const t of [200,400,800,1500]){const mesh=alienVolume(180,0,true,{stand:1,outfit,emote:emotePose({kind:'wave',started:0,from:neutralEmote},t)});assert.equal(feet(mesh),feet(base));assert.ok(mesh.every(f=>! /NaN|Infinity/.test(f.d)));if(outfit)assert.ok(mesh.some(f=>f.texture));}
   assert.deepEqual(alienVolume(180,0,true,{stand:1,outfit,emote:neutralEmote}),base);
+ }
+});
+test('all one-shots settle and all four performances continue without time limits',()=>{
+ const {EMOTE_DURATIONS,loopingEmote}=loaded.exports;
+ for(const {id} of EMOTES){
+  const c={kind:id,started:0,from:neutralEmote},duration=EMOTE_DURATIONS[id]*1000;
+  assert.ok(emotePose(c,600).raise>0,id);
+  if(loopingEmote(id)){
+   assert.ok(emotePose(c,3600000).raise>0,id);
+   const a=emotePose(c,duration*3-0.01),b=emotePose(c,duration*3+0.01);
+   for(const k of ['lean','bodyY','hipX','stepL','stepR','liftL','liftR'])assert.ok(Math.abs(a[k]-b[k])<.01,`${id} ${k} seam`);
+  }else assert.deepEqual(emotePose(c,duration+1),neutralEmote,id);
+ }
+});
+test('wave holds one left lean, gestures use distinct hands and love never emits bubbles',()=>{
+ for(let t=400;t<1500;t+=50){const p=emotePose({kind:'wave',started:0,from:neutralEmote},t);assert.ok(p.lean>.16&&p.lean<.20);}
+ const pose=id=>emotePose({kind:id,started:0,from:neutralEmote},1100);
+ assert.ok(pose('peace').arms.every(a=>a.peace===1));
+ assert.ok(pose('love').arms.every(a=>a.heart===1));assert.equal(pose('love').kiss,0);
+ assert.equal(pose('idea').arms[1].index,1);assert.equal(pose('idea').bulb,1);
+ assert.equal(pose('guitar').guitar,1);
+});
+test('all emotes produce finite clothed and unclothed geometry through their transitions',()=>{
+ const m={exports:{}};new Function('module','exports','require',ts.transpileModule(fs.readFileSync('lib/ship/alienVolume.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(m,m.exports,()=>loaded.exports);
+ for(const {id} of EMOTES)for(const outfit of [null,'soul-ringer-1'])for(const t of [150,650,1400,2200]){
+  const p=emotePose({kind:id,started:0,from:neutralEmote},t);
+  const mesh=m.exports.alienVolume(180,0,true,{stand:1,outfit,emote:p});
+  assert.ok(mesh.every(f=>! /NaN|Infinity/.test(f.d)),`${id} ${t}`);
  }
 });

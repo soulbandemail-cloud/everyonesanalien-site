@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import ts from 'typescript';
 const compile=file=>ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
-function load(file){const m={exports:{}};new Function('module','exports',compile(file))(m,m.exports);return m.exports;}
+function load(file){const m={exports:{}};new Function('module','exports','require',compile(file))(m,m.exports,()=>load('lib/ship/charlieEmotes.ts'));return m.exports;}
 const c=load('lib/ship/clothing.ts'),a=load('lib/ship/alienVolume.ts');
 test('collection has stable metadata and validates persisted selection',()=>{
  assert.equal(c.CLOTHING.length,1);const item=c.CLOTHING[0];assert.equal(item.name,'SOUL Ringer Tee #1');assert.ok(fs.existsSync('public'+item.thumbnail));

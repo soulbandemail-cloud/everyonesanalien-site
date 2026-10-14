@@ -1,3 +1,4 @@
+import {paintEmoteEffects} from '@/lib/ship/emoteEffects';
 import {emotePose,type EmoteControl} from '@/lib/ship/charlieEmotes';
 import type {RefObject} from 'react';
 import {clothesFrame,type Outfit,type ClothesSpin} from '@/lib/ship/clothing';
@@ -16,7 +17,7 @@ export function Alien({ attention, chair=true, occupant=true, facing, standing=f
  useLayoutEffect(()=>{
   const screen=canvas.current?.getContext('2d');
   if(!screen)return;
-  const spinCanvas=document.createElement('canvas');spinCanvas.width=360;spinCanvas.height=640;
+  const spinCanvas=document.createElement('canvas');spinCanvas.width=360;spinCanvas.height=800;
   const spinContext=spinCanvas.getContext('2d')!;
   const personality=createAmbient();
   let inputUntil=0;
@@ -50,13 +51,14 @@ export function Alien({ attention, chair=true, occupant=true, facing, standing=f
   // Draw the same depth-sorted surfaces without reconciling thousands of SVG
   // elements on every pointer frame. Extra space above accommodates the neck.
   // Reaching across the cabinet needs canvas room beyond Charlie's normal silhouette.
-  const reaching=(target.current.motion.ritualAmount??0)>0;
+  const reaching=(target.current.motion.ritualAmount??0)>0||gesturing;
+  screen.canvas.style.left=reaching?'-50%':'0';screen.canvas.style.width=reaching?'200%':'100%';
   const canvasWidth=reaching?720:360;
   if(screen.canvas.width!==canvasWidth)screen.canvas.width=canvasWidth;
   const context=change.haze>0?spinContext:screen;
-  screen.setTransform(1,0,0,1,0,0);screen.clearRect(0,0,canvasWidth,640);
-  context.setTransform(2,0,0,2,reaching?180:0,140);
-  context.clearRect(0,-70,180,320);
+  screen.setTransform(1,0,0,1,0,0);screen.clearRect(0,0,canvasWidth,800);
+  context.setTransform(2,0,0,2,reaching?180:0,300);
+  context.clearRect(-90,-150,360,400);
   const mesh:Array<{d:string;fill:string;depth:number;texture?:Parameters<typeof paintWearableInk>[2]}>=[...(target.current.occupant?alienVolume(currentYaw+change.yaw,down,target.current.standing,motion):[]),...(target.current.chair?pilotChairVolume(currentYaw):[])].sort((a,b)=>a.depth-b.depth);
   // Local canvas blur only; furniture and chair stay sharp.
   context.filter='none';
@@ -67,9 +69,10 @@ export function Alien({ attention, chair=true, occupant=true, facing, standing=f
    if('texture' in face && face.texture){if(ink.ready)paintWearableInk(context,ink.canvas,face.texture);}
    else {context.fill(path);context.stroke(path);}
   }
+  paintEmoteEffects(context,gesture,currentYaw);
   if(change.haze>0){
    screen.save();screen.globalAlpha=change.haze*.22;screen.filter=`blur(${change.haze*6}px)`;
-   screen.drawImage(spinCanvas,-change.haze*12,0,360+change.haze*24,640);
+   screen.drawImage(spinCanvas,-change.haze*12,0,360+change.haze*24,800);
    screen.globalAlpha=1;screen.filter=`blur(${change.haze*2.5}px)`;screen.drawImage(spinCanvas,0,0);screen.restore();
   }
   }
@@ -80,6 +83,6 @@ export function Alien({ attention, chair=true, occupant=true, facing, standing=f
  },[]);
  return <div className={styles.alien} data-outfit={outfit??"none"} data-changing={!!spin||undefined} aria-label="Seated alien sharing your attention">
  {chair && <div className={styles.chairStem} aria-hidden="true"/>}
- <canvas ref={canvas} width={360} height={640} style={{position:'absolute',top:'-28%',maxWidth:'none',left:(motion.ritualAmount??0)>0?'-50%':0,width:(motion.ritualAmount??0)>0?'200%':'100%',height:'128%'}} aria-hidden="true"/>
+ <canvas ref={canvas} width={360} height={800} style={{position:'absolute',top:'-60%',maxWidth:'none',left:(motion.ritualAmount??0)>0?'-50%':0,width:(motion.ritualAmount??0)>0?'200%':'100%',height:'160%'}} aria-hidden="true"/>
  {chair && <div className={styles.chairBase}/>}</div>;
 }
