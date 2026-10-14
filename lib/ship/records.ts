@@ -16,3 +16,19 @@ export const CRANK_PIVOT=[-.72,1.325,-.325] as const;
 export function crankPoint(x:number,y:number,z:number,angle=0):number[]{
  return [CRANK_PIVOT[0]+x*Math.cos(angle)-y*Math.sin(angle),CRANK_PIVOT[1]+x*Math.sin(angle)+y*Math.cos(angle),CRANK_PIVOT[2]+z];
 }
+
+export type RecordSide='A'|'B';
+export type Song={album:AlbumId;index:number};
+export const recordSide=(index:number):RecordSide=>index<3?'A':'B';
+export function nextOnSide(song:Song):Song|null{
+ const count=RECORDS.find(a=>a.id===song.album)!.tracks.length;
+ return song.index+1<count&&recordSide(song.index+1)===recordSide(song.index)?{...song,index:song.index+1}:null;
+}
+export function songFile(song:Song){
+ const name=RECORDS.find(a=>a.id===song.album)!.tracks[song.index];
+ return `/records/audio/${name.toLowerCase().replaceAll(' ','-')}-gramophone.mp3`;
+}
+export function trackTone(song:Song){
+ const count=recordSide(song.index)==='A'?3:RECORDS.find(a=>a.id===song.album)!.tracks.length-3;
+ return .43+.35*(song.index%3)/Math.max(1,count-1);
+}

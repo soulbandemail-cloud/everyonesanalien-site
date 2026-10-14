@@ -1,15 +1,16 @@
 import {useEffect,useRef,useState} from 'react';
-import {recordRitual,restingGramophone,ritualFrame,type RitualStep} from '@/lib/ship/recordRitual';
-import type {AlbumId} from '@/lib/ship/records';
+import {recordRitual,stopRecordRitual,restingGramophone,ritualFrame,type RitualStep} from '@/lib/ship/recordRitual';
+import {trackTone,type RecordSide,type AlbumId} from '@/lib/ship/records';
 import type {RecordSelection} from './useRecords';
-export function useRecordRitual(selection:RecordSelection,approach:(done:()=>void)=>boolean,onPhysical:(album:AlbumId|null,done?:boolean)=>void){
+export function useRecordRitual(selection:RecordSelection,approach:(done:()=>void)=>boolean,onPhysical:(album:AlbumId|null,done?:boolean,side?:RecordSide|null,needleReady?:boolean,needleLifted?:boolean)=>void){
  const [scene,setScene]=useState(restingGramophone),current=useRef(scene),seen=useRef(0);
- const active=useRef<{steps:RitualStep[];elapsed:number}|null>(null),callback=useRef(onPhysical);
+ const active=useRef<{steps:RitualStep[];elapsed:number;started:boolean;stopping:boolean;stopped:boolean}|null>(null),callback=useRef(onPhysical);
  useEffect(()=>{callback.current=onPhysical;},[onPhysical]);
+ useEffect(()=>{if(!selection.busy&&!selection.stopping&&selection.currentSong)current.current={...current.current,tone:trackTone(selection.currentSong)};},[selection.busy,selection.stopping,selection.currentSong]);
  useEffect(()=>{
   if(!selection.busy||!selection.selectedSong||seen.current===selection.revision)return;
   seen.current=selection.revision;const song=selection.selectedSong;
-  if(!approach(()=>{active.current={steps:recordRitual(current.current,song.album,song.index),elapsed:0};}))callback.current(current.current.loadedAlbum,true);
+  if(!approach(()=>{active.current={steps:selection.stopping?stopRecordRitual(current.current):recordRitual(current.current,song.album,song.index),elapsed:0,started:false,stopping:selection.stopping,stopped:false};}))callback.current(current.current.loadedAlbum,true);
  },[selection,approach]);
  useEffect(()=>{
   let frame=0,previous=performance.now(),painted=0;const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -22,10 +23,14 @@ export function useRecordRitual(selection:RecordSelection,approach:(done:()=>voi
     if(now-painted<1000/30){frame=requestAnimationFrame(tick);return;}
     painted=now;
     const next=ritualFrame(active.current.steps,active.current.elapsed);
-    const changed=next.scene.loadedAlbum!==current.current.loadedAlbum;
+    const changed=next.scene.loadedAlbum!==current.current.loadedAlbum||next.scene.loadedSide!==current.current.loadedSide;
+    const needleLifted=active.current.stopping&&!active.current.stopped&&active.current.elapsed>active.current.steps[0].duration;
+    if(needleLifted)active.current.stopped=true;
+    const needleReady=!active.current.stopping&&(next.scene.phase==='settle'||next.done)&&!active.current.started;
+    if(needleReady)active.current.started=true;
     current.current=next.scene;setScene(next.scene);
     if(next.done)active.current=null;
-    if(changed||next.done)callback.current(next.scene.loadedAlbum,next.done);
+    if(changed||next.done||needleReady||needleLifted)callback.current(next.scene.loadedAlbum,next.done,next.scene.loadedSide,needleReady,needleLifted);
    }
    frame=requestAnimationFrame(tick);
   };
@@ -33,5 +38,5 @@ export function useRecordRitual(selection:RecordSelection,approach:(done:()=>voi
   document.addEventListener('visibilitychange',resetClock);
   frame=requestAnimationFrame(tick);return ()=>{cancelAnimationFrame(frame);document.removeEventListener('visibilitychange',resetClock);};
  },[]);
- return scene;
+ return {...scene,playing:selection.playing,tone:!selection.busy&&!selection.stopping&&selection.currentSong?trackTone(selection.currentSong):scene.tone};
 }

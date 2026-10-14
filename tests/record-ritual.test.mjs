@@ -4,12 +4,12 @@ import fs from 'node:fs';
 import ts from 'typescript';
 function load(file,deps={}){const m={exports:{}};new Function('module','exports','require',ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(m,m.exports,n=>deps[n]);return m.exports;}
 const records=load('lib/ship/records.ts');
-const {recordRitual,ritualFrame,restingGramophone,storage,displaySleeve,tonearmPoint}=load('lib/ship/recordRitual.ts',{'./records':records});
+const {recordRitual,stopRecordRitual,ritualFrame,restingGramophone,storage,displaySleeve,tonearmPoint}=load('lib/ship/recordRitual.ts',{'./records':records});
 const finish=steps=>ritualFrame(steps,1000).scene;
 const etr='experiencing-the-role',magic='the-magic-if';
 test('empty, different, same and return album rituals maintain physical state',()=>{
  let scene=restingGramophone();
- for(const [album,index] of [[etr,0],[magic,0],[magic,4],[etr,5]]){
+ for(const [album,index] of [[etr,0],[magic,0],[magic,1],[etr,5]]){
   const old=scene.loadedAlbum,steps=recordRitual(scene,album,index);
   if(old===album){assert.ok(!steps.some(s=>/sleeve|record/.test(s.name)));for(const step of steps){assert.deepEqual(step.to.sleeves,scene.sleeves);assert.deepEqual(step.to.disc,scene.disc);}}
   else{
@@ -45,8 +45,8 @@ test('transfers are continuous and same-album needle moves to selected track',()
 });
 test('selection guard rejects repeated taps and completion unlocks without audio',()=>{
  const slots=[];let cursor=0;
- const react={useState:v=>{let i=cursor++;slots[i]??=v;return[slots[i],v=>slots[i]=v];},useRef:v=>{let i=cursor++;return slots[i]??={current:v};},useCallback:f=>{cursor++;return f;}};
- const {useRecords:controller}=load('components/ship/useRecords.ts',{'react':react,'@/lib/ship/records':records});
+ const react={useEffect:()=>{cursor++;},useState:v=>{let i=cursor++;slots[i]??=v;return[slots[i],v=>slots[i]=v];},useRef:v=>{let i=cursor++;return slots[i]??={current:v};},useCallback:f=>{cursor++;return f;}};
+ const {useRecords:controller}=load('components/ship/useRecords.ts',{'react':react,'@/lib/ship/records':records,'@/lib/ship/recordPlayback':{RecordPlayback:class{prepare(){} start(){} dispose(){}}}});
  const render=()=>{cursor=0;return controller();};
  render().choose(etr,0);render().choose(magic,0);assert.equal(render().state.selectedAlbum,etr);assert.equal(render().state.revision,1);assert.equal(render().state.loadedAlbum,null);
  render().physical(etr);assert.equal(render().state.busy,true);assert.equal(render().state.playing,false);
@@ -79,4 +79,39 @@ test('right hand holds sleeves, left hand holds vinyl, and unused arms relax',()
  assert.equal(steps[lower-2].duration,change.find(s=>s.name==='lift-tonearm').duration);
  assert.equal(steps[lower-1].name,'position-tonearm');
  assert.equal(steps[lower].duration,1);
+});
+
+test('opposite-side selection flips the same vinyl through 180 degrees without touching sleeves',()=>{
+ const initial=finish(recordRitual(restingGramophone(),etr,1));
+ const flip=recordRitual(initial,etr,3),phase=flip.find(s=>s.name==='flip-record');
+ assert.equal(phase.to.disc.flip-phase.from.disc.flip,Math.PI);
+ for(const step of flip)assert.deepEqual(step.to.sleeves,initial.sleeves);
+ assert.ok(!flip.some(s=>s.name.includes('sleeve')));
+ const end=finish(flip);assert.equal(end.loadedSide,'B');assert.equal(end.loadedAlbum,etr);
+ const back=finish(recordRitual(end,etr,2));assert.equal(back.loadedSide,'A');
+ assert.equal(back.disc.flip,Math.PI*2);
+ assert.equal(finish(recordRitual(restingGramophone(),magic,4)).loadedSide,'B');
+});
+
+test('stop ritual rests the needle with two 0.55s lifts/lowers and leaves vinyl untouched',()=>{
+ const initial=finish(recordRitual(restingGramophone(),magic,4)),steps=stopRecordRitual(initial),end=finish(steps);
+ assert.deepEqual(steps.map(s=>s.name),['reach-tonearm','lift-tonearm','rest-tonearm','lower-to-rest','settle']);
+ assert.equal(steps[1].duration,.55);assert.equal(steps[3].duration,.55);
+ assert.equal(end.tone,0);assert.equal(end.lift,0);
+ assert.equal(end.loadedSide,'B');assert.deepEqual(end.disc,initial.disc);assert.deepEqual(end.sleeves,initial.sleeves);
+});
+test('clicking the playing track waits for needle lift to stop, then permits playback again',()=>{
+ const slots=[];let cursor=0,update,stops=0,prepares=0,starts=0;
+ const react={useEffect:()=>{cursor++;},useState:v=>{let i=cursor++;slots[i]??=v;return[slots[i],v=>slots[i]=v];},useRef:v=>{let i=cursor++;return slots[i]??={current:v};},useCallback:f=>{cursor++;return f;}};
+ const {useRecords:controller}=load('components/ship/useRecords.ts',{'react':react,'@/lib/ship/records':records,'@/lib/ship/recordPlayback':{RecordPlayback:class{constructor(publish){update=publish;}prepare(){prepares++;}start(){starts++;}stop(){stops++;update({playing:false});}dispose(){}}}});
+ const render=()=>{cursor=0;return controller();};
+ render().choose(etr,0);render().physical(etr,true,'A',true);
+ // Automatic advancement means the playing song differs from the original selection.
+ update({playing:true,currentSong:{album:etr,index:1}});
+ render().choose(etr,1);
+ assert.equal(render().state.stopping,true);assert.equal(render().state.playing,true);assert.equal(stops,0);assert.equal(prepares,1);
+ render().choose(magic,0);assert.equal(render().state.selectedSong.index,1);
+ render().physical(etr,false,'A',false,true);assert.equal(stops,1);assert.equal(render().state.playing,false);
+ render().physical(etr,true,'A');assert.equal(starts,1);assert.equal(render().state.busy,false);
+ render().choose(etr,1);assert.equal(render().state.stopping,false);assert.equal(prepares,2);
 });

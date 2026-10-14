@@ -19,14 +19,14 @@ import {RecordProps} from './RecordProps';
 import {orientedFixtures} from '@/lib/ship/fixtureLayout';
 import {useRecordRitual} from './useRecordRitual';
 import {INITIAL_RECORD_SELECTION,type RecordSelection} from './useRecords';
-import type {AlbumId} from '@/lib/ship/records';
+import type {AlbumId,RecordSide} from '@/lib/ship/records';
 import {useClothesSpin} from './useClothing';
 import type {Outfit} from '@/lib/ship/clothing';
 
 const MemoizedPilotMezzanine=memo(PilotMezzanine);
 
 export default function Ship({ config, baseline, onConfigChange, hull, onHullChange, view, domeConfig=config, sharedSeam=false, reveal=1, development=false, preview=false, logout, busy, onArcade, onTV, onNewsletter, onShows, onMerch, onRecords, onLeaveContext, domeMenu=null, arcadeOpen=false, liveTv=false, onTvLayer, clothing={outfit:null,revision:0},records=INITIAL_RECORD_SELECTION,onRecordPhysical=()=>{} }: {
- records?:RecordSelection;onRecordPhysical?:(album:AlbumId|null,done?:boolean)=>void;
+ records?:RecordSelection;onRecordPhysical?:(album:AlbumId|null,done?:boolean,side?:RecordSide|null,needleReady?:boolean,needleLifted?:boolean)=>void;
  clothing?:{outfit:Outfit;revision:number};
  config:DomeConfig; baseline:DomeConfig; onConfigChange:(config:DomeConfig)=>void;
  hull:HullConfig; onHullChange:(hull:HullConfig)=>void; view:Viewport;

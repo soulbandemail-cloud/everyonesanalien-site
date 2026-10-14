@@ -272,3 +272,7 @@ button.object-back:focus-visible { text-decoration:none; }
 .record-loading { width:12px; height:12px; align-self:center; border:1.5px solid currentColor; border-right-color:transparent; border-radius:50%; animation:record-loading-spin .8s linear infinite; }
 @keyframes record-loading-spin { to { transform:rotate(360deg); } }
 @media(prefers-reduced-motion:reduce) { .record-loading { animation:none; } }
+
+.gramophone-vinyl-spin { animation:gramophone-vinyl-turn 1.8s linear infinite; transform-origin:0 0; }
+@keyframes gramophone-vinyl-turn { to { transform:rotate(360deg); } }
+.record-playback-error { font-size:inherit; line-height:1.35; margin:0 0 6px; }
