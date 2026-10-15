@@ -99,7 +99,7 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
 
   const flex=face.antenna?Math.max(0,(38-p.y)/23):0;
   const antenna=flex*(Math.sin(phase-.65)*2.2*walk+(motion.life===undefined?0:Math.sin(life*(face.side===-1?1.13:.91)+(face.side??0))*.7));
-  return {...p,x:p.x+antenna+(face.side??0)*flex*(wave?.droop??0)*8+flex*amount*Math.sin(gestureTime*2.1-.5)*2,y:face.head?p.y+flex*(wave?.droop??0)*12:p.y-38*stand-bounce};
+  return {...p,x:p.x+antenna+flex*(wave?.antennaSway??0)+(face.side??0)*flex*(wave?.droop??0)*8+flex*amount*Math.sin(gestureTime*2.1-.5)*2,y:face.head?p.y+flex*(wave?.droop??0)*12:p.y-38*stand-bounce};
  };
  // Rebuild round tubes around posed centre-lines. Deforming the original
  // vertices compressed their cross-sections into flat ribbons.
@@ -109,7 +109,7 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
   const points=[{x:side*10,y:202,z:2},{x:side*15,y:203,z:-21},{x:side*18,y:206,z:kneeZ},{x:side*19,y:223,z:kneeZ+1},{x:side*20,y:244,z:kneeZ+5}];
   const posed=points.map(p=>{
    const weight=Math.max(0,Math.min(1,(p.y-202)/43));
-   return {x:p.x+(wave?(side<0?wave.stepL:wave.stepR)*weight:0),y:p.y-(wave?(side<0?wave.liftL:wave.liftR)*weight:0)+ (wave?.bodyY??0)*(1-weight)-38*stand*(1-Math.max(0,Math.min(1,-p.z/40)))*Math.max(0,Math.min(1,(218-p.y)/12))-Math.max(0,step)*6*weight*walk-(1-Math.cos(phase*2))*1.1*walk*(1-weight),z:p.z*(1-.88*stand)+step*8*weight*walk};
+   return {x:p.x+(wave?(side<0?wave.stepL:wave.stepR)*weight:0),y:p.y-(wave?(side<0?wave.liftL:wave.liftR)*weight:0)+ (wave?.kneeBend?0:(wave?.bodyY??0))*(1-weight)-38*stand*(1-Math.max(0,Math.min(1,-p.z/40)))*Math.max(0,Math.min(1,(218-p.y)/12))-Math.max(0,step)*6*weight*walk-(1-Math.cos(phase*2))*1.1*walk*(1-weight),z:p.z*(1-.88*stand)+step*8*weight*walk-(wave?.kneeBend??0)*4*weight*(1-weight)};
   });
   tube(posed,3,'#79cfb2',legs);
   const foot=posed[posed.length-1];
@@ -247,6 +247,13 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
  z-=stretch*3*upper;
  x+=(settle+Math.sin(phase)*3.5*walk)*supported;
  y-=breath*(reading>.5?1:supported);
+ if(wave&&(wave.hipTwist||wave.shoulderTwist)){
+  // Continuous torso torsion carries the shirt and shoulders with the body.
+  // Fade hip rotation down the legs to leave both feet planted.
+  const upper=Math.max(0,Math.min(1,(164-y)/64));
+  const twist=leg?wave.hipTwist*Math.max(0,Math.min(1,(238-y)/74)):wave.hipTwist+(wave.shoulderTwist-wave.hipTwist)*upper;
+  const oldX=x;x=x*Math.cos(twist)+z*Math.sin(twist);z=z*Math.cos(twist)-oldX*Math.sin(twist);
+ }
  if(wave){const original={x,y,z},weight=leg?Math.max(0,Math.min(1,(220-y)/40)):1;y+=wave.bodyY;x+=wave.hipX*Math.max(0,Math.min(1,(244-y)/70));const pivotY=164,dyPitch=y-pivotY;y=pivotY+dyPitch*Math.cos(wave.pitch)-z*Math.sin(wave.pitch);z=dyPitch*Math.sin(wave.pitch)+z*Math.cos(wave.pitch);const a=wave.lean,dy=y-(202-38*stand),oldX=x;x=x*Math.cos(a)+dy*Math.sin(a);y=202-38*stand+dy*Math.cos(a)-oldX*Math.sin(a);x=original.x+(x-original.x)*weight;y=original.y+(y-original.y)*weight;z=original.z+(z-original.z)*weight;}
  return {x:90+x*c+z*s,y,z:z*c-x*s};};
  // Keep each page's printed marks attached to its paper surface instead of

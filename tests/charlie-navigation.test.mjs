@@ -128,3 +128,28 @@ test('sofa reading settles to its original heading after every interaction',()=>
   assert.ok(Math.cos((h.state().yaw-expected)*Math.PI/180)>.999999,source);
  }
 });
+
+test('watering locks during approach and releases for repeated visits; redirects cancel arrival',()=>{
+ const h=movementHarness();let arrived=0;
+ assert.equal(h.api.performPlant('desk-plant',()=>arrived++),true);
+ assert.equal(h.api.available('desk-plant'),false);
+ assert.equal(h.api.performPlant('desk-plant',()=>arrived++),false);
+ h.advance();assert.equal(arrived,1);assert.equal(h.state().mode,'standing');
+ h.api.finishPlant('desk-plant');assert.equal(h.api.available('desk-plant'),true);
+ h.api.performPlant('floor-plant',()=>arrived++);
+ h.api.walk({x:0,z:2});h.advance();assert.equal(arrived,1);assert.equal(h.state().engagement,null);
+});
+test('watering streams remain vertically over soil throughout each pour',()=>{
+ const w=load(path.resolve('lib/ship/watering.ts')),c=g.DEFAULT_DOME;
+ for(const plant of ['desk-plant','floor-plant']){
+  const p=n.approaches(c)[plant].point,position={...p,y:n.groundHeight(p,c)};
+  assert.equal(w.wateringFrame({plant,elapsed:.5},c,position).pouring,false);
+  for(let elapsed=1.15;elapsed<2.75;elapsed+=.05){
+   const frame=w.wateringFrame({plant,elapsed},c,position),tip=frame.point(0,0);
+   assert.equal(frame.pouring,true);assert.ok(Math.abs(tip.x-frame.soil.x)<1e-9);assert.ok(Math.abs(tip.z-frame.soil.z)<1e-9);assert.ok(tip.y>frame.soil.y);
+   assert.ok(frame.hands.every(hand=>Object.values(hand).every(Number.isFinite)));
+  }
+  const end=w.wateringFrame({plant,elapsed:w.WATERING_DURATION},c,position);
+  assert.equal(end.amount,0);assert.equal(end.pouring,false);assert.equal(end.wiggle,0);
+ }
+});

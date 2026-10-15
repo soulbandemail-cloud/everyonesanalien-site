@@ -1,3 +1,4 @@
+import {PlantInteraction} from './PlantInteraction';
 import { useId, type ReactNode } from 'react';
 import { project, type DomeConfig, type Viewport, type Vec3 } from '@/lib/ship/domeGeometry';
 import { COMMAND_DECK, commandWall } from '@/lib/ship/commandDeck';
@@ -21,7 +22,7 @@ function Module({kind,label}:{kind:Instrument;label:string}) {return <g>
  </g>;}
 const sixty=60;
 
-export function ConsoleDetails({config,view}:{config:DomeConfig;view:Viewport}) {
+export function ConsoleDetails({config,view,onPlant,plantWiggle=0}:{config:DomeConfig;view:Viewport;onPlant?:()=>void;plantWiggle?:number}) {
  const lightId=useId();
  // Artwork coordinates are projected onto the existing world-space surfaces.
  const art=(key:string,p:Vec3,width:number,height:number,children:ReactNode)=>{
@@ -54,6 +55,6 @@ export function ConsoleDetails({config,view}:{config:DomeConfig;view:Viewport}) 
   {[-2.65,-1.75,1.1,2.1].map((x,i)=>art(`meter-light-${i}`,face(x,.38),.6,.3,<ellipse cx="50" cy="25" rx="50" ry="25" fill={`url(#${lightId}-warm)`}/>))}
   {prop('reel',-1.35,.85,.43,<><rect x="1" y="3" width="98" height="46" rx="2" fill="#76664e" stroke="#b49a70" strokeWidth="2"/>{[27,73].map(x=><g key={x}><circle cx={x} cy="22" r="18" fill="#aa9a7c" stroke="#352f26" strokeWidth="2"/>{[0,120,240].map(a=><ellipse key={a} cx={x} cy="12" rx="4" ry="6" fill="#24302a" transform={`rotate(${a} ${x} 22)`}/>)}<circle cx={x} cy="22" r="3" fill="#332c21"/></g>)}<path d="M27 40H73" stroke="#261f1a" strokeWidth="2"/><circle cx="49" cy="43" r="2" fill="#d8b067"/></>)}
   {prop('lamp',-2.07,.62,.87,<><ellipse cx="39" cy="48" rx="22" ry="2" fill="#9d8252"/><path d="M39 47L31 24 64 10" fill="none" stroke="#a98c56" strokeWidth="4"/><circle cx="31" cy="24" r="3" fill="#d2ad67"/><path d="M43 14Q52 -2 76 4L94 17Z" fill="#526048" stroke="#b49a70" strokeWidth="1.5"/><path d="M44 15L93 18" stroke="#ffe1a0" strokeWidth="3"/><ellipse cx="68" cy="20" rx="23" ry="4" fill="#ffcb74" opacity=".1"/></>)}
-  {[-2.82].map((x,i)=>prop(`plant-${i}`,x,.38,.57,<><path d="M20 34H81L71 49H30Z" fill={i?'#85704c':'#9b7750'} stroke="#c0a071"/><path d="M50 35V12M50 28L23 14M50 23L78 9" fill="none" stroke="#75834b" strokeWidth="3"/>{[[24,17,-35],[74,13,40],[46,10,-10],[69,26,60],[29,28,-55]].map(([cx,cy,a],j)=><ellipse key={j} cx={cx} cy={cy} rx="9" ry="4" transform={`rotate(${a} ${cx} ${cy})`} fill={j%2?'#7d8951':'#4d693e'} stroke="#a0a064" strokeWidth=".6"/>)}</>))}
+  <PlantInteraction label="Water desk plant" onClick={onPlant}>{[-2.82].map((x,i)=>prop(`plant-${i}`,x,.38,.57,<><path d="M20 34H81L71 49H30Z" fill={i?'#85704c':'#9b7750'} stroke="#c0a071"/><g transform={`rotate(${plantWiggle} 50 34)`}><path d="M50 35V12M50 28L23 14M50 23L78 9" fill="none" stroke="#75834b" strokeWidth="3"/>{[[24,17,-35],[74,13,40],[46,10,-10],[69,26,60],[29,28,-55]].map(([cx,cy,a],j)=><ellipse key={j} cx={cx} cy={cy} rx="9" ry="4" transform={`rotate(${a} ${cx} ${cy})`} fill={j%2?'#7d8951':'#4d693e'} stroke="#a0a064" strokeWidth=".6"/>)}</g></>))}</PlantInteraction>
  </g>;
 }

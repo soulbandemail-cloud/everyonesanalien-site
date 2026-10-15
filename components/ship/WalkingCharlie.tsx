@@ -1,3 +1,4 @@
+import {wateringFrame,type WateringScene} from '@/lib/ship/watering';
 import {useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {canEmote,emotePose,type EmoteControl} from '@/lib/ship/charlieEmotes';
 import {EmoteWheel} from './EmoteWheel';
@@ -10,7 +11,7 @@ import {project,type DomeConfig,type Viewport} from '@/lib/ship/domeGeometry';
 import {ROOM} from '@/lib/ship/roomGeometry';
 import {orientedFixtures} from '@/lib/ship/fixtureLayout';
 import {localPoint} from '@/lib/ship/charlieNavigation';
-export function WalkingCharlie({state,config,view,outfit=null,spin,gramophone,scripted=false}:{scripted?:boolean;gramophone?:GramophoneScene;outfit?:Outfit;spin?:ClothesSpin;state:CharlieState;config:DomeConfig;view:Viewport}){
+export function WalkingCharlie({state,config,view,outfit=null,spin,gramophone,watering,scripted=false}:{watering?:WateringScene|null;scripted?:boolean;gramophone?:GramophoneScene;outfit?:Outfit;spin?:ClothesSpin;state:CharlieState;config:DomeConfig;view:Viewport}){
  const [peaceHeld,setPeaceHeld]=useState(false);
  const [wheel,setWheel]=useState(false),[screenScale,setScreenScale]=useState(1);
  const emote=useRef<EmoteControl>({command:null}),element=useRef<HTMLDivElement>(null);
@@ -27,13 +28,14 @@ export function WalkingCharlie({state,config,view,outfit=null,spin,gramophone,sc
  const p=project(state.position,config,view);
  if(!p.visible)return null;
  const w=ROOM.alienWidth*p.scale,h=ROOM.alienHeight*p.scale;
- const hands=gramophone&&gramophone.amount>0 ? gramophone.hands.map(target=>{
+ const wateringPose=watering?wateringFrame(watering,config,state.position):null;
+ const worldHands=wateringPose?wateringPose.hands:gramophone&&gramophone.amount>0?gramophone.hands.map(target=>target?gramophoneWorld(orientedFixtures(config.centre,config.radius).musicStation,target):undefined):undefined;
+ const hands=worldHands?.map(target=>{
   if(!target)return undefined;
-  const q=project(gramophoneWorld(orientedFixtures(config.centre,config.radius).musicStation,target),config,view);
-  const x=(q.x-p.x)*180/w,y=(q.y-p.y+h)*250/h,depth=30;
-  const angle=state.yaw*Math.PI/180;
+  const q=project(target,config,view);
+  const x=(q.x-p.x)*180/w,y=(q.y-p.y+h)*250/h,depth=30,angle=state.yaw*Math.PI/180;
   return {x:x*Math.cos(angle)-depth*Math.sin(angle),y,z:x*Math.sin(angle)+depth*Math.cos(angle)};
- }) : undefined;
+ });
  const table=orientedFixtures(config.centre,config.radius).coffeeTable;
  const tablePoint=(x:number,y:number,z:number)=>({...localPoint(table,x,z),y:table.y+y*table.scale});
  // Clip the HTML/canvas layer itself: Safari does not reliably mask a
@@ -49,7 +51,7 @@ export function WalkingCharlie({state,config,view,outfit=null,spin,gramophone,sc
  <svg width={view.width} height={view.height} style={{position:'absolute',inset:0}}><ellipse cx={p.x} cy={p.y} rx={w*.2} ry={h*.025} fill="#000" opacity=".2"/></svg>
  <div style={{position:'absolute',left:p.x-w/2,top:p.y-h*1.32,width:w,height:h*1.4}}>
  <div className="charlie-emote-character" style={{position:'relative',marginTop:h*.32,width:w,height:h}}>
- <Alien emote={emote} outfit={outfit} spin={spin} ambient={clickable?'standing':undefined} chair={false} attention={{x:0,back:0,down:gramophone&&gramophone.amount>0?.2*gramophone.amount:state.paper>0?.16:state.lookUp?-.3:0}} facing={state.yaw} standing={state.stand>0} motion={{stand:state.stand,gait:state.gait,moving:state.moving,reading:state.paper,ritualHands:hands,ritualReach:gramophone?.reach,ritualAmount:gramophone?.amount}}/>
+ <Alien emote={emote} outfit={outfit} spin={spin} ambient={clickable?'standing':undefined} chair={false} attention={{x:0,back:0,down:wateringPose?.tilt?wateringPose.tilt*.12:gramophone&&gramophone.amount>0?.2*gramophone.amount:state.paper>0?.16:state.lookUp?-.3:0}} facing={state.yaw} standing={state.stand>0} motion={{stand:state.stand,gait:state.gait,moving:state.moving,reading:state.paper,ritualHands:hands,ritualReach:wateringPose?[1,1]:gramophone?.reach,ritualAmount:wateringPose?.amount??gramophone?.amount}}/>
  {(clickable||(peaceHeld&&!state.engagement&&state.mode==='walking'))&&<button type="button" className="charlie-emote-target" data-charlie-emote-ui aria-label="Charlie's emotes" aria-expanded={wheel} onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();recover();setScreenScale(Number(element.current?.closest<HTMLElement>('[data-cockpit-presentation]')?.dataset.presentationScale??1));setWheel(clickable&&!wheel);}}/>}
  </div>
  </div>

@@ -1,3 +1,4 @@
+import {PlantInteraction} from './PlantInteraction';
 import { memo, useEffect, useId, useState } from 'react';
 import { project, type DomeConfig, type Vec3, type Viewport } from '@/lib/ship/domeGeometry';
 import { polygonPath } from '@/lib/ship/roomGeometry';
@@ -13,10 +14,10 @@ import {crankPoint,CRANK_PIVOT} from '@/lib/ship/records';
 import {rasterPoster} from '@/lib/ship/posterRaster';
 import {posterSurfacePoint} from '@/lib/ship/posterProjection';
 
-type Props = { gramophone?:GramophoneScene; outfit?:Outfit; config: DomeConfig; view: Viewport; onArcade?: () => void; onTV?:()=>void; onNewsletter?:()=>void; onShows?:()=>void; onMerch?:()=>void; onRecords?:()=>void; domeMenu?:DomeMenu; liveTv?:boolean; reading?:boolean };
+type Props = { onPlant?:()=>void;plantWiggle?:number; gramophone?:GramophoneScene; outfit?:Outfit; config: DomeConfig; view: Viewport; onArcade?: () => void; onTV?:()=>void; onNewsletter?:()=>void; onShows?:()=>void; onMerch?:()=>void; onRecords?:()=>void; domeMenu?:DomeMenu; liveTv?:boolean; reading?:boolean };
 
 /** Crude world-space solids: no owned items, controls, playback or inventory state. */
-export const Fixtures = memo(function Fixtures({ config, view, onArcade, onTV, onNewsletter, onShows, onMerch, onRecords, domeMenu=null, liveTv=false,reading=false,outfit=null,gramophone=restingGramophone() }: Props) {
+export const Fixtures = memo(function Fixtures({ onPlant,plantWiggle=0,config, view, onArcade, onTV, onNewsletter, onShows, onMerch, onRecords, domeMenu=null, liveTv=false,reading=false,outfit=null,gramophone=restingGramophone() }: Props) {
   const outlineId=useId();
   const [shirtInk,setShirtInk]=useState<string>();
   useEffect(()=>{const ink=loadWearableInk(()=>setShirtInk(ink.canvas.toDataURL('image/png')));return ()=>ink.dispose();},[]);
@@ -236,15 +237,15 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
         return parts.map(p=><g key={p.name} data-sofa-part={p.name}>{box(sofa,p.x,p.y,p.z,p.w,p.h,p.d)}{p.name.startsWith('seat-') && <path d={paddedPath([local(sofa,p.x-p.w/2,p.y+p.h,p.z-p.d/2),local(sofa,p.x+p.w/2,p.y+p.h,p.z-p.d/2),local(sofa,p.x+p.w/2,p.y+p.h,p.z+p.d/2),local(sofa,p.x-p.w/2,p.y+p.h,p.z+p.d/2)])} fill={`url(#${outlineId}-cloth)`} stroke="#4e563d" strokeWidth=".45"/>}</g>);
       })()}
     </g>
-    <g aria-label="Leafy floor plant beside the sofa" pointerEvents="none">
+    <PlantInteraction label="Water floor plant" onClick={onPlant}>
      {flatArt(sofa,-1.62,0,-.12,.8,<g transform="scale(1 1.45)">
       <ellipse cx="0" cy="0" rx="27" ry="7" fill="#111b1b" opacity=".3"/>
       <path d="M-25 -42Q-23 -8 -16 -2Q0 6 17 -2L25 -42Z" fill="#a16c45" stroke="#513b29" strokeWidth="2"/>
       <ellipse cy="-42" rx="25" ry="7" fill="#55432c" stroke="#c49a66" strokeWidth="3"/>
       <path d="M-21 -29Q0 -18 21 -29M-18 -13Q0 -3 18 -13" fill="none" stroke="#c29962" strokeWidth="2"/>
-      {Array.from({length:11},(_,i)=>{const x=Number((Math.sin(i*2.4)*(25+i%3*7)).toFixed(4)),y=-63-i%4*18;return <g key={i}><path d={`M0 -40Q${x*.2} ${y} ${x} ${y}`} fill="none" stroke="#737a41" strokeWidth="2"/><path d={`M${x} ${y}q${i%2?26:-26} -22 ${i%2?30:-30} 7q-12 9 ${i%2?-30:30} -7`} fill={i%2?'#7e8949':'#53683e'} stroke="#303e2c" strokeWidth="1"/><path d={`M${x} ${y}l${i%2?24:-24} 4`} stroke="#a6a263" strokeWidth=".8"/></g>;})}
+      <g transform={`rotate(${plantWiggle} 0 -42)`}>{Array.from({length:11},(_,i)=>{const x=Number((Math.sin(i*2.4)*(25+i%3*7)).toFixed(4)),y=-63-i%4*18;return <g key={i}><path d={`M0 -40Q${x*.2} ${y} ${x} ${y}`} fill="none" stroke="#737a41" strokeWidth="2"/><path d={`M${x} ${y}q${i%2?26:-26} -22 ${i%2?30:-30} 7q-12 9 ${i%2?-30:30} -7`} fill={i%2?'#7e8949':'#53683e'} stroke="#303e2c" strokeWidth="1"/><path d={`M${x} ${y}l${i%2?24:-24} 4`} stroke="#a6a263" strokeWidth=".8"/></g>;})}</g>
      </g>)}
-    </g>
+    </PlantInteraction>
     <g className="arcade-fixture cockpit-interactive-fixture" role="button" aria-label="Play SOUL arcade" {...interaction('arcade',onArcade)}
       style={{pointerEvents:'auto'}}>
       {onArcade && <title>Arcade</title>}

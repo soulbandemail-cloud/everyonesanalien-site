@@ -1,4 +1,7 @@
 'use client';
+import {useWatering} from './useWatering';
+import {WateringProps} from './WateringProps';
+import {wateringFrame} from '@/lib/ship/watering';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { project, type DomeConfig, type Viewport } from '@/lib/ship/domeGeometry';
 import type { HullConfig } from '@/lib/ship/hullGeometry';
@@ -34,7 +37,10 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
 }) {
  const [attention, setAttention] = useState({ x: 0, back: 0, down: 0 });
  const movement=useCharlieMovement(config,alienLookYaw(attention.x,attention.back));
+ const watering=useWatering(movement.performPlant,movement.finishPlant);
+ const {water,cancel:cancelWater}=watering;
  const gramophone=useRecordRitual(records,movement.performRecords,onRecordPhysical);
+ useEffect(()=>{if(records.busy)cancelWater();},[records.busy,cancelWater]);
  const deferred=useRef<(()=>void)|null>(null);
  const [queuedTarget,setQueuedTarget]=useState<Parameters<typeof movement.interact>[0]|null>(null);
  const queuedTargetRef=useRef<typeof queuedTarget>(null);
@@ -44,20 +50,30 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
  const appearance=useClothesSpin(clothing,movement.state.engagement==='merch',movement.state.mode==='standing'&&!movement.state.phase&&movement.state.moving===0);
  const {available,closeArcade,interact:moveInteract}=movement;
  const interact=useMemo(()=>((name:Parameters<typeof moveInteract>[0],action?:()=>void)=>{
+  cancelWater();
+  if(name==='desk-plant'||name==='floor-plant'){
+   action?.();
+   if(ritualBusy.current){queuedTargetRef.current=name;setQueuedTarget(name);deferred.current=()=>{water(name);};}
+   else water(name);
+   return;
+  }
   if(ritualBusy.current){
    if(queuedTargetRef.current===name)return;
    queuedTargetRef.current=name;setQueuedTarget(name);
    if(name!=='arcade')action?.();
    deferred.current=()=>moveInteract(name,name==='arcade'?action:undefined);
   }else moveInteract(name,action);
- }),[moveInteract]);
+ }),[moveInteract,water,cancelWater]);
  const wasArcadeOpen=useRef(arcadeOpen);
  useEffect(()=>{
   if(wasArcadeOpen.current&&!arcadeOpen)closeArcade();
   wasArcadeOpen.current=arcadeOpen;
  },[arcadeOpen,closeArcade]);
  const recordsAvailable=queuedTarget!=='records'&&available('records'),showsAvailable=queuedTarget!=='shows'&&available('shows'),merchAvailable=queuedTarget!=='merch'&&available('merch'),arcadeAvailable=queuedTarget!=='arcade'&&available('arcade'),newsletterAvailable=queuedTarget!=='newsletter'&&available('newsletter'),chairAvailable=queuedTarget!=='chair'&&available('chair');
+ const deskPlantAvailable=queuedTarget!=='desk-plant'&&available('desk-plant'),floorPlantAvailable=queuedTarget!=='floor-plant'&&available('floor-plant');
  const actions=useMemo(()=>({
+  deskPlant:deskPlantAvailable?()=>interact('desk-plant',onLeaveContext):undefined,
+  floorPlant:floorPlantAvailable?()=>interact('floor-plant',onLeaveContext):undefined,
   records:onRecords&&recordsAvailable?()=>interact('records',onRecords):undefined,
   shows:onShows&&showsAvailable?()=>interact('shows',onShows):undefined,
   merch:onMerch&&merchAvailable?()=>interact('merch',onMerch):undefined,
@@ -65,7 +81,7 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
   tv:onTV?()=>interact('tv',onTV):undefined,
   newsletter:onNewsletter&&newsletterAvailable?()=>interact('newsletter',onNewsletter):undefined,
   chair:chairAvailable?()=>{onLeaveContext?.();interact('chair');}:undefined,
- }),[interact,onLeaveContext,onRecords,recordsAvailable,onShows,onMerch,onArcade,onTV,onNewsletter,showsAvailable,merchAvailable,arcadeAvailable,newsletterAvailable,chairAvailable]);
+ }),[deskPlantAvailable,floorPlantAvailable,interact,onLeaveContext,onRecords,recordsAvailable,onShows,onMerch,onArcade,onTV,onNewsletter,showsAvailable,merchAvailable,arcadeAvailable,newsletterAvailable,chairAvailable]);
  const root = useRef<HTMLDivElement>(null);
  const pointer = useRef({ x: 0, y: .25 });
  useEffect(() => {
@@ -123,16 +139,17 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
     const bounds=root.current!.getBoundingClientRect(),scene=root.current?.closest<HTMLElement>('[data-cockpit-presentation]'),angle=Number(scene?.dataset.presentationAngle??0)*Math.PI/180,scale=Number(scene?.dataset.presentationScale??1);
     const dx=event.clientX-bounds.left-bounds.width/2,dy=event.clientY-bounds.top-bounds.height/2;
     const x=(dx*Math.cos(angle)+dy*Math.sin(angle))/scale+view.width/2,y=(-dx*Math.sin(angle)+dy*Math.cos(angle))/scale+view.height/2;
-    const point=floorPoint(x,y,config,view);if(point){if(ritualBusy.current){queuedTargetRef.current=null;setQueuedTarget(null);deferred.current=()=>{movement.walk(point);};onLeaveContext?.();}else if(movement.walk(point))onLeaveContext?.();}
+    const point=floorPoint(x,y,config,view);if(point){if(ritualBusy.current){queuedTargetRef.current=null;setQueuedTarget(null);deferred.current=()=>{movement.walk(point);};onLeaveContext?.();}else if(movement.walk(point)){cancelWater();onLeaveContext?.();}}
    }}/>
   </svg>
-  <Fixtures gramophone={gramophone} outfit={appearance.spin?.to ?? appearance.outfit} onRecords={actions.records} reading={movement.state.paper>0} onShows={actions.shows} onMerch={actions.merch} domeMenu={domeMenu} config={config} view={view} onArcade={actions.arcade} onTV={actions.tv} onNewsletter={actions.newsletter} liveTv={liveTv} />
-  <MemoizedPilotMezzanine outfit={appearance.outfit} attention={attention} config={config} view={view} seated={movement.state.mode==='pilot-seated'&&!movement.state.phase} onChair={reveal===1?actions.chair:undefined} />
+  <Fixtures onPlant={actions.floorPlant} plantWiggle={watering.scene?.plant==='floor-plant'?wateringFrame(watering.scene,config,movement.state.position).wiggle:0} gramophone={gramophone} outfit={appearance.spin?.to ?? appearance.outfit} onRecords={actions.records} reading={movement.state.paper>0} onShows={actions.shows} onMerch={actions.merch} domeMenu={domeMenu} config={config} view={view} onArcade={actions.arcade} onTV={actions.tv} onNewsletter={actions.newsletter} liveTv={liveTv} />
+  <MemoizedPilotMezzanine onPlant={actions.deskPlant} plantWiggle={watering.scene?.plant==='desk-plant'?wateringFrame(watering.scene,config,movement.state.position).wiggle:0} outfit={appearance.outfit} attention={attention} config={config} view={view} seated={movement.state.mode==='pilot-seated'&&!movement.state.phase} onChair={reveal===1?actions.chair:undefined} />
   <div className="cockpit-tv-layer" ref={onTvLayer} style={{position:'absolute',inset:0,zIndex:7,pointerEvents:'none','--tv-frame-width':view.width+'px','--tv-frame-height':view.height+'px'} as React.CSSProperties}/>
-  <WalkingCharlie scripted={records.busy} gramophone={gramophone} outfit={appearance.outfit} spin={appearance.spin} state={movement.state} config={config} view={view}/>
+  <WalkingCharlie watering={watering.scene} scripted={records.busy||!!watering.scene} gramophone={gramophone} outfit={appearance.outfit} spin={appearance.spin} state={movement.state} config={config} view={view}/>
   <svg width={view.width} height={view.height} style={{position:'absolute',inset:0,zIndex:9,pointerEvents:'none'}} aria-label="Charlie’s handled records and sleeves">
    <RecordProps scene={gramophone} fixture={orientedFixtures(config.centre,config.radius).musicStation} config={config} view={view} layer="carried"/>
   </svg>
+  <WateringProps scene={watering.scene} config={config} view={view} position={movement.state.position}/>
   <ManifestationPort config={config} view={view} />
   <header className={styles.toolbar}>
     <span className={styles.alpha}>alpha{preview && <small className={styles.previewLabel}>DEVELOPMENT PREVIEW · NO MATE SESSION</small>}</span>

@@ -9,8 +9,8 @@ import { project, type DomeConfig, type Viewport, type Vec3 } from '@/lib/ship/d
 import { ROOM, pilotPosition, platformY, polygonPath } from '@/lib/ship/roomGeometry';
 import {COMMAND_DECK,commandWall,commandDeck,commandFront,commandStairs} from '@/lib/ship/commandDeck';
 
-type PilotMezzanineProps = {outfit?:Outfit;attention:Attention;config:DomeConfig;view:Viewport; seated?:boolean;onChair?:()=>void};
-export function PilotMezzanine({ attention, config, view, seated=true,onChair,outfit=null }: PilotMezzanineProps) {
+type PilotMezzanineProps = {onPlant?:()=>void;plantWiggle?:number;outfit?:Outfit;attention:Attention;config:DomeConfig;view:Viewport; seated?:boolean;onChair?:()=>void};
+export function PilotMezzanine({ attention, config, view, seated=true,onChair,outfit=null,onPlant,plantWiggle=0 }: PilotMezzanineProps) {
  const id=useId();
  const [pressed,setPressed]=useState(false);
 
@@ -69,7 +69,7 @@ export function PilotMezzanine({ attention, config, view, seated=true,onChair,ou
     {[0,1,2].map(n=>{const a=project({x:x+(n-1)*.16,y:.505,z:z-.12},config,view),b=project({x:x+(n-1)*.16,y:.505,z:z+.18},config,view);return <g key={n}><path d={`M${a.x} ${a.y}L${b.x} ${b.y}`} stroke="#10292a" strokeWidth="2"/><circle cx={(a.x+b.x)/2} cy={(a.y+b.y)/2} r="1.15" fill={i%2?'#bfc4aa':'#bdae8d'}/></g>;})}
    </g>;
   })}
-  <ConsoleDetails config={config} view={view}/>
+  <ConsoleDetails config={config} view={view} onPlant={onPlant} plantWiggle={plantWiggle}/>
   <g pointerEvents="none" fill={`url(#${id}-ambient)`}>
    <path d={panel(0,COMMAND_DECK.halfWidth*2,COMMAND_DECK.deskY,COMMAND_DECK.panelTop)}/>
    <path d={path([...deskFront,...back])}/>

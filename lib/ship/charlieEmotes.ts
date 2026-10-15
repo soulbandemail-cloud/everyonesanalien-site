@@ -9,12 +9,12 @@ export const EMOTES=[
 export type EmoteId=typeof EMOTES[number]['id'];
 export type Point3=[number,number,number];
 export type EmoteArm={hand:Point3;elbow:Point3;weight:number;peace:number;index:number;heart:number;open:number};
-export type EmotePose={raise:number;sweep:number;lean:number;pitch:number;headTilt:number;headNod:number;bodyY:number;hipX:number;turn:number;stepL:number;stepR:number;liftL:number;liftR:number;droop:number;eyes:number;yawn:number;smileOpen:number;frown:number;pout:number;bulb:number;question:number;zzz:number;kiss:number;guitar:number;clock:number;arms:[EmoteArm,EmoteArm]};
+export type EmotePose={raise:number;sweep:number;lean:number;pitch:number;headTilt:number;headNod:number;bodyY:number;hipX:number;hipTwist:number;shoulderTwist:number;kneeBend:number;antennaSway:number;turn:number;stepL:number;stepR:number;liftL:number;liftR:number;droop:number;eyes:number;yawn:number;smileOpen:number;frown:number;pout:number;bulb:number;question:number;zzz:number;kiss:number;guitar:number;clock:number;arms:[EmoteArm,EmoteArm]};
 export type EmoteCommand={kind:EmoteId|'recover';started:number;from:EmotePose};
 export type EmoteControl={command:EmoteCommand|null};
 const arm=(side:number):EmoteArm=>({hand:[side*13,side<0?162:160,side<0?-22:-25],elbow:[side*25,143,-3],weight:0,peace:0,index:0,heart:0,open:0});
-export const neutralEmote:EmotePose={raise:0,sweep:0,lean:0,pitch:0,headTilt:0,headNod:0,bodyY:0,hipX:0,turn:0,stepL:0,stepR:0,liftL:0,liftR:0,droop:0,eyes:0,yawn:0,smileOpen:0,frown:0,pout:0,bulb:0,question:0,zzz:0,kiss:0,guitar:0,clock:0,arms:[arm(-1),arm(1)]};
-export const EMOTE_DURATIONS:Record<EmoteId,number>={wave:2,peace:2.7,love:3,kiss:3.1,idea:2.6,confused:2.8,laugh:3,sleepy:4.6,'dance-1':2.4,'dance-2':2,'dance-3':3.2,guitar:2.4};
+export const neutralEmote:EmotePose={raise:0,sweep:0,lean:0,pitch:0,headTilt:0,headNod:0,bodyY:0,hipX:0,hipTwist:0,shoulderTwist:0,kneeBend:0,antennaSway:0,turn:0,stepL:0,stepR:0,liftL:0,liftR:0,droop:0,eyes:0,yawn:0,smileOpen:0,frown:0,pout:0,bulb:0,question:0,zzz:0,kiss:0,guitar:0,clock:0,arms:[arm(-1),arm(1)]};
+export const EMOTE_DURATIONS:Record<EmoteId,number>={wave:2,peace:2.7,love:3,kiss:3.1,idea:2.6,confused:2.8,laugh:3,sleepy:6.6,'dance-1':4.8,'dance-2':2,'dance-3':3.2,guitar:2.4};
 export const loopingEmote=(id:string)=>id.startsWith('dance-')||id==='guitar'||id==='peace'||id==='love';
 const ease=(t:number)=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t);};
 function blend(a:EmotePose,b:EmotePose,t:number):EmotePose{
@@ -58,11 +58,20 @@ export function emotePose(command:EmoteCommand|null,now:number,reduced=false):Em
   const pulse=Math.max(0,Math.sin((t-.3)*Math.PI*3));p.bodyY=-4*pulse*strength;p.pitch=.13;p.eyes=.85;p.smileOpen=1;p.headNod=.08;p.lean=.025*Math.sin(t*6);
   setArm(-1,[-20,137,-22],[-36,133,-5]);setArm(1,[15,140,-25],[32,132,-6]);
  }else if(id==='sleepy'){
-  const slump=ease((t-2.8)/.7)*(1-ease((t-3.8)/.5));const lift=ease(t/1.2),lower=ease((t-1.5)/1.8),stretch=lift*(1-lower);p.bodyY=6*slump*strength;p.pitch=.1*slump;p.headNod=.2*slump;p.eyes=.7;p.yawn=1;p.droop=slump;p.zzz=slump;
+  const slump=ease((t-2.8)/.7)*(1-ease((t-5.8)/.5));const lift=ease(t/1.2),lower=ease((t-1.5)/1.8),stretch=lift*(1-lower);p.bodyY=6*slump*strength;p.pitch=.1*slump;p.headNod=.2*slump;p.eyes=.7;p.yawn=1;p.droop=slump;p.zzz=slump;
   for(const side of [-1,1])setArm(side,[side*(20+54*stretch+42*Math.sin(lower*Math.PI)),160-175*stretch,-12],[side*(28+38*stretch+30*Math.sin(lower*Math.PI)),143-95*stretch,-6],{open:stretch});
  }else if(id==='dance-1'){
-  p.hipX=6*Math.sin(q)*strength;p.lean=.055*Math.sin(q)*strength;p.headNod=.035*Math.sin(q*2);p.stepL=5*Math.sin(q)*strength;p.stepR=-p.stepL;p.liftL=2*Math.max(0,Math.sin(q))*strength;p.liftR=2*Math.max(0,-Math.sin(q))*strength;
-  for(const side of [-1,1])setArm(side,[side*28+8*Math.sin(q),155,-21+side*7*Math.cos(q)],[side*30,134,-5]);
+  // Four twisting phrases, with a deeper dip halfway through the loop.
+  const beat=4*q+.24*Math.sin(8*q),twist=Math.sin(beat),dip=Math.pow((1-Math.cos(q))/2,8);
+  p.hipTwist=.55*twist*strength;p.shoulderTwist=-.38*twist*strength;
+  p.stepL=-9*strength;p.stepR=9*strength;p.kneeBend=(7+12*dip)*strength;
+  p.bodyY=(5+3*(1-Math.cos(beat*2))+12*dip)*strength;
+  p.headNod=(.04+.055*Math.sin(beat*2-.3))*strength;
+  p.headTilt=.035*Math.sin(beat-.2)*strength;p.antennaSway=3.5*Math.sin(beat-.65)*strength;
+  for(const side of [-1,1]){
+   const pump=side*Math.sin(beat+.35)*strength;
+   setArm(side,[side*27,112-10*pump,-32-9*pump],[side*40,136+4*pump,-8]);
+  }
  }else if(id==='dance-2'){
   const a=(Math.sin(q)+1)/2;p.hipX=-7*Math.sin(q)*strength;p.bodyY=3*(1-Math.cos(q*2))*strength;p.lean=.09*Math.sin(q)*strength;
   for(const side of [-1,1]){const up=side===1?a:1-a;setArm(side,[side*(31+48*up),172-204*up,-15],[side*(32+40*up),143-97*up,-5],{index:1});}

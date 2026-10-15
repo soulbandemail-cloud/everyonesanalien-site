@@ -74,3 +74,18 @@ test('sleepy raises once slowly, lowers in a wide arc and never raises again',()
  for(let t=1600;t<4400;t+=100)assert.ok(pose(t+100)[1]>=pose(t)[1]-.01);
  for(const id of ['peace','love'])assert.equal(emotePose({kind:id,started:0,from:neutralEmote},60000).raise,1);
 });
+
+test('Twist counter-rotates with planted wide feet and a seamless repeating dip',()=>{
+ const command={kind:'dance-1',started:0,from:neutralEmote};
+ let min=Infinity,max=-Infinity;
+ for(let t=500;t<=10100;t+=100){
+  const p=emotePose(command,t);assert.ok(p.hipTwist*p.shoulderTwist<=0);
+  assert.equal(p.stepL,-9);assert.equal(p.stepR,9);assert.equal(p.liftL,0);assert.equal(p.liftR,0);assert.equal(p.turn,0);assert.equal(p.hipX,0);
+  min=Math.min(min,p.kneeBend);max=Math.max(max,p.kneeBend);
+ }
+ assert.ok(max-min>10);
+ const a=emotePose(command,9599.999),b=emotePose(command,9600.001);
+ for(const key of ['hipTwist','shoulderTwist','kneeBend','antennaSway','bodyY'])assert.ok(Math.abs(a[key]-b[key])<.001,key);
+ const recover={kind:'recover',started:0,from:emotePose(command,1500)};
+ assert.deepEqual(emotePose(recover,230),neutralEmote);
+});
