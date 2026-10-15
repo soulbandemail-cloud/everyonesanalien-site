@@ -162,11 +162,12 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
    const strength=gesture.weight;
    if(gesture.heart>0){
     // Each hand supplies one lobe and one half of the pointed thumb base.
-    finger([{...h,y:h.y-2},{x:side*15,y:-64,z:h.z},{x:side*9,y:-71,z:h.z},{x:0,y:-65,z:h.z}],gesture.heart*strength);
-    finger([h,{x:side*8,y:-48,z:h.z},{x:0,y:-42,z:h.z}],gesture.heart*strength);
+    const bezier=(a:V,b:V,c:V,d:V)=>Array.from({length:13},(_,i)=>{const t=i/12,u=1-t;return {x:u*u*u*a.x+3*u*u*t*b.x+3*u*t*t*c.x+t*t*t*d.x,y:u*u*u*a.y+3*u*u*t*b.y+3*u*t*t*c.y+t*t*t*d.y,z:h.z};});
+    finger(bezier(h,{x:side*24,y:-75,z:h.z},{x:side*6,y:-79,z:h.z},{x:0,y:-65,z:h.z}),gesture.heart*strength);
+    finger(bezier(h,{x:side*10,y:-49,z:h.z},{x:side*3,y:-45,z:h.z},{x:0,y:-42,z:h.z}),gesture.heart*strength);
    }else if(gesture.peace>0||gesture.index>0){
-    finger([h,{x:h.x-2,y:h.y-5,z:h.z},{x:h.x-6*gesture.peace,y:h.y-17,z:h.z}],strength);
-    if(gesture.peace>0)finger([h,{x:h.x+3,y:h.y-5,z:h.z},{x:h.x+7,y:h.y-16,z:h.z}],strength*gesture.peace);
+    finger([h,{x:h.x-2*(1+.5*gesture.peace),y:h.y-5*(1+.5*gesture.peace),z:h.z},{x:h.x-9*gesture.peace,y:h.y-17-16*gesture.peace,z:h.z}],strength);
+    if(gesture.peace>0)finger([h,{x:h.x+4.5,y:h.y-7.5,z:h.z},{x:h.x+10.5,y:h.y-31.5,z:h.z}],strength*gesture.peace);
     for(let j=0;j<2;j++)sphere({x:h.x+2+j*2,y:h.y-1,z:h.z-2},{x:1.8,y:2,z:1.8},'#79cfb2',5,8,arms);
    }else if(gesture.open>0)for(let j=0;j<4;j++)finger([h,{x:h.x+(j-1.5)*2,y:h.y-3,z:h.z},{x:h.x+(j-1.5)*3,y:h.y-9+Math.abs(j-1.5),z:h.z}],strength*gesture.open);
   }
@@ -190,24 +191,40 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
   }
  }
  const expression:Face[]=[];
- if(wave&&wave.yawn>.01){sphere({x:0,y:120,z:-36},{x:4*wave.yawn,y:7*wave.yawn,z:1},'#000000',8,12,expression);expression.forEach(f=>f.head=true);}
+ const expressiveMouth=wave&&Math.max(wave.yawn,wave.smileOpen,wave.frown,wave.pout)>.01;
+ if(wave&&expressiveMouth){
+  const surface=(x:number,y:number):V=>({x,y,z:-43*Math.sqrt(Math.max(.01,1-(x/56)**2-((y-85)/56)**2))-2.5});
+  if(wave.smileOpen>.01){
+   // A filled rounded bowl; keep the entire opening just above the face surface.
+   const edge=Array.from({length:33},(_,i)=>{const a=i*Math.PI/16,x=12.5*Math.cos(a),y=121+(Math.sin(a)<0?2.5:7)*Math.sin(a)*wave.smileOpen;return surface(x,y);});
+   const centre=surface(0,122);
+   for(let i=0;i<edge.length-1;i++)expression.push({colour:'#000000',eye:true,points:[centre,edge[i],edge[i+1]]});
+  }else if(wave.frown>.01){
+   tube(Array.from({length:17},(_,i)=>surface(-8+i,123-3*wave.frown*Math.sin(i*Math.PI/16))),.9,'#000000',expression);
+  }else if(wave.pout>.01){
+   tube(Array.from({length:21},(_,i)=>{const a=i*Math.PI/10;return surface(3*wave.pout*Math.cos(a),121+2.6*wave.pout*Math.sin(a));}),1,'#000000',expression);
+  }else sphere(surface(0,120),{x:4*wave.yawn,y:7*wave.yawn,z:1},'#000000',8,12,expression);
+  expression.forEach(f=>{f.head=true;f.eye=true;f.mouth=true;});
+ }
+
  const prop:Face[]=[];
  if(wave&&wave.guitar>0){
-  const gp=(u:number,v:number,z=0):V=>{const p=guitarPoint(u*wave.guitar,v*wave.guitar,z);return {x:p[0],y:p[1],z:p[2]};};
+  const gp=(u:number,v:number,z=0):V=>{const p=guitarPoint(-u*wave.guitar,v*wave.guitar,z);return {x:p[0],y:p[1],z:p[2]};};
   const poly=(points:number[][],colour:string,z=0)=>prop.push({colour,points:points.map(([u,v])=>gp(u,v,z))});
   const shape=[[-9,-3],[-30,64],[-26,67],[0,35],[26,67],[30,64],[9,-3]];
-  poly(shape,'#08b8df',-3);poly(shape,'#087c9e',3);
+  poly(shape,'#087c9e',3);poly(shape,'#08b8df',-3);
   shape.forEach((p,i)=>{const q=shape[(i+1)%shape.length];prop.push({colour:i%2?'#159fbc':'#45d2ed',points:[gp(...p as [number,number],-3),gp(...q as [number,number],-3),gp(...q as [number,number],3),gp(...p as [number,number],3)]});});
   poly([[-7,1],[-21,43],[-2,25],[8,25],[11,45],[24,58],[7,1]],'#f1edf7',-3.5);
   poly([[-4,-3],[-4,-64],[4,-64],[4,-3]],'#252624',-3.7);
   poly([[-4,-64],[-8,-70],[-5,-88],[-3,-92],[0,-93],[3,-92],[5,-88],[8,-70],[4,-64]],'#08b8df',-3.7);
-  poly([[-3,-64],[-4,-71],[0,-79],[4,-71],[3,-64]],'#eeece6',-4);
+  poly([[-3,-64],[-4,-71],[0,-79],[4,-71],[3,-64]],'#eeece6',-8);
   for(const v of [7,19,28,34])poly([[-6,v],[6,v],[6,v+3],[-6,v+3]],'#bdc8c9',-4);
   for(let v=-60;v<-4;v+=5)poly([[-4,v],[4,v],[4,v+.4],[-4,v+.4]],'#a9aaa3',-4);
-  for(let u=-2.5;u<=2.5;u++)poly([[u,-82],[u+.13,-82],[u+.13,35],[u,35]],'#e3dfcd',-4.2);
+  for(let u=-2.5;u<=2.5;u++)poly([[u,-82],[u+.13,-82],[u+.13,35],[u,35]],'#e3dfcd',-9);
   for(const [u,v] of [[14,32],[14,39],[20,41]])sphere(gp(u,v,-4),{x:2,y:2,z:1},'#202124',5,8,prop);
   for(const v of [-72,-78,-84])for(const side of [-1,1])sphere(gp(side*6,v,-3),{x:2,y:1.5,z:1.5},'#bfc9c9',5,8,prop);
  }
+ const propOrder=new Map(prop.map((face,i)=>[face,i]));
  const posedLimbs=new Set([...legs,...arms,...prop]),posedLegs=new Set(legs);
  const paper:Face[]=[];
  if(reading>0){
@@ -230,25 +247,26 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
  z-=stretch*3*upper;
  x+=(settle+Math.sin(phase)*3.5*walk)*supported;
  y-=breath*(reading>.5?1:supported);
- if(wave&&!leg){y+=wave.bodyY;x+=wave.hipX*Math.max(0,Math.min(1,(244-y)/70));const pivotY=164,dyPitch=y-pivotY;y=pivotY+dyPitch*Math.cos(wave.pitch)-z*Math.sin(wave.pitch);z=dyPitch*Math.sin(wave.pitch)+z*Math.cos(wave.pitch);const a=wave.lean,dy=y-(202-38*stand),oldX=x;x=x*Math.cos(a)+dy*Math.sin(a);y=202-38*stand+dy*Math.cos(a)-oldX*Math.sin(a);}
+ if(wave){const original={x,y,z},weight=leg?Math.max(0,Math.min(1,(220-y)/40)):1;y+=wave.bodyY;x+=wave.hipX*Math.max(0,Math.min(1,(244-y)/70));const pivotY=164,dyPitch=y-pivotY;y=pivotY+dyPitch*Math.cos(wave.pitch)-z*Math.sin(wave.pitch);z=dyPitch*Math.sin(wave.pitch)+z*Math.cos(wave.pitch);const a=wave.lean,dy=y-(202-38*stand),oldX=x;x=x*Math.cos(a)+dy*Math.sin(a);y=202-38*stand+dy*Math.cos(a)-oldX*Math.sin(a);x=original.x+(x-original.x)*weight;y=original.y+(y-original.y)*weight;z=original.z+(z-original.z)*weight;}
  return {x:90+x*c+z*s,y,z:z*c-x*s};};
  // Keep each page's printed marks attached to its paper surface instead of
  // sorting coplanar ink behind the much larger sheet polygon.
  const pageDepth=paper.slice(0,2).map(face=>face.points.reduce((sum,p)=>sum+rotate(pose(p,face)).z,0)/face.points.length);
+ const propDepth=prop.length?rotate({x:12,y:140,z:-34}).z:0;
  const paperOrder=new Map(paper.map((face,i)=>[face,i]));
  return [...faces.filter(face=>!face.leg&&!face.arm),...legs,...arms,...garment,...paper,...prop,...expression].filter(face=>{
-  if(face.mouth&&(wave?.yawn??0)>.01)return false;
+  if(face.mouth&&expressiveMouth&&!expression.includes(face))return false;
   if(!face.eye)return true;
   const centre=face.points.reduce((v,p)=>({x:v.x+p.x/face.points.length,y:0,z:v.z+p.z/face.points.length}),{x:0,y:0,z:0});
   return centre.z/43**2*Math.cos(angle+headTurn)-centre.x/56**2*Math.sin(angle+headTurn)>0;
  }).map(face=>{
-  const p=face.points.map(p=>face.eye&&wave?.eyes?{...p,y:94+(p.y-94)*(1-wave.eyes*.9)}:p).map(p=>rotate(posedLimbs.has(face)?p:pose(p,face),face.head,posedLegs.has(face))).map(v=>({x:+v.x.toFixed(6),y:+v.y.toFixed(6),z:+v.z.toFixed(6)})),a=p[0],b=p[1],d=p[2];
+  const p=face.points.map(p=>face.eye&&!face.mouth&&wave?.eyes?{...p,y:94+(p.y-94)*(1-wave.eyes*.9)}:p).map(p=>rotate(posedLimbs.has(face)?p:pose(p,face),face.head,posedLegs.has(face))).map(v=>({x:+v.x.toFixed(6),y:+v.y.toFixed(6),z:+v.z.toFixed(6)})),a=p[0],b=p[1],d=p[2];
   const nx=(b.y-a.y)*(d.z-a.z)-(b.z-a.z)*(d.y-a.y),ny=(b.z-a.z)*(d.x-a.x)-(b.x-a.x)*(d.z-a.z),nz=(b.x-a.x)*(d.y-a.y)-(b.y-a.y)*(d.x-a.x);
   const length=Math.hypot(nx,ny,nz)||1;
   const light=.83+.17*Math.max(0,(-nx*.3-ny*.5+nz*.8)/length);
   const rgb=face.colour.slice(1).match(/../g)!.map(v=>parseInt(v,16));
   const printed=paperOrder.get(face),page=face.points[0].x<0?0:1;
-  return {texture:face.uv?{points:p,uv:face.uv}:undefined,d:`M${p.map(v=>`${v.x.toFixed(2)},${v.y.toFixed(2)}`).join('L')}Z`,depth:printed!==undefined?1000+pageDepth[page]+(printed>1?.001:0):(face.eye?100:0)+(+(p.reduce((sum,v)=>sum+v.z,0)/p.length).toFixed(5)),fill:face.colour==='#000000'?'#000000':`rgb(${rgb.map((v,i)=>Math.round(v*light+(i===0?5:0))).join(',')})`};
+  return {texture:face.uv?{points:p,uv:face.uv}:undefined,d:`M${p.map(v=>`${v.x.toFixed(2)},${v.y.toFixed(2)}`).join('L')}Z`,depth:propOrder.has(face)?propDepth+propOrder.get(face)!*.00001:printed!==undefined?1000+pageDepth[page]+(printed>1?.001:0):(face.eye?100:0)+(+(p.reduce((sum,v)=>sum+v.z,0)/p.length).toFixed(5)),fill:face.colour==='#000000'?'#000000':`rgb(${rgb.map((v,i)=>Math.round(v*light+(i===0?5:0))).join(',')})`};
  }).sort((a,b)=>a.depth-b.depth);
 }
 

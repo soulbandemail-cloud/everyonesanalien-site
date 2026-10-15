@@ -11,7 +11,7 @@ export function paintEmoteEffects(ctx:CanvasRenderingContext2D,p:EmotePose,yaw:n
   ctx.fillStyle='#bcb6a2';ctx.fillRect(-5,7,10,7);ctx.strokeStyle='#e9dcb5';ctx.beginPath();ctx.moveTo(-4,17);ctx.lineTo(4,17);ctx.stroke();
   for(let i=0;i<5;i++){const a=(i/4)*Math.PI+Math.PI;ctx.beginPath();ctx.moveTo(Math.cos(a)*20,Math.sin(a)*20-2);ctx.lineTo(Math.cos(a)*25,Math.sin(a)*25-2);ctx.stroke();}ctx.restore();
  }
- if(p.question>.01){ctx.save();ctx.globalAlpha=p.question;ctx.fillStyle='#f9e4ff';ctx.font='bold 28px Georgia';ctx.textAlign='center';ctx.fillText('?',headX,-82);ctx.restore();}
+ if(p.question>.01){ctx.save();ctx.globalAlpha=p.question;ctx.fillStyle='#f9e4ff';ctx.shadowColor='#ead0ff';ctx.shadowBlur=3;ctx.font='bold 42px Georgia';ctx.textAlign='center';ctx.fillText('?',headX,-82);ctx.restore();}
  if(p.zzz>.01){ctx.save();ctx.globalAlpha=p.zzz;ctx.fillStyle='#e8dfff';ctx.font='16px monospace';for(let i=0;i<3;i++)ctx.fillText(i?'z':'Z',headX+12+i*12,-65-i*15-(p.clock%1)*5);ctx.restore();}
  if(p.kiss>.01){
   const start=.9;

@@ -11,13 +11,14 @@ import {ROOM} from '@/lib/ship/roomGeometry';
 import {orientedFixtures} from '@/lib/ship/fixtureLayout';
 import {localPoint} from '@/lib/ship/charlieNavigation';
 export function WalkingCharlie({state,config,view,outfit=null,spin,gramophone,scripted=false}:{scripted?:boolean;gramophone?:GramophoneScene;outfit?:Outfit;spin?:ClothesSpin;state:CharlieState;config:DomeConfig;view:Viewport}){
+ const [peaceHeld,setPeaceHeld]=useState(false);
  const [wheel,setWheel]=useState(false),[screenScale,setScreenScale]=useState(1);
  const emote=useRef<EmoteControl>({command:null}),element=useRef<HTMLDivElement>(null);
  const clickable=canEmote(state,scripted||!!spin||(gramophone?.amount??0)>0);
- const recover=()=>{const now=performance.now();emote.current.command={kind:'recover',started:now,from:emotePose(emote.current.command,now)};};
- useLayoutEffect(()=>{if(!clickable&&emote.current.command&&emote.current.command.kind!=='recover'){const now=performance.now();emote.current.command={kind:'recover',started:now,from:emotePose(emote.current.command,now)};}},[clickable]);
+ const recover=()=>{setPeaceHeld(false);const now=performance.now();emote.current.command={kind:'recover',started:now,from:emotePose(emote.current.command,now)};};
+ useLayoutEffect(()=>{if(!clickable&&!(emote.current.command?.kind==='peace'&&!state.engagement&&!state.phase&&!scripted&&!spin&&(state.mode==='walking'||state.mode==='standing'))&&emote.current.command&&emote.current.command.kind!=='recover'){const now=performance.now();emote.current.command={kind:'recover',started:now,from:emotePose(emote.current.command,now)};}},[clickable,state.engagement,state.phase,state.mode,scripted,spin]);
  useEffect(()=>{
-  const dismiss=(event:Event)=>{if(event.target instanceof Element&&event.target.closest('[data-charlie-emote-ui]'))return;setWheel(false);const now=performance.now();emote.current.command={kind:'recover',started:now,from:emotePose(emote.current.command,now)};};
+  const dismiss=(event:Event)=>{if(event.target instanceof Element&&event.target.closest('[data-charlie-emote-ui]'))return;setWheel(false);if(emote.current.command?.kind==='peace'&&event.target instanceof Element&&event.target.closest('[data-charlie-floor-destination]'))return;setPeaceHeld(false);const now=performance.now();emote.current.command={kind:'recover',started:now,from:emotePose(emote.current.command,now)};};
   document.addEventListener('pointerdown',dismiss,true);document.addEventListener('click',dismiss,true);
   const escape=(event:KeyboardEvent)=>{if(event.key==='Escape')dismiss(event);};document.addEventListener('keydown',escape);
   return()=>{document.removeEventListener('pointerdown',dismiss,true);document.removeEventListener('click',dismiss,true);document.removeEventListener('keydown',escape);};
@@ -49,10 +50,10 @@ export function WalkingCharlie({state,config,view,outfit=null,spin,gramophone,sc
  <div style={{position:'absolute',left:p.x-w/2,top:p.y-h*1.32,width:w,height:h*1.4}}>
  <div className="charlie-emote-character" style={{position:'relative',marginTop:h*.32,width:w,height:h}}>
  <Alien emote={emote} outfit={outfit} spin={spin} ambient={clickable?'standing':undefined} chair={false} attention={{x:0,back:0,down:gramophone&&gramophone.amount>0?.2*gramophone.amount:state.paper>0?.16:state.lookUp?-.3:0}} facing={state.yaw} standing={state.stand>0} motion={{stand:state.stand,gait:state.gait,moving:state.moving,reading:state.paper,ritualHands:hands,ritualReach:gramophone?.reach,ritualAmount:gramophone?.amount}}/>
- {clickable&&<button type="button" className="charlie-emote-target" data-charlie-emote-ui aria-label="Charlie's emotes" aria-expanded={wheel} onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();recover();setScreenScale(Number(element.current?.closest<HTMLElement>('[data-cockpit-presentation]')?.dataset.presentationScale??1));setWheel(!wheel);}}/>}
+ {(clickable||(peaceHeld&&!state.engagement&&state.mode==='walking'))&&<button type="button" className="charlie-emote-target" data-charlie-emote-ui aria-label="Charlie's emotes" aria-expanded={wheel} onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();recover();setScreenScale(Number(element.current?.closest<HTMLElement>('[data-cockpit-presentation]')?.dataset.presentationScale??1));setWheel(clickable&&!wheel);}}/>}
  </div>
  </div>
  </div>
- {wheel&&clickable&&<EmoteWheel x={p.x} y={p.y-h*.65} width={view.width} height={view.height} scale={screenScale} onSelect={kind=>{const now=performance.now();emote.current.command={kind,started:now,from:emotePose(emote.current.command,now)};setWheel(false);}}/>}
+ {wheel&&clickable&&<EmoteWheel x={p.x} y={p.y-h*.65} width={view.width} height={view.height} scale={screenScale} onSelect={kind=>{setPeaceHeld(kind==='peace');const now=performance.now();emote.current.command={kind,started:now,from:emotePose(emote.current.command,now)};setWheel(false);}}/>}
  </>;
 }

@@ -119,7 +119,7 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
   <ExteriorHull config={config} hull={hull} view={view} sharedSeam={sharedSeam} />
   <CockpitFloor config={config} view={view} sharedSeam={sharedSeam} />
   <svg width={view.width} height={view.height} style={{position:'absolute',inset:0,zIndex:5,pointerEvents:'none'}} aria-label="Walkable cockpit floor">
-   <path d={polygonPath(Array.from({length:97},(_,i)=>({x:config.centre.x+(config.radius-.65)*Math.sin(i/96*Math.PI*2),y:ROOM.floorY,z:config.centre.z+(config.radius-.65)*Math.cos(i/96*Math.PI*2)})),config,view)} fill="transparent" style={{pointerEvents:reveal===1?'all':'none',cursor:'crosshair'}} onClick={event=>{
+   <path data-charlie-floor-destination d={polygonPath(Array.from({length:97},(_,i)=>({x:config.centre.x+(config.radius-.65)*Math.sin(i/96*Math.PI*2),y:ROOM.floorY,z:config.centre.z+(config.radius-.65)*Math.cos(i/96*Math.PI*2)})),config,view)} fill="transparent" style={{pointerEvents:reveal===1?'all':'none',cursor:'crosshair'}} onClick={event=>{
     const bounds=root.current!.getBoundingClientRect(),scene=root.current?.closest<HTMLElement>('[data-cockpit-presentation]'),angle=Number(scene?.dataset.presentationAngle??0)*Math.PI/180,scale=Number(scene?.dataset.presentationScale??1);
     const dx=event.clientX-bounds.left-bounds.width/2,dy=event.clientY-bounds.top-bounds.height/2;
     const x=(dx*Math.cos(angle)+dy*Math.sin(angle))/scale+view.width/2,y=(-dx*Math.sin(angle)+dy*Math.cos(angle))/scale+view.height/2;

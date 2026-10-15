@@ -38,7 +38,7 @@ test('wave keeps feet planted, supports the tee, and returns to identical neutra
   assert.deepEqual(alienVolume(180,0,true,{stand:1,outfit,emote:neutralEmote}),base);
  }
 });
-test('all one-shots settle and all four performances continue without time limits',()=>{
+test('all one-shots settle and held poses and performances continue without time limits',()=>{
  const {EMOTE_DURATIONS,loopingEmote}=loaded.exports;
  for(const {id} of EMOTES){
   const c={kind:id,started:0,from:neutralEmote},duration=EMOTE_DURATIONS[id]*1000;
@@ -65,4 +65,12 @@ test('all emotes produce finite clothed and unclothed geometry through their tra
   const mesh=m.exports.alienVolume(180,0,true,{stand:1,outfit,emote:p});
   assert.ok(mesh.every(f=>! /NaN|Infinity/.test(f.d)),`${id} ${t}`);
  }
+});
+
+test('sleepy raises once slowly, lowers in a wide arc and never raises again',()=>{
+ const pose=t=>emotePose({kind:'sleepy',started:0,from:neutralEmote},t).arms[1].hand;
+ assert.ok(pose(300)[1]>pose(700)[1]);assert.ok(pose(700)[1]>pose(1200)[1]);
+ assert.ok(pose(2100)[0]>pose(1500)[0]);
+ for(let t=1600;t<4400;t+=100)assert.ok(pose(t+100)[1]>=pose(t)[1]-.01);
+ for(const id of ['peace','love'])assert.equal(emotePose({kind:id,started:0,from:neutralEmote},60000).raise,1);
 });
