@@ -26,7 +26,11 @@ export function Alien({ attention, chair=true, occupant=true, facing, standing=f
   window.addEventListener('pointerdown',interrupt,{passive:true});
   window.addEventListener('keydown',interrupt);
   let frame=0,previous=performance.now(),currentYaw=target.current.yaw;
-  let paintedYaw=NaN,paintedDown=NaN,paintedMode="",walkBlend=0;
+  let paintedYaw=NaN,paintedDown=NaN,paintedMode="",walkBlend=0,lastPaint=-Infinity;
+  let chairYaw=NaN;
+  let chairMesh:Array<ReturnType<typeof pilotChairVolume>[number]&{path:Path2D}>=[];
+  const coarse=window.matchMedia('(pointer: coarse)');
+  const mobile=()=>coarse.matches||!!canvas.current?.closest('[data-mobile="true"]');
   const ink=loadWearableInk(()=>{paintedMode="";});
   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
   const draw=(time:number)=>{
@@ -44,8 +48,12 @@ export function Alien({ attention, chair=true, occupant=true, facing, standing=f
   const gesturing=gesture.raise>.001||Math.abs(gesture.lean)>.001;
   const ambientPose=personality.tick(dt,target.current.occupant&&!gesturing&&!target.current.spin&&!document.querySelector('dialog[open]')?target.current.ambient:undefined,time<inputUntil,reduced.matches);
   const motion={...target.current.motion,moving:reduced.matches?0:walkBlend,life,ambient:ambientPose,emote:gesture,outfit:change.outfit};
-  const mode=`${target.current.chair}-${target.current.occupant}-${target.current.standing}-${JSON.stringify(motion)}-${change.yaw}`;
+  // Keep simulation on its existing clock; only expensive mesh painting is capped.
+  // A small tolerance avoids dropping to 20fps on slightly uneven 60Hz frames.
+  if(mobile()&&time-lastPaint<1000/30-1){frame=requestAnimationFrame(draw);return;}
+  const mode=!target.current.occupant?`chair-${target.current.chair}`:`${target.current.chair}-${target.current.occupant}-${target.current.standing}-${JSON.stringify(motion)}-${change.yaw}`;
   if(currentYaw!==paintedYaw || down!==paintedDown || mode!==paintedMode){
+  lastPaint=time;
   paintedMode=mode;
   paintedYaw=currentYaw;paintedDown=down;
   // Draw the same depth-sorted surfaces without reconciling thousands of SVG
@@ -59,12 +67,15 @@ export function Alien({ attention, chair=true, occupant=true, facing, standing=f
   screen.setTransform(1,0,0,1,0,0);screen.clearRect(0,0,canvasWidth,800);
   context.setTransform(2,0,0,2,reaching?180:0,300);
   context.clearRect(-90,-150,360,400);
-  const mesh:Array<{d:string;fill:string;depth:number;texture?:Parameters<typeof paintWearableInk>[2]}>=[...(target.current.occupant?alienVolume(currentYaw+change.yaw,down,target.current.standing,motion):[]),...(target.current.chair?pilotChairVolume(currentYaw):[])].sort((a,b)=>a.depth-b.depth);
+  if(target.current.chair&&chairYaw!==currentYaw){
+   chairYaw=currentYaw;chairMesh=pilotChairVolume(currentYaw).map(face=>({...face,path:new Path2D(face.d)}));
+  }
+  const mesh:Array<{d:string;fill:string;depth:number;path?:Path2D;texture?:Parameters<typeof paintWearableInk>[2]}>=[...(target.current.occupant?alienVolume(currentYaw+change.yaw,down,target.current.standing,motion):[]),...(target.current.chair?chairMesh:[])].sort((a,b)=>a.depth-b.depth);
   // Local canvas blur only; furniture and chair stay sharp.
   context.filter='none';
   context.lineWidth=.3;context.lineJoin='round';
   for(const face of mesh){
-   const path=new Path2D(face.d);
+   const path=face.path??new Path2D(face.d);
    context.fillStyle=face.fill;context.strokeStyle=face.fill;
    if('texture' in face && face.texture){if(ink.ready)paintWearableInk(context,ink.canvas,face.texture);}
    else {context.fill(path);context.stroke(path);}

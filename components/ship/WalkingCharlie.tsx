@@ -1,5 +1,5 @@
 import {wateringFrame,type WateringScene} from '@/lib/ship/watering';
-import {useEffect,useLayoutEffect,useRef,useState} from 'react';
+import {useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {canEmote,emotePose,type EmoteControl} from '@/lib/ship/charlieEmotes';
 import {EmoteWheel} from './EmoteWheel';
 import type {Outfit,ClothesSpin} from '@/lib/ship/clothing';
@@ -24,6 +24,17 @@ export function WalkingCharlie({state,config,view,outfit=null,spin,gramophone,wa
   const escape=(event:KeyboardEvent)=>{if(event.key==='Escape')dismiss(event);};document.addEventListener('keydown',escape);
   return()=>{document.removeEventListener('pointerdown',dismiss,true);document.removeEventListener('click',dismiss,true);document.removeEventListener('keydown',escape);};
  },[]);
+ const {table,tableCutout}=useMemo(()=>{
+ const table=orientedFixtures(config.centre,config.radius).coffeeTable;
+ const tablePoint=(x:number,y:number,z:number)=>({...localPoint(table,x,z),y:table.y+y*table.scale});
+ // Clip the HTML/canvas layer itself: Safari does not reliably mask a
+ // foreignObject through its SVG ancestor.
+ const points=[.45,.55].flatMap(y=>Array.from({length:64},(_,i)=>project(tablePoint(1.05*Math.sin(i/32*Math.PI),y,1.05*Math.cos(i/32*Math.PI)),config,view))).sort((a,b)=>a.x-b.x||a.y-b.y);
+ const cross=(a:typeof points[number],b:typeof points[number],c:typeof points[number])=>(b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);
+ const half=(list:typeof points)=>{const h:typeof points=[];for(const p of list){while(h.length>1&&cross(h[h.length-2],h[h.length-1],p)<=0)h.pop();h.push(p);}return h.slice(0,-1);};
+ const hull=[...half(points),...half([...points].reverse())];
+ return {table,tableCutout:'M'+hull.map(p=>p.x+','+p.y).join('L')+'Z'};
+ },[config,view]);
  if(state.mode==='pilot-seated'&&!state.phase)return null;
  const p=project(state.position,config,view);
  if(!p.visible)return null;
@@ -36,15 +47,6 @@ export function WalkingCharlie({state,config,view,outfit=null,spin,gramophone,wa
   const x=(q.x-p.x)*180/w,y=(q.y-p.y+h)*250/h,depth=30,angle=state.yaw*Math.PI/180;
   return {x:x*Math.cos(angle)-depth*Math.sin(angle),y,z:x*Math.sin(angle)+depth*Math.cos(angle)};
  });
- const table=orientedFixtures(config.centre,config.radius).coffeeTable;
- const tablePoint=(x:number,y:number,z:number)=>({...localPoint(table,x,z),y:table.y+y*table.scale});
- // Clip the HTML/canvas layer itself: Safari does not reliably mask a
- // foreignObject through its SVG ancestor.
- const points=[.45,.55].flatMap(y=>Array.from({length:64},(_,i)=>project(tablePoint(1.05*Math.sin(i/32*Math.PI),y,1.05*Math.cos(i/32*Math.PI)),config,view))).sort((a,b)=>a.x-b.x||a.y-b.y);
- const cross=(a:typeof points[number],b:typeof points[number],c:typeof points[number])=>(b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);
- const half=(list:typeof points)=>{const h:typeof points=[];for(const p of list){while(h.length>1&&cross(h[h.length-2],h[h.length-1],p)<=0)h.pop();h.push(p);}return h.slice(0,-1);};
- const hull=[...half(points),...half([...points].reverse())];
- const tableCutout='M'+hull.map(p=>p.x+','+p.y).join('L')+'Z';
  const behindTable=state.mode==='sofa-seated'||state.position.z>table.z;
  const clip=behindTable ? `path(evenodd, "M0 0H${view.width}V${view.height}H0Z ${tableCutout}")` : undefined;
  return <><div ref={element} data-charlie-mode={state.mode} style={{position:'absolute',inset:0,zIndex:8,pointerEvents:'none',overflow:'hidden',clipPath:clip}}>

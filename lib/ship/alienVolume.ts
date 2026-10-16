@@ -6,9 +6,19 @@ import type {AmbientPose} from './charlieAmbient';
 type V = {x:number;y:number;z:number};
 type Face = {uv?:{x:number;y:number}[];points:V[];colour:string;eye?:boolean;head?:boolean;mouth?:boolean;leg?:boolean;arm?:boolean;antenna?:boolean;side?:number};
 const faces:Face[]=[];
+// Reuse tessellation angles and colour parsing across animated frames.
+const sphereAngles=new Map<string,number[][][]>();
+const colours=new Map<string,number[]>();
 const sphere=(centre:V,r:V,colour:string,rows=12,cols=24,output:Face[]=faces)=>{
- const point=(a:number,b:number)=>({x:centre.x+r.x*Math.sin(a)*Math.cos(b),y:centre.y+r.y*Math.cos(a),z:centre.z+r.z*Math.sin(a)*Math.sin(b)});
- for(let i=0;i<rows;i++)for(let j=0;j<cols;j++) output.push({colour,points:[point(i*Math.PI/rows,j*2*Math.PI/cols),point((i+1)*Math.PI/rows,j*2*Math.PI/cols),point((i+1)*Math.PI/rows,(j+1)*2*Math.PI/cols),point(i*Math.PI/rows,(j+1)*2*Math.PI/cols)]});
+ const key=`${rows}/${cols}`;
+ let angles=sphereAngles.get(key);
+ if(!angles){
+  const vertex=(i:number,j:number)=>{const a=i*Math.PI/rows,b=j*2*Math.PI/cols;return [Math.sin(a),Math.cos(a),Math.cos(b),Math.sin(b)];};
+  angles=[];
+  for(let i=0;i<rows;i++)for(let j=0;j<cols;j++)angles.push([vertex(i,j),vertex(i+1,j),vertex(i+1,j+1),vertex(i,j+1)]);
+  sphereAngles.set(key,angles);
+ }
+ for(const quad of angles)output.push({colour,points:quad.map(([sa,ca,cb,sb])=>({x:centre.x+r.x*sa*cb,y:centre.y+r.y*ca,z:centre.z+r.z*sa*sb}))});
 };
 // Rounded head has substantial front/back depth even at a quarter turn.
 sphere({x:0,y:85,z:0},{x:56,y:56,z:43},'#79cfb2',20,40);
@@ -24,7 +34,8 @@ const tube=(points:V[],radius:number,colour:string,output:Face[]=faces)=>{
   const v={x:-axis.z*u.y,y:axis.z*u.x,z:axis.x*u.y-axis.y*u.x};
   const ring=(p:V,t:number)=>({x:p.x+radius*(u.x*Math.cos(t)+v.x*Math.sin(t)),y:p.y+radius*(u.y*Math.cos(t)+v.y*Math.sin(t)),z:p.z+radius*v.z*Math.sin(t)});
   for(let j=0;j<10;j++){const t=j*Math.PI/5,q=(j+1)*Math.PI/5;output.push({colour,points:[ring(a,t),ring(b,t),ring(b,q),ring(a,q)]});}
-  sphere(a,{x:radius,y:radius,z:radius},colour,6,10,output);
+  // Adjacent segments share the same joint; draw it once, not twice.
+  if(i===0)sphere(a,{x:radius,y:radius,z:radius},colour,6,10,output);
   sphere(b,{x:radius,y:radius,z:radius},colour,6,10,output);
  }
 };
@@ -271,7 +282,8 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
   const nx=(b.y-a.y)*(d.z-a.z)-(b.z-a.z)*(d.y-a.y),ny=(b.z-a.z)*(d.x-a.x)-(b.x-a.x)*(d.z-a.z),nz=(b.x-a.x)*(d.y-a.y)-(b.y-a.y)*(d.x-a.x);
   const length=Math.hypot(nx,ny,nz)||1;
   const light=.83+.17*Math.max(0,(-nx*.3-ny*.5+nz*.8)/length);
-  const rgb=face.colour.slice(1).match(/../g)!.map(v=>parseInt(v,16));
+  let rgb=colours.get(face.colour);
+  if(!rgb){rgb=face.colour.slice(1).match(/../g)!.map(v=>parseInt(v,16));colours.set(face.colour,rgb);}
   const printed=paperOrder.get(face),page=face.points[0].x<0?0:1;
   return {texture:face.uv?{points:p,uv:face.uv}:undefined,d:`M${p.map(v=>`${v.x.toFixed(2)},${v.y.toFixed(2)}`).join('L')}Z`,depth:propOrder.has(face)?propDepth+propOrder.get(face)!*.00001:printed!==undefined?1000+pageDepth[page]+(printed>1?.001:0):(face.eye?100:0)+(+(p.reduce((sum,v)=>sum+v.z,0)/p.length).toFixed(5)),fill:face.colour==='#000000'?'#000000':`rgb(${rgb.map((v,i)=>Math.round(v*light+(i===0?5:0))).join(',')})`};
  }).sort((a,b)=>a.depth-b.depth);
