@@ -239,6 +239,8 @@ button.object-back:focus-visible { text-decoration:none; }
 .dome-records { display:none; }
 .on-glass[data-dome-menu="records"] .dome-columns > .dome-records { display:block; grid-column:3; grid-row:1; width:100%; margin:0; }
 .record-collection { display:grid; grid-template-columns:minmax(0,1fr); gap:6px; text-align:left; max-height:none; overflow-y:auto; padding:3px; overscroll-behavior:contain; }
+/* Trailing space lets even the final track scroll directly beneath the heading. */
+.record-collection::after { content:""; display:block; height:var(--record-scroll-space,0px); pointer-events:none; }
 .record-row,.record-song { width:100%; border:1px solid white; background:#00082d; color:white; cursor:pointer; text-align:left; }
 .record-row { display:grid; grid-template-columns:28px minmax(0,1fr) auto; gap:5px; padding:5px; align-items:center; line-height:1.3; }
 .record-row img { width:28px; height:28px; object-fit:contain; }

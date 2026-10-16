@@ -7,11 +7,13 @@ import { ConsoleDetails } from './ConsoleDetails';
 import styles from './ship.module.css';
 import { project, type DomeConfig, type Viewport, type Vec3 } from '@/lib/ship/domeGeometry';
 import { ROOM, pilotPosition, platformY, polygonPath } from '@/lib/ship/roomGeometry';
+import {hullFloorSeamPoint} from '@/lib/ship/hullFloorSeam';
 import {COMMAND_DECK,commandWall,commandDeck,commandFront,commandStairs} from '@/lib/ship/commandDeck';
 
 type PilotMezzanineProps = {onPlant?:()=>void;plantWiggle?:number;outfit?:Outfit;attention:Attention;config:DomeConfig;view:Viewport; seated?:boolean;onChair?:()=>void};
 export function PilotMezzanine({ attention, config, view, seated=true,onChair,outfit=null,onPlant,plantWiggle=0 }: PilotMezzanineProps) {
  const id=useId();
+ const parapetSeam=hullFloorSeamPoint(0,config);
  const [pressed,setPressed]=useState(false);
 
  const floorAnchor=project(pilotPosition,config,view);
@@ -24,7 +26,7 @@ export function PilotMezzanine({ attention, config, view, seated=true,onChair,ou
  const facePoint=(x:number,y:number)=>({x,y,z:COMMAND_DECK.deskFrontZ+.16*(x/COMMAND_DECK.halfWidth)**2});
  const back=Array.from({length:33},(_,i)=>bankPoint(COMMAND_DECK.halfWidth*(1-i/16),COMMAND_DECK.deskY));
  const panel=(x:number,width:number,bottom:number,top:number)=>path([bankPoint(x-width/2,bottom),bankPoint(x+width/2,bottom),bankPoint(x+width/2,top),bankPoint(x-width/2,top)]);
- return <div className={styles.pilotMezzanine} data-records-horizon={project(commandWall(0,COMMAND_DECK.panelTop,config),config,view).y}>
+ return <div className={styles.pilotMezzanine} data-records-horizon={project({...parapetSeam,y:parapetSeam.y+platformY-ROOM.floorY+.68},config,view).y}>
  <svg width="0" height="0" aria-hidden="true" style={{position:'absolute'}}><defs><filter id={`${id}-chair-outline`} x="-100%" y="-100%" width="300%" height="300%" colorInterpolationFilters="sRGB">
  <feGaussianBlur in="SourceAlpha" stdDeviation="2.5" result="soft"/><feComponentTransfer in="soft" result="expanded"><feFuncA type="linear" slope="12" intercept="-1.5"/></feComponentTransfer><feComposite in="expanded" in2="SourceAlpha" operator="out" result="edge"/><feFlood floodColor="#6ee7b7" result="mint"/><feComposite in="mint" in2="edge" operator="in" result="outline"/><feMerge><feMergeNode in="outline"/><feMergeNode in="SourceGraphic"/></feMerge>
  </filter></defs></svg>

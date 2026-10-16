@@ -16,7 +16,7 @@ export default function RecordCollection({record=INITIAL_RECORD_STATE,onChoose}:
    if(!horizon)return;
    const bounds=frame.getBoundingClientRect(),rect=element.getBoundingClientRect();
    const angle=Number(frame.dataset.presentationAngle??0)*Math.PI/180,scale=Number(frame.dataset.presentationScale??1);
-   // Undo the phone's rotated presentation before comparing with the desk.
+   // Undo the phone's rotated presentation before comparing with the parapet.
    const ys=[rect.left,rect.right].flatMap(x=>[rect.top,rect.bottom].map(y=>{
     const dx=x-bounds.left-bounds.width/2,dy=y-bounds.top-bounds.height/2;
     return (-dx*Math.sin(angle)+dy*Math.cos(angle))/scale+frame.clientHeight/2;
@@ -24,6 +24,9 @@ export default function RecordCollection({record=INITIAL_RECORD_STATE,onChoose}:
    const height=Math.max(40,Number(horizon.dataset.recordsHorizon)-Math.min(...ys)+8);
    const value=`${height.toFixed(2)}px`;
    if(element.style.maxHeight!==value)element.style.maxHeight=value;
+   const rows=Array.from(element.querySelectorAll<HTMLElement>('.record-row,.record-song')).filter(row=>row.getClientRects().length);
+   const last=rows.at(-1);
+   element.style.setProperty('--record-scroll-space',`${Math.max(0,height-(last?.offsetHeight??0)-12)}px`);
   };
   const schedule=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(measure);};
   const resize=new ResizeObserver(schedule);resize.observe(frame);resize.observe(element);
@@ -33,7 +36,7 @@ export default function RecordCollection({record=INITIAL_RECORD_STATE,onChoose}:
   if(horizon)changes.observe(horizon,{attributes:true,attributeFilter:['data-records-horizon']});
   schedule();window.addEventListener('resize',schedule);
   return()=>{cancelAnimationFrame(raf);resize.disconnect();changes.disconnect();window.removeEventListener('resize',schedule);};
- },[]);
+ },[expanded]);
  return <div ref={list} className="record-collection">{record.error&&<p className="record-playback-error" role="status">{record.error}</p>}{RECORDS.map(album=><div key={album.id} className="record-album">
   <button type="button" className="record-row pink-border-glow" aria-expanded={expanded===album.id} aria-controls={`${id}-${album.id}`} onClick={()=>setExpanded(old=>old===album.id?null:album.id)}>
    <img src={album.artwork} alt={`${album.name} cover`} width="40" height="40"/><span>{album.name}</span><span aria-hidden="true">{expanded===album.id?'−':'+'}</span>
