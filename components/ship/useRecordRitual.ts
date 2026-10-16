@@ -1,4 +1,4 @@
-import {useEffect,useRef,useState} from 'react';
+import {useEffect,useMemo,useRef,useState} from 'react';
 import {recordRitual,stopRecordRitual,restingGramophone,ritualFrame,type RitualStep} from '@/lib/ship/recordRitual';
 import {trackTone,type RecordSide,type AlbumId} from '@/lib/ship/records';
 import type {RecordSelection} from './useRecords';
@@ -38,5 +38,8 @@ export function useRecordRitual(selection:RecordSelection,approach:(done:()=>voi
   document.addEventListener('visibilitychange',resetClock);
   frame=requestAnimationFrame(tick);return ()=>{cancelAnimationFrame(frame);document.removeEventListener('visibilitychange',resetClock);};
  },[]);
- return {...scene,playing:selection.playing,tone:!selection.busy&&!selection.stopping&&selection.currentSong?trackTone(selection.currentSong):scene.tone};
+ const tone=!selection.busy&&!selection.stopping&&selection.currentSong?trackTone(selection.currentSong):scene.tone;
+ // Playback position updates do not change the physical scene. Keep memoised
+ // furniture/character props stable between actual ritual or playback changes.
+ return useMemo(()=>({...scene,playing:selection.playing,tone}),[scene,selection.playing,tone]);
 }

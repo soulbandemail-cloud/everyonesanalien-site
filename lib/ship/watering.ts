@@ -18,7 +18,8 @@ export function wateringFrame(scene:WateringScene,c:DomeConfig,position:Vec3){
  const canScale=.015+.985*raise;
  const tip={x:soil.x,y:soil.y+.20,z:soil.z};
  // Rotate about the spout tip: pouring can never wander outside the pot.
- const angle=tilt*.23;
+ // Lift the vessel behind the fixed tip until the spout slopes down into the soil.
+ const angle=-tilt*.55;
  const point=(x:number,y:number,z=0):Vec3=>{
   // Grow from the handle grip so the can stays attached to his hand.
   x=-.69+(x+.69)*canScale;y=.26+(y-.26)*canScale;z*=canScale;
@@ -27,6 +28,6 @@ export function wateringFrame(scene:WateringScene,c:DomeConfig,position:Vec3){
   const resting={x:position.x+side*.28+dx+.5*side,y:position.y+.72+dy,z:position.z-.15+z};
   return {x:resting.x+(raised.x-resting.x)*raise,y:resting.y+(raised.y-resting.y)*raise,z:resting.z+(raised.z-resting.z)*raise};
  };
- return {soil,point,amount,canScale,pouring,tilt,wiggle:pouring?Math.sin((t-1.15)*8)*1.6:0,hands:[point(-.67,-.22,-.03),point(-.69,.26,-.03)],done:t>=WATERING_DURATION};
+ return {soil,point,amount,canScale,pouring,tilt,wiggle:pouring?Math.sin((t-1.15)*8)*1.6:0,hands:[point(-.67,-.22,-.03),point(-.69,.34,-.03)],done:t>=WATERING_DURATION};
 }
 export const plantLabel=(plant:Plant)=>plant==='desk-plant'?'Water desk plant':'Water floor plant';

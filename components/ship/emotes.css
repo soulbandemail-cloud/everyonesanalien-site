@@ -7,3 +7,9 @@
 .charlie-emote-icon svg { width:100%; height:100%; }
 .charlie-emote-wheel button.charlie-emote-icon:disabled { color:#c4cbd0; border-color:#b7c1d15c; box-shadow:none; background:#00082db0; cursor:default; }
 .charlie-emote-wheel button.charlie-emote-icon:not(:disabled):hover,.charlie-emote-wheel button.charlie-emote-icon:focus-visible { background:#25334de8; box-shadow:0 0 9px #ffe4ff99; outline:1px solid white; }
+
+/* Touch browsers retain :hover after a tap, even when the wheel closes over
+   Charlie. Mobile feedback follows the actual press, never sticky hover. */
+[data-mobile="true"] .charlie-emote-character:has(.charlie-emote-target:hover) canvas { filter:none; }
+[data-mobile="true"] .charlie-emote-character:has(.charlie-emote-target:active) canvas,
+[data-mobile="true"] .charlie-emote-character:has(.charlie-emote-target:focus-visible) canvas { filter:drop-shadow(0 0 2px #ffb0ff99) drop-shadow(0 0 5px #ffb0ff55); }

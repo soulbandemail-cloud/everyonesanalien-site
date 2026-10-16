@@ -29,3 +29,7 @@
 @media (prefers-reduced-motion: reduce) {
  .gramophone-notes { display: none; }
 }
+
+/* Three different glyphs/paths on phones, instead of eight simultaneous trails.
+   display:none also removes their descendant animations from rendering work. */
+[data-mobile="true"] .gramophone-note-flight:nth-child(n+4) { display:none; }
