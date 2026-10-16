@@ -238,7 +238,7 @@ button.object-back:focus-visible { text-decoration:none; }
 
 .dome-records { display:none; }
 .on-glass[data-dome-menu="records"] .dome-columns > .dome-records { display:block; grid-column:3; grid-row:1; width:100%; margin:0; }
-.record-collection { display:grid; grid-template-columns:minmax(0,1fr); gap:6px; text-align:left; max-height:18vh; overflow-y:auto; padding:3px; overscroll-behavior:contain; }
+.record-collection { display:grid; grid-template-columns:minmax(0,1fr); gap:6px; text-align:left; max-height:none; overflow-y:auto; padding:3px; overscroll-behavior:contain; }
 .record-row,.record-song { width:100%; border:1px solid white; background:#00082d; color:white; cursor:pointer; text-align:left; }
 .record-row { display:grid; grid-template-columns:28px minmax(0,1fr) auto; gap:5px; padding:5px; align-items:center; line-height:1.3; }
 .record-row img { width:28px; height:28px; object-fit:contain; }
@@ -251,7 +251,7 @@ button.object-back:focus-visible { text-decoration:none; }
 .record-row:focus-visible,.record-song:focus-visible { outline:2px solid #6ee7b7; outline-offset:2px; }
 .on-glass[data-mobile-third] .record-row { grid-template-columns:22px minmax(0,1fr) auto; gap:4px; padding:3px; }
 .on-glass[data-mobile-third] .record-row img { width:22px; height:22px; }
-.on-glass[data-mobile-third] .record-collection { max-height:10vh; }
+
 
 .record-song:disabled { cursor:wait; opacity:.65; }
 .record-song:disabled:hover { background:#00082d; color:white; border-color:white; }

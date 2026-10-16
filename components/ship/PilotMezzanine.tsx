@@ -24,7 +24,7 @@ export function PilotMezzanine({ attention, config, view, seated=true,onChair,ou
  const facePoint=(x:number,y:number)=>({x,y,z:COMMAND_DECK.deskFrontZ+.16*(x/COMMAND_DECK.halfWidth)**2});
  const back=Array.from({length:33},(_,i)=>bankPoint(COMMAND_DECK.halfWidth*(1-i/16),COMMAND_DECK.deskY));
  const panel=(x:number,width:number,bottom:number,top:number)=>path([bankPoint(x-width/2,bottom),bankPoint(x+width/2,bottom),bankPoint(x+width/2,top),bankPoint(x-width/2,top)]);
- return <div className={styles.pilotMezzanine}>
+ return <div className={styles.pilotMezzanine} data-records-horizon={project(commandWall(0,COMMAND_DECK.panelTop,config),config,view).y}>
  <svg width="0" height="0" aria-hidden="true" style={{position:'absolute'}}><defs><filter id={`${id}-chair-outline`} x="-100%" y="-100%" width="300%" height="300%" colorInterpolationFilters="sRGB">
  <feGaussianBlur in="SourceAlpha" stdDeviation="2.5" result="soft"/><feComponentTransfer in="soft" result="expanded"><feFuncA type="linear" slope="12" intercept="-1.5"/></feComponentTransfer><feComposite in="expanded" in2="SourceAlpha" operator="out" result="edge"/><feFlood floodColor="#6ee7b7" result="mint"/><feComposite in="mint" in2="edge" operator="in" result="outline"/><feMerge><feMergeNode in="outline"/><feMergeNode in="SourceGraphic"/></feMerge>
  </filter></defs></svg>
@@ -83,7 +83,7 @@ export function PilotMezzanine({ attention, config, view, seated=true,onChair,ou
  {/* One SVG alpha silhouette combines the canvas seat with its DOM pedestal.
      Browsers can omit accelerated canvas pixels from ancestor SVG filters. */}
  <svg className={styles.chairOutline} width={chairWidth} height={chairHeight} aria-hidden="true">
-  <g fill="#6ee7b7" filter={`url(#${id}-chair-outline)`}>
+  <g fill="#6ee7b7" pointerEvents={!seated&&onChair?"visiblePainted":"none"} filter={`url(#${id}-chair-outline)`}>
    <g transform={`scale(${chairWidth/180} ${chairHeight/250})`}>{emptyChairFaces.map((face,i)=><path key={i} d={face.d}/>)}</g>
    <rect x={chairWidth*.468} y={chairHeight*.88} width={chairWidth*.064} height={chairHeight*.10+seatLift}/>
    <ellipse cx={chairWidth*.5} cy={chairHeight*.99+seatLift} rx={chairWidth*.2} ry={chairHeight*.04}/>

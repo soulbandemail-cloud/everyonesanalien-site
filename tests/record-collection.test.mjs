@@ -20,7 +20,7 @@ test('song selection leaves loaded record and playing state independent',()=>{
 });
 test('album toggles are exclusive and selection persists after collapsing',()=>{
  let cursor=0;const slots=[];
- const react={useId:()=> 'records',useState:value=>{const i=cursor++;if(!(i in slots))slots[i]=value;return[slots[i],value=>slots[i]=typeof value==='function'?value(slots[i]):value];}};
+ const react={useId:()=> 'records',useRef:value=>({current:value}),useLayoutEffect:()=>{},useState:value=>{const i=cursor++;if(!(i in slots))slots[i]=value;return[slots[i],value=>slots[i]=typeof value==='function'?value(slots[i]):value];}};
  const component=load('components/home/RecordCollection.tsx',{'react':react,'@/lib/ship/records':data}).default;
  let record=data.INITIAL_RECORD_STATE;
  const render=()=>{cursor=0;return nodes(component({record,onChoose:(album,index)=>{record=data.selectRecordSong(record,album,index);}}));};
