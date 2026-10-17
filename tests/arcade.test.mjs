@@ -7,7 +7,7 @@ const pointer = {preventDefault(){},stopPropagation(){},clientX:200,currentTarge
 
 test('arcade preserves random launch, 16ms physics and offscreen removal',()=>{
  const h=harness();h.game.launchAlien(pointer);const a=h.game.flyingAliens[0];
- assert.equal(a.x,116);assert.equal(a.y,666);assert.ok(Math.hypot(a.vx,a.vy)>=5 && Math.hypot(a.vx,a.vy)<=9);assert.ok([-1,1].includes(a.spin));
+ assert.ok(a.vy<0);assert.equal(a.x,116);assert.equal(a.y,666);assert.ok(Math.hypot(a.vx,a.vy)>=2.5 && Math.hypot(a.vx,a.vy)<=4.5);assert.ok([-1,1].includes(a.spin));
  assert.equal([...h.intervals.values()][0].ms,16);
  assert.equal(h.tick([alien({x:-81})]).flyingAliens.length,0);
 });
@@ -35,14 +35,25 @@ test('drawn discharge stuns at impact, stays frozen, then progresses white to bl
  g=h.tick([alien({...point,lastZapCatch:16080})]);assert.equal(g.flyingAliens[0].stunnedUntil,undefined);
  h.unmount();
 });
-test('tractor geometry, one capture per id, three counters and 360ms removal survive extraction',()=>{
+test('beam curves momentum, releases cleanly and restores scale; saucer contact never scores',()=>{
  const h=harness();h.game.ufoPosRef.current={x:200,y:200};h.game.tractorBeamActiveRef.current=true;
- assert.equal(h.game.touchesTractorBeam(alien({x:200,y:235})),true);assert.equal(h.game.touchesTractorBeam(alien({x:300,y:235})),false);
- let g=h.tick([alien({x:200,y:235}),alien({id:2,x:200,y:235,isSkull:true}),alien({id:3,x:200,y:235,isSkull:true,isBlackSkull:true})]);
- assert.deepEqual(g.tractorCounts,{alien:1,whiteSkull:1,blackSkull:1});assert.ok(g.flyingAliens.every(a=>a.tractorCaptured));
- g.recordTractorCapture(g.flyingAliens[0]);assert.equal(h.game.tractorCounts.alien,1);
- g=h.tick(null,180);assert.ok(g.flyingAliens[0].tractorScale<1);assert.equal(h.tick(null,180).flyingAliens.length,0);
- h.game.toggleUfoOrbit();assert.equal(h.game.tractorBeamActiveRef.current,false);assert.equal(h.game.ufoOrbiting,true);
+ let g=h.tick([alien({x:213,y:275,vx:2,vy:0})]);
+ assert.ok(g.flyingAliens[0].vx<2&&g.flyingAliens[0].vx>0);assert.ok(g.flyingAliens[0].vy<0);
+ assert.ok(g.flyingAliens[0].tractorScale<1&&g.flyingAliens[0].tractorScale>=.7);
+ assert.deepEqual(g.tractorCounts,{alien:0,whiteSkull:0,blackSkull:0});
+ h.game.ufoPosRef.current={x:800,y:400};const released=g.flyingAliens[0];
+ g=h.tick();assert.equal(g.flyingAliens[0].vx,released.vx);assert.equal(g.flyingAliens[0].vy,released.vy);
+ for(let i=0;i<30;i++)g=h.tick();assert.equal(g.flyingAliens[0].tractorScale,1);
+ h.game.ufoPosRef.current={x:200,y:200};h.game.tractorBeamActiveRef.current=false;
+ g=h.tick([alien({x:200,y:200})]);assert.equal(g.flyingAliens.length,0);assert.deepEqual(g.tractorCounts,{alien:0,whiteSkull:0,blackSkull:0});
+ h.unmount();
+});
+test('all unassisted heart impacts score exactly once, including a swept crossing',()=>{
+ for(const [type,flags] of [['alien',{}],['whiteSkull',{isSkull:true}],['blackSkull',{isSkull:true,isBlackSkull:true}]]){
+  const h=harness(),head=alien({x:490,y:198,vx:130,...flags});
+  let g=h.tick([head]);assert.equal(g.flyingAliens.length,0);assert.equal(g.tractorCounts[type],1);
+  g.recordBasket(head);g=h.tick();assert.equal(g.tractorCounts[type],1);h.unmount();
+ }
 });
 test('independent footer reflection remains; TV collision and rendering are gone',()=>{
  const h=harness(),g=h.game;
@@ -71,6 +82,7 @@ test('rendered orbital angle generates charge, overload reuses blackout and stop
  h.setOrbitAngle(10*Math.PI);h.advance(16);assert.equal(h.game.electricity.engine.charge,0);assert.equal(h.game.ufoOrbiting,false);assert.equal(h.game.ufoOrbitingRef.current,false);assert.equal(h.game.flashbang.type,'black');assert.equal(h.game.womboComboKey,0);
  const key=h.game.flashbang.key;h.advance(100);assert.equal(h.game.flashbang.key,key);assert.equal(h.game.electricity.engine.charge,0);
  h.rootEvent('pointerdown',{clientX:100,clientY:100});assert.equal(h.game.electricity.engine.drawing,null);
+ h.game.toggleUfoOrbit();
  h.game.electricity.engine.charge=.25;h.rootEvent('pointerdown',{clientX:100,clientY:100,target:{closest:()=>({})}});assert.equal(h.game.electricity.engine.drawing,null);
  h.rootEvent('pointerdown',{clientX:100,clientY:100});
  h.event('pointermove',{pointerId:1,clientX:160,clientY:100,preventDefault(){}});assert.ok(h.game.electricity.engine.drawing.points.length>1);
@@ -83,3 +95,44 @@ test('rendered orbital angle generates charge, overload reuses blackout and stop
  h.rootEvent('pointerdown',{clientX:100,clientY:100});h.unmount();assert.equal(h.game.electricity.engine.drawing,null);assert.equal(h.intervals.size,0);assert.equal(h.timers.size,0);assert.equal(h.captured.size,0);
  for(const set of [...h.listeners.values(),...h.rootListeners.values()]) assert.equal(set.size,0);
 });
+
+test('beam steering is consistent across frame intervals and scale never changes collision size',()=>{
+ const simulate=ms=>{const h=harness();h.game.ufoPosRef.current={x:200,y:200};h.game.tractorBeamActiveRef.current=true;
+  h.tick([]);let body=alien({x:205,y:275,vx:.2,vy:0});
+  for(let t=0;t<160;t+=ms)body=h.tick([body],ms).flyingAliens[0];h.unmount();return body;};
+ const fast=simulate(8),slow=simulate(32);
+ assert.ok(Math.hypot(fast.x-slow.x,fast.y-slow.y)<.6);
+ assert.ok(Math.abs(fast.vx-slow.vx)<.15);
+ for(const tractorScale of [.7,1]){
+  const h=harness();h.game.ufoPosRef.current={x:200,y:200};
+  assert.equal(h.tick([alien({x:211,y:200,tractorScale})]).flyingAliens.length,0);h.unmount();
+ }
+});
+
+test('launcher band cannot start the beam or immediately collect newly launched heads',()=>{
+ for(const pointerType of ['mouse','touch']){
+  const h=harness();h.win.matchMedia=()=>({matches:true});
+  h.event('pointerdown',{pointerType,button:0,clientX:200,clientY:690});
+  assert.equal(h.game.tractorBeamActiveRef.current,false);
+  h.game.ufoPosRef.current={x:200,y:690};
+  assert.equal(h.tick([alien({x:200,y:690,vy:-6})]).flyingAliens.length,1);
+  h.event('pointerup',{pointerId:1});
+  h.event('pointerdown',{pointerType,button:0,clientX:200,clientY:300});
+  assert.equal(h.game.tractorBeamActiveRef.current,true);
+  h.game.launchAlien(pointer);assert.equal(h.game.tractorBeamActiveRef.current,false);
+  h.unmount();
+ }
+});
+
+ test('zap requires orbit and leaving orbit keeps unused charge',()=>{
+  const h=harness();h.game.electricity.engine.charge=.5;
+  h.rootEvent('pointerdown',{clientX:100,clientY:100});
+  assert.equal(h.game.electricity.engine.drawing,null);assert.equal(h.game.electricity.engine.charge,.5);
+  h.game.toggleUfoOrbit();h.rootEvent('pointerdown',{clientX:100,clientY:100});
+  assert.ok(h.game.electricity.engine.drawing);
+  h.event('pointermove',{pointerId:1,clientX:150,clientY:100,preventDefault(){}});
+  const saved=h.game.electricity.engine.charge;h.game.toggleUfoOrbit();h.advance(16);
+  assert.equal(h.game.electricity.engine.drawing,null);assert.equal(h.captured.size,0);
+  assert.equal(h.game.electricity.engine.charge,saved);h.advance(1000);
+  assert.equal(h.game.electricity.engine.charge,saved);h.unmount();
+ });

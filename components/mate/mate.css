@@ -278,3 +278,9 @@ button.object-back:focus-visible { text-decoration:none; }
 .gramophone-vinyl-spin { animation:gramophone-vinyl-turn 1.8s linear infinite; transform-origin:0 0; }
 @keyframes gramophone-vinyl-turn { to { transform:rotate(360deg); } }
 .record-playback-error { font-size:inherit; line-height:1.35; margin:0 0 6px; }
+
+/* Instant lamp toggles re-arm hover only after a genuine pointer exit/re-entry.
+   Touch feedback uses pointer-down state, never the browser's sticky :hover. */
+.cockpit-interactive-fixture[data-reset-hover] { transform:none !important; filter:none !important; }
+.cockpit-interactive-fixture[data-reset-hover][data-pointer-hover] { transform:scale(1.25) !important; filter:var(--fixture-hover-filter) !important; }
+.cockpit-interactive-fixture[data-reset-hover][data-pressed] { transform:scale(.9) !important; filter:var(--fixture-hover-filter) !important; }

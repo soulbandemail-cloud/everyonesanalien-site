@@ -44,8 +44,8 @@ export function useCharlieMovement(config:DomeConfig,seatedYaw=180){
  const interact=useCallback((name:Destination,action?:()=>void)=>{
   if(!available(name))return;
   if(name==='tv'&&current.current.mode==='pilot-seated'&&!transition.current){action?.();return;}
-  if(name!=='arcade')action?.();
-  if(go(approaches(config)[name],name==='arcade'?()=>{publish({...current.current,arcadeActive:true});action?.();}:undefined)){
+  if(name!=='arcade'&&name!=='telescope')action?.();
+  if(go(approaches(config)[name],name==='arcade'?()=>{publish({...current.current,arcadeActive:true});action?.();}:name==='telescope'?action:undefined)){
    publish({...current.current,engagement:name});
   }
  },[config,go,available,publish]);
@@ -105,7 +105,8 @@ export function useCharlieMovement(config:DomeConfig,seatedYaw=180){
   return accepted;
  },[config,available,go,publish]);
  const finishPlant=useCallback((name:'desk-plant'|'floor-plant')=>{if(current.current.engagement===name)publish({...current.current,engagement:null});},[publish]);
- return {state,interact,available,closeArcade,performRecords,performPlant,finishPlant,walk:(point:Point)=>{
+ const closeTelescope=useCallback(()=>{if(current.current.engagement==='telescope')publish({...current.current,engagement:null});},[publish]);
+ return {state,interact,available,closeArcade,closeTelescope,performRecords,performPlant,finishPlant,walk:(point:Point)=>{
   const accepted=go({point,yaw:current.current.yaw,mode:'standing',retainHeading:true});
   if(accepted)publish({...current.current,engagement:null});
   return accepted;

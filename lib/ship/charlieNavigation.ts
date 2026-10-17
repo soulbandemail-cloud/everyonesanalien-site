@@ -1,10 +1,11 @@
+import {telescopeStation} from './telescope';
 import {plantSoil} from './watering';
 import {lens,radians,type DomeConfig,type Viewport,type Vec3} from './domeGeometry';
 import {orientedFixtures,type FixturePlacement} from './fixtureLayout';
 import {ROOM,pilotPosition,platformY} from './roomGeometry';
 import {commandFront,commandStairs,COMMAND_DECK} from './commandDeck';
 export type Point={x:number;z:number};
-export type Destination='chair'|'records'|'merch'|'shows'|'tv'|'newsletter'|'arcade'|'desk-plant'|'floor-plant';
+export type Destination='chair'|'records'|'merch'|'shows'|'tv'|'newsletter'|'arcade'|'desk-plant'|'floor-plant'|'telescope';
 export type CharlieMode='pilot-seated'|'sofa-seated'|'walking'|'standing';
 export type Arrival={point:Point;yaw:number;mode:CharlieMode;seat?:Vec3;lookUp?:boolean;retainHeading?:boolean};
 export const clearance=.42;
@@ -18,8 +19,9 @@ export function approaches(c:DomeConfig):Record<Destination,Arrival>{
  const tonearm=localPoint(f.musicStation,-.23*(f.musicStation.widthScale??1),.05);
  records.yaw=facing(records.point,tonearm);
  const deskSoil=plantSoil('desk-plant',c),floorSoil=plantSoil('floor-plant',c);
- const deskPlant={x:c.centre.x-3.5,z:deskSoil.z-.95},floorPlant=localPoint(f.sofa,-1.3,-2);
- return {'desk-plant':{point:deskPlant,yaw:facing(deskPlant,deskSoil),mode:'standing'},'floor-plant':{point:floorPlant,yaw:facing(floorPlant,floorSoil),mode:'standing'},chair:{point:{x:0,z:6.55},yaw:0,mode:'pilot-seated'},tv:{point:{x:.95,z:6.65},yaw:facing({x:.95,z:6.65},f.radio),mode:'standing'},records,merch:approach(f.clothesRail,0,-1),arcade:approach(f.arcade,0,-1.18),shows:{...approach(f.sofa,.9,-1.55),lookUp:true},newsletter:{...sofa,mode:'sofa-seated',yaw:180-f.sofa.yaw*180/Math.PI,seat:{...seat,y:ROOM.floorY+.59*f.sofa.scale-.4}}};
+ const deskPlant={x:c.centre.x-3.5,z:deskSoil.z-.72},floorPlant=localPoint(f.sofa,-1.3,-2);
+ const telescope=telescopeStation(c);
+ return {telescope:{point:telescope.approach,yaw:telescope.yaw,mode:'standing'},'desk-plant':{point:deskPlant,yaw:facing(deskPlant,deskSoil),mode:'standing'},'floor-plant':{point:floorPlant,yaw:facing(floorPlant,floorSoil),mode:'standing'},chair:{point:{x:0,z:6.55},yaw:0,mode:'pilot-seated'},tv:{point:{x:.95,z:6.65},yaw:facing({x:.95,z:6.65},f.radio),mode:'standing'},records,merch:approach(f.clothesRail,0,-1),arcade:approach(f.arcade,0,-1.18),shows:{...approach(f.sofa,.9,-1.55),lookUp:true},newsletter:{...sofa,mode:'sofa-seated',yaw:180-f.sofa.yaw*180/Math.PI,seat:{...seat,y:ROOM.floorY+.59*f.sofa.scale-.4}}};
 }
 export function stageFrontZ(x:number,c:DomeConfig){const edge=commandFront(c),half=edge[edge.length-1].x-c.centre.x;return ROOM.stepStartZ-.25+(edge[edge.length-1].z-ROOM.stepStartZ+.25)*((x-c.centre.x)/half)**2;}
 export function groundHeight(p:Point,c:DomeConfig){
@@ -30,6 +32,8 @@ export function groundHeight(p:Point,c:DomeConfig){
 export function walkable(p:Point,c:DomeConfig){
  if(Math.hypot(p.x-c.centre.x,p.z-c.centre.z)>c.radius-.65||p.z<c.camera.z+.8)return false;
  const f=orientedFixtures(c.centre,c.radius);
+ const telescope=telescopeStation(c);
+ if(Math.hypot(p.x-telescope.base.x,p.z-telescope.base.z)<.49)return false;
  const box=(fixture:FixturePlacement,cx:number,cz:number,w:number,d:number)=>{
   const dx=p.x-fixture.x,dz=p.z-fixture.z,x=(dx*Math.cos(fixture.yaw)-dz*Math.sin(fixture.yaw))/fixture.scale,z=(dx*Math.sin(fixture.yaw)+dz*Math.cos(fixture.yaw))/fixture.scale;
   return Math.abs(x-cx)<w/2+clearance/fixture.scale&&Math.abs(z-cz)<d/2+clearance/fixture.scale;

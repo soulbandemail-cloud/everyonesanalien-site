@@ -22,12 +22,14 @@ const WISH_RULE_TRIGGERS = [
   /fall\s+in\s+love/,
 ];
 
-export default function DomeWishes({ active = true, spaceTransform, frame }: { active?: boolean; spaceTransform?: string; frame?:{view:{width:number;height:number};angle:number} }) {
+export default function DomeWishes({ active = true, spaceTransform, frame, tapToCatch = false }: { active?: boolean; tapToCatch?:boolean; spaceTransform?: string; frame?:{view:{width:number;height:number};angle:number} }) {
 const lifecycle = useScopedLifecycle();
 const wishBarrierRef = useRef<WishBarrier | null>(null);
 const paddleCleanup = useRef<(() => void) | null>(null);
 useEffect(() => () => paddleCleanup.current?.(), []);
 const [wishPrompt, setWishPrompt] = useState(false);
+const wishInput=useRef<HTMLInputElement>(null);
+const [burstOrigin,setBurstOrigin]=useState<{x:number;y:number}|null>(null);
 const [wish, setWish] = useState("");
 const [wishPoof, setWishPoof] = useState(0);
 const [wishRulesKey, setWishRulesKey] = useState(0);
@@ -46,7 +48,26 @@ const catchShootingStar = (e: React.PointerEvent<HTMLSpanElement>) => {
   setWishPrompt(true);
 };
 
+// Telescope steering uses the same catch handler, but commits only on a tap.
+const starPress=useRef<{x:number;y:number;id:number}|null>(null);
+const starDown=(e:React.PointerEvent<HTMLSpanElement>)=>{
+ if(!tapToCatch){catchShootingStar(e);return;}
+ starPress.current={x:e.clientX,y:e.clientY,id:e.pointerId};
+};
+const starUp=(e:React.PointerEvent<HTMLSpanElement>)=>{
+ const start=starPress.current;starPress.current=null;
+ if(tapToCatch&&start&&start.id===e.pointerId&&Math.hypot(e.clientX-start.x,e.clientY-start.y)<7)catchShootingStar(e);
+};
 const closeWishPrompt = () => {
+  const input=wishInput.current,scope=input?.closest<HTMLElement>('.telescope-view');
+  if(input&&scope){
+    const r=input.getBoundingClientRect(),b=scope.getBoundingClientRect();
+    const presentation=scope.closest<HTMLElement>('[data-cockpit-presentation]');
+    const angle=Number(presentation?.dataset.presentationAngle??0)*Math.PI/180,scale=Number(presentation?.dataset.presentationScale??1);
+    const dx=r.left+r.width/2-b.left-b.width/2,dy=r.top+r.height/2-b.top-b.height/2;
+    setBurstOrigin({x:(dx*Math.cos(angle)+dy*Math.sin(angle))/scale+scope.clientWidth/2,y:(-dx*Math.sin(angle)+dy*Math.cos(angle))/scale+scope.clientHeight/2});
+  }
+
   const key = Date.now();
   const wishcode = wish.trim().toLowerCase();
   const isPongWish = wishcode === "pong";
@@ -133,17 +154,17 @@ const dragWishPaddle = (e: React.PointerEvent<HTMLDivElement>) => {
 
 return <>
 <div className={`shooting-stars ${active ? "" : "exterior-shooting-inactive"}`} style={{transform:spaceTransform,transformOrigin:"0 0"}}>
-  <span className="shooting-star shooting-star-launch" onPointerDown={catchShootingStar}></span>
-  <span className="shooting-star shooting-star-1" onPointerDown={catchShootingStar}></span>
-  <span className="shooting-star shooting-star-2" onPointerDown={catchShootingStar}></span>
-  <span className="shooting-star shooting-star-3" onPointerDown={catchShootingStar}></span>
-  <span className="shooting-star shooting-star-4" onPointerDown={catchShootingStar}></span>
-  <span className="shooting-star shooting-star-5" onPointerDown={catchShootingStar}></span>
-  <span className="shooting-star shooting-star-6" onPointerDown={catchShootingStar}></span>
-  <span className="shooting-star shooting-star-7" onPointerDown={catchShootingStar}></span>
-  <span className="shooting-star shooting-star-8" onPointerDown={catchShootingStar}></span>
-  <span className="shooting-star shooting-star-9" onPointerDown={catchShootingStar}></span>
-  <span className="shooting-star shooting-star-10" onPointerDown={catchShootingStar}></span>
+  <span className="shooting-star shooting-star-launch" onPointerDown={starDown} onPointerUp={starUp} onPointerCancel={()=>{starPress.current=null;}}></span>
+  <span className="shooting-star shooting-star-1" onPointerDown={starDown} onPointerUp={starUp} onPointerCancel={()=>{starPress.current=null;}}></span>
+  <span className="shooting-star shooting-star-2" onPointerDown={starDown} onPointerUp={starUp} onPointerCancel={()=>{starPress.current=null;}}></span>
+  <span className="shooting-star shooting-star-3" onPointerDown={starDown} onPointerUp={starUp} onPointerCancel={()=>{starPress.current=null;}}></span>
+  <span className="shooting-star shooting-star-4" onPointerDown={starDown} onPointerUp={starUp} onPointerCancel={()=>{starPress.current=null;}}></span>
+  <span className="shooting-star shooting-star-5" onPointerDown={starDown} onPointerUp={starUp} onPointerCancel={()=>{starPress.current=null;}}></span>
+  <span className="shooting-star shooting-star-6" onPointerDown={starDown} onPointerUp={starUp} onPointerCancel={()=>{starPress.current=null;}}></span>
+  <span className="shooting-star shooting-star-7" onPointerDown={starDown} onPointerUp={starUp} onPointerCancel={()=>{starPress.current=null;}}></span>
+  <span className="shooting-star shooting-star-8" onPointerDown={starDown} onPointerUp={starUp} onPointerCancel={()=>{starPress.current=null;}}></span>
+  <span className="shooting-star shooting-star-9" onPointerDown={starDown} onPointerUp={starUp} onPointerCancel={()=>{starPress.current=null;}}></span>
+  <span className="shooting-star shooting-star-10" onPointerDown={starDown} onPointerUp={starUp} onPointerCancel={()=>{starPress.current=null;}}></span>
 </div>
 
 {active && (wishPrompt || wishPoof > 0 || wishRulesKey > 0) && (
@@ -157,6 +178,7 @@ return <>
         }}
       >
         <input
+          ref={wishInput}
           value={wish}
           onChange={(e) => setWish(e.target.value)}
           onKeyDown={(e) => {
@@ -167,7 +189,7 @@ return <>
           }}
           placeholder="MAKE A WISH!"
           autoFocus
-          className="pink-border-glow border border-white bg-[#00082d] focus:bg-[#00082d] px-3 py-2 text-white placeholder:text-white/70 outline-none focus:border-[#7fffd4]"
+          className="pink-border-glow border border-white bg-[#00082d] focus:bg-[#00082d] px-3 py-2 text-white placeholder:text-white/70 outline-none focus:border-white"
         />
       </form>
     )}
@@ -180,6 +202,8 @@ return <>
         className={`wish-burst-layer ${pongWish ? "wish-pong-layer" : ""}`}
         style={
           {
+            "--wish-origin-x":burstOrigin?`${burstOrigin.x}px`:undefined,
+            "--wish-origin-y":burstOrigin?`${burstOrigin.y}px`:undefined,
             "--wish-paddle-x": `${pongWish?.x ?? 0}px`,
             "--wish-paddle-center-x": `${pongWish ? PONG_PADDLE_CENTER_OFFSET : 0}px`,
           } as React.CSSProperties

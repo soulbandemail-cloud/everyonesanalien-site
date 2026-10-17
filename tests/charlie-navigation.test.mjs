@@ -153,3 +153,19 @@ test('watering streams remain vertically over soil throughout each pour',()=>{
   assert.equal(end.amount,0);assert.equal(end.pouring,false);assert.equal(end.wiggle,0);
  }
 });
+
+test('telescope opens only after arrival, can be cancelled and reopened without affecting arcade',()=>{
+ const h=movementHarness();let opened=0;
+ h.api.interact('telescope',()=>opened++);assert.equal(opened,0);assert.equal(h.api.available('telescope'),false);
+ h.api.walk({x:0,z:3});h.advance();assert.equal(opened,0);
+ h.api.interact('telescope',()=>opened++);h.advance();assert.equal(opened,1);assert.equal(h.state().engagement,'telescope');assert.equal(h.state().arcadeActive,false);
+ h.api.closeTelescope();assert.equal(h.api.available('telescope'),true);assert.equal(h.state().mode,'standing');
+});
+const telescope=load(path.resolve('lib/ship/telescope.ts'));
+test('telescope soft stops remain bounded and rotated mobile drag matches landscape',()=>{
+ for(const limit of [18,24])for(const value of [-1e6,-100,-10,0,10,100,1e6])assert.ok(Math.abs(telescope.telescopeLimit(value,limit))<=limit);
+ const desktop=telescope.telescopeDrag(40,-20,0,1),phone=telescope.telescopeDrag(10,20,90,.5);
+ assert.ok(Math.abs(desktop.x-phone.x)<1e-8&&Math.abs(desktop.y-phone.y)<1e-8);
+ const scope=telescope.telescopeStation(g.DEFAULT_DOME);assert.ok(scope.objective.y>scope.eye.y);assert.ok(Math.hypot(scope.objective.x-scope.eye.x,scope.objective.z-scope.eye.z)>2);
+ assert.equal(n.walkable(scope.base,g.DEFAULT_DOME),false);
+});

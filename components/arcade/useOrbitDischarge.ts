@@ -21,7 +21,8 @@ export function useOrbitDischarge(root: RefObject<HTMLDivElement | null>, anchor
       if(engine.sampleOrbit(animation,angle)) onFull();
     } else engine.sampleOrbit(null,null);
     const activePointer = engine.drawing?.pointerId;
-    engine.draw(performance.now());
+    if(!orbiting.current)engine.end();
+    else engine.draw(performance.now());
     if (activePointer !== undefined && !engine.drawing) {
       const target = pointerTarget.current;
       pointerTarget.current = null;
@@ -44,7 +45,7 @@ export function useOrbitDischarge(root: RefObject<HTMLDivElement | null>, anchor
     const surface=root.current;
     if(!surface) return;
     const down=(e:PointerEvent) => {
-      if(e.button!==0 || !e.isPrimary || engine.drawing) return;
+      if(e.button!==0 || !e.isPrimary || engine.drawing || !orbiting.current) return;
       const target=e.target as Element;
       if(target.closest('button,a,input,select,textarea,h1,p,svg,[data-arcade-controls],[data-no-zap]')) return;
       update();
@@ -57,12 +58,13 @@ export function useOrbitDischarge(root: RefObject<HTMLDivElement | null>, anchor
       if(engine.drawing?.pointerId!==e.pointerId) return;
       e.preventDefault();
       update(); // Settle orbital movement against the previous pointer target first.
+      if(!engine.drawing)return;
       engine.aim(e.pointerId,arcadePoint(root.current,{x:e.clientX,y:e.clientY}));
       update();
     };
     const up=(e:PointerEvent) => {
       if(engine.drawing?.pointerId!==e.pointerId) return;
-      update();engine.aim(e.pointerId,arcadePoint(root.current,{x:e.clientX,y:e.clientY}));update();end(e.pointerId);
+      update();if(!engine.drawing)return;engine.aim(e.pointerId,arcadePoint(root.current,{x:e.clientX,y:e.clientY}));update();end(e.pointerId);
     };
     const cancel=(e:PointerEvent)=>end(e.pointerId);
     const blur=()=>end();
@@ -83,6 +85,6 @@ export function useOrbitDischarge(root: RefObject<HTMLDivElement | null>, anchor
       if(drawing && surface.hasPointerCapture(drawing.pointerId)) surface.releasePointerCapture(drawing.pointerId);
       pointerTarget.current=null;
     };
-  },[engine,root]);
+  },[engine,root,orbiting]);
   return {engine,display,headWidth};
 }

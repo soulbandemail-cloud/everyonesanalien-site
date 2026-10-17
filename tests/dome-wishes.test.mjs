@@ -38,3 +38,25 @@ test('catching another star resets Pong and stale timers cannot clear a newer wi
  h.game.catchShootingStar(pointer);assert.equal(h.game.pongWish,null);assert.equal(h.game.wishBarrierRef.current,null);assert.equal(h.game.wishPrompt,true);
  h.unmount();
 });
+
+test('telescope catches on release only, rejects drags and preserves original wish rules',()=>{
+ const h=harness(1280,720,'home');h.setTvProps({tapToCatch:true});
+ const star=()=>nodes(h.tree).find(el=>el.props?.className==='shooting-star shooting-star-launch');
+ const event={...pointer,clientX:200,clientY:100,pointerId:1};
+ star().props.onPointerDown(event);assert.equal(h.game.wishPrompt,false);
+ star().props.onPointerUp({...event,clientX:220});assert.equal(h.game.wishPrompt,false);
+ star().props.onPointerDown(event);star().props.onPointerUp({...event,clientX:202});assert.equal(h.game.wishPrompt,true);
+ h.game.setWish('more wishes');h.game.closeWishPrompt();assert.ok(h.game.wishRulesKey);
+ h.unmount();
+});
+test('telescope wish stars originate at the input centre, including a rotated phone',()=>{
+ for(const angle of [0,90]){
+  const h=harness(1280,720,'home');h.game.catchShootingStar(pointer);
+  const input=nodes(h.tree).find(el=>el.type==='input');
+  input.props.ref.current={getBoundingClientRect:()=>angle?{left:400,top:500,width:40,height:200}:{left:500,top:300,width:200,height:40},closest:()=>({clientWidth:1280,clientHeight:720,getBoundingClientRect:()=>angle?{left:0,top:0,width:720,height:1280}:{left:0,top:0,width:1280,height:720},closest:()=>({dataset:{presentationAngle:String(angle),presentationScale:'1'}})})};
+  h.game.setWish('stars');h.game.closeWishPrompt();
+  const burst=nodes(h.tree).find(el=>el.props?.className==='wish-burst-layer ');
+  assert.equal(burst.props.style['--wish-origin-x'],'600px');assert.equal(burst.props.style['--wish-origin-y'],angle?'300px':'320px');
+  h.unmount();
+ }
+});

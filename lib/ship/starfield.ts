@@ -39,9 +39,10 @@ export function skyStars():SkyStar[]{
  }
  return stars;
 }
-export function paintSky(canvas:HTMLCanvasElement){
+export function paintSky(canvas:HTMLCanvasElement,resolution=1,omitForeground:boolean|'all'=false){
  const ctx=canvas.getContext('2d');if(!ctx)return;
- canvas.width=SKY_WIDTH;canvas.height=SKY_HEIGHT;
+ canvas.width=Math.round(SKY_WIDTH*resolution);canvas.height=Math.round(SKY_HEIGHT*resolution);
+ ctx.scale(resolution,resolution);
  // Low-resolution diffuse light, sampled once; individual stars remain sharp.
  const cloud=document.createElement('canvas');cloud.width=720;cloud.height=440;
  const c=cloud.getContext('2d')!;const pixels=c.createImageData(cloud.width,cloud.height);
@@ -53,6 +54,7 @@ export function paintSky(canvas:HTMLCanvasElement){
  }
  c.putImageData(pixels,0,0);ctx.drawImage(cloud,0,0,SKY_WIDTH,SKY_HEIGHT);
  for(const star of skyStars()){
+  if(omitForeground==='all'||(omitForeground&&star.spike))continue;
   const colour=star.tone<.08?'#b8cce9':star.tone>.94?'#e0c6a8':'#e1e4ec';
   ctx.globalAlpha=star.alpha;ctx.fillStyle=colour;ctx.beginPath();ctx.arc(star.x,star.y,star.radius,0,Math.PI*2);ctx.fill();
   if(star.spike){

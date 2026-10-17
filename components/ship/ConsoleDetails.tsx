@@ -62,7 +62,7 @@ export function ConsoleDetails({config,view,onPlant,plantWiggle=0}:{config:DomeC
    {art('lamp-equipment-light',bank(-2.75,COMMAND_DECK.panelTop),2.75,.4,<rect width="100" height="50" fill={`url(#${lightId}-lamp-pool)`}/>)}
    {prop('lamp-reel-bounce',-1.35,.85,.43,<rect x="1" y="3" width="98" height="46" rx="2" fill={`url(#${lightId}-lamp-pool)`} opacity=".4"/>)}
   </g>
-  <PlantInteraction label="Toggle desk lamp" tooltip="Desk lamp" selected={lampOn} onClick={()=>setLampOn(on=>!on)}>
+  <PlantInteraction resetHoverOnClick label="Toggle desk lamp" tooltip="Desk lamp" selected={lampOn} onClick={()=>setLampOn(on=>!on)}>
   {prop('lamp',-2.07,.62,.87,<><rect width="100" height="50" fill="transparent"/><ellipse cx="39" cy="48" rx="22" ry="2" fill="#9d8252"/><path d="M39 47L31 24 64 10" fill="none" stroke="#a98c56" strokeWidth="4"/><circle cx="31" cy="24" r="3" fill="#d2ad67"/><path d="M43 14Q52 -2 76 4L94 17Z" fill="#526048" stroke="#b49a70" strokeWidth="1.5"/><path d="M44 15L93 18" stroke="#8f8269" strokeWidth="3"/><g style={lampLight}><path d="M44 15L93 18" stroke="#ffe1a0" strokeWidth="3"/></g></>)}
   </PlantInteraction>
   <PlantInteraction label="Water desk plant" onClick={onPlant}>{[-2.82].map((x,i)=>prop(`plant-${i}`,x,.38,.57,<><path d="M20 34H81L71 49H30Z" fill={i?'#85704c':'#9b7750'} stroke="#c0a071"/><g transform={`rotate(${plantWiggle} 50 34)`}><path d="M50 35V12M50 28L23 14M50 23L78 9" fill="none" stroke="#75834b" strokeWidth="3"/>{[[24,17,-35],[74,13,40],[46,10,-10],[69,26,60],[29,28,-55]].map(([cx,cy,a],j)=><ellipse key={j} cx={cx} cy={cy} rx="9" ry="4" transform={`rotate(${a} ${cx} ${cy})`} fill={j%2?'#7d8951':'#4d693e'} stroke="#a0a064" strokeWidth=".6"/>)}</g></>))}</PlantInteraction>

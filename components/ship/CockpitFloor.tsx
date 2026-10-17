@@ -7,7 +7,7 @@ import { hullFloorBoundary } from '@/lib/ship/hullFloorSeam';
 import styles from './ship.module.css';
 import { PersianRug } from './PersianRug';
 
-export function ManifestationPort({ config, view }: { config: DomeConfig; view: Viewport }) {
+export function ManifestationPort({ config, view, covered=false }: { config: DomeConfig; view: Viewport; covered?:boolean }) {
   const port = ROOM.port;
   const radius = floorPortDiameter / 2;
   const centre = { x: port.x, y: ROOM.floorY, z: port.z };
@@ -16,7 +16,7 @@ export function ManifestationPort({ config, view }: { config: DomeConfig; view: 
     y: ROOM.floorY,
     z: centre.z + radius * Math.cos(angle),
   });
-  return <svg className={styles.manifestationPort} width={view.width} height={view.height} role="img" aria-label="Floor port / tractor-beam airlock: closed segmented hatch, flush with the floor">
+  return <svg className={styles.manifestationPort} style={covered?{opacity:0}:undefined} width={view.width} height={view.height} role="img" aria-label="Floor port / tractor-beam airlock: closed segmented hatch, flush with the floor">
     <title>Floor port — closed; one alien or manifested object</title>
     {/* Closed doors share the floor plane exactly. No raised rim, aperture or active beam. */}
     <path d={polygonPath(deckOutline(floorPortDiameter, floorPortDiameter, ROOM.floorY, port.z), config, view)} fill="#2c3d46" stroke="#697a80" strokeWidth="1" />

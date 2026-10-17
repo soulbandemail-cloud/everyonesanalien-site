@@ -93,7 +93,7 @@ for(let i=0;i<=16;i++){
 tube(smile,.9,'#000000');
 for(let i=smileStart;i<faces.length;i++){faces[i].head=true;faces[i].mouth=true;}
 
-export type AlienMotion={emote?:EmotePose;ritualHands?:(V|undefined)[];ritualReach?:number[];ritualAmount?:number;outfit?:Outfit;ambient?:AmbientPose;stand?:number;gait?:number;moving?:number;reading?:number;life?:number};
+export type AlienMotion={telescope?:boolean;emote?:EmotePose;ritualHands?:(V|undefined)[];ritualReach?:number[];ritualAmount?:number;outfit?:Outfit;ambient?:AmbientPose;stand?:number;gait?:number;moving?:number;reading?:number;life?:number};
 export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMotion={}){
  const stand=motion.stand??(standing?1:0),walk=motion.moving??0,phase=motion.gait??0,reading=motion.reading??0;
  const wave=motion.emote;
@@ -256,6 +256,7 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
  const upper=Math.max(0,Math.min(1,(202-38*stand-y)/75));
  x+=stretch*2.8*Math.sin(gestureTime*.8)*upper;
  z-=stretch*3*upper;
+ if(motion.telescope){z-=7*upper*(motion.ritualAmount??0);y+=3*upper*(motion.ritualAmount??0);}
  x+=(settle+Math.sin(phase)*3.5*walk)*supported;
  y-=breath*(reading>.5?1:supported);
  if(wave&&(wave.hipTwist||wave.shoulderTwist)){

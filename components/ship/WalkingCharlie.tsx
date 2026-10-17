@@ -1,3 +1,4 @@
+import {telescopeStation} from '@/lib/ship/telescope';
 import {wateringFrame,type WateringScene} from '@/lib/ship/watering';
 import {useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {canEmote,emotePose,type EmoteControl} from '@/lib/ship/charlieEmotes';
@@ -11,7 +12,7 @@ import {project,type DomeConfig,type Viewport} from '@/lib/ship/domeGeometry';
 import {ROOM} from '@/lib/ship/roomGeometry';
 import {orientedFixtures} from '@/lib/ship/fixtureLayout';
 import {localPoint} from '@/lib/ship/charlieNavigation';
-export function WalkingCharlie({state,config,view,outfit=null,spin,gramophone,watering,scripted=false}:{watering?:WateringScene|null;scripted?:boolean;gramophone?:GramophoneScene;outfit?:Outfit;spin?:ClothesSpin;state:CharlieState;config:DomeConfig;view:Viewport}){
+export function WalkingCharlie({state,config,view,outfit=null,spin,gramophone,watering,telescope=false,scripted=false}:{telescope?:boolean;watering?:WateringScene|null;scripted?:boolean;gramophone?:GramophoneScene;outfit?:Outfit;spin?:ClothesSpin;state:CharlieState;config:DomeConfig;view:Viewport}){
  const [peaceHeld,setPeaceHeld]=useState(false);
  const [wheel,setWheel]=useState(false),[screenScale,setScreenScale]=useState(1);
  const emote=useRef<EmoteControl>({command:null}),element=useRef<HTMLDivElement>(null);
@@ -40,7 +41,8 @@ export function WalkingCharlie({state,config,view,outfit=null,spin,gramophone,wa
  if(!p.visible)return null;
  const w=ROOM.alienWidth*p.scale,h=ROOM.alienHeight*p.scale;
  const wateringPose=watering?wateringFrame(watering,config,state.position):null;
- const worldHands=wateringPose?wateringPose.hands:gramophone&&gramophone.amount>0?gramophone.hands.map(target=>target?gramophoneWorld(orientedFixtures(config.centre,config.radius).musicStation,target):undefined):undefined;
+ const scope=telescopeStation(config);
+ const worldHands=telescope?[{...scope.eye,x:scope.eye.x-.15,y:scope.eye.y-.18},{...scope.eye,x:scope.eye.x+.12,y:scope.eye.y-.22}]:wateringPose?wateringPose.hands:gramophone&&gramophone.amount>0?gramophone.hands.map(target=>target?gramophoneWorld(orientedFixtures(config.centre,config.radius).musicStation,target):undefined):undefined;
  const hands=worldHands?.map(target=>{
   if(!target)return undefined;
   const q=project(target,config,view);
@@ -53,7 +55,7 @@ export function WalkingCharlie({state,config,view,outfit=null,spin,gramophone,wa
  <svg width={view.width} height={view.height} style={{position:'absolute',inset:0}}><ellipse cx={p.x} cy={p.y} rx={w*.2} ry={h*.025} fill="#000" opacity=".2"/></svg>
  <div style={{position:'absolute',left:p.x-w/2,top:p.y-h*1.32,width:w,height:h*1.4}}>
  <div className="charlie-emote-character" style={{position:'relative',marginTop:h*.32,width:w,height:h}}>
- <Alien emote={emote} outfit={outfit} spin={spin} ambient={clickable?'standing':undefined} chair={false} attention={{x:0,back:0,down:wateringPose?.tilt?wateringPose.tilt*.12:gramophone&&gramophone.amount>0?.2*gramophone.amount:state.paper>0?.16:state.lookUp?-.3:0}} facing={state.yaw} standing={state.stand>0} motion={{stand:state.stand,gait:state.gait,moving:state.moving,reading:state.paper,ritualHands:hands,ritualReach:wateringPose?[1,1]:gramophone?.reach,ritualAmount:wateringPose?.amount??gramophone?.amount}}/>
+ <Alien emote={emote} outfit={outfit} spin={spin} ambient={clickable?'standing':undefined} chair={false} attention={{x:0,back:0,down:telescope?-.13:wateringPose?.tilt?wateringPose.tilt*.12:gramophone&&gramophone.amount>0?.2*gramophone.amount:state.paper>0?.16:state.lookUp?-.3:0}} facing={state.yaw} standing={state.stand>0} motion={{telescope,stand:state.stand,gait:state.gait,moving:state.moving,reading:state.paper,ritualHands:hands,ritualReach:telescope?[1,1]:wateringPose?[1,1]:gramophone?.reach,ritualAmount:telescope?1:wateringPose?.amount??gramophone?.amount}}/>
  {(clickable||(peaceHeld&&!state.engagement&&state.mode==='walking'))&&<button type="button" className="charlie-emote-target" data-charlie-emote-ui aria-label="Charlie's emotes" aria-expanded={wheel} onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();recover();setScreenScale(Number(element.current?.closest<HTMLElement>('[data-cockpit-presentation]')?.dataset.presentationScale??1));setWheel(clickable&&!wheel);}}/>}
  </div>
  </div>

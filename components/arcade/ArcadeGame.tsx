@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
+import {beamDimensions,steerInBeam,crossesEllipse} from './tractorPhysics';
 import { arcadePoint, arcadeRect, arcadeSize } from './presentation';
 import PlanetHeart from '../home/PlanetHeart';
 import { useOrbitDischarge } from './useOrbitDischarge';
@@ -71,8 +72,6 @@ type FlyingAlien = {
   stunnedUntil?: number;
   lastZapCatch?: number;
   needsZapExit?: boolean;
-  tractorCaptured?: boolean;
-  tractorCapturedAt?: number;
   tractorScale?: number;
   lastFooterBounce?: number;
 };
@@ -86,7 +85,7 @@ export default function ArcadeGame({ onRestart }: { onRestart: () => void }) {
   const heartPulseTimeoutRef = useRef<number | null>(null);
   const ufoPosRef = useRef({ x: -100, y: -100 });
   const tractorBeamActiveRef = useRef(false);
-  const collectedTractorIdsRef = useRef(new Set<number>());
+  const basketIdsRef = useRef(new Set<number>());
   
   const [flashbang, setFlashbang] = useState<{
     key: number;
@@ -172,10 +171,13 @@ const electricity = useOrbitDischarge(gameRoot, orbitRef, ufoOrbitingRef, () => 
 const launchAlien = (e: React.PointerEvent<SVGSVGElement>) => {
   e.preventDefault();
   e.stopPropagation();
+  tractorBeamActiveRef.current=false;
+  setTractorBeamActive(false);
 
   const rect = arcadeRect(gameRoot.current,e.currentTarget);
-  const angle = Math.random() * Math.PI * 2;
-  const speed = 5 + Math.random() * 4;
+  // Screen Y increases downwards: this upper-half arc always launches up.
+  const angle = -Math.PI + .2 + Math.random() * (Math.PI - .4);
+  const speed = 2.5 + Math.random() * 2;
 
   setFlyingAliens((aliens) => [
     ...aliens,
@@ -263,9 +265,18 @@ useEffect(() => {
   };
 }, [hideCursorUfo, minigameEnabled]);
 
+const insideLauncher = (point:{x:number;y:number}) => {
+  if(!footerRef.current)return false;
+  const band=arcadeRect(gameRoot.current,footerRef.current);
+  return point.x>=band.left&&point.x<=band.left+band.width&&point.y>=band.top&&point.y<=band.top+band.height;
+};
+
 useEffect(() => {
   if (!minigameEnabled) return;
   const startTractorBeam = (e: PointerEvent) => {
+    if(insideLauncher(arcadePoint(gameRoot.current,{x:e.clientX,y:e.clientY}))){
+      tractorBeamActiveRef.current=false;setTractorBeamActive(false);return;
+    }
     const supportsDesktopPointer = window.matchMedia(
       "(hover: hover) and (pointer: fine)"
     ).matches;
@@ -305,33 +316,10 @@ useEffect(() => {
   };
 }, [hideCursorUfo, minigameEnabled]);
 
-const touchesTractorBeam = (alien: FlyingAlien) => {
-  if (!tractorBeamActiveRef.current || ufoOrbitingRef.current) return false;
+const recordBasket = (alien: FlyingAlien) => {
+  if (basketIdsRef.current.has(alien.id)) return;
 
-  const beamWidth = Math.min(47.5, Math.max(30, arcadeSize(gameRoot.current).width * 0.0375));
-  const beamHeight = Math.min(85, arcadeSize(gameRoot.current).height * 0.105);
-  const beamTop = ufoPosRef.current.y + 8;
-  const beamBottom = beamTop + beamHeight;
-  const headRadius = 12;
-
-  if (alien.y + headRadius < beamTop || alien.y - headRadius > beamBottom) {
-    return false;
-  }
-
-  const contactY = Math.min(beamBottom, Math.max(beamTop, alien.y));
-  const contactProgress = (contactY - beamTop) / beamHeight;
-  const halfWidthAtContact = beamWidth * (0.06 + 0.44 * contactProgress);
-
-  return (
-    Math.abs(alien.x - ufoPosRef.current.x) <=
-    halfWidthAtContact + headRadius
-  );
-};
-
-const recordTractorCapture = (alien: FlyingAlien) => {
-  if (collectedTractorIdsRef.current.has(alien.id)) return;
-
-  collectedTractorIdsRef.current.add(alien.id);
+  basketIdsRef.current.add(alien.id);
 
   const type: TractorCollectionType = alien.isBlackSkull
     ? "blackSkull"
@@ -358,7 +346,11 @@ useEffect(() => {
   };
 }, [flashbang, minigameEnabled, lifecycle]);
 
+const physicsTime=useRef<number|null>(null);
 const tickPhysics = useEffectEvent(() => {
+    const time=Date.now();
+    const dt=Math.min(4,Math.max(0,(time-(physicsTime.current??time-16))/16));
+    physicsTime.current=time;
     
     setFlyingAliens((aliens) => {
       if (!orbitRef.current) return aliens;
@@ -372,31 +364,8 @@ const tickPhysics = useEffectEvent(() => {
 
       return aliens
         .map((alien) => {
-          if (alien.tractorCaptured) {
-            const targetX = ufoPosRef.current.x;
-            const targetY = ufoPosRef.current.y;
-            const dx = targetX - alien.x;
-            const dy = targetY - alien.y;
-            const elapsed = now - (alien.tractorCapturedAt ?? now);
-            const shrinkDuration = 360;
-
-            if (elapsed >= shrinkDuration) return null;
-
-            const nextX = alien.x + dx * 0.3;
-            const nextY = alien.y + dy * 0.3;
-
-            return {
-              ...alien,
-              x: nextX,
-              y: nextY,
-              vx: 0,
-              vy: 0,
-              tractorScale: Math.max(0, 1 - elapsed / shrinkDuration),
-            };
-          }
-
           if (alien.stunnedUntil && now < alien.stunnedUntil) {
-            return alien;
+            return {...alien,tractorScale:Math.min(1,(alien.tractorScale??1)+dt*.08)};
           }
 
           const activeAlien =
@@ -409,26 +378,9 @@ const tickPhysics = useEffectEvent(() => {
                 }
               : alien;
 
-          let next = {
-            ...activeAlien,
-            x: activeAlien.x + activeAlien.vx,
-            y: activeAlien.y + activeAlien.vy,
-          };
-
+          const viewport=arcadeSize(gameRoot.current);
+          let next=steerInBeam(activeAlien,ufoPosRef.current,beamDimensions(viewport.width,viewport.height),tractorBeamActiveRef.current&&!ufoOrbitingRef.current&&!hideCursorUfo,dt);
           next = reflectAlienOffFooterLine(activeAlien, next, now);
-
-          if (touchesTractorBeam(next)) {
-            recordTractorCapture(next);
-
-            return {
-              ...next,
-              tractorCaptured: true,
-              tractorCapturedAt: now,
-              tractorScale: 1,
-              vx: 0,
-              vy: 0,
-            };
-          }
 
           const contact = hitBolt(activeAlien, next, zapPath, zapRadius);
           const nearZap = Boolean(hitBolt(next, next, zapPath, zapRadius));
@@ -450,9 +402,10 @@ const tickPhysics = useEffectEvent(() => {
             };
           }
 
-          const hitHeart = Math.hypot(next.x - heartX, next.y - heartY) < 42;
+          const hitHeart = crossesEllipse(activeAlien,next,{x:heartX,y:heartY},42);
 
           if (hitHeart) {
+            recordBasket(next);
             if (next.isBlackSkull) {
               const key = Date.now();
               
@@ -506,6 +459,9 @@ const tickPhysics = useEffectEvent(() => {
 
             return null;
           }
+
+          // Substantial physical saucer contact collects without awarding a basket.
+          if(!ufoOrbitingRef.current&&!hideCursorUfo&&!insideLauncher(ufoPosRef.current)&&crossesEllipse(activeAlien,next,ufoPosRef.current,18,10))return null;
 
           const offscreen =
             next.x < -80 ||
@@ -747,7 +703,7 @@ return (
                 <div
                   key={type}
                   className="tractor-counter"
-                  aria-label={`${TRACTOR_COLLECTION_LABELS[type]}: ${tractorCounts[type]}`}
+                  aria-label={`${TRACTOR_COLLECTION_LABELS[type]} baskets: ${tractorCounts[type]}`}
                 >
                   <TractorCounterIcon type={type} />
                   <span className="tractor-counter-x" aria-hidden="true">X</span>

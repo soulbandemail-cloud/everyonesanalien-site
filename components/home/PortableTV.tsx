@@ -28,15 +28,15 @@ const content = (
 
     <div className="space-tv-body">
       <div className="space-tv-screen">
-        <iframe
+        {tvExpanded && <iframe
           src={`https://www.tiktok.com/embed/v2/7623124860574731543?autoplay=1&muted=1&playsinline=1&start=${tvStarted ? "1" : "0"}`}
           title="SOUL music video"
           allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
           allowFullScreen
           loading="eager"
           className="space-tv-video"
-        />
-        {!tvStarted && <div className="space-tv-poster" aria-hidden="true" />}
+        />}
+        {!tvExpanded && <div className="space-tv-poster" aria-hidden="true" />}
         <div className="space-tv-scanlines" />
         {!tvExpanded && !dock && <button type="button" className="space-tv-open" aria-label="Maximise TV" onClick={()=>{setTvStarted(true);setTvExpanded(true);}} />}
       </div>

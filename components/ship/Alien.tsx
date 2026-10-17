@@ -26,7 +26,7 @@ export function Alien({ attention, chair=true, occupant=true, facing, standing=f
   window.addEventListener('pointerdown',interrupt,{passive:true});
   window.addEventListener('keydown',interrupt);
   let frame=0,previous=performance.now(),currentYaw=target.current.yaw;
-  let paintedYaw=NaN,paintedDown=NaN,paintedMode="",walkBlend=0,lastPaint=-Infinity;
+  let paintedYaw=NaN,paintedDown=NaN,paintedMode="",walkBlend=0,telescopeBlend=0,lastPaint=-Infinity;
   let chairYaw=NaN;
   let chairMesh:Array<ReturnType<typeof pilotChairVolume>[number]&{path:Path2D}>=[];
   const coarse=window.matchMedia('(pointer: coarse)');
@@ -38,6 +38,7 @@ export function Alien({ attention, chair=true, occupant=true, facing, standing=f
   // Walking yaw is already eased by the navigation loop; do not smooth it twice.
   currentYaw=target.current.controlled?target.current.yaw:advanceAlienYaw(currentYaw,target.current.yaw,dt);
   if(document.hidden){frame=requestAnimationFrame(draw);return;}
+  telescopeBlend+=((target.current.motion.telescope?1:0)-telescopeBlend)*(1-Math.exp(-dt*7));
   const down=target.current.down;
   // Polish only the pose envelope: route speed, arrivals and interactions stay untouched.
   walkBlend+=( (target.current.motion.moving??0)-walkBlend)*(1-Math.exp(-dt*12));
@@ -47,7 +48,7 @@ export function Alien({ attention, chair=true, occupant=true, facing, standing=f
   const gesture=emotePose(target.current.emote?.current.command??null,time,reduced.matches);
   const gesturing=gesture.raise>.001||Math.abs(gesture.lean)>.001;
   const ambientPose=personality.tick(dt,target.current.occupant&&!gesturing&&!target.current.spin&&!document.querySelector('dialog[open]')?target.current.ambient:undefined,time<inputUntil,reduced.matches);
-  const motion={...target.current.motion,moving:reduced.matches?0:walkBlend,life,ambient:ambientPose,emote:gesture,outfit:change.outfit};
+  const motion={...target.current.motion,...(target.current.motion.telescope?{ritualAmount:telescopeBlend}:{}),moving:reduced.matches?0:walkBlend,life,ambient:ambientPose,emote:gesture,outfit:change.outfit};
   // Keep simulation on its existing clock; only expensive mesh painting is capped.
   // A small tolerance avoids dropping to 20fps on slightly uneven 60Hz frames.
   if(mobile()&&time-lastPaint<1000/30-1){frame=requestAnimationFrame(draw);return;}

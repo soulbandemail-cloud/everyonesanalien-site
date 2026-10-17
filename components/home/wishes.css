@@ -52,8 +52,8 @@
 
 .wish-pong-handle {
   position: fixed;
-  left: 50%;
-  top: 34%;
+  left: var(--wish-origin-x, 50%);
+  top: var(--wish-origin-y, 34%);
   width: 150px;
   height: 48px;
   cursor: ew-resize;
@@ -64,8 +64,8 @@
 
 .wish-burst-star {
   position: fixed;
-  left: 50%;
-  top: 34%;
+  left: var(--wish-origin-x, 50%);
+  top: var(--wish-origin-y, 34%);
   width: 18px;
   height: 18px;
   background: #7fffd4;
@@ -94,7 +94,7 @@
 @media (max-width: 640px) {
   .wish-pong-handle,
   .wish-burst-star {
-    top: 24%;
+    top: var(--wish-origin-y, 24%);
   }
 }
 
