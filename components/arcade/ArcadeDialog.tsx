@@ -15,9 +15,16 @@ export default function ArcadeDialog({ onExit, viewport }: { onExit: () => void;
     const previousFocus = document.activeElement;
     const overflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    if(element)element.style.visibility='';
     element?.showModal();
     return () => {
+      // Drop composited arcade surfaces before closing the top-layer dialog.
+      if(element)element.style.visibility='hidden';
       element?.close();
+      // iOS Safari may retain the silver footer's sampled toolbar tint after
+      // the dialog is removed. Re-publish the existing site theme metadata.
+      const theme=document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+      if(theme)theme.replaceWith(theme.cloneNode(true));
       document.body.style.overflow = overflow;
       restoreObjectFocus(previousFocus);
     };

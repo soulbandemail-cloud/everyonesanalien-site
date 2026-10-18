@@ -441,3 +441,7 @@
 .arcade-game { user-select:none; cursor:auto; }
 
 [data-arcade-frame] .arcade-game, [data-arcade-frame] .arcade-game > main { min-height:var(--arcade-height); }
+
+/* Keep the rotating launch strip inside the dialog's paint/compositor surface. */
+.arcade-dialog { isolation:isolate; contain:paint; }
+[data-arcade-frame] { overflow:hidden; contain:paint; }

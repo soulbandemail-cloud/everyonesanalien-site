@@ -11,7 +11,9 @@ export function beamInfluence(body:Point,ufo:Point,size:{width:number;height:num
 }
 export function steerInBeam<T extends TractorBody>(body:T,ufo:Point,size:{width:number;height:number},active:boolean,dt:number):T{
  const influence=active?beamInfluence(body,ufo,size):0;
- const ax=Math.max(-1,Math.min(1,(ufo.x-body.x)/18))*.56*influence,ay=-.44*influence;
+ // Midpoint horizontal integration keeps the stronger pull stable across frame rates.
+ const pull=1.12*influence,k=pull/18;
+ const ax=Math.max(-pull,Math.min(pull,k*(ufo.x-body.x-body.vx*dt/2)/(1+k*dt*dt/4))),ay=-.44*influence;
  const desired=1-.3*influence;
  let scale=desired+((body.tractorScale??1)-desired)*Math.exp(-dt*.22);
  if(!influence&&scale>.995)scale=1;

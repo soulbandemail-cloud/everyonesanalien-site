@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
-import {beamDimensions,steerInBeam,crossesEllipse} from './tractorPhysics';
+import {beamDimensions,beamInfluence,steerInBeam,crossesEllipse} from './tractorPhysics';
 import { arcadePoint, arcadeRect, arcadeSize } from './presentation';
 import PlanetHeart from '../home/PlanetHeart';
 import { useOrbitDischarge } from './useOrbitDischarge';
@@ -460,8 +460,12 @@ const tickPhysics = useEffectEvent(() => {
             return null;
           }
 
-          // Substantial physical saucer contact collects without awarding a basket.
-          if(!ufoOrbitingRef.current&&!hideCursorUfo&&!insideLauncher(ufoPosRef.current)&&crossesEllipse(activeAlien,next,ufoPosRef.current,18,10))return null;
+          // Only upward contact through the live beam's mouth collects; side/top
+          // collisions and a switched-off beam leave heads independently flying.
+          if(tractorBeamActiveRef.current&&!ufoOrbitingRef.current&&!hideCursorUfo&&!insideLauncher(ufoPosRef.current)
+            &&activeAlien.y>=ufoPosRef.current.y+8&&next.y<activeAlien.y
+            &&beamInfluence(activeAlien,ufoPosRef.current,beamDimensions(viewport.width,viewport.height))>0
+            &&crossesEllipse(activeAlien,next,ufoPosRef.current,18,10))return null;
 
           const offscreen =
             next.x < -80 ||

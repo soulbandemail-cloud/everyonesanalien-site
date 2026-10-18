@@ -13,8 +13,11 @@ export function Telescope({config,view,onClick,engaged=false}:{config:DomeConfig
   const timer=window.setTimeout(()=>{element.style.transform='rotate(-14deg)';},400);
   return()=>window.clearTimeout(timer);
  },[engaged]);
- const p=(q:Vec3)=>project(q,config,view),a=p(eye),b=p(objective),c=p(pivot),floor=p(base);
- const angle=Math.atan2(b.y-a.y,b.x-a.x)*180/Math.PI,length=Math.hypot(b.x-a.x,b.y-a.y),s=a.scale;
+ // Safari and the server can differ at the last bit of trigonometric results.
+ // Quantise projected values before deriving SVG attributes and path strings.
+ const precise=(value:number)=>Math.round(value*10000)/10000;
+ const p=(q:Vec3)=>{const projected=project(q,config,view);return {...projected,x:precise(projected.x),y:precise(projected.y),scale:precise(projected.scale)};},a=p(eye),b=p(objective),c=p(pivot),floor=p(base);
+ const angle=precise(Math.atan2(b.y-a.y,b.x-a.x)*180/Math.PI),length=precise(Math.hypot(b.x-a.x,b.y-a.y)),s=a.scale;
  const line=(u:Vec3,v:Vec3)=>{const x=p(u),y=p(v);return `M${x.x} ${x.y}L${y.x} ${y.y}`;};
  return <svg width={view.width} height={view.height} style={{position:'absolute',inset:0,zIndex:7,pointerEvents:'none'}} aria-label="Vintage brass telescope on adjustable tripod">
  <defs><linearGradient id={id} x2="0" y2="1"><stop stopColor="#e0c18a"/><stop offset=".35" stopColor="#af8745"/><stop offset=".65" stopColor="#806132"/><stop offset="1" stopColor="#c4a16a"/></linearGradient></defs>

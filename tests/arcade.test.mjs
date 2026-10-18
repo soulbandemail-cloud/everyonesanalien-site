@@ -45,7 +45,7 @@ test('beam curves momentum, releases cleanly and restores scale; saucer contact 
  g=h.tick();assert.equal(g.flyingAliens[0].vx,released.vx);assert.equal(g.flyingAliens[0].vy,released.vy);
  for(let i=0;i<30;i++)g=h.tick();assert.equal(g.flyingAliens[0].tractorScale,1);
  h.game.ufoPosRef.current={x:200,y:200};h.game.tractorBeamActiveRef.current=false;
- g=h.tick([alien({x:200,y:200})]);assert.equal(g.flyingAliens.length,0);assert.deepEqual(g.tractorCounts,{alien:0,whiteSkull:0,blackSkull:0});
+ g=h.tick([alien({x:200,y:200})]);assert.equal(g.flyingAliens.length,1);assert.deepEqual(g.tractorCounts,{alien:0,whiteSkull:0,blackSkull:0});
  h.unmount();
 });
 test('all unassisted heart impacts score exactly once, including a swept crossing',()=>{
@@ -104,8 +104,8 @@ test('beam steering is consistent across frame intervals and scale never changes
  assert.ok(Math.hypot(fast.x-slow.x,fast.y-slow.y)<.6);
  assert.ok(Math.abs(fast.vx-slow.vx)<.15);
  for(const tractorScale of [.7,1]){
-  const h=harness();h.game.ufoPosRef.current={x:200,y:200};
-  assert.equal(h.tick([alien({x:211,y:200,tractorScale})]).flyingAliens.length,0);h.unmount();
+  const h=harness();h.game.ufoPosRef.current={x:200,y:200};h.game.tractorBeamActiveRef.current=true;
+  assert.equal(h.tick([alien({x:200,y:212,vy:-4,tractorScale})]).flyingAliens.length,0);h.unmount();
  }
 });
 
@@ -136,3 +136,11 @@ test('launcher band cannot start the beam or immediately collect newly launched 
   assert.equal(h.game.electricity.engine.charge,saved);h.advance(1000);
   assert.equal(h.game.electricity.engine.charge,saved);h.unmount();
  });
+
+test('UFO only collects upward contact through an active beam, never side or top hits',()=>{
+ for(const active of [false,true])for(const [name,head] of [['below',{x:200,y:212,vy:-4}],['side',{x:219,y:200,vx:-4}],['above',{x:200,y:188,vy:4}]]){
+  const h=harness();h.game.ufoPosRef.current={x:200,y:200};h.game.tractorBeamActiveRef.current=active;
+  const g=h.tick([alien(head)]);assert.equal(g.flyingAliens.length,active&&name==='below'?0:1);
+  assert.deepEqual(g.tractorCounts,{alien:0,whiteSkull:0,blackSkull:0});h.unmount();
+ }
+});
