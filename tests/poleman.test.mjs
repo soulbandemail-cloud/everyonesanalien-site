@@ -50,10 +50,10 @@ test('both windmills cover a full rotation and are dangerous only during strikes
 
 test('black skull turns back toward the player without instant or perfect tracking',()=>{
  const s=createBattle();s.phase='recovery';s.nextShot=Infinity;s.ufo=s.target={x:650,y:500};
- s.skulls=[{x:500,y:180,vx:0,vy:-72,black:true,age:.31}];
+ s.skulls=[{x:500,y:180,vx:0,vy:-108,black:true,age:.31}];
  stepBattle(s,1/120,false);assert.ok(s.skulls[0].vx>0);assert.ok(s.skulls[0].vy<0);
  run(s,1.5);assert.equal(s.skulls.length,1);assert.ok(s.skulls[0].vy>0);assert.ok(s.skulls[0].vx>0);
- assert.ok(Math.abs(Math.hypot(s.skulls[0].vx,s.skulls[0].vy)-72)<.001);
+ assert.ok(Math.abs(Math.hypot(s.skulls[0].vx,s.skulls[0].vy)-108)<.001);
 });
 
 test('stun pauses skull firing, but existing skulls continue moving',()=>{
@@ -61,10 +61,10 @@ test('stun pauses skull firing, but existing skulls continue moving',()=>{
  s.skulls=[{x:900,y:500,vx:30,vy:0,black:false,age:0}];run(s,1);
  assert.equal(s.skulls.length,1);assert.ok(s.skulls[0].x>920);assert.equal(s.nextShot,0);
 });
-test('damaging blades destroy either skull type before they reach the UFO',()=>{
+test('damaging blades leave skulls intact',()=>{
  for(const black of [true,false]){const s=createBattle();s.phase='attack';s.combo=['left-sweep'];s.time=.43;s.nextShot=Infinity;s.ufo=s.target={x:900,y:500};
  const b=blades(s)[0];s.skulls=[{x:(b.a.x+b.b.x)/2,y:(b.a.y+b.b.y)/2,vx:0,vy:0,black,age:0}];
- stepBattle(s,1/120,false);assert.equal(s.skulls.length,0);assert.equal(s.hp,5);}
+ stepBattle(s,1/120,false);assert.equal(s.skulls.length,1);assert.equal(s.hp,5);}
 });
 test('mirrored wipes rotate a half turn and slowly return to the same resting geometry',()=>{
  for(const move of ['left-wipe','right-wipe']){const s=createBattle();s.phase='attack';s.combo=[move];const i=move.startsWith('left')?0:1;
@@ -74,4 +74,50 @@ test('mirrored wipes rotate a half turn and slowly return to the same resting ge
 });
 test('intro arrives off centre following a curved path',()=>{
  const s=createBattle();run(s,2.5);assert.ok(Math.abs(s.ufo.x-500)>50);run(s,2.6);assert.equal(s.phase,'attack');assert.ok(Math.abs(s.ufo.x-590)<.01);
+});
+
+test('combos contain six attacks and expose no intermediate recovery',()=>{
+ const s=createBattle();assert.equal(s.combo.length,6);s.phase='attack';s.nextShot=Infinity;
+ const seen=new Set();for(let i=0;i<6000&&s.phase==='attack';i++){seen.add(s.comboIndex);s.invincible=100;stepBattle(s,1/120,true);assert.equal(s.beam,false);}
+ assert.equal(seen.size,6);assert.equal(s.phase,'recovery');
+});
+test('mobile extends only lower arms by fifty percent',()=>{
+ const s=createBattle();s.phase='attack';s.time=.2;
+ const desktop=blades(s);s.mobile=true;const mobile=blades(s);
+ for(let i=0;i<2;i++){assert.deepEqual(mobile[i].a,desktop[i].a);assert.deepEqual(mobile[i].joint,desktop[i].joint);
+ assert.ok(Math.abs(Math.hypot(mobile[i].b.x-mobile[i].a.x,mobile[i].b.y-mobile[i].a.y)/Math.hypot(desktop[i].b.x-desktop[i].a.x,desktop[i].b.y-desktop[i].a.y)-1.5)<1e-9);}
+});
+test('tractor velocity attraction affects both skull types and stacks with black homing',()=>{
+ for(const black of [false,true]){
+  const setup=()=>{const s=createBattle();s.phase='recovery';s.nextShot=Infinity;const p=head(s);s.ufo=s.target={x:p.x-100,y:p.y+90};s.lean=Math.atan2(100,90);
+   s.skulls=[{x:s.ufo.x+60,y:s.ufo.y-54,vx:0,vy:-72,black,age:1}];return s;};
+  const off=setup(),on=setup();stepBattle(off,1/120,false);stepBattle(on,1/120,true);
+  assert.equal(on.skulls.length,1);assert.ok(on.skulls[0].vx<off.skulls[0].vx);assert.ok(on.skulls[0].vy>off.skulls[0].vy);
+ }
+});
+test('spiral occupies a combo slot, emits 48 skulls at six per second and resumes the combo',()=>{
+ const s=createBattle();s.phase='attack';s.hits=2;s.combo=['left-sweep','spiral','right-sweep','left-wipe','right-wipe','double-sweep'];s.comboIndex=1;s.nextShot=0;s.invincible=100;s.ufo=s.target={x:30,y:680};
+ stepBattle(s,1/120,false);assert.equal(s.phase,'spiral');assert.equal(s.comboIndex,1);
+ run(s,1.61);assert.equal(s.spiralShot,6);assert.equal(head(s).y,s.h/2);assert.ok(s.skulls.every(p=>p.spiral===1&&!p.black));
+ run(s,7);assert.equal(s.spiralShot,48);assert.equal(s.phase,'attack');assert.equal(s.comboIndex,2);assert.ok(s.skulls.some(p=>p.spiral===1));assert.ok(s.spiralWait>=15);
+ const survivors=s.skulls.filter(p=>p.spiral===1);const positions=survivors.map(p=>({x:p.x,y:p.y}));run(s,.1);
+ assert.ok(survivors.some((p,i)=>p.x!==positions[i].x||p.y!==positions[i].y));
+});
+test('skulls collide with one another, with no electrical damage between separated skulls',()=>{
+ const s=createBattle();s.phase='recovery';s.nextShot=Infinity;s.ufo=s.target={x:500,y:500};
+ s.skulls=[{x:450,y:500,vx:0,vy:0,age:0,black:false},{x:550,y:500,vx:0,vy:0,age:0,black:false}];
+ stepBattle(s,1/120,false);assert.equal(s.hp,5);assert.equal(s.skulls.length,2);
+ s.skulls=[{x:200,y:200,vx:80,vy:0,age:0,black:false},{x:219,y:200,vx:-80,vy:0,age:0,black:true}];
+ stepBattle(s,1/120,false);assert.equal(s.skulls.length,0);
+});
+test('first final-health combo includes exactly one randomly positioned special',()=>{
+ for(const hits of [0,1,2]){const s=createBattle();s.hits=hits;s.phase='damage';s.time=1.7;s.invincible=100;stepBattle(s,1/120,false);
+ assert.equal(s.combo.length,6);assert.equal(s.combo.filter(m=>m==='spiral').length,hits===2?1:0);}
+});
+test('first health phase fires only white skulls',()=>{
+ for(let seed=1;seed<100;seed++){const s=createBattle(700,seed);s.phase='recovery';s.nextShot=0;stepBattle(s,1/120,false);assert.equal(s.skulls.length,1);assert.equal(s.skulls[0].black,false);}
+});
+test('spiral skulls leave through arena boundaries instead of a special-end cleanup',()=>{
+ const s=createBattle();s.phase='recovery';s.nextShot=Infinity;s.ufo=s.target={x:500,y:650};
+ s.skulls=[{x:1029,y:200,vx:132,vy:0,age:0,black:false,spiral:1,sequence:0}];run(s,.1);assert.equal(s.skulls.length,0);
 });

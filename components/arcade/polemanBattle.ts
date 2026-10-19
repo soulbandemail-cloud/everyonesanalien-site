@@ -1,9 +1,9 @@
 /** Fixed-step boss simulation. Rendering, beam contact and blade collisions share geometry. */
 export type V = {x:number;y:number};
-export type Phase = 'intro'|'attack'|'recovery'|'pulling'|'stun'|'entry'|'damage'|'victory'|'defeat';
-export type Move = 'left-sweep'|'right-sweep'|'double-sweep'|'left-windmill'|'right-windmill'|'left-wipe'|'right-wipe';
+export type Phase = 'intro'|'spiral'|'attack'|'recovery'|'pulling'|'stun'|'entry'|'damage'|'victory'|'defeat';
+export type Move = 'spiral'|'left-sweep'|'right-sweep'|'double-sweep'|'left-windmill'|'right-windmill'|'left-wipe'|'right-wipe';
 export type Blade = {joint:V;a:V;b:V;active:boolean};
-export type Skull = V & {vx:number;vy:number;black:boolean;age:number};
+export type Skull = V & {vx:number;vy:number;black:boolean;age:number;spiral?:number;sequence?:number};
 export const STUN_EXTENSION = .6;
 export const BEAM_LENGTH = 180;
 export const UFO_RADIUS = 12.5;
@@ -12,6 +12,7 @@ export type Battle = {
  phase:Phase;time:number;clock:number;hits:number;hp:number;invincible:number;cycle:number;
  ufo:V;previous:V;target:V;headX:number;headV:number;extension:number;beam:boolean;contact:boolean;lean:number;
  health:number;trace:number;bossHealth:number;bossTrace:number;h:number;frozenBlades?:Blade[];
+ headLower:number;mobile:boolean;spiralWait:number|null;spiralCount:number;spiralShot:number;spiralAngle:number;spiralOrigin?:V;
  flyOverEntry:boolean;entryFrom?:V;combo:Move[];comboIndex:number;seed:number;skulls:Skull[];nextShot:number;recoil:number;
 };
 export const clamp=(n:number,a:number,b:number)=>Math.max(a,Math.min(b,n));
@@ -19,21 +20,23 @@ export const smooth=(n:number)=>{n=clamp(n,0,1);return n*n*(3-2*n);};
 function random(s:Battle){s.seed=(Math.imul(s.seed,1664525)+1013904223)>>>0;return s.seed/4294967296;}
 function chooseCombo(s:Battle){
  const pool=[...MOVES];s.combo=[];
- for(let i=0;i<3;i++)s.combo.push(pool.splice(Math.floor(random(s)*pool.length),1)[0]);
+ for(let i=0;i<6;i++)s.combo.push(pool.splice(Math.floor(random(s)*pool.length),1)[0]);
+ if(s.hits===2&&(s.spiralWait===null||s.spiralWait<=0))s.combo[Math.floor(random(s)*6)]='spiral';
  s.comboIndex=0;
 }
 export function createBattle(h=700,seed=12345):Battle{
- const s:Battle={phase:'intro',time:0,clock:0,hits:0,hp:5,invincible:0,cycle:0,ufo:{x:500,y:h+60},previous:{x:500,y:h+60},target:{x:590,y:h*.77},headX:0,headV:0,extension:0,beam:false,contact:false,lean:0,health:1,trace:1,bossHealth:1,bossTrace:1,h,flyOverEntry:false,combo:[],comboIndex:0,seed,skulls:[],nextShot:3,recoil:0};
+ const s:Battle={phase:'intro',time:0,clock:0,hits:0,hp:5,invincible:0,cycle:0,ufo:{x:500,y:h+60},previous:{x:500,y:h+60},target:{x:590,y:h*.77},headX:0,headV:0,extension:0,beam:false,contact:false,lean:0,health:1,trace:1,bossHealth:1,bossTrace:1,h,headLower:0,mobile:false,spiralWait:null,spiralCount:0,spiralShot:0,spiralAngle:0,flyOverEntry:false,combo:[],comboIndex:0,seed,skulls:[],nextShot:3,recoil:0};
  chooseCombo(s);return s;
 }
 export const shoulder=(s:Battle)=>({x:500,y:s.h*.5});
 export function head(s:Battle){
  const o=shoulder(s),x=s.headX,y=-100+130*s.extension;
+ const lower=s.headLower;
  // A rigid, fixed-length cuboid tilts down and advances in depth when pulled.
  const z=Math.sqrt(360*360-x*x-y*y)+180*s.extension;
  const perspective=1000/(1000-z),baseScale=1000/(1000-180*s.extension);
  const awakening=s.phase==='intro'?12*(1-smooth((s.time-1)/2)):0;
- return {x:o.x+x*perspective,y:o.y+(y+awakening-s.recoil*9)*perspective,r:14*perspective,scale:perspective,baseScale,z};
+ return {x:o.x+x*perspective,y:o.y+(y+awakening-s.recoil*9)*perspective*(1-lower),r:14*perspective,scale:perspective,baseScale,z};
 }
 export function attackTiming(move:Move){
  if(move.endsWith('windmill'))return {windup:1.4,strike:2.5,settle:.35};
@@ -44,7 +47,7 @@ export function blades(s:Battle):Blade[]{
  if(s.frozenBlades)return s.frozenBlades;
  const o=shoulder(s),t=s.time*(1+s.hits*.18),move=s.combo[s.comboIndex]??'left-sweep';
  const timing=attackTiming(move),strikeEnd=timing.windup+timing.strike;
- const reach=Math.max(430,Math.min(950,s.h*.4));
+ const reach=Math.max(430,Math.min(950,s.h*.4))*(s.mobile?1.5:1);
  return [-1,1].map((side,i)=>{
   const selected=move==='double-sweep'||move.startsWith(i===0?'left':'right');
   let angle=-.8,lift=0,inset=0;
@@ -89,35 +92,65 @@ function phase(s:Battle,p:Phase){
  if(p==='entry'||p==='victory'||p==='defeat')s.skulls=[];
 }
 function nextCombo(s:Battle){s.cycle++;chooseCombo(s);phase(s,'attack');}
+function advanceAttack(s:Battle){if(s.comboIndex<s.combo.length-1){s.comboIndex++;phase(s,'attack');}else phase(s,'recovery');}
 function hurt(s:Battle){if(s.invincible>0)return;s.hp--;s.invincible=1.3;if(s.hp===0)phase(s,'defeat');}
-function projectiles(s:Battle,dt:number,previousBlades:Blade[]){
- if(!['attack','recovery','pulling','stun'].includes(s.phase))return;
- if(s.phase!=='stun')s.nextShot-=dt;
- if(s.phase!=='stun'&&s.nextShot<=0){
-  const tip=head(s),black=random(s)<.17,dx=s.ufo.x-tip.x,dy=s.ufo.y-tip.y,d=Math.hypot(dx,dy)||1;
-  s.skulls.push({x:tip.x,y:tip.y,vx:black?0:dx/d*80,vy:black?-72:dy/d*80,black,age:0});
+
+function attractSkull(s:Battle,p:Skull,dt:number){
+ if(!s.beam)return;
+ const dx=p.x-s.ufo.x,dy=p.y-s.ufo.y,axis={x:Math.sin(s.lean),y:-Math.cos(s.lean)};
+ const along=dx*axis.x+dy*axis.y,across=Math.abs(dx*axis.y-dy*axis.x),width=7.5+along*(37.5/BEAM_LENGTH);
+ if(along<=0||along>=BEAM_LENGTH||across>=width+10)return;
+ const weight=smooth((width+10-across)/15)*smooth((BEAM_LENGTH-along)/25),d=Math.hypot(dx,dy)||1;
+ p.vx-=dx/d*150*weight*dt;p.vy-=dy/d*150*weight*dt;
+ const speed=Math.hypot(p.vx,p.vy);if(speed>190){p.vx*=190/speed;p.vy*=190/speed;}
+}
+
+function projectiles(s:Battle,dt:number){
+ if(!['attack','recovery','pulling','stun','spiral'].includes(s.phase))return;
+ if(s.phase!=='stun'&&s.phase!=='spiral')s.nextShot-=dt;
+ if(s.phase!=='stun'&&s.phase!=='spiral'&&s.nextShot<=0){
+  const tip=head(s),black=s.hits>0&&random(s)<.17,dx=s.ufo.x-tip.x,dy=s.ufo.y-tip.y,d=Math.hypot(dx,dy)||1;
+  s.skulls.push({x:tip.x,y:tip.y,vx:black?0:dx/d*80,vy:black?-108:dy/d*80,black,age:0});
   s.recoil=1;s.nextShot=.8+random(s)**2*9;
  }
- const currentBlades=blades(s);
+ if(s.phase==='spiral'&&s.spiralOrigin){
+  while(s.spiralShot<48&&s.time+1e-8>= .6+(s.spiralShot+1)/6){
+   const angle=s.spiralAngle+s.spiralShot*Math.PI*2/24;
+   s.skulls.push({...s.spiralOrigin,vx:Math.cos(angle)*132,vy:Math.sin(angle)*132,black:false,age:0,spiral:s.spiralCount,sequence:s.spiralShot++});
+   s.recoil=.45;
+  }
+ }
+ const oldPositions=new Map(s.skulls.map(p=>[p,{x:p.x,y:p.y}]));
  s.skulls=s.skulls.filter(p=>{
   const old={x:p.x,y:p.y};p.age+=dt;
-  if(p.black&&p.age>.3){const current=Math.atan2(p.vy,p.vx),desired=Math.atan2(s.ufo.y-p.y,s.ufo.x-p.x);const turn=Math.atan2(Math.sin(desired-current),Math.cos(desired-current));const a=current+clamp(turn,-dt*1.5,dt*1.5);p.vx=Math.cos(a)*72;p.vy=Math.sin(a)*72;}
+  if(p.black&&p.age>.3){const current=Math.atan2(p.vy,p.vx),desired=Math.atan2(s.ufo.y-p.y,s.ufo.x-p.x);const turn=Math.atan2(Math.sin(desired-current),Math.cos(desired-current));const a=current+clamp(turn,-dt*1.5,dt*1.5);const speed=108+(Math.hypot(p.vx,p.vy)-108)*Math.exp(-dt*.8);p.vx=Math.cos(a)*speed;p.vy=Math.sin(a)*speed;}
+  attractSkull(s,p,dt);
   p.x+=p.vx*dt;p.y+=p.vy*dt;
-  if(bladeContact(p,previousBlades,currentBlades,16))return false;
   if(distanceSegment({x:0,y:0},{x:old.x-s.previous.x,y:old.y-s.previous.y},{x:p.x-s.ufo.x,y:p.y-s.ufo.y})<UFO_RADIUS+10){hurt(s);return false;}
-  return s.phase!=='defeat'&&p.age<22&&p.x>-120&&p.x<1120&&p.y>-160&&p.y<s.h+120;
+  return s.phase!=='defeat'&&(p.x>-30&&p.x<1030&&p.y>-30&&p.y<s.h+30);
  });
+ // Relative swept paths prevent fast skulls passing through one another.
+ const destroyed=new Set<Skull>();
+ for(let i=0;i<s.skulls.length;i++)for(let j=i+1;j<s.skulls.length;j++){
+  const a=s.skulls[i],b=s.skulls[j];if(destroyed.has(a)||destroyed.has(b))continue;
+  const pa=oldPositions.get(a)!,pb=oldPositions.get(b)!;
+  if(distanceSegment({x:0,y:0},{x:pa.x-pb.x,y:pa.y-pb.y},{x:a.x-b.x,y:a.y-b.y})<20){destroyed.add(a);destroyed.add(b);}
+ }
+ s.skulls=s.skulls.filter(p=>!destroyed.has(p));
 }
 export function stepBattle(s:Battle,dt:number,held:boolean){
  const previousBlades=blades(s);
  dt=clamp(dt,0,1/30);s.time+=dt;s.clock+=dt;s.invincible=Math.max(0,s.invincible-dt);s.recoil*=Math.exp(-dt*9);s.previous={...s.ufo};
+ if(s.spiralWait!==null&&s.phase!=='spiral')s.spiralWait=Math.max(0,s.spiralWait-dt);
+ if(s.phase==='attack'&&s.combo[s.comboIndex]==='spiral'){s.spiralOrigin={x:500,y:s.h/2};s.spiralAngle=random(s)*Math.PI*2;s.spiralShot=0;s.spiralCount++;phase(s,'spiral');}
+ s.headLower=s.phase==='spiral'?smooth(s.time/.6):s.headLower*Math.exp(-dt*8);
  const terminal=s.phase==='victory'||s.phase==='defeat';
  if(s.phase==='intro'){
   const t=smooth((s.time-1.3)/3),arc=Math.sin(Math.PI*t);
   s.ufo={x:500+90*t+Math.sin(t*Math.PI*2)*160*arc,y:s.h+60+(s.h*.77-s.h-60)*t+Math.cos(t*Math.PI*2)*65*arc};
   if(s.time>5){s.target={...s.ufo};phase(s,'attack');}
  }
- else if(!terminal&&s.phase!=='entry'&&s.phase!=='damage'){const dx=s.target.x-s.ufo.x,dy=s.target.y-s.ufo.y,d=Math.hypot(dx,dy),run=Math.min(d,600*dt);if(d){s.ufo.x+=dx/d*run;s.ufo.y+=dy/d*run;}}
+ else if(!terminal&&s.phase!=='entry'&&s.phase!=='damage'){const dx=s.target.x-s.ufo.x,dy=s.target.y-s.ufo.y,d=Math.hypot(dx,dy),run=Math.min(d,780*dt);if(d){s.ufo.x+=dx/d*run;s.ufo.y+=dy/d*run;}}
  const tip=head(s),dx=tip.x-s.ufo.x,dy=tip.y-s.ufo.y;
  s.beam=(s.phase==='recovery'||s.phase==='pulling')&&held;
  // Beam starts upward: left of the head aims at 2 o'clock, right aims at 10.
@@ -141,10 +174,13 @@ export function stepBattle(s:Battle,dt:number,held:boolean){
   if(bladeContact(s.ufo,previousBlades,blades(s),UFO_RADIUS+6))hurt(s);
   const a=attackTiming(s.combo[s.comboIndex]);
   if(s.phase==='attack'&&s.time*(1+s.hits*.18)>a.windup+a.strike+a.settle){
-   if(s.comboIndex<2){s.comboIndex++;s.time=0;}else phase(s,'recovery');
+   advanceAttack(s);
   }
  }
- projectiles(s,dt,previousBlades);
+ projectiles(s,dt);
+ if(s.phase==='spiral'&&s.time>=8.6){
+  s.spiralWait=15+random(s)*20;advanceAttack(s);
+ }
  if(s.phase==='defeat')s.skulls=[];
  if(s.phase==='entry'&&s.entryFrom){const tip=head(s),t=smooth(s.time/.28);s.ufo={x:s.entryFrom.x+(tip.x-s.entryFrom.x)*t,y:s.entryFrom.y+(tip.y-s.entryFrom.y)*t};}
  if(s.phase==='damage'&&s.time>.9){const tip=head(s),t=smooth((s.time-.9)/.8);s.ufo={x:tip.x+(500-tip.x)*t,y:tip.y+(s.h*.77-tip.y)*t};}

@@ -19,6 +19,24 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Touch interactions belong to the cockpit and viewers, not browser callouts.
+   Keep normal selection and editing available inside text-entry fields. */
+@media (any-pointer: coarse) {
+  html, body, body * {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  body input, body textarea, body [contenteditable="true"],
+  body [contenteditable="true"] * {
+    -webkit-touch-callout: default;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+}
+
 .pink-text-glow {
   text-shadow:
     0 0 6px rgba(255, 176, 255, 0.62),

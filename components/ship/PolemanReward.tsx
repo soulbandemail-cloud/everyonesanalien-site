@@ -55,9 +55,9 @@ export function PolemanReward({reward,config,view}:{reward:ReturnType<typeof use
 }
 
 function trophyPath(angle:number){
- const nodes=[[0,0,0],[0,-60,0],[0,-125,-45],[-35,-45,30],[-75,-90,-20],[35,-45,30],[75,-90,-20]];
+ const nodes=[[0,0,0],[0,-60,0],[0,-84,-28],[-21,-56,8],[-40,-47,12],[-84,-98,-10],[21,-56,8],[40,-47,12],[84,-98,-10]];
  const p=nodes.map(([x,y,z])=>{const xx=x*Math.cos(angle)+z*Math.sin(angle),zz=z*Math.cos(angle)-x*Math.sin(angle),scale=500/(500+zz);return `${(xx*scale).toFixed(3)},${((y+zz*.2)*scale).toFixed(3)}`;});
- return [[0,1,2],[1,3,4],[1,5,6]].map(indices=>'M'+indices.map(i=>p[i]).join('L')).join('');
+ return [[0,1,2],[1,3,4,5],[1,6,7,8]].map(indices=>'M'+indices.map(i=>p[i]).join('L')).join('');
 }
 function TrophyModel({hologram}:{hologram:boolean}){
  const path=useRef<SVGPathElement>(null);

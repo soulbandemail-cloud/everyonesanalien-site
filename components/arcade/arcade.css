@@ -445,3 +445,22 @@
 /* Keep the rotating launch strip inside the dialog's paint/compositor surface. */
 .arcade-dialog { isolation:isolate; contain:paint; }
 [data-arcade-frame] { overflow:hidden; contain:paint; }
+
+/* Unrotated black edge strips prevent Safari sampling the silver launch band
+   as browser chrome. The cockpit restores its navy theme on dialog cleanup. */
+.arcade-dialog[data-boss="true"], .arcade-dialog[data-mobile="true"],
+.arcade-dialog[data-boss="true"]::backdrop, .arcade-dialog[data-mobile="true"]::backdrop { background:#000; }
+.arcade-browser-edges { position:fixed; inset:0; pointer-events:none; z-index:1000001; border-top:3px solid #000; border-bottom:3px solid #000; }
+
+/* Safari must treat the arena as a touch control, never a selectable image. */
+.arcade-dialog[data-mobile="true"][data-boss="true"],
+.arcade-dialog[data-mobile="true"][data-boss="true"] * {
+  -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
+  -webkit-user-drag:none; touch-action:none;
+}
+@media (pointer:coarse) {
+  .arcade-dialog[data-boss="true"], .arcade-dialog[data-boss="true"] * {
+    -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
+    -webkit-user-drag:none; touch-action:none;
+  }
+}
