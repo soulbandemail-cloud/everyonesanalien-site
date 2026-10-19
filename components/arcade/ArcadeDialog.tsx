@@ -1,15 +1,19 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { portraitFrame } from './presentation';
 import type { CSSProperties } from 'react';
 import {restoreObjectFocus} from '@/components/mate/objectInteraction';
 import ArcadeGame from './ArcadeGame';
+import PolemanArena from './PolemanArena';
 
 /** Full viewport deliberately preserves the original game's pixel coordinate space. */
 export default function ArcadeDialog({ onExit, viewport }: { onExit: () => void; viewport?: {view:{width:number;height:number};mobile:boolean;left:number;top:number} }) {
   const frame=viewport ? portraitFrame(viewport.view.width,viewport.view.height,viewport.mobile) : null;
   const dialog = useRef<HTMLDialogElement>(null);
   const [round, setRound] = useState(0);
+  const [boss,setBoss]=useState(false);
+  const defeat=useCallback(()=>{setBoss(false);setRound(n=>n+1);},[]);
+  const victory=useCallback(()=>{try{localStorage.setItem("bossDefeated","true");}catch{}window.dispatchEvent(new Event("poleman-reward"));onExit();},[onExit]);
   useEffect(() => {
     const element = dialog.current;
     const previousFocus = document.activeElement;
@@ -34,7 +38,7 @@ export default function ArcadeDialog({ onExit, viewport }: { onExit: () => void;
     <div className="arcade-controls" data-arcade-controls onPointerDown={event => event.stopPropagation()}>
       <button className="object-back" type="button" onClick={onExit} autoFocus>BACK</button>
     </div>
-    <ArcadeGame key={round} onRestart={() => setRound(value => value + 1)} />
+    {boss?<PolemanArena onDefeat={defeat} onVictory={victory}/>:<ArcadeGame key={round} onOvercharge={()=>setBoss(true)} onRestart={() => setRound(value => value + 1)} />}
     </div>
   </dialog>;
 }

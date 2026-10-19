@@ -106,7 +106,8 @@ export function useCharlieMovement(config:DomeConfig,seatedYaw=180){
  },[config,available,go,publish]);
  const finishPlant=useCallback((name:'desk-plant'|'floor-plant')=>{if(current.current.engagement===name)publish({...current.current,engagement:null});},[publish]);
  const closeTelescope=useCallback(()=>{if(current.current.engagement==='telescope')publish({...current.current,engagement:null});},[publish]);
- return {state,interact,available,closeArcade,closeTelescope,performRecords,performPlant,finishPlant,walk:(point:Point)=>{
+ const performTrophy=useCallback((arrival:Arrival,done:()=>void)=>{const accepted=go(arrival,done);if(accepted)publish({...current.current,engagement:'trophy'});return accepted;},[go,publish]);
+ return {state,performTrophy,interact,available,closeArcade,closeTelescope,performRecords,performPlant,finishPlant,walk:(point:Point)=>{
   const accepted=go({point,yaw:current.current.yaw,mode:'standing',retainHeading:true});
   if(accepted)publish({...current.current,engagement:null});
   return accepted;

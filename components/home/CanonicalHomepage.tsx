@@ -112,6 +112,7 @@ export default function CanonicalHomepage({ cockpit, config, view, animateEntry 
         <div data-dome-slot="information" className="dome-information grid mt-2 mb-4 md:mb-16">
           {!cockpit && <MatePanel mobile={mobileThird} />}
           <div className="dome-columns">
+          {cockpit && <MatePanel mobile={mobileThird} />}
           <section data-dome-slot="live" className="md:col-start-1 mt-4 md:mt-0 md:max-w-sm md:mx-auto">
             <h2 className="text-2xl mb-4">THE SHOWS</h2>
 
@@ -125,7 +126,6 @@ export default function CanonicalHomepage({ cockpit, config, view, animateEntry 
 
           </section>
 
-          {cockpit && <MatePanel mobile={mobileThird} />}
           {cockpit && <section className="dome-wardrobe">
             <h2 className="text-2xl mb-4">CHARLIE&apos;S COLLECTION</h2>
             <ClothingCollection outfit={outfit} onChoose={onChooseClothing}/>

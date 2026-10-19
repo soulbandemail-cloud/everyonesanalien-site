@@ -42,7 +42,7 @@ test('one canonical content tree: first-person MATES/SHOWS/RECORDS/MERCH, third-
  assert.ok(cockpit.indexOf('THE SHOWS')<cockpit.indexOf('THE RECORDS'));
  assert.ok(cockpit.indexOf('THE RECORDS')<cockpit.indexOf('THE MERCH'));
  assert.ok(publicPage.indexOf('>THE HYPER-FIX<')<publicPage.indexOf('>THE MERCH<'));
- assert.ok(cockpit.indexOf('THE SHOWS')<cockpit.indexOf('>THE HYPER-FIX<'));
+ assert.ok(cockpit.indexOf('>THE HYPER-FIX<')<cockpit.indexOf('THE SHOWS'));
  assert.ok(cockpit.indexOf('>THE HYPER-FIX<')<cockpit.indexOf('THE RECORDS'));
  for(const html of [publicPage,cockpit]) {
   assert.match(html,/name="email"/);assert.match(html,/>ENTER</);

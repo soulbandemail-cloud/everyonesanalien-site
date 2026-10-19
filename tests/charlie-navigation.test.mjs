@@ -169,3 +169,9 @@ test('telescope soft stops remain bounded and rotated mobile drag matches landsc
  const scope=telescope.telescopeStation(g.DEFAULT_DOME);assert.ok(scope.objective.y>scope.eye.y);assert.ok(Math.hypot(scope.objective.x-scope.eye.x,scope.objective.z-scope.eye.z)>2);
  assert.equal(n.walkable(scope.base,g.DEFAULT_DOME),false);
 });
+
+test('trophy ceremony routes through the existing navigation to hatch and arcade',()=>{
+ const h=movementHarness();let arrived=0;
+ assert.equal(h.api.performTrophy(n.approaches(g.DEFAULT_DOME).trophy,()=>arrived++),true);h.advance();assert.equal(arrived,1);assert.equal(h.state().engagement,'trophy');assert.equal(h.state().yaw,180);
+ assert.equal(h.api.performTrophy(n.approaches(g.DEFAULT_DOME).arcade,()=>arrived++),true);h.advance();assert.equal(arrived,2);
+});

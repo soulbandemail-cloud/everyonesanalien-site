@@ -76,7 +76,7 @@ type FlyingAlien = {
   lastFooterBounce?: number;
 };
 
-export default function ArcadeGame({ onRestart }: { onRestart: () => void }) {
+export default function ArcadeGame({ onRestart, onOvercharge }: { onRestart: () => void; onOvercharge?:()=>void }) {
   const minigameEnabled = true;
   const gameRoot = useRef<HTMLDivElement | null>(null);
   const lifecycle = useScopedLifecycle();
@@ -164,6 +164,7 @@ const triggerFlashbang = (key: number, type: "white" | "black") => {
 const electricity = useOrbitDischarge(gameRoot, orbitRef, ufoOrbitingRef, () => {
   // Same effect as black-skull/heart impact; overload does not award Wombo.
   triggerFlashbang(Date.now(), "black");
+  if(onOvercharge)lifecycle.timeout(onOvercharge,650);
   ufoOrbitingRef.current = false;
   setUfoOrbiting(false);
 });

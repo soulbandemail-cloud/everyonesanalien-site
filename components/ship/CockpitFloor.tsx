@@ -7,7 +7,8 @@ import { hullFloorBoundary } from '@/lib/ship/hullFloorSeam';
 import styles from './ship.module.css';
 import { PersianRug } from './PersianRug';
 
-export function ManifestationPort({ config, view, covered=false }: { config: DomeConfig; view: Viewport; covered?:boolean }) {
+export function ManifestationPort({ config, view, covered=false, aperture=0 }: { config: DomeConfig; view: Viewport; covered?:boolean; aperture?:number }) {
+  const clip=useId();
   const port = ROOM.port;
   const radius = floorPortDiameter / 2;
   const centre = { x: port.x, y: ROOM.floorY, z: port.z };
@@ -16,11 +17,13 @@ export function ManifestationPort({ config, view, covered=false }: { config: Dom
     y: ROOM.floorY,
     z: centre.z + radius * Math.cos(angle),
   });
-  return <svg className={styles.manifestationPort} style={covered?{opacity:0}:undefined} width={view.width} height={view.height} role="img" aria-label="Floor port / tractor-beam airlock: closed segmented hatch, flush with the floor">
+  return <svg className={styles.manifestationPort} style={{opacity:covered?0:1,zIndex:6}} width={view.width} height={view.height} role="img" aria-label="Floor port / tractor-beam airlock: closed segmented hatch, flush with the floor">
     <title>Floor port — closed; one alien or manifested object</title>
-    {/* Closed doors share the floor plane exactly. No raised rim, aperture or active beam. */}
-    <path d={polygonPath(deckOutline(floorPortDiameter, floorPortDiameter, ROOM.floorY, port.z), config, view)} fill="#2c3d46" stroke="#697a80" strokeWidth="1" />
-    {Array.from({ length: 6 }, (_, i) => <path key={i} d={polygonPath([centre, edge(i * Math.PI / 3)], config, view)} fill="none" stroke="#172730" strokeWidth="1" />)}
+    <defs><clipPath id={clip}><path d={polygonPath(Array.from({length:65},(_,i)=>edge(i*Math.PI/32)),config,view)}/></clipPath></defs>
+    <g clipPath={`url(#${clip})`}>
+     <path d={polygonPath(Array.from({length:65},(_,i)=>edge(i*Math.PI/32)),config,view)} fill="#79d9ff" stroke="#d5f7ff" strokeWidth="3"/>
+     {Array.from({length:6},(_,i)=>{const a=(i+.5)*Math.PI/3;const points=[centre,...Array.from({length:13},(_,j)=>edge((i+j/12)*Math.PI/3))].map(p=>({...p,x:p.x+Math.sin(a)*radius*aperture*1.8,z:p.z+Math.cos(a)*radius*aperture*1.8}));return <path key={i} d={polygonPath(points,config,view)} fill="#2c3d46" stroke="#697a80" strokeWidth="1"/>;})}
+    </g>
   </svg>;
 }
 
