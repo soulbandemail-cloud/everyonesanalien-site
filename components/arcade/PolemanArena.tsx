@@ -111,8 +111,8 @@ export default function PolemanArena({onDefeat,onVictory,onWhiteout}:{onDefeat:(
    if(s.phase==='damage'){for(const [i,b] of arms.entries()){lightning(o,b.joint,12+i);lightning(b.joint,b.a,18+i);lightning(b.a,b.b,21+i);}lightning(o,tip,24);lightning(o,{x:500,y:h+80},30);}
    // Health and delayed loss traces are continuous, independently eased bars.
    if(healthFill.current)healthFill.current.style.transform=`scaleX(${s.health})`;if(healthTrace.current)healthTrace.current.style.transform=`scaleX(${s.trace})`;
-   const barY=s.mobile?38:65;ctx.fillStyle='#302326';ctx.fillRect(200,barY,600,5);ctx.fillStyle='#dba3a3';ctx.fillRect(200,barY,600*s.bossTrace,5);ctx.fillStyle='#b93638';ctx.fillRect(200,barY,600*s.bossHealth,5);
-   ctx.fillStyle='#ddd';ctx.textAlign='center';ctx.font=s.mobile?'25px serif':'15px serif';ctx.fillText('POLEMAN',500,barY+(s.mobile?25:26));
+   const barY=s.mobile?46:65;ctx.fillStyle='#302326';ctx.fillRect(200,barY,600,5);ctx.fillStyle='#dba3a3';ctx.fillRect(200,barY,600*s.bossTrace,5);ctx.fillStyle='#b93638';ctx.fillRect(200,barY,600*s.bossHealth,5);
+   ctx.fillStyle='#ddd';ctx.textAlign='center';ctx.font=s.mobile?'25px serif':'15px serif';ctx.fillText('POLEMAN',500,barY+(s.mobile?31:26));
 
    if(s.phase==='intro'){ctx.fillStyle=`rgba(0,0,0,${1-smooth(s.time/1.3)})`;ctx.fillRect(0,0,1000,h);}
    if(s.phase==='defeat'){ctx.fillStyle=`rgba(0,0,0,${smooth(s.time/1.2)})`;ctx.fillRect(0,0,1000,h);ctx.globalAlpha=smooth((s.time-1)/1.5)*(1-smooth((s.time-4.5)/1.5));ctx.fillStyle='#881b25';ctx.font='58px Georgia,serif';ctx.fillText('YOU TRIED',500,h/2);ctx.globalAlpha=1;}
