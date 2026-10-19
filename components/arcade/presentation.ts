@@ -14,7 +14,8 @@ export function arcadeSize(root:Element|null) {
 export function arcadePoint(root:Element|null,point:{x:number;y:number}) {
  const el=frame(root);if(!el)return point;
  const bounds=el.getBoundingClientRect();
- return el.dataset.arcadeRotated==='true' ? {x:point.y-bounds.top,y:bounds.right-point.x} : {x:point.x-bounds.left,y:point.y-bounds.top};
+ const local=el.dataset.arcadeRotated==='true' ? {x:point.y-bounds.top,y:bounds.right-point.x} : {x:point.x-bounds.left,y:point.y-bounds.top};
+ return el.dataset.arcadeFlipped==='true'?{x:Number(el.dataset.arcadeWidth)-local.x,y:Number(el.dataset.arcadeHeight)-local.y}:local;
 }
 export function arcadeRect(root:Element|null,element:Element) {
  const rect=element.getBoundingClientRect();if(!frame(root))return rect;
