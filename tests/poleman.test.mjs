@@ -18,7 +18,7 @@ test('desktop entry requires clicking the stunned opening; mobile accepts crossi
 });
 test('a successful incursion removes one third exactly and third hit wins',()=>{for(let hits=0;hits<3;hits++){const s=createBattle();s.hits=hits;s.phase='entry';run(s,.6);assert.equal(s.hits,hits+1);assert.equal(s.phase,'damage');run(s,2);assert.equal(s.phase,hits===2?'victory':'attack');}});
 test('missing stun is harmless, and health loss and trace drain progressively',()=>{const s=createBattle();s.phase='stun';run(s,4.1);assert.equal(s.hp,5);assert.equal(s.phase,'attack');s.hp=4;stepBattle(s,1/120,false);assert.ok(s.health<1&&s.health>.8);assert.ok(s.trace>s.health);});
-test('blade contact damages once inside invulnerability and zero health enters defeat',()=>{const s=createBattle();s.phase='attack';s.combo=['left-sweep','right-sweep','double-sweep'];s.time=.43;const b=blades(s)[0];s.ufo=s.target={x:(b.a.x+b.b.x)/2,y:(b.a.y+b.b.y)/2};stepBattle(s,1/120,false);assert.equal(s.hp,4);stepBattle(s,1/120,false);assert.equal(s.hp,4);s.hp=1;s.invincible=0;const next=blades(s)[0];s.ufo=s.target={x:(next.a.x+next.b.x)/2,y:(next.a.y+next.b.y)/2};stepBattle(s,1/120,false);assert.equal(s.phase,'defeat');});
+test('blade contact damages once inside invulnerability and zero health enters defeat',()=>{const s=createBattle();s.phase='attack';s.combo=['left-sweep','right-sweep','double-sweep'];s.time=.90;const b=blades(s)[0];s.ufo=s.target={x:(b.a.x+b.b.x)/2,y:(b.a.y+b.b.y)/2};stepBattle(s,1/120,false);assert.equal(s.hp,4);stepBattle(s,1/120,false);assert.equal(s.hp,4);s.hp=1;s.invincible=0;const next=blades(s)[0];s.ufo=s.target={x:(next.a.x+next.b.x)/2,y:(next.a.y+next.b.y)/2};stepBattle(s,1/120,false);assert.equal(s.phase,'defeat');});
 test('three successive pull and click-entry sequences complete the battle',()=>{
  const s=createBattle();s.nextShot=Infinity;
  for(let i=0;i<120*120&&s.phase!=='victory'&&s.phase!=='defeat';i++){
@@ -62,7 +62,7 @@ test('stun pauses skull firing, but existing skulls continue moving',()=>{
  assert.equal(s.skulls.length,1);assert.ok(s.skulls[0].x>920);assert.equal(s.nextShot,0);
 });
 test('damaging blades leave skulls intact',()=>{
- for(const black of [true,false]){const s=createBattle();s.phase='attack';s.combo=['left-sweep'];s.time=.43;s.nextShot=Infinity;s.ufo=s.target={x:900,y:500};
+ for(const black of [true,false]){const s=createBattle();s.phase='attack';s.combo=['left-sweep'];s.time=.90;s.nextShot=Infinity;s.ufo=s.target={x:900,y:500};
  const b=blades(s)[0];s.skulls=[{x:(b.a.x+b.b.x)/2,y:(b.a.y+b.b.y)/2,vx:0,vy:0,black,age:0}];
  stepBattle(s,1/120,false);assert.equal(s.skulls.length,1);assert.equal(s.hp,5);}
 });
@@ -120,4 +120,19 @@ test('first health phase fires only white skulls',()=>{
 test('spiral skulls leave through arena boundaries instead of a special-end cleanup',()=>{
  const s=createBattle();s.phase='recovery';s.nextShot=Infinity;s.ufo=s.target={x:500,y:650};
  s.skulls=[{x:1029,y:200,vx:132,vy:0,age:0,black:false,spiral:1,sequence:0}];run(s,.1);assert.equal(s.skulls.length,0);
+});
+
+test('single slashes telegraph higher and longer without changing double slash timing',()=>{
+ assert.deepEqual(attackTiming('double-sweep'),{windup:.38,strike:.16,settle:.22});
+ for(const move of ['left-sweep','right-sweep']){
+  assert.equal(attackTiming(move).strike,.16);assert.ok(attackTiming(move).windup>.38);
+  const s=createBattle();s.phase='attack';s.combo=[move];s.time=attackTiming(move).windup;
+  const i=move==='left-sweep'?0:1,a=blades(s)[i];s.combo=['double-sweep'];s.time=.38;const b=blades(s)[i];assert.ok(a.b.y<b.b.y);
+ }
+});
+
+test('post-shock exit returns to the same offset as the intro',()=>{
+ const s=createBattle();s.phase='damage';s.hits=1;s.invincible=100;
+ run(s,1.7);assert.ok(Math.abs(s.ufo.x-590)<.01);assert.ok(Math.abs(s.ufo.y-s.h*.77)<.01);
+ run(s,.02);assert.equal(s.phase,'attack');assert.deepEqual(s.target,{x:590,y:s.h*.77});
 });

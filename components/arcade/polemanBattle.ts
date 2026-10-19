@@ -40,6 +40,7 @@ export function head(s:Battle){
 }
 export function attackTiming(move:Move){
  if(move.endsWith('windmill'))return {windup:1.4,strike:2.5,settle:.35};
+ if(move==='left-sweep'||move==='right-sweep')return {windup:.85,strike:.16,settle:.22};
  if(move.endsWith('wipe'))return {windup:.6,strike:1.1,settle:1.7};
  return {windup:.38,strike:.16,settle:.22};
 }
@@ -62,7 +63,8 @@ export function blades(s:Battle):Blade[]{
     // Left screen arm dips anticlockwise, wipes clockwise, then slowly retraces.
     const dip=.22*Math.sin(Math.PI*wind);
     angle=-.8+dip-Math.PI*strike+Math.PI*settle;
-   }else{angle=-.8-.25*wind+2.3*strike-2.05*settle;lift=-45*wind*(1-strike);}
+   }else if(move==='double-sweep'){angle=-.8-.25*wind+2.3*strike-2.05*settle;lift=-45*wind*(1-strike);}
+   else{angle=-.8-.45*wind+2.5*strike-2.05*settle;lift=-55*wind*(1-strike);}
   }
   if(s.phase==='damage')angle=1.35+Math.sin(s.time*35+i)*.07;
   // The extra shallow reflex joint follows the canopy's two-part upper arm.
@@ -169,7 +171,7 @@ export function stepBattle(s:Battle,dt:number,held:boolean){
   if(s.extension>=STUN_EXTENSION){phase(s,'stun');s.headV=0;}else if(s.time>7)nextCombo(s);
  }else if(s.phase==='stun'){if(s.flyOverEntry&&canEnter(s,s.previous,s.ufo)){s.entryFrom={...s.ufo};phase(s,'entry');}else if(s.time>4)nextCombo(s);}
  else if(s.phase==='entry'&&s.time>.45){s.hits++;phase(s,'damage');}
- else if(s.phase==='damage'&&s.time>1.7){if(s.hits===3)phase(s,'victory');else{s.ufo={x:500,y:s.h*.77};s.target={...s.ufo};nextCombo(s);}}
+ else if(s.phase==='damage'&&s.time>1.7){if(s.hits===3)phase(s,'victory');else{s.ufo={x:590,y:s.h*.77};s.target={...s.ufo};nextCombo(s);}}
  else if(s.phase==='attack'){
   if(bladeContact(s.ufo,previousBlades,blades(s),UFO_RADIUS+6))hurt(s);
   const a=attackTiming(s.combo[s.comboIndex]);
@@ -183,7 +185,7 @@ export function stepBattle(s:Battle,dt:number,held:boolean){
  }
  if(s.phase==='defeat')s.skulls=[];
  if(s.phase==='entry'&&s.entryFrom){const tip=head(s),t=smooth(s.time/.28);s.ufo={x:s.entryFrom.x+(tip.x-s.entryFrom.x)*t,y:s.entryFrom.y+(tip.y-s.entryFrom.y)*t};}
- if(s.phase==='damage'&&s.time>.9){const tip=head(s),t=smooth((s.time-.9)/.8);s.ufo={x:tip.x+(500-tip.x)*t,y:tip.y+(s.h*.77-tip.y)*t};}
+ if(s.phase==='damage'&&s.time>.9){const tip=head(s),t=smooth((s.time-.9)/.8);s.ufo={x:tip.x+(590-tip.x)*t,y:tip.y+(s.h*.77-tip.y)*t};}
  if(s.phase==='attack'){s.extension*=Math.exp(-dt*3);s.headX*=Math.exp(-dt*3);s.headV=0;}
  s.health+=(s.hp/5-s.health)*(1-Math.exp(-dt*5));s.bossHealth+=(1-s.hits/3-s.bossHealth)*(1-Math.exp(-dt*3));
  s.trace+=(s.health-s.trace)*(1-Math.exp(-dt*1.2));s.bossTrace+=(s.bossHealth-s.bossTrace)*(1-Math.exp(-dt*.85));

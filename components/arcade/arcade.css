@@ -204,20 +204,14 @@
 }
 .flying-alien-skull {
   animation: none;
-  filter:
-    drop-shadow(0 0 8px rgba(255, 255, 255, 0.95))
-    drop-shadow(0 0 18px rgba(255, 176, 255, 0.62));
+  /* SVG gradients avoid Safari retaining old drop-shadow filter surfaces. */
+  overflow: visible;
 }
 
 .flying-alien-skull-fill {
   fill: #ffffff;
 }
 
-.flying-alien-black-skull {
-  filter:
-    drop-shadow(0 0 8px rgba(0, 0, 0, 0.95))
-    drop-shadow(0 0 18px rgba(255, 176, 255, 0.72));
-}
 
 .flying-alien-black-skull .flying-alien-skull-fill {
   fill: #000000;
@@ -467,3 +461,7 @@
     -webkit-user-drag:none; touch-action:none;
   }
 }
+
+@keyframes belt-head-launch { 0%,80% { opacity:1; } 100% { opacity:0; } }
+.footer-alien-head[data-launched] { animation:belt-head-launch 110ms linear forwards; }
+.footer-alien-head[data-launched] .footer-alien-head-fill { fill:#fff; }

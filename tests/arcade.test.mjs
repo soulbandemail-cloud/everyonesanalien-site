@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { harness, nodes } from './helpers/interaction-harness.mjs';
 const alien = (extra={}) => ({id:1,x:100,y:100,vx:0,vy:0,spin:1,...extra});
-const pointer = {preventDefault(){},stopPropagation(){},clientX:200,currentTarget:{getBoundingClientRect:()=>({left:100,top:650,width:32,height:32})}};
+const pointer = () => ({preventDefault(){},stopPropagation(){},clientX:200,currentTarget:{dataset:{},getBoundingClientRect:()=>({left:100,top:650,width:32,height:32})}});
 
 test('arcade preserves random launch, 16ms physics and offscreen removal',()=>{
- const h=harness();h.game.launchAlien(pointer);const a=h.game.flyingAliens[0];
+ const h=harness();h.game.launchAlien(pointer());const a=h.game.flyingAliens[0];
  assert.ok(a.vy<0);assert.equal(a.x,116);assert.equal(a.y,666);assert.ok(Math.hypot(a.vx,a.vy)>=2.5 && Math.hypot(a.vx,a.vy)<=4.5);assert.ok([-1,1].includes(a.spin));
  assert.equal([...h.intervals.values()][0].ms,16);
  assert.equal(h.tick([alien({x:-81})]).flyingAliens.length,0);
@@ -72,7 +72,7 @@ test('arcade contains no Wish/Pong runtime or UI and reopening starts fresh',()=
   assert.notEqual(el.props?.children,'MAKE A WISH');
  }
  assert.doesNotMatch(fs.readFileSync('components/arcade/ArcadeGame.tsx','utf8'), /wish|pong|shooting|className="stars"/i);
- h.game.launchAlien(pointer);assert.equal(h.game.flyingAliens.length,1);h.unmount();
+ h.game.launchAlien(pointer());assert.equal(h.game.flyingAliens.length,1);h.unmount();
  const reopened=harness();assert.equal(reopened.game.electricity.engine.charge,0);assert.equal(reopened.game.electricity.engine.drawing,null);assert.equal(reopened.game.flyingAliens.length,0);assert.deepEqual(reopened.game.tractorCounts,{alien:0,whiteSkull:0,blackSkull:0});reopened.unmount();
 });
 
@@ -119,7 +119,7 @@ test('launcher band cannot start the beam or immediately collect newly launched 
   h.event('pointerup',{pointerId:1});
   h.event('pointerdown',{pointerType,button:0,clientX:200,clientY:300});
   assert.equal(h.game.tractorBeamActiveRef.current,true);
-  h.game.launchAlien(pointer);assert.equal(h.game.tractorBeamActiveRef.current,false);
+  h.game.launchAlien(pointer());assert.equal(h.game.tractorBeamActiveRef.current,false);
   h.unmount();
  }
 });
@@ -143,4 +143,10 @@ test('UFO only collects upward contact through an active beam, never side or top
   const g=h.tick([alien(head)]);assert.equal(g.flyingAliens.length,active&&name==='below'?0:1);
   assert.deepEqual(g.tractorCounts,{alien:0,whiteSkull:0,blackSkull:0});h.unmount();
  }
+});
+
+test('each belt head launches only once until its offscreen regeneration',()=>{
+ const h=harness(),event=pointer();h.game.launchAlien(event);h.game.launchAlien(event);
+ assert.equal(h.game.flyingAliens.length,1);assert.equal(event.currentTarget.dataset.launched,'true');
+ delete event.currentTarget.dataset.launched;h.game.launchAlien(event);assert.equal(h.game.flyingAliens.length,2);h.unmount();
 });

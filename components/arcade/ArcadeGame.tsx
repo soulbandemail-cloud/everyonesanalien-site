@@ -169,9 +169,21 @@ const electricity = useOrbitDischarge(gameRoot, orbitRef, ufoOrbitingRef, () => 
   setUfoOrbiting(false);
 });
 
+// Keep consumed slots in the marquee layout; replenish only after they leave view.
+useEffect(()=>{
+ const belt=footerRef.current;if(!belt||!minigameEnabled)return;
+ const observer=new IntersectionObserver(entries=>{
+  for(const entry of entries)if(!entry.isIntersecting)(entry.target as SVGElement).removeAttribute('data-launched');
+ },{root:belt,threshold:0});
+ belt.querySelectorAll('.footer-alien-head').forEach(head=>observer.observe(head));
+ return()=>observer.disconnect();
+},[minigameEnabled]);
+
 const launchAlien = (e: React.PointerEvent<SVGSVGElement>) => {
   e.preventDefault();
   e.stopPropagation();
+  if(e.currentTarget.dataset.launched)return;
+  e.currentTarget.dataset.launched='true';
   tractorBeamActiveRef.current=false;
   setTractorBeamActive(false);
 
@@ -574,6 +586,15 @@ return (
   >
     {alien.isSkull ? (
       <>
+        <defs>
+          <radialGradient id={`skull-glow-${alien.id}`}>
+            <stop offset="0" stopColor={alien.isBlackSkull ? '#000' : '#fff'} stopOpacity=".65" />
+            <stop offset=".35" stopColor={alien.isBlackSkull ? '#000' : '#fff'} stopOpacity=".3" />
+            <stop offset=".65" stopColor="#ffb0ff" stopOpacity=".13" />
+            <stop offset="1" stopColor="#ffb0ff" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        <ellipse cx="50" cy="50" rx="105" ry="115" fill={`url(#skull-glow-${alien.id})`} />
         <path
           className="flying-alien-skull-fill"
           d="
