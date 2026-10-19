@@ -4,12 +4,13 @@ import {useEffect,useEffectEvent,useRef} from 'react';
 import {arcadePoint,arcadeSize} from './presentation';
 import {blades,createBattle,enterOpening,head,shoulder,smooth,stepBattle,type V} from './polemanBattle';
 
-export default function PolemanArena({onDefeat,onVictory}:{onDefeat:()=>void;onVictory:()=>void}){
+export default function PolemanArena({onDefeat,onVictory,onWhiteout}:{onDefeat:()=>void;onVictory:()=>void;onWhiteout?:()=>void}){
  const canvas=useRef<HTMLCanvasElement>(null),healthFill=useRef<HTMLDivElement>(null),healthTrace=useRef<HTMLDivElement>(null);
+ const whiteout=useEffectEvent(()=>onWhiteout?.());
  const finish=useEffectEvent((won:boolean)=>{if(won)onVictory();else onDefeat();});
  useEffect(()=>{
   const el=canvas.current;if(!el)return;const ctx=el.getContext('2d');if(!ctx)return;
-  let dimensions=arcadeSize(el);let h=1000*dimensions.height/dimensions.width;const s=createBattle(h,Math.floor(Math.random()*4294967296));let held=false,frame=0,last=performance.now(),accumulator=0,finished=false;
+  let dimensions=arcadeSize(el);let h=1000*dimensions.height/dimensions.width;const s=createBattle(h,Math.floor(Math.random()*4294967296));let held=false,frame=0,last=performance.now(),accumulator=0,finished=false,whiteoutSent=false;
   s.mobile=!!el.closest('[data-arcade-frame]')||window.matchMedia('(pointer: coarse)').matches;s.flyOverEntry=s.mobile;
   const resize=()=>{dimensions=arcadeSize(el);const nextH=1000*dimensions.height/dimensions.width,ratio=nextH/s.h;s.ufo.y*=ratio;s.target.y*=ratio;s.h=nextH;h=nextH;const dpr=Math.min(window.devicePixelRatio||1,2);el.width=dimensions.width*dpr;el.height=dimensions.height*dpr;};resize();const observer=new ResizeObserver(resize);observer.observe(el);
   const move=(e:PointerEvent)=>{const p=arcadePoint(el,{x:e.clientX,y:e.clientY});s.target={x:Math.max(25,Math.min(975,p.x/dimensions.width*1000)),y:Math.max(95,Math.min(h-25,p.y/dimensions.height*h))};};
@@ -135,7 +136,7 @@ export default function PolemanArena({onDefeat,onVictory}:{onDefeat:()=>void;onV
     ctx.globalAlpha=1;
    }
   };
-  const tick=(now:number)=>{accumulator+=Math.min(.1,(now-last)/1000);last=now;while(accumulator>=1/120){stepBattle(s,1/120,held);accumulator-=1/120;}draw();if(!finished&&((s.phase==='defeat'&&s.time>6.2)||(s.phase==='victory'&&s.time>4))){finished=true;finish(s.phase==='victory');return;}frame=requestAnimationFrame(tick);};frame=requestAnimationFrame(tick);
+  const tick=(now:number)=>{accumulator+=Math.min(.1,(now-last)/1000);last=now;while(accumulator>=1/120){stepBattle(s,1/120,held);accumulator-=1/120;}draw();if(s.phase==='victory'&&s.time>=1.7&&!whiteoutSent){whiteoutSent=true;whiteout();}if(!finished&&((s.phase==='defeat'&&s.time>6.2)||(s.phase==='victory'&&s.time>4))){finished=true;finish(s.phase==='victory');return;}frame=requestAnimationFrame(tick);};frame=requestAnimationFrame(tick);
   return()=>{el.removeEventListener('touchstart',preventTouchDefault);el.removeEventListener('contextmenu',preventTouchDefault);el.removeEventListener('selectstart',preventTouchDefault);observer.disconnect();cancelAnimationFrame(frame);el.removeEventListener('pointermove',move);el.removeEventListener('pointerdown',down);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',up);el.removeEventListener('lostpointercapture',up);window.removeEventListener('blur',up);};
  },[]);
  return <><div className="arcade-charge" style={{pointerEvents:'none'}}><div className="arcade-charge-meter" aria-label="UFO health" style={{position:'relative'}}><div ref={healthTrace} style={{position:'absolute',inset:2,height:'auto',background:'#c98989'}}/><div ref={healthFill} style={{position:'relative'}}/></div></div><canvas ref={canvas} aria-label="Poleman boss arena" style={{position:'absolute',inset:0,width:'100%',height:'100%',touchAction:'none',cursor:'none'}}/></>;

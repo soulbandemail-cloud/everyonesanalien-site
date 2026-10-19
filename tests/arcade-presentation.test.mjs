@@ -23,3 +23,9 @@ test('rotated touch and collision rectangles map back to the same portrait game 
  assert.deepEqual(arcadePoint(null,{x:110,y:220}),{x:110,y:220});
  assert.deepEqual(arcadeSize(null),{width:1280,height:720});
 });
+
+test('boss landscape frame rotates portrait phones while regular arcade remains portrait',()=>{
+ assert.deepEqual(loaded.exports.landscapeFrame(390,844,true),{width:844,height:390,rotated:true});
+ assert.deepEqual(loaded.exports.landscapeFrame(844,390,true),{width:844,height:390,rotated:false});
+ assert.deepEqual(loaded.exports.landscapeFrame(1280,720,false),{width:1280,height:720,rotated:false});
+});

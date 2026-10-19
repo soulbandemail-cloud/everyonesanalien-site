@@ -81,11 +81,11 @@ test('combos contain six attacks and expose no intermediate recovery',()=>{
  const seen=new Set();for(let i=0;i<6000&&s.phase==='attack';i++){seen.add(s.comboIndex);s.invincible=100;stepBattle(s,1/120,true);assert.equal(s.beam,false);}
  assert.equal(seen.size,6);assert.equal(s.phase,'recovery');
 });
-test('mobile extends only lower arms by fifty percent',()=>{
+test('mobile uses original lower-arm length',()=>{
  const s=createBattle();s.phase='attack';s.time=.2;
  const desktop=blades(s);s.mobile=true;const mobile=blades(s);
  for(let i=0;i<2;i++){assert.deepEqual(mobile[i].a,desktop[i].a);assert.deepEqual(mobile[i].joint,desktop[i].joint);
- assert.ok(Math.abs(Math.hypot(mobile[i].b.x-mobile[i].a.x,mobile[i].b.y-mobile[i].a.y)/Math.hypot(desktop[i].b.x-desktop[i].a.x,desktop[i].b.y-desktop[i].a.y)-1.5)<1e-9);}
+ assert.ok(Math.abs(Math.hypot(mobile[i].b.x-mobile[i].a.x,mobile[i].b.y-mobile[i].a.y)/Math.hypot(desktop[i].b.x-desktop[i].a.x,desktop[i].b.y-desktop[i].a.y)-1)<1e-9);}
 });
 test('tractor velocity attraction affects both skull types and stacks with black homing',()=>{
  for(const black of [false,true]){

@@ -47,7 +47,7 @@ export function blades(s:Battle):Blade[]{
  if(s.frozenBlades)return s.frozenBlades;
  const o=shoulder(s),t=s.time*(1+s.hits*.18),move=s.combo[s.comboIndex]??'left-sweep';
  const timing=attackTiming(move),strikeEnd=timing.windup+timing.strike;
- const reach=Math.max(430,Math.min(950,s.h*.4))*(s.mobile?1.5:1);
+ const reach=Math.max(430,Math.min(950,s.h*.4));
  return [-1,1].map((side,i)=>{
   const selected=move==='double-sweep'||move.startsWith(i===0?'left':'right');
   let angle=-.8,lift=0,inset=0;

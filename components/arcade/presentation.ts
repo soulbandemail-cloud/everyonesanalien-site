@@ -2,6 +2,10 @@
 export function portraitFrame(width:number,height:number,mobile:boolean) {
  return {width:mobile?Math.min(width,height):width,height:mobile?Math.max(width,height):height,rotated:mobile && width>height};
 }
+/** Boss mode shares the cockpit's forced landscape orientation. */
+export function landscapeFrame(width:number,height:number,mobile:boolean) {
+ return {width:mobile?Math.max(width,height):width,height:mobile?Math.min(width,height):height,rotated:mobile&&width<height};
+}
 function frame(root:Element|null) { return root?.closest?.<HTMLElement>('[data-arcade-frame]'); }
 export function arcadeSize(root:Element|null) {
  const el=frame(root);
