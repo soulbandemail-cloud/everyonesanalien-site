@@ -70,7 +70,7 @@ export function blades(s:Battle):Blade[]{
   // The extra shallow reflex joint follows the canopy's two-part upper arm.
   const joint={x:o.x+side*(112-inset*.35),y:o.y+22+lift*.4};
   const elbow={x:o.x+side*(210-inset),y:o.y+65+lift};
-  return {joint,a:elbow,b:{x:elbow.x+side*Math.cos(angle)*reach,y:elbow.y+Math.sin(angle)*reach},active:selected&&s.phase==='attack'&&t>=timing.windup&&t<strikeEnd};
+  return {joint,a:elbow,b:{x:elbow.x+side*Math.cos(angle)*reach,y:elbow.y+Math.sin(angle)*reach},active:selected&&s.phase==='attack'&&t>=timing.windup&&t<strikeEnd+(move.endsWith('wipe')?timing.settle:0)};
  });
 }
 export function distanceSegment(p:V,a:V,b:V){const x=b.x-a.x,y=b.y-a.y,t=clamp(((p.x-a.x)*x+(p.y-a.y)*y)/(x*x+y*y||1),0,1);return Math.hypot(p.x-a.x-t*x,p.y-a.y-t*y);}

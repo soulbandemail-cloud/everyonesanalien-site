@@ -136,3 +136,14 @@ test('post-shock exit returns to the same offset as the intro',()=>{
  run(s,1.7);assert.ok(Math.abs(s.ufo.x-590)<.01);assert.ok(Math.abs(s.ufo.y-s.h*.77)<.01);
  run(s,.02);assert.equal(s.phase,'attack');assert.deepEqual(s.target,{x:590,y:s.h*.77});
 });
+
+test('both inside wipes damage during their return swing, but not wind-up or rest',()=>{
+ for(const move of ['left-wipe','right-wipe']){
+  const s=createBattle();s.phase='attack';s.combo=[move];s.nextShot=Infinity;
+  const i=move==='left-wipe'?0:1,t=attackTiming(move);
+  s.time=t.windup/2;assert.equal(blades(s)[i].active,false);
+  s.time=t.windup+t.strike+t.settle/2;const b=blades(s)[i];assert.equal(b.active,true);
+  s.ufo=s.target={x:(b.a.x+b.b.x)/2,y:(b.a.y+b.b.y)/2};stepBattle(s,1/120,false);assert.equal(s.hp,4);
+  s.time=t.windup+t.strike+t.settle+.01;assert.equal(blades(s)[i].active,false);
+ }
+});
