@@ -102,7 +102,6 @@ export function TelescopeView({directionRef,onClose}:{directionRef:MutableRefObj
   </svg>
   <div className="telescope-optics" aria-hidden="true"/>
   <div className="telescope-wishes"><DomeWishes tapToCatch/></div>
-  <p className="telescope-hint">Drag to explore · Catch a shooting star</p>
   <label className="telescope-focus">Focus<input aria-label="Telescope focus" type="range" min="0" max="100" value={focus} onChange={e=>setFocus(Number(e.target.value))}/></label>
   <button className="telescope-back" onClick={leave}>Back</button>
  </div>;
