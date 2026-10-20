@@ -71,3 +71,15 @@
 .chairInteractable[aria-disabled="false"]:is(:hover,:focus-visible) { filter:none; }
 .chairInteractable[aria-disabled="false"]:is(:hover,:focus-visible):not([data-pressed]) .chairOutline { opacity:1; }
 @media (hover:none) { .chairInteractable:hover:not(:active):not(:focus-visible) .chairOutline { opacity:0; } }
+
+/* The chair uses its existing combined seat/stem/base outline on touch. */
+:global(.mate-cockpit[data-mobile]) .chairInteractable.chairInteractable {
+  --mobile-fixture-filter:none;
+  filter:none !important;
+}
+:global(.mate-cockpit[data-mobile]) .chairInteractable .chairOutline {
+  opacity:0 !important;
+}
+:global(.mate-cockpit[data-mobile]) .chairInteractable[aria-disabled="false"][data-pressed] .chairOutline {
+  opacity:1 !important;
+}

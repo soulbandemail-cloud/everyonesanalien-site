@@ -28,7 +28,7 @@ export const Fixtures = memo(function Fixtures({ onPlant,plantWiggle=0,config, v
     onPointerMove:(event:React.PointerEvent<SVGGElement>)=>{delete event.currentTarget.dataset.resting;},
     onFocus:(event:React.FocusEvent<SVGGElement>)=>{delete event.currentTarget.dataset.resting;},
     onPointerDown:(event:React.PointerEvent<SVGGElement>)=>{if(action && event.button===0){delete event.currentTarget.dataset.resting;event.currentTarget.setPointerCapture(event.pointerId);setPressed(name);}},
-    onPointerUp:()=>setPressed(null),onPointerCancel:()=>setPressed(null),onPointerLeave:(event:React.PointerEvent<SVGGElement>)=>{if(!event.currentTarget.hasPointerCapture(event.pointerId))setPressed(null);},onBlur:()=>setPressed(null),
+    onPointerUp:()=>setPressed(null),onLostPointerCapture:()=>setPressed(null),onPointerCancel:()=>setPressed(null),onPointerLeave:(event:React.PointerEvent<SVGGElement>)=>{if(!event.currentTarget.hasPointerCapture(event.pointerId))setPressed(null);},onBlur:()=>setPressed(null),
     onKeyDown:(event:React.KeyboardEvent)=>{if(action && (event.key==='Enter' || event.key===' ')){event.preventDefault();setPressed(name);}},
     onKeyUp:(event:React.KeyboardEvent)=>{if(action && pressed===name && (event.key==='Enter' || event.key===' ')){event.preventDefault();setPressed(null);action();}},
   });
@@ -167,7 +167,7 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
   {[-.23,.23].map(x=><g key={x}>{flatArt(radio,x,1.02,.1,.05,<circle r="30" fill="#d4c7a1"/>)}</g>)}
 </g>
     <g className="gramophone-fixture cockpit-interactive-fixture" role="button" aria-label="Gramophone — THE RECORDS" {...interaction('records',onRecords)} style={{pointerEvents:'auto'}}>
-      {onRecords && <title>CHARLIE'S COLLECTION</title>}
+      {onRecords && <title>CHARLIE&apos;S COLLECTION</title>}
       {[-1.3,1.3].flatMap(x=>[-.3,.28].map(z=><g key={`${x}-${z}`}><path d={path([local(music,x-.075,.2,z),local(music,x+.075,.2,z),local(music,x+.045,0,z-.035),local(music,x-.04,0,z-.035)])} fill="#67452d" stroke="#49321f" strokeWidth=".7"/></g>))}
       {box(music,0,.2,.3,2.85,.94,.09)}
       {box(music,0,.2,0,2.8,.1,.75)}
@@ -286,7 +286,7 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
   {[-.48,-.16,.39].map((x,i)=><g key={x}>{line(arcade,[x,.12+i*.03,-.367],[x+.045,.13+i*.03,-.367],'#85786c',.7)}</g>)}
 </g>
     <g className="merch-rail cockpit-interactive-fixture" role="button" aria-label="SOUL merchandise clothes rail" aria-expanded={domeMenu==='merch'} {...interaction('merch',onMerch)} style={{pointerEvents:'auto'}}>
-      {onMerch && <title>CHARLIE'S COLLECTION</title>}
+      {onMerch && <title>CHARLIE&apos;S COLLECTION</title>}
       <path d={path([local(rail,-1.05,0,0),local(rail,1.05,0,0),local(rail,1.05,2.1,0),local(rail,-1.05,2.1,0)])} fill="transparent" pointerEvents="all" />
       {/* The outward-facing hook's far tip sits behind the physical top bar. */}
       {flatArt(rail,-.15,2.1,-.035,1.2,<path d="M-1 -5 C3 -4 4 -1 3 1" fill="none" stroke="#ad8d59" strokeWidth="1.7" pointerEvents="none"/>,'side')}

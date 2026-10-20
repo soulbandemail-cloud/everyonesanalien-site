@@ -293,3 +293,19 @@ button.object-back:focus-visible { text-decoration:none; }
 .newsletter-issues { margin:auto; width:min(100%,440px); display:flex; flex-direction:column; gap:12px; color:white; }
 .newsletter-issues h2 { text-align:center; margin-bottom:12px; }
 .newsletter-issues button { border:1px solid white; background:#00082d; color:white; padding:12px 16px; text-align:left; cursor:pointer; }
+
+/* Mobile furniture has a held press, never a sticky desktop hover. */
+.mate-cockpit[data-mobile] .cockpit-interactive-fixture:not(.ringer-tee-display) {
+  transform:none !important; filter:none !important; transition:none;
+  touch-action:none; -webkit-tap-highlight-color:transparent;
+}
+.mate-cockpit[data-mobile] .cockpit-interactive-fixture[aria-disabled="false"][data-pressed]:not(.ringer-tee-display) {
+  transform:scale(.9) !important;
+  filter:var(--mobile-fixture-filter,var(--fixture-hover-filter)) !important;
+}
+.mate-cockpit[data-mobile] .space-tv[data-console]:not(.space-tv-expanded) .space-tv-body {
+  transform:none; transition:none;
+}
+.mate-cockpit[data-mobile]:has(.console-tv[aria-disabled="false"][data-pressed]) .space-tv[data-console]:not(.space-tv-expanded) .space-tv-body {
+  transform:scale(.9);
+}

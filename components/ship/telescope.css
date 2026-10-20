@@ -23,3 +23,8 @@
 @media(max-width:700px) { .telescope-hint { bottom:60px; } }
 .telescope-barrel { transform-box:view-box; transition:transform 650ms ease-in-out; }
 @media(prefers-reduced-motion:reduce) { .telescope-barrel { transition:none; } }
+
+/* Reuse the original vector planet without inheriting wordmark layout sizing. */
+.telescope-planet { overflow:visible; pointer-events:none; }
+.telescope-planet .soul-planet { display:block; width:100%; height:100%; }
+.telescope-planet .real-planet-heart { display:block; width:100%; height:100%; overflow:visible; }

@@ -1,6 +1,8 @@
 'use client';
-import {useEffect,useRef,useState,useCallback,type MutableRefObject,type PointerEvent} from 'react';
+import {useEffect,useRef,useState,useCallback,useId,type MutableRefObject,type PointerEvent} from 'react';
 import DomeWishes from '../home/DomeWishes';
+import RealPlanetHeart from '../home/RealPlanetHeart';
+import {PLANET_INK} from '@/lib/ship/wordmarkGeometry';
 import {paintSky,skyStars} from '@/lib/ship/starfield';
 import {telescopeDrag,telescopeLimit,TELESCOPE_TAP_THRESHOLD,type TelescopeDirection} from '@/lib/ship/telescope';
 import './telescope.css';
@@ -23,6 +25,11 @@ export function TelescopeView({directionRef,onClose}:{directionRef:MutableRefObj
  const target=useRef({x:0,y:0}),display=useRef({x:0,y:0}),raw=useRef({x:0,y:0});
  const [closing,setClosing]=useState(false);
  const [focus,setFocus]=useState(50);
+ // Fixed sky coordinates beside the existing cross star at (1133,352).
+ // 58 sky units render as ~137px across at a 1480×930 viewport.
+ const planetWidth=58,planetHeight=58*(PLANET_INK.bottom-PLANET_INK.top)/(PLANET_INK.right-PLANET_INK.left);
+ const planetFocusId=`telescope-planet-focus-${useId().replace(/:/g,'')}`;
+ const planetBlur=Math.min(7,Math.max(0,Math.abs(focus-18)-4)*.16);
 
  const leave=useCallback(()=>setClosing(true),[]);
  useEffect(()=>{if(!closing)return;const timer=window.setTimeout(onClose,200);return()=>window.clearTimeout(timer);},[closing,onClose]);
@@ -77,7 +84,22 @@ export function TelescopeView({directionRef,onClose}:{directionRef:MutableRefObj
    return <g key={index} data-focus-depth={depth.focus} style={{filter:blur?`blur(${blur}px)`:undefined}}>
     {depth.layers.map((layer,i)=><path key={i} d={layer.path} fill={layer.colour} stroke={blur?layer.colour:'none'} strokeWidth={blur*.9} opacity={Math.min(1,layer.alpha*(blur? .65:1.65))}/>)}
    </g>;
-  })}</svg>
+  })}
+   <defs>
+    <filter id={planetFocusId} x="-70%" y="-100%" width="240%" height="300%" colorInterpolationFilters="sRGB">
+     <feGaussianBlur stdDeviation={planetBlur}/>
+    </filter>
+   </defs>
+   {/* Keep defocus in sky coordinates. Filtering the HTML inside foreignObject
+       creates a separate Safari compositing layer that can lose the sky transform. */}
+   <g filter={`url(#${planetFocusId})`}>
+   <foreignObject x={1035-40} y={410-40} width={planetWidth+80} height={planetHeight+80} pointerEvents="none" className="telescope-planet" data-focus-depth="18">
+    <div style={{padding:40,width:planetWidth+80,height:planetHeight+80,boxSizing:'border-box'}}>
+     <div style={{width:planetWidth,height:planetHeight}}><RealPlanetHeart/></div>
+    </div>
+   </foreignObject>
+   </g>
+  </svg>
   <div className="telescope-optics" aria-hidden="true"/>
   <div className="telescope-wishes"><DomeWishes tapToCatch/></div>
   <p className="telescope-hint">Drag to explore · Catch a shooting star</p>
