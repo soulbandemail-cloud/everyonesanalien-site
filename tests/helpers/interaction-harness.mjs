@@ -10,6 +10,7 @@ export function harness(width = 1280, height = 720, mode = 'arcade', frame) {
   let tvProps={};
   const slots = [], effects = [], cleanups = [], intervals = new Map(), timers = new Map(), listeners = new Map();
   const react = {
+    useId() { const i=cursor++; return slots[i] ??= `test-id-${i}`; },
     useImperativeHandle(ref,create) { if(ref)ref.current=create(); },
     useCallback(callback, deps) { const i=cursor++; if(!slots[i] || deps.some((v,j)=>v!==slots[i].deps[j])) slots[i]={callback,deps}; return slots[i].callback; },
     useRef(value) { const i = cursor++; return slots[i] ??= { current: value }; },

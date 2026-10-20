@@ -26,8 +26,8 @@ export function TelescopeView({directionRef,onClose}:{directionRef:MutableRefObj
  const [closing,setClosing]=useState(false);
  const [focus,setFocus]=useState(50);
  // Fixed sky coordinates beside the existing cross star at (1133,352).
- // 58 sky units render as ~137px across at a 1480×930 viewport.
- const planetWidth=58,planetHeight=58*(PLANET_INK.bottom-PLANET_INK.top)/(PLANET_INK.right-PLANET_INK.left);
+ // 116 sky units render as ~274px across at a 1480×930 viewport.
+ const planetWidth=116,planetHeight=116*(PLANET_INK.bottom-PLANET_INK.top)/(PLANET_INK.right-PLANET_INK.left);
  const planetFocusId=`telescope-planet-focus-${useId().replace(/:/g,'')}`;
  const planetBlur=Math.min(7,Math.max(0,Math.abs(focus-18)-4)*.16);
 
@@ -93,7 +93,7 @@ export function TelescopeView({directionRef,onClose}:{directionRef:MutableRefObj
    {/* Keep defocus in sky coordinates. Filtering the HTML inside foreignObject
        creates a separate Safari compositing layer that can lose the sky transform. */}
    <g filter={`url(#${planetFocusId})`}>
-   <foreignObject x={1035-40} y={410-40} width={planetWidth+80} height={planetHeight+80} pointerEvents="none" className="telescope-planet" data-focus-depth="18">
+   <foreignObject x={1035-29-40} y={410-planetHeight/4-40} width={planetWidth+80} height={planetHeight+80} pointerEvents="none" className="telescope-planet" data-focus-depth="18">
     <div style={{padding:40,width:planetWidth+80,height:planetHeight+80,boxSizing:'border-box'}}>
      <div style={{width:planetWidth,height:planetHeight}}><RealPlanetHeart/></div>
     </div>

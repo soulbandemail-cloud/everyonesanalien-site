@@ -309,3 +309,6 @@ button.object-back:focus-visible { text-decoration:none; }
 .mate-cockpit[data-mobile]:has(.console-tv[aria-disabled="false"][data-pressed]) .space-tv[data-console]:not(.space-tv-expanded) .space-tv-body {
   transform:scale(.9);
 }
+
+.collection-subheading { margin:0 0 6px; font-size:1em; font-weight:normal; text-align:center; }
+.clothing-collection { overflow-y:auto; max-height:100%; }

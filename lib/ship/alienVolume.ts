@@ -147,6 +147,9 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
   const hand=motion.ritualHands?.[side<0?0:1],reachAmount=(motion.ritualAmount??0)*(motion.ritualReach?.[side<0?0:1]??1);
   if(hand&&reachAmount>0){
    const shoulder=posed[0],elbow={x:shoulder.x+(hand.x-shoulder.x)*.48+side*5,y:shoulder.y+(hand.y-shoulder.y)*.60+9,z:shoulder.z+(hand.z-shoulder.z)*.45};
+   // Keep telescope elbows outside the torso instead of taking a diagonal
+   // shortcut through Charlie's back to the shared eyepiece hand targets.
+   if(motion.telescope){elbow.x=side*Math.max(20,Math.abs(elbow.x));elbow.y=shoulder.y+(hand.y-shoulder.y)*.5+13;elbow.z=shoulder.z+(hand.z-shoulder.z)*.55;}
    const reach=[shoulder,{x:shoulder.x+(elbow.x-shoulder.x)*.5,y:shoulder.y+(elbow.y-shoulder.y)*.5,z:shoulder.z+(elbow.z-shoulder.z)*.5},elbow,{x:elbow.x+(hand.x-elbow.x)*.6,y:elbow.y+(hand.y-elbow.y)*.6,z:elbow.z+(hand.z-elbow.z)*.6},hand];
    for(let i=1;i<posed.length;i++)posed[i]={x:posed[i].x+(reach[i].x-posed[i].x)*reachAmount,y:posed[i].y+(reach[i].y-posed[i].y)*reachAmount,z:posed[i].z+(reach[i].z-posed[i].z)*reachAmount};
   }

@@ -25,8 +25,10 @@ export default function RecordCollection({record=INITIAL_RECORD_STATE,onChoose}:
    const value=`${height.toFixed(2)}px`;
    if(element.style.maxHeight!==value)element.style.maxHeight=value;
    const rows=Array.from(element.querySelectorAll<HTMLElement>('.record-row,.record-song')).filter(row=>row.getClientRects().length);
-   const last=rows.at(-1);
-   element.style.setProperty('--record-scroll-space',`${Math.max(0,height-(last?.offsetHeight??0)-12)}px`);
+   const keep=frame.closest('[data-mobile="true"]')?2:3;
+   const tail=rows.slice(-keep);
+   const retainedHeight=tail.reduce((sum,row)=>sum+row.offsetHeight,0)+Math.max(0,tail.length-1)*6;
+   element.style.setProperty('--record-scroll-space',`${Math.max(0,height-retainedHeight-12)}px`);
   };
   const schedule=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(measure);};
   const resize=new ResizeObserver(schedule);resize.observe(frame);resize.observe(element);
@@ -37,7 +39,7 @@ export default function RecordCollection({record=INITIAL_RECORD_STATE,onChoose}:
   schedule();window.addEventListener('resize',schedule);
   return()=>{cancelAnimationFrame(raf);resize.disconnect();changes.disconnect();window.removeEventListener('resize',schedule);};
  },[expanded]);
- return <div ref={list} className="record-collection">{record.error&&<p className="record-playback-error" role="status">{record.error}</p>}{RECORDS.map(album=><div key={album.id} className="record-album">
+ return <div ref={list} className="record-collection"><h3 className="collection-subheading">Records</h3>{record.error&&<p className="record-playback-error" role="status">{record.error}</p>}{RECORDS.map(album=><div key={album.id} className="record-album">
   <button type="button" className="record-row pink-border-glow" aria-expanded={expanded===album.id} aria-controls={`${id}-${album.id}`} onClick={()=>setExpanded(old=>old===album.id?null:album.id)}>
    <img src={album.artwork} alt={`${album.name} cover`} width="40" height="40"/><span>{album.name}</span><span aria-hidden="true">{expanded===album.id?'−':'+'}</span>
   </button>

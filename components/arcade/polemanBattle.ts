@@ -36,7 +36,7 @@ export function head(s:Battle){
  const z=Math.sqrt(360*360-x*x-y*y)+180*s.extension;
  const perspective=1000/(1000-z),baseScale=1000/(1000-180*s.extension);
  const awakening=s.phase==='intro'?12*(1-smooth((s.time-1)/2)):0;
- return {x:o.x+x*perspective,y:o.y+(y+awakening-s.recoil*9)*perspective*(1-lower),r:14*perspective,scale:perspective,baseScale,z};
+ return {x:o.x+x*perspective*(1-lower),y:o.y+(y+awakening-s.recoil*9)*perspective*(1-lower),r:14*perspective,scale:perspective,baseScale,z};
 }
 export function attackTiming(move:Move){
  if(move.endsWith('windmill'))return {windup:1.4,strike:2.5,settle:.35};

@@ -5,7 +5,8 @@ export function telescopeStation(c:DomeConfig){
  const base={x:c.centre.x-4.02,y:platformY,z:c.centre.z+7.9};
  const eye={x:base.x+.75,y:base.y+1.53,z:base.z-.92};
  const objective={x:eye.x-1.5,y:eye.y+.64,z:eye.z+1.84};
- const approach={x:c.centre.x-3.45,z:c.centre.z+7.92};
+ // Leave a narrow clearance beside the desk and space behind the eyepiece.
+ const approach={x:c.centre.x-3.12,z:c.centre.z+7.95};
  const yaw=Math.atan2(approach.x-objective.x,objective.z-approach.z)*180/Math.PI;
  return {base,eye,objective,approach,yaw};
 }

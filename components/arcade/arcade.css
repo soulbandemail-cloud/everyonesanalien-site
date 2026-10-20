@@ -465,3 +465,7 @@
 @keyframes belt-head-launch { 0%,80% { opacity:1; } 100% { opacity:0; } }
 .footer-alien-head[data-launched] { animation:belt-head-launch 110ms linear forwards; }
 .footer-alien-head[data-launched] .footer-alien-head-fill { fill:#fff; }
+
+.arcade-cursor-halo { display:none; }
+.arcade-dialog:not([data-mobile="true"]) .arcade-cursor-ufo { filter:none; overflow:visible; }
+.arcade-dialog:not([data-mobile="true"]) .arcade-cursor-halo { display:block; }

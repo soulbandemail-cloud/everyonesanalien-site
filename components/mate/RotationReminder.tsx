@@ -5,6 +5,7 @@ import {useEffect,useState} from 'react';
 export default function RotationReminder({hidden=false}:{hidden?:boolean}){
  const [visible,setVisible]=useState(true);
  useEffect(()=>{const timer=window.setTimeout(()=>setVisible(false),5000);return()=>window.clearTimeout(timer);},[]);
+ if(hidden&&visible)setVisible(false);
  if(!visible||hidden)return null;
  return <div className="rotation-reminder" role="status" aria-label="Lock rotation">
   <div className="rotation-reminder-sign">

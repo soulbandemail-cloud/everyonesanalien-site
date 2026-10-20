@@ -40,7 +40,11 @@ export function walkable(p:Point,c:DomeConfig){
  };
  if(box(f.sofa,-.43,-.03,2,1.09)||box(f.arcade,0,0,1.1,1.2)||box(f.musicStation,0,0,1.58,.95)||box(f.clothesRail,0,0,2.1,.76)||box(f.sofa,-1.62,-.12,.65,.65))return false;
  if(Math.hypot(p.x-f.coffeeTable.x,p.z-f.coffeeTable.z)<1.05*f.coffeeTable.scale+clearance)return false;
- if(Math.abs(p.x-c.centre.x)<COMMAND_DECK.halfWidth+clearance&&p.z>COMMAND_DECK.deskFrontZ-clearance)return false;
+ // The telescope stance fits beside the desk without the wider walking buffer.
+ // Relax only this small approach pocket; the physical desktop stays blocked.
+ const telescopePocket=p.x<c.centre.x&&Math.hypot(p.x-telescope.approach.x,p.z-telescope.approach.z)<.55;
+ const deskClearance=telescopePocket?.2:clearance;
+ if(Math.abs(p.x-c.centre.x)<COMMAND_DECK.halfWidth+deskClearance&&p.z>COMMAND_DECK.deskFrontZ-clearance)return false;
  if(Math.hypot(p.x-pilotPosition.x,p.z-pilotPosition.z)<.43)return false;
  // The platform is entered through the staircase, never through its solid side face.
  if(Math.abs(p.x-c.centre.x)>.975-clearance&&Math.abs(p.z-stageFrontZ(p.x,c))<clearance)return false;

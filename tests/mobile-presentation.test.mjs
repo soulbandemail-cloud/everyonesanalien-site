@@ -199,7 +199,7 @@ test('third-person header adjustments preserve first person and interpolate cont
   assert.equal(mid.scale,(first.scale+end.scale)/2);
   assert.equal(mid.lift,end.lift/2);
   assert.equal(mid.socialLift,end.socialLift/2);
-  assert.equal(end.ruleCurvature,mobile?.35:1);
+  assert.equal(end.ruleCurvature,mobile?.35:.8);
   assert.equal(end.lift,mobile?view.height*.025:0);
  }
 });

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useEffectEvent, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useId, useRef, useState } from 'react';
 import {beamDimensions,beamInfluence,steerInBeam,crossesEllipse} from './tractorPhysics';
 import { arcadePoint, arcadeRect, arcadeSize } from './presentation';
 import PlanetHeart from '../home/PlanetHeart';
@@ -93,6 +93,7 @@ export default function ArcadeGame({ onRestart, onOvercharge }: { onRestart: () 
   } | null>(null);
   const [womboComboKey, setWomboComboKey] = useState(0);
   
+  const ufoGlowId=useId();
   const [ufoPos, setUfoPos] = useState({ x: -100, y: -100 });
   const [hideCursorUfo, setHideCursorUfo] = useState(false);
   const [tractorBeamActive, setTractorBeamActive] = useState(false);
@@ -521,7 +522,10 @@ return (
       {tractorBeamActive && !ufoOrbiting && !hideCursorUfo && (
         <div className="ufo-tractor-beam" aria-hidden="true" />
       )}
-      <svg viewBox="0 0 120 80" className="pink-svg-glow w-10 h-10 opacity-95">
+      <svg viewBox="0 0 120 80" className="arcade-cursor-ufo pink-svg-glow w-10 h-10 opacity-95">
+        <defs><radialGradient id={ufoGlowId}><stop stopColor="#ffb0ff" stopOpacity=".35"/><stop offset=".4" stopColor="#ffb0ff" stopOpacity=".16"/><stop offset="1" stopColor="#ffb0ff" stopOpacity="0"/></radialGradient></defs>
+        <ellipse className="arcade-cursor-halo" cx="60" cy="40" rx="75" ry="48" fill={`url(#${ufoGlowId})`}/>
+
         <ellipse cx="60" cy="42" rx="42" ry="12" fill="#ffffff" />
 
         <ellipse

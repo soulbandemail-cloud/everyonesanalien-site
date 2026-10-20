@@ -147,3 +147,15 @@ test('both inside wipes damage during their return swing, but not wind-up or res
   s.time=t.windup+t.strike+t.settle+.01;assert.equal(blades(s)[i].active,false);
  }
 });
+
+test('spiral first after stun brings the opening to the projectile origin without lifting first',()=>{
+ for(const side of [-1,1]){
+  const s=createBattle();s.phase='attack';s.hits=2;s.combo=['spiral','left-wipe'];s.comboIndex=0;s.time=0;s.headX=side*69;s.extension=.6;s.invincible=20;
+  run(s,.75);
+  assert.equal(s.phase,'spiral');
+  assert.ok(Math.abs(head(s).x-s.spiralOrigin.x)<.001);
+  assert.ok(Math.abs(head(s).y-s.spiralOrigin.y)<.001);
+  assert.equal(s.skulls.length,0);
+  run(s,.05);assert.ok(s.skulls.length>0);
+ }
+});

@@ -42,12 +42,25 @@ export function WalkingCharlie({state,config,view,outfit=null,spin,gramophone,wa
  const w=ROOM.alienWidth*p.scale,h=ROOM.alienHeight*p.scale;
  const wateringPose=watering?wateringFrame(watering,config,state.position):null;
  const scope=telescopeStation(config);
- const worldHands=trophyHands??(telescope?[{...scope.eye,x:scope.eye.x-.15,y:scope.eye.y-.18},{...scope.eye,x:scope.eye.x+.12,y:scope.eye.y-.22}]:wateringPose?wateringPose.hands:gramophone&&gramophone.amount>0?gramophone.hands.map(target=>target?gramophoneWorld(orientedFixtures(config.centre,config.radius).musicStation,target):undefined):undefined);
- const hands=worldHands?.map(target=>{
+ const worldHands=trophyHands??(telescope?[scope.eye,{x:scope.eye.x+(scope.objective.x-scope.eye.x)*.085,y:scope.eye.y+(scope.objective.y-scope.eye.y)*.085,z:scope.eye.z+(scope.objective.z-scope.eye.z)*.085}]:wateringPose?wateringPose.hands:gramophone&&gramophone.amount>0?gramophone.hands.map(target=>target?gramophoneWorld(orientedFixtures(config.centre,config.radius).musicStation,target):undefined):undefined);
+ const hands=worldHands?.map((target,index)=>{
   if(!target)return undefined;
-  const q=project(target,config,view);
-  const x=(q.x-p.x)*180/w,y=(q.y-p.y+h)*250/h,depth=30,angle=state.yaw*Math.PI/180;
-  return {x:x*Math.cos(angle)-depth*Math.sin(angle),y,z:x*Math.sin(angle)+depth*Math.cos(angle)};
+  let q=project(target,config,view);
+  if(telescope){
+   // Match the barrel's -14 degree adjustment about its actual projected mount.
+   const mount=project({x:(scope.eye.x+scope.objective.x)/2,y:(scope.eye.y+scope.objective.y)/2,z:(scope.eye.z+scope.objective.z)/2},config,view);
+   const turn=-14*Math.PI/180,dx=q.x-mount.x,dy=q.y-mount.y;
+   q={...q,x:mount.x+dx*Math.cos(turn)-dy*Math.sin(turn),y:mount.y+dx*Math.sin(turn)+dy*Math.cos(turn)+p.scale*.035};
+  }
+  const x=(q.x-p.x)*180/w,y=(q.y-p.y+h)*250/h,depth=telescope?(index===1?-32:8):30,angle=state.yaw*Math.PI/180;
+  const local={x:x*Math.cos(angle)-depth*Math.sin(angle),y,z:x*Math.sin(angle)+depth*Math.cos(angle)};
+  if(telescope){
+   // Hand targets are already in screen space: undo the upper-body lean that
+   // alienVolume applies so the fingertips stay on the eyepiece.
+   const upper=Math.max(0,Math.min(1,(164-local.y)/75));
+   local.y-=3*upper;local.z+=7*upper;
+  }
+  return local;
  });
  const behindTable=state.mode==='sofa-seated'||state.position.z>table.z;
  const clip=behindTable ? `path(evenodd, "M0 0H${view.width}V${view.height}H0Z ${tableCutout}")` : undefined;
