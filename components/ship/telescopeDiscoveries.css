@@ -1,0 +1,6 @@
+.soul-station-beacon { animation:station-beacon 4.7s linear infinite; }
+.soul-station-beacon.beacon-1 { animation-duration:6.1s; animation-delay:-2.2s; }
+.soul-station-beacon.beacon-2 { animation-duration:5.3s; animation-delay:-3.6s; }
+.soul-station-beacon.beacon-3 { animation-duration:7.9s; animation-delay:-1.3s; }
+@keyframes station-beacon { 0%,8%,100%{opacity:1} 19%,89%{opacity:.16} }
+@media(prefers-reduced-motion:reduce){.soul-station-beacon{animation:none;opacity:.7}}

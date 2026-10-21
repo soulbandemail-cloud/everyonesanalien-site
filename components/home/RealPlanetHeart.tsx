@@ -43,12 +43,11 @@ const continents=[
 ].map((path,i)=>coastline(path,i*2.1));
 
 /** The existing exterior planet, now the single O in the live projected wordmark. */
-export default function RealPlanetHeart() {
+export default function RealPlanetHeart({svgOnly=false,width,height}:{svgOnly?:boolean;width?:number;height?:number}={}) {
  const id=useId();
  const surfaceId=`${id}-surface`,shadeId=`${id}-shade`;
  const ringGlowId=`${id}-ring-glow`;
- return <span className="soul-planet" data-world-object="planet-heart" aria-hidden="true">
-  <svg className="real-planet-heart" viewBox={`${PLANET_INK.left} ${PLANET_INK.top} ${PLANET_INK.right-PLANET_INK.left} ${PLANET_INK.bottom-PLANET_INK.top}`}>
+ const artwork=<svg width={width} height={height} className="real-planet-heart" viewBox={`${PLANET_INK.left} ${PLANET_INK.top} ${PLANET_INK.right-PLANET_INK.left} ${PLANET_INK.bottom-PLANET_INK.top}`}>
    <defs>
     <clipPath id={surfaceId}><path d={REAL_HEART_PATH}/></clipPath>
     <radialGradient id={id} cx="30%" cy="22%" r="90%"><stop stopColor="#16C7C5"/><stop offset=".48" stopColor="#008F9C"/><stop offset="1" stopColor="#006C83"/></radialGradient>
@@ -134,6 +133,6 @@ export default function RealPlanetHeart() {
     <path d={REAL_HEART_PATH} fill="none" stroke="#D5FFF0" strokeWidth=".35" opacity=".6"/>
    </g>
    <g transform="rotate(-18)"><path data-ring="front" d={ringRibbon(true)} fill="white" className="planet-letter-ring" filter={`url(#${ringGlowId})`} /></g>
-  </svg>
- </span>;
+  </svg>;
+ return svgOnly?artwork:<span className="soul-planet" data-world-object="planet-heart" aria-hidden="true">{artwork}</span>;
 }
