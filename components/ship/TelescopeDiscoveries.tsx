@@ -53,18 +53,23 @@ export function TelescopeDiscoveries({focus,planetX,planetY,children}:{focus:num
  const id=`discoveries-${useId().replace(/:/g,'')}`;
  const gone=useSyncExternalStore(subscribe,defeated,()=>true);
  const angle=useSyncExternalStore(subscribeOrbit,orbitSnapshot,serverOrbit);
- const inFront=Math.sin(angle)>=0;
- const satellite=(front:boolean)=>angle<0||front!==inFront?null:<g transform={`translate(${planetX} ${planetY}) rotate(-18)`} pointerEvents="none" data-celestial="station" data-focus-depth="3">
+ // Positive depth is towards the observer. Perspective is normalised so
+ // the nearest orbital point retains the original size and focus (3).
+ const orbitalDepth=Math.sin(angle);
+ const stationScale=.7/(1-.3*orbitalDepth);
+ const stationFocus=18-15*orbitalDepth;
+ const inFront=orbitalDepth>=0;
+ const satellite=(front:boolean)=>angle<0||front!==inFront?null:<g transform={`translate(${planetX} ${planetY}) rotate(-18)`} pointerEvents="none" data-celestial="station" data-focus-depth={stationFocus}>
   <g transform={`translate(${82*Math.cos(angle)} ${28*Math.sin(angle)})`}>
    <g filter={`url(#${id}-station-focus)`}>
-    <g transform="rotate(18)"><use href={`#${id}-station`}/></g>
+    <g transform={`rotate(18) scale(${stationScale})`}><use href={`#${id}-station`}/></g>
    </g>
   </g>
  </g>;
  return <>
   <defs>
    <g id={`${id}-station`}><Station/></g>
-   <filter id={`${id}-station-focus`} x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation={blurAt(focus,3)}/></filter>
+   <filter id={`${id}-station-focus`} x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation={blurAt(focus,stationFocus)}/></filter>
    <filter id={`${id}-galaxy-focus`} x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation={blurAt(focus,100)}/></filter>
    <filter id={`${id}-poleman-focus`} x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation={blurAt(focus,64)}/></filter>
    <radialGradient id={`${id}-core`}><stop stopColor="#ffffec" stopOpacity=".92"/><stop offset=".2" stopColor="#d8d8f3" stopOpacity=".6"/><stop offset=".55" stopColor="#8f98ca" stopOpacity=".16"/><stop offset="1" stopColor="#7c83bc" stopOpacity="0"/></radialGradient>

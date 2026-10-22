@@ -4,8 +4,10 @@ import fs from 'node:fs';
 import ts from 'typescript';
 const emotes={exports:{}};
 new Function('module','exports',ts.transpileModule(fs.readFileSync('lib/ship/charlieEmotes.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText)(emotes,emotes.exports);
+const ambient={exports:{}};
+new Function('module','exports',ts.transpileModule(fs.readFileSync('lib/ship/charlieAmbient.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText)(ambient,ambient.exports);
 const loaded={exports:{}};
-new Function('module','exports','require',ts.transpileModule(fs.readFileSync('lib/ship/alienVolume.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(loaded,loaded.exports,()=>emotes.exports);
+new Function('module','exports','require',ts.transpileModule(fs.readFileSync('lib/ship/alienVolume.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(loaded,loaded.exports,name=>name.includes('charlieAmbient')?ambient.exports:emotes.exports);
 const {alienVolume}=loaded.exports;
 test('alien retains head volume at front, quarter, side and rear angles',()=>{
  for(const yaw of [0,45,90,135,180,225,270,315]){
@@ -88,4 +90,74 @@ test('secondary motion stays subtle, preserves planted feet and keeps reading pa
   assert.ok(reading.some(f=>f.depth>900));
   assert.ok(reading.every((f,i)=>i===0||f.depth>=reading[i-1].depth));
  }
+});
+
+test('all ambient poses render finite connected surfaces across camera angles',()=>{
+ for(const kind of ['look','scratch','stretch','shift','recline','fullStretch'])for(const yaw of [0,90,180])for(const time of [0,.7,1.4,2.2,3.1,4.3]){
+  const mesh=alienVolume(yaw,0,kind==='fullStretch',{ambient:{kind,amount:Math.min(1,time),time,side:1,variant:2}});
+  assert.ok(mesh.every(f=>! /NaN|Infinity/.test(f.d)));
+ }
+});
+
+test('seated gaze uses projected antennae and pedestal, then rises towards foreground',()=>{
+ const {seatedGaze}=loaded.exports;
+ for(const scale of [.6,1,1.7]){
+  const landmarks={pilotX:640*scale,antennaY:420*scale,chairBaseY:590*scale,alienHeight:160*scale,viewportHeight:800*scale};
+  const gaze=(x,y)=>seatedGaze(x*scale,y*scale,landmarks);
+  assert.equal(gaze(640,420).back,1);
+  assert.equal(gaze(640,320).back,0);
+  assert.equal(gaze(640,590).down,1);
+  assert.ok(Math.abs(gaze(640,800).down-.12)<1e-10);
+  assert.ok(gaze(640,700).down<gaze(640,620).down);
+  assert.ok(gaze(640,540).down<gaze(640,590).down);
+  assert.ok(gaze(870,560).x>.95);
+  assert.equal(gaze(410,560).x,-gaze(870,560).x);
+  for(let y=320;y<425;y+=.1)assert.ok(Math.abs(gaze(800,y+.1).back-gaze(800,y).back)<.002);
+ }
+});
+
+test('seated swivel follows an unsaturated, distance-sensitive direction across the parapet',()=>{
+ const {seatedGaze,alienLookYaw}=loaded.exports;
+ const landmarks={pilotX:640,antennaY:410,chairBaseY:525,alienHeight:110,viewportHeight:720};
+ const angle=(x,y)=>{const g=seatedGaze(x,y,landmarks);return Math.atan2(g.x*.55,1)*180/Math.PI;};
+ // Normal cockpit projection: plant, arcade, telescope, mousehole, gramophone, rail.
+ const targets=[[135,565],[375,485],[450,465],[850,508],[965,510],[1160,540]];
+ const angles=targets.map(([x,y])=>angle(x,y));
+ assert.ok(angles.slice(0,3).every(a=>a< -50));
+ assert.ok(angles.slice(3).every(a=>a>70));
+ for(let i=1;i<3;i++)assert.ok(angles[i]-angles[i-1]>3);
+ for(let i=4;i<6;i++)assert.ok(angles[i]-angles[i-1]>1);
+ assert.ok(angles[5]>80);
+ let previous=angle(100,520);
+ for(let x=102;x<=1180;x+=2){const next=angle(x,520);assert.ok(next>previous);assert.ok(next-previous<3);previous=next;}
+ assert.ok(angle(900,700)<angle(900,525));
+ const g=seatedGaze(850,508,landmarks);
+ assert.equal(g.back,1);
+ assert.ok(Math.abs(alienLookYaw(g.x,g.back))>90); // stays in the camera-side hemisphere
+});
+
+test('outer seated swivel turns towards camera without changing side anchor calibration',()=>{
+ const {seatedGaze,alienLookYaw}=loaded.exports;
+ const base={pilotX:640,antennaY:410,chairBaseY:525,alienHeight:110,viewportHeight:720};
+ const landmarks={...base,leftAnchorX:450,rightAnchorX:850};
+ const turn=(x,y)=>{const g=seatedGaze(x,y,landmarks);return 180-Math.abs(alienLookYaw(g.x,g.back,g.swivel));};
+ for(const x of [450,640,850]){
+  const before=seatedGaze(x,508,base),after=seatedGaze(x,508,landmarks);
+  assert.equal(after.swivel,0);assert.equal(after.x,before.x);assert.equal(after.down,before.down);
+ }
+ for(const targets of [[[450,465],[375,485],[270,480],[260,620],[135,565]],[[850,508],[965,510],[1160,540]]]){
+  let previousCorrection=-1;
+  for(const [x,y] of targets){
+   const g=seatedGaze(x,y,landmarks),correction=Math.abs(g.swivel);
+   assert.ok(correction>previousCorrection);previousCorrection=correction;
+   const original=180-Math.abs(alienLookYaw(g.x,g.back));
+   assert.ok(turn(x,y)<=original); // additional rotation is towards the camera
+  }
+  const last=targets.at(-1);assert.ok(turn(...last)<60);
+ }
+ for(const side of [-1,1]){
+  let previous=turn(640,520);
+  for(let offset=1;offset<540;offset++){const next=turn(640+side*offset,520);assert.ok(Math.abs(next-previous)<2);previous=next;}
+ }
+ assert.equal(seatedGaze(1160,300,landmarks).swivel,0);
 });

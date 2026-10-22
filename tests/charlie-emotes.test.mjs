@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import ts from 'typescript';
 const loaded={exports:{}};
 new Function('module','exports',ts.transpileModule(fs.readFileSync('lib/ship/charlieEmotes.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText)(loaded,loaded.exports);
+const ambient={exports:{}};
+new Function('module','exports',ts.transpileModule(fs.readFileSync('lib/ship/charlieAmbient.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText)(ambient,ambient.exports);
 const {EMOTES,emotePose,neutralEmote,canEmote,emoteWheelLayout}=loaded.exports;
 test('clock positions and standing eligibility preserve interaction exclusions',()=>{
  assert.deepEqual(EMOTES.map(e=>e.id),['idea','wave','peace','love','kiss','dance-1','dance-2','dance-3','guitar','laugh','confused','sleepy']);
@@ -29,7 +31,7 @@ test('wheel uses a uniform radius, safe viewport bounds and touch-sized targets'
  }
 });
 test('wave keeps feet planted, supports the tee, and returns to identical neutral geometry',()=>{
- const m={exports:{}};new Function('module','exports','require',ts.transpileModule(fs.readFileSync('lib/ship/alienVolume.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(m,m.exports,()=>loaded.exports);
+ const m={exports:{}};new Function('module','exports','require',ts.transpileModule(fs.readFileSync('lib/ship/alienVolume.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(m,m.exports,name=>name.includes('charlieAmbient')?ambient.exports:loaded.exports);
  const {alienVolume}=m.exports;
  const feet=mesh=>mesh.flatMap(f=>[...f.d.matchAll(/(-?\d+\.\d+),(-?\d+\.\d+)/g)].map(m=>[+m[1],+m[2]]).filter(p=>p[1]>225)).sort().map(p=>p.join(',')).join('|');
  for(const outfit of [null,'soul-ringer-1']){
@@ -59,7 +61,7 @@ test('wave holds one left lean, gestures use distinct hands and love never emits
  assert.equal(pose('guitar').guitar,1);
 });
 test('all emotes produce finite clothed and unclothed geometry through their transitions',()=>{
- const m={exports:{}};new Function('module','exports','require',ts.transpileModule(fs.readFileSync('lib/ship/alienVolume.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(m,m.exports,()=>loaded.exports);
+ const m={exports:{}};new Function('module','exports','require',ts.transpileModule(fs.readFileSync('lib/ship/alienVolume.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(m,m.exports,name=>name.includes('charlieAmbient')?ambient.exports:loaded.exports);
  for(const {id} of EMOTES)for(const outfit of [null,'soul-ringer-1'])for(const t of [150,650,1400,2200]){
   const p=emotePose({kind:id,started:0,from:neutralEmote},t);
   const mesh=m.exports.alienVolume(180,0,true,{stand:1,outfit,emote:p});

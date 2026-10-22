@@ -4,12 +4,14 @@ import { hullMesh, type HullConfig } from '@/lib/ship/hullGeometry';
 import { hullFloorSeamPoint } from '@/lib/ship/hullFloorSeam';
 import { polygonPath, ROOM, platformY } from '@/lib/ship/roomGeometry';
 import styles from './ship.module.css';
+import {Mousehole,mouseholeGeometry} from './Mousehole';
 
 const PARAPET_PANEL_TRIM = '#c1ac8b';
 const PARAPET_TRIM_OPACITY = .35;
 
-export const ExteriorHull = memo(function ExteriorHull({config,hull,view,sharedSeam=false}:{config:DomeConfig;hull:HullConfig;view:Viewport;sharedSeam?:boolean}) {
+export const ExteriorHull = memo(function ExteriorHull({config,hull,view,sharedSeam=false,ambientActive=true}:{config:DomeConfig;hull:HullConfig;view:Viewport;sharedSeam?:boolean;ambientActive?:boolean}) {
  const id=useId();
+ const mousehole=mouseholeGeometry(config,view);
  const patches=hullMesh(config,hull,sharedSeam).map(p=>({...p,depth:p.points.reduce((sum,q)=>sum+project(q,config,view).depth,0)/4})).sort((a,b)=>b.depth-a.depth);
  const point=(theta:number,height:number)=>{const p=hullFloorSeamPoint(theta,config);return {...p,y:p.y+height};};
  const band=(a:number,b:number,bottom:number,top:number)=>{
@@ -24,11 +26,13 @@ export const ExteriorHull = memo(function ExteriorHull({config,hull,view,sharedS
  const panels=Array.from({length:40},(_,i)=>({a:i/40*Math.PI*2,b:(i+1)/40*Math.PI*2,depth:project(point((i+.5)/40*Math.PI*2,.3),config,view).depth,i})).sort((a,b)=>b.depth-a.depth);
  return <svg className={styles.exteriorHull} width={view.width} height={view.height} role="img" aria-label="Warm-grey panelled hull rim with recessed panels and warm rectangular lights">
   <defs>
+   <mask id={`${id}-mouse-cut`} maskUnits="userSpaceOnUse" x="0" y="0" width={view.width} height={view.height}><rect width={view.width} height={view.height} fill="white"/><path d={mousehole.opening} fill="black"/></mask>
    <linearGradient id={`${id}-metal`} x1="0" y1="0" x2="0" y2="1"><stop stopColor="#b1a18b"/><stop offset=".18" stopColor="#81776b"/><stop offset=".7" stopColor="#74695e"/><stop offset="1" stopColor="#9a8b76"/></linearGradient>
    <linearGradient id={`${id}-lamp`} x1="0" y1="0" x2="0" y2="1"><stop stopColor="#ffe6a0"/><stop offset=".5" stopColor="#fff0bd"/><stop offset="1" stopColor="#ffc776"/></linearGradient>
    <linearGradient id={`${id}-depth`} x2="0" y2="1"><stop stopColor="#eed2a1" stopOpacity=".1"/><stop offset=".22" stopColor="#10151b" stopOpacity=".16"/><stop offset="1" stopColor="#080f18" stopOpacity=".36"/></linearGradient>
    <radialGradient id={`${id}-spill`}><stop stopColor="#ffc477" stopOpacity=".23"/><stop offset="1" stopColor="#ffc477" stopOpacity="0"/></radialGradient>
   </defs>
+  <g mask={`url(#${id}-mouse-cut)`}>
   {patches.map((patch,i)=>{
    const tone=Math.round(155-patch.radial*35+Math.sin(patch.radial*Math.PI)*12);
    const colour=`rgb(${tone+12} ${tone+5} ${tone-7})`;
@@ -59,5 +63,7 @@ export const ExteriorHull = memo(function ExteriorHull({config,hull,view,sharedS
     {[.08,.92].map(u=>{const p=project(point(a+step*u,.55+plinthHeight),config,view);return p.visible && <circle key={u} cx={p.x} cy={p.y} r={Math.max(.45,Math.min(1.2,p.scale*.012))} fill="#463e36" stroke="#c4ad89" strokeWidth=".35" />;})}
    </g>;
   })}
+  </g>
+  <Mousehole config={config} view={view} active={ambientActive}/>
  </svg>;
 });

@@ -1,7 +1,7 @@
 import {guitarPoint} from './charlieEmotes';
 import type {EmotePose} from './charlieEmotes';
 import type {Outfit} from './clothing';
-import type {AmbientPose} from './charlieAmbient';
+import {ambientJoints,type AmbientPose} from './charlieAmbient';
 /** Small illustrated meshes in the pilot's existing 180 × 250 drawing space. */
 type V = {x:number;y:number;z:number};
 type Face = {uv?:{x:number;y:number}[];points:V[];colour:string;eye?:boolean;head?:boolean;mouth?:boolean;leg?:boolean;arm?:boolean;antenna?:boolean;side?:number};
@@ -93,16 +93,17 @@ for(let i=0;i<=16;i++){
 tube(smile,.9,'#000000');
 for(let i=smileStart;i<faces.length;i++){faces[i].head=true;faces[i].mouth=true;}
 
-export type AlienMotion={telescope?:boolean;emote?:EmotePose;ritualHands?:(V|undefined)[];ritualReach?:number[];ritualAmount?:number;outfit?:Outfit;ambient?:AmbientPose;stand?:number;gait?:number;moving?:number;reading?:number;life?:number};
+export type AlienMotion={cursorHeadYaw?:number;telescope?:boolean;emote?:EmotePose;ritualHands?:(V|undefined)[];ritualReach?:number[];ritualAmount?:number;outfit?:Outfit;ambient?:AmbientPose;stand?:number;gait?:number;moving?:number;reading?:number;life?:number};
 export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMotion={}){
  const stand=motion.stand??(standing?1:0),walk=motion.moving??0,phase=motion.gait??0,reading=motion.reading??0;
  const wave=motion.emote;
  const ambient=motion.ambient;
- const amount=ambient?.amount??0,gestureTime=ambient?.time??0;
+ const amount=ambient?.amount??0;
  const scratch=ambient?.kind==='scratch'?amount:0,stretch=ambient?.kind==='stretch'?amount:0;
- const glance=ambient?.kind==='look'?amount:0;
- const headTurn=glance*(ambient?.side??1)*(.55*Math.cos(gestureTime*.65));
- const headPitch=glance*(-.32+.14*Math.sin(gestureTime*1.1))-stretch*.16;
+ const idle=ambientJoints(ambient);
+ const headTurn=idle.headYaw+(motion.cursorHeadYaw??0);
+ const headPitch=0;
+ const fullStretch=stand>.99?idle.extension:0;
  const life=motion.life??0,breath=motion.life===undefined?0:Math.sin(life*1.35)*.48;
  const pose=(p:V,face:Face):V=>{
   const bounce=(1-Math.cos(phase*2))*1.1*walk;
@@ -110,7 +111,7 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
 
   const flex=face.antenna?Math.max(0,(38-p.y)/23):0;
   const antenna=flex*(Math.sin(phase-.65)*2.2*walk+(motion.life===undefined?0:Math.sin(life*(face.side===-1?1.13:.91)+(face.side??0))*.7));
-  return {...p,x:p.x+antenna+flex*(wave?.antennaSway??0)+(face.side??0)*flex*(wave?.droop??0)*8+flex*amount*Math.sin(gestureTime*2.1-.5)*2,y:face.head?p.y+flex*(wave?.droop??0)*12:p.y-38*stand-bounce};
+  return {...p,x:p.x+antenna+flex*(wave?.antennaSway??0)+(face.side??0)*flex*(wave?.droop??0)*8+flex*idle.antenna,y:face.head?p.y+flex*(wave?.droop??0)*12:p.y-38*stand-bounce};
  };
  // Rebuild round tubes around posed centre-lines. Deforming the original
  // vertices compressed their cross-sections into flat ribbons.
@@ -122,9 +123,15 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
    const weight=Math.max(0,Math.min(1,(p.y-202)/43));
    return {x:p.x+(wave?(side<0?wave.stepL:wave.stepR)*weight:0),y:p.y-(wave?(side<0?wave.liftL:wave.liftR)*weight:0)+ (wave?.kneeBend?0:(wave?.bodyY??0))*(1-weight)-38*stand*(1-Math.max(0,Math.min(1,-p.z/40)))*Math.max(0,Math.min(1,(218-p.y)/12))-Math.max(0,step)*6*weight*walk-(1-Math.cos(phase*2))*1.1*walk*(1-weight),z:p.z*(1-.88*stand)+step*8*weight*walk-(wave?.kneeBend??0)*4*weight*(1-weight)};
   });
+  if(fullStretch)for(const p of posed)p.y-=fullStretch*2*Math.max(0,Math.min(1,(p.y-225)/19));
   tube(posed,3,'#79cfb2',legs);
   const foot=posed[posed.length-1];
+  const footStart=legs.length;
   sphere({...foot,y:foot.y+1,z:foot.z-5},{x:6,y:3,z:8},'#79cfb2',12,24,legs);
+  if(fullStretch)for(const face of legs.slice(footStart))for(const p of face.points){
+   const a=fullStretch*.16,dy=p.y+fullStretch*2-247,dz=p.z-(foot.z-13);
+   p.y=247+dy*Math.cos(a)-dz*Math.sin(a);p.z=foot.z-13+dy*Math.sin(a)+dz*Math.cos(a);
+  }
  }
  const arms:Face[]=[];
  for(const side of [-1,1]){
@@ -133,11 +140,14 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
   const points=[{x:side*12,y:138,z:0},{x:side*19,y:154,z:1},{x:side*25,y:181,z:-3},{x:side*22,y:191,z:-12},{x:side*13,y:handY,z:handZ}].map(armPose);
   const scratching=side===(ambient?.side??1)?scratch:0;
   // Lift through the elbow, then make three small fingertip strokes at the temple.
-  const rub=gestureTime>1.2&&gestureTime<3.4?Math.sin((gestureTime-1.2)*9)*2:0;
-  const reach=[{x:side*12,y:138,z:0},{x:side*39,y:139,z:-2},{x:side*65,y:115,z:-5},{x:side*60,y:86,z:-9},{x:side*53,y:65+rub,z:-12}];
+  const rub=idle.rub;
+  // Follow the temple surface, keeping a hand-radius clearance from the skull.
+  const templeY=65+rub,templeX=56*Math.sqrt(Math.max(0,1-((templeY-85)/56)**2-(-12/43)**2))+3;
+  const reach=[{x:side*12,y:138,z:0},{x:side*36,y:136+rub*.12,z:-2},{x:side*61,y:110+rub*.3,z:-5},{x:side*(templeX+5),y:84+rub*.7,z:-9},{x:side*templeX,y:templeY,z:-12}];
   const opening=[{x:side*12,y:138,z:0},{x:side*27,y:142,z:-3},{x:side*46,y:150,z:-12},{x:side*48,y:131,z:-20},{x:side*40,y:118,z:-24}];
   const blend=(p:V,q:V,t:number)=>({x:p.x+(q.x-p.x)*t,y:p.y+(q.y-38*stand-p.y)*t,z:p.z+(q.z-p.z)*t});
-  const posed=points.map((p,i)=>blend(blend(p,reach[i],scratching),opening[i],stretch));
+  const overhead=[{x:side*12,y:138,z:0},{x:side*40,y:108,z:-3},{x:side*73,y:68,z:-5},{x:side*76,y:17,z:-5},{x:side*70,y:-12,z:-4}];
+  const posed=points.map((p,i)=>blend(blend(blend(p,reach[i],scratching),opening[i],stretch),overhead[i],fullStretch));
   const gesture=wave?.arms[side<0?0:1];
   if(gesture&&gesture.weight>0){
    const h={x:gesture.hand[0],y:gesture.hand[1],z:gesture.hand[2]},e={x:gesture.elbow[0],y:gesture.elbow[1],z:gesture.elbow[2]},shoulder=posed[0];
@@ -158,7 +168,7 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
    const cross=1-((p.y-21)/64)**2-(p.z/50)**2;
    return cross>0?{...p,x:side*Math.max(Math.abs(p.x),64*Math.sqrt(cross))}:p;
   };
-  if(gesture&&gesture.weight>0)for(let i=1;i<posed.length;i++)posed[i]=clearHead(posed[i]);
+  if((gesture&&gesture.weight>0)||fullStretch>0)for(let i=1;i<posed.length;i++)posed[i]=clearHead(posed[i]);
   const armCurve=gesture&&gesture.weight>0?[posed[0],...Array.from({length:7},(_,i)=>{
    const t=i/6,a=posed[1],b=posed[2],c=posed[3];
    return clearHead({x:(1-t)**2*a.x+2*t*(1-t)*b.x+t*t*c.x,y:(1-t)**2*a.y+2*t*(1-t)*b.y+t*t*c.y,z:(1-t)**2*a.z+2*t*(1-t)*b.z+t*t*c.z});
@@ -170,7 +180,7 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
    const cuff={x:end.x+(posed[1].x-posed[0].x)*.08,y:end.y+(posed[1].y-posed[0].y)*.08,z:end.z+(posed[1].z-posed[0].z)*.08};
    tube([end,cuff],5.6,'#a62936',arms);
   }
-  sphere(gesture&&gesture.weight>0?posed[4]:hand&&reachAmount>0?posed[4]:scratching||stretch?{...posed[4],y:posed[4].y+2}:armPose({x:side*13,y:handY+2,z:handZ}),{x:4,y:5,z:3},'#79cfb2',12,24,arms);
+  sphere(gesture&&gesture.weight>0?posed[4]:hand&&reachAmount>0?posed[4]:scratching||stretch||fullStretch?{...posed[4],y:posed[4].y+2}:armPose({x:side*13,y:handY+2,z:handZ}),{x:4,y:5,z:3},'#79cfb2',12,24,arms);
   if(gesture&&gesture.weight>0){
    const h=posed[4],finger=(pts:V[],amount:number)=>{if(amount>.001)tube(pts.map(p=>({x:h.x+(p.x-h.x)*amount,y:h.y+(p.y-h.y)*amount,z:h.z+(p.z-h.z)*amount})),1.35,'#79cfb2',arms);};
    const strength=gesture.weight;
@@ -251,14 +261,27 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
  }
 
  const angle=(yaw+(wave?.turn??0))*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle),pitch=Math.max(-1,Math.min(1,down+headPitch+(wave?.headNod??0)))*45*Math.PI/180;
- const rotate=(p:V,head=false,leg=false)=>{let {x,y,z}=p;if(head){const hx=x;x=hx*Math.cos(headTurn)+z*Math.sin(headTurn);z=z*Math.cos(headTurn)-hx*Math.sin(headTurn);const t=Math.max(0,Math.min(1,(y-92)/49));const taper=t*t*(3-2*t);x*=1-.28*taper;y+=7*taper;if(wave){const dy=y-85,xx=x;x=x*Math.cos(wave.headTilt)+dy*Math.sin(wave.headTilt);y=85+dy*Math.cos(wave.headTilt)-xx*Math.sin(wave.headTilt);}
+ const rotate=(p:V,head=false,leg=false)=>{let {x,y,z}=p;if(head){const t=Math.max(0,Math.min(1,(y-92)/49));const taper=t*t*(3-2*t);x*=1-.28*taper;y+=7*taper;
+ const hx=x;x=hx*Math.cos(headTurn)+z*Math.sin(headTurn);z=z*Math.cos(headTurn)-hx*Math.sin(headTurn);
+ // The autonomous nod hinges at the neck attachment, preserving neck length.
+ const idleDy=y-148;y=148+idleDy*Math.cos(idle.headPitch)-z*Math.sin(idle.headPitch);z=idleDy*Math.sin(idle.headPitch)+z*Math.cos(idle.headPitch);
+ if(wave){const dy=y-85,xx=x;x=x*Math.cos(wave.headTilt)+dy*Math.sin(wave.headTilt);y=85+dy*Math.cos(wave.headTilt)-xx*Math.sin(wave.headTilt);}
  const dy=y-120;y=120+dy*Math.cos(pitch)-z*Math.sin(pitch);z=dy*Math.sin(pitch)+z*Math.cos(pitch);y-=26+38*stand+(1-Math.cos(phase*2))*1.1*walk;}// Breathing settles around planted hips/feet; head and held paper share the lift.
  const supported=Math.max(0,Math.min(1,(244-y)/100));
  const settle=motion.life===undefined?0:Math.sin(life*.23)*Math.sin(life*.37)*.45*(1-walk);
  // A seated adjustment pivots above planted hips; the chair and feet stay fixed.
  const upper=Math.max(0,Math.min(1,(202-38*stand-y)/75));
- x+=stretch*2.8*Math.sin(gestureTime*.8)*upper;
- z-=stretch*3*upper;
+ // Rigid upper-body rotations share a hip pivot; seated hips never slide.
+ const hipY=202-38*stand;
+ const jointWeight=leg?Math.max(0,Math.min(1,(222-y)/20)):1;
+ const originalIdle={x,y,z};
+ const twist=idle.torsoYaw,oldIdleX=x;x=x*Math.cos(twist)+z*Math.sin(twist);z=z*Math.cos(twist)-oldIdleX*Math.sin(twist);
+ const lean=idle.lean,dyIdle=y-hipY,xxIdle=x;
+ x=x*Math.cos(lean)+dyIdle*Math.sin(lean);y=hipY+dyIdle*Math.cos(lean)-xxIdle*Math.sin(lean);
+ const back=idle.recline-fullStretch*.025,dyBack=y-hipY;
+ y=hipY+dyBack*Math.cos(back)+z*Math.sin(back);z=-dyBack*Math.sin(back)+z*Math.cos(back);
+ y-=fullStretch*3;
+ x=originalIdle.x+(x-originalIdle.x)*jointWeight;y=originalIdle.y+(y-originalIdle.y)*jointWeight;z=originalIdle.z+(z-originalIdle.z)*jointWeight;
  if(motion.telescope){z-=7*upper*(motion.ritualAmount??0);y+=3*upper*(motion.ritualAmount??0);}
  x+=(settle+Math.sin(phase)*3.5*walk)*supported;
  y-=breath*(reading>.5?1:supported);
@@ -294,8 +317,8 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
 }
 
 /** Resolve the look vector on either side of the console, retaining rearward attention. */
-export function alienLookYaw(x:number,back:number){
- return Math.atan2(-x*.55,Math.cos(back*Math.PI))*180/Math.PI;
+export function alienLookYaw(x:number,back:number,swivel=0){
+ return Math.atan2(-x*.55,Math.cos(back*Math.PI))*180/Math.PI+swivel;
 }
 
 /** Scene-relative cursor: x is -1..1 around the centred pilot; y is 0..1. */
@@ -325,4 +348,32 @@ export function walkingTurn(current:number,target:number,dt:number){
  const step=Math.min(1080*Math.max(0,dt),Math.abs(delta)*(1-Math.exp(-28*Math.max(0,dt))));
  const yaw=Math.abs(delta)<.15?current+delta:current+Math.sign(delta)*step;
  return {yaw,canTravel:Math.abs(delta)<=22};
+}
+
+/** Camera-projected landmarks, in the same logical viewport coordinates as the pointer.
+ * The foreground rises back towards eye level after passing the chair pedestal. */
+export function seatedGaze(x:number,y:number,landmarks:{pilotX:number;antennaY:number;chairBaseY:number;alienHeight:number;viewportHeight:number;leftAnchorX?:number;rightAnchorX?:number}){
+ const {pilotX,antennaY,chairBaseY,alienHeight,viewportHeight}=landmarks;
+ const smooth=(v:number)=>{const t=Math.max(0,Math.min(1,v));return t*t*(3-2*t);};
+ const dx=(x-pilotX)/Math.max(1,alienHeight);
+ const down=y<=chairBaseY
+  ? - .25+1.25*smooth((y-antennaY)/Math.max(1,chairBaseY-antennaY))
+  : 1-.88*smooth((y-chairBaseY)/Math.max(1,viewportHeight-chairBaseY));
+ // A virtual camera-side target plane: lateral offset stays unsaturated.
+ // Targets near the chair's floor line are beside him; foreground targets
+ // gain apparent depth, bringing the same horizontal offset nearer face-on.
+ // The rounded distance avoids a cusp when tracing across the pedestal line.
+ const dy=(y-chairBaseY)/Math.max(1,alienHeight);
+ const depth=Math.hypot(.42,dy*1.25);
+ // alienLookYaw consumes a lateral/depth ratio with a legacy .55 factor.
+ // Cancel that factor here, leaving other callers and transition logic intact.
+ const back=alienFacingTarget(y,antennaY,alienHeight*.6);
+ // Preserve the inner mapping exactly. Beyond the projected side anchors,
+ // turn back towards the camera as targets continue out along the parapet.
+ const anchorX=x<pilotX?landmarks.leftAnchorX:landmarks.rightAnchorX;
+ const anchor=anchorX===undefined?Infinity:Math.abs(anchorX-pilotX)/Math.max(1,alienHeight);
+ const radius=Math.hypot(dx,Math.max(0,dy)*1.8);
+ const excess=anchorX===undefined?0:Math.max(0,(radius-anchor)/Math.max(.1,anchor));
+ const swivel=excess>0&&back>0?-Math.sign(dx)*Math.atan(excess*excess)*180/Math.PI*.8*back:0;
+ return {x:dx/(depth*.55),back,swivel,down:down/(1+dx*dx*.12)};
 }

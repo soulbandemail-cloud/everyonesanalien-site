@@ -1,5 +1,6 @@
 'use client';
 import {Telescope} from './Telescope';
+import {telescopeStation} from '@/lib/ship/telescope';
 import {PolemanReward,usePolemanReward} from './PolemanReward';
 import {TelescopeView} from './TelescopeView';
 import {useWatering} from './useWatering';
@@ -8,7 +9,7 @@ import {wateringFrame} from '@/lib/ship/watering';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { project, type DomeConfig, type Viewport } from '@/lib/ship/domeGeometry';
 import type { HullConfig } from '@/lib/ship/hullGeometry';
-import { alienNodTarget, alienFacingTarget, alienLookYaw } from '@/lib/ship/alienVolume';
+import { seatedGaze, alienLookYaw } from '@/lib/ship/alienVolume';
 import { ROOM, pilotPosition, polygonPath } from '@/lib/ship/roomGeometry';
 import {useCharlieMovement} from './useCharlieMovement';
 import {WalkingCharlie} from './WalkingCharlie';
@@ -38,8 +39,8 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
  hull:HullConfig; onHullChange:(hull:HullConfig)=>void; view:Viewport;
  domeConfig?:DomeConfig; sharedSeam?:boolean; reveal?:number; development?:boolean; preview?:boolean; logout?:()=>void; busy?:boolean; onArcade?:()=>void; onTV?:()=>void; onNewsletter?:()=>void; onShows?:()=>void; onMerch?:()=>void; onRecords?:()=>void; onLeaveContext?:()=>void; domeMenu?:DomeMenu; arcadeOpen?:boolean; liveTv?:boolean; onTvLayer?:(node:HTMLDivElement|null)=>void;
 }) {
- const [attention, setAttention] = useState({ x: 0, back: 0, down: 0 });
- const movement=useCharlieMovement(config,alienLookYaw(attention.x,attention.back));
+ const [attention, setAttention] = useState({ x: 0, back: 0, down: 0, swivel:0 });
+ const movement=useCharlieMovement(config,alienLookYaw(attention.x,attention.back,attention.swivel));
  const [telescopeOpen,setTelescopeOpen]=useState(false);
  const telescopeDirection=useRef({x:0,y:0});
  const releaseTelescope=movement.closeTelescope;
@@ -98,8 +99,14 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
   const pilot=project({...pilotPosition,y:pilotPosition.y+ROOM.pilotSeatLift},config,view);
   const alienHeight=ROOM.alienHeight*pilot.scale;
   // Neutral antenna tips are at drawing y=-15.5 in the 250-unit occupant.
-  const antennaY=(pilot.y-alienHeight*1.062)/view.height;
-  const turnRange=alienHeight*.6/view.height;
+  const antennaY=pilot.y-alienHeight*1.062;
+  const floorAnchor=project(pilotPosition,config,view);
+  // Match the centre of the rendered pedestal (99% of occupant height plus seat lift).
+  const chairBaseY=floorAnchor.y-alienHeight*.01;
+  const leftAnchorX=project(telescopeStation(config).base,config,view).x;
+  // The mousehole's existing parapet sector; only project it, never move it.
+  const mouseTheta=Math.asin(3.25/config.radius)+Math.PI*2/40;
+  const rightAnchorX=project({x:config.centre.x+config.radius*Math.sin(mouseTheta),y:pilotPosition.y,z:config.centre.z+config.radius*Math.cos(mouseTheta)},config,view).x;
   // Observe movement without making the click-through room overlay a hit target.
   const reset = () => { pointer.current = { x: 0, y: .25 }; };
   const move = (event: PointerEvent) => {
@@ -122,11 +129,11 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
   function tick(time: number) {
    const dt = previous ? Math.min((time - previous) / 1000, .05) : 0; previous = time;
    const ease = reduced.matches ? 1 : 1 - Math.exp(-dt * 5);
-   const target = { x: Math.tanh(pointer.current.x * 1.5), back: alienFacingTarget(pointer.current.y,antennaY,turnRange), down: alienNodTarget(pointer.current.x,pointer.current.y) };
+   const target=seatedGaze((pointer.current.x+1)*view.width/2,pointer.current.y*view.height,{pilotX:pilot.x,antennaY,chairBaseY,alienHeight,viewportHeight:view.height,leftAnchorX,rightAnchorX});
    setAttention(old => {
     // A settled pointer must not reconcile the room every frame.
-    if(Math.abs(old.x-target.x)<.0001 && Math.abs(old.back-target.back)<.0001 && Math.abs(old.down-target.down)<.0001)return old;
-    return {x:old.x+(target.x-old.x)*ease,back:old.back+(target.back-old.back)*ease,down:old.down+(target.down-old.down)*(reduced.matches?1:1-Math.exp(-dt*9))};
+    if(Math.abs(old.x-target.x)<.0001 && Math.abs(old.back-target.back)<.0001 && Math.abs(old.down-target.down)<.0001 && Math.abs(old.swivel-target.swivel)<.0001)return old;
+    return {swivel:old.swivel+(target.swivel-old.swivel)*ease,x:old.x+(target.x-old.x)*ease,back:old.back+(target.back-old.back)*ease,down:old.down+(target.down-old.down)*(reduced.matches?1:1-Math.exp(-dt*9))};
    });
    id = requestAnimationFrame(tick);
   }
@@ -142,7 +149,7 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
  const [grid,setGrid]=useState(true);
  return <div ref={root} className={styles.ship} style={{...(sharedSeam ? {width:view.width,height:view.height} : {}),opacity:Math.max(0,Math.min(1,(reveal-.12)/.6))}} aria-label="Mate cockpit">
   <Dome config={domeConfig} view={view} debug={development && debug && grid} />
-  <ExteriorHull config={config} hull={hull} view={view} sharedSeam={sharedSeam} />
+  <ExteriorHull ambientActive={reveal===1&&!arcadeOpen&&!telescopeOpen&&!busy} config={config} hull={hull} view={view} sharedSeam={sharedSeam} />
   <CockpitFloor config={config} view={view} sharedSeam={sharedSeam} />
   <svg width={view.width} height={view.height} style={{position:'absolute',inset:0,zIndex:5,pointerEvents:'none'}} aria-label="Walkable cockpit floor">
    <path data-charlie-floor-destination d={polygonPath(Array.from({length:97},(_,i)=>({x:config.centre.x+(config.radius-.65)*Math.sin(i/96*Math.PI*2),y:ROOM.floorY,z:config.centre.z+(config.radius-.65)*Math.cos(i/96*Math.PI*2)})),config,view)} fill="transparent" style={{pointerEvents:reveal===1?'all':'none',cursor:'crosshair'}} onClick={event=>{
