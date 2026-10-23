@@ -93,7 +93,7 @@ for(let i=0;i<=16;i++){
 tube(smile,.9,'#000000');
 for(let i=smileStart;i<faces.length;i++){faces[i].head=true;faces[i].mouth=true;}
 
-export type AlienMotion={cursorHeadYaw?:number;telescope?:boolean;emote?:EmotePose;ritualHands?:(V|undefined)[];ritualReach?:number[];ritualAmount?:number;outfit?:Outfit;ambient?:AmbientPose;stand?:number;gait?:number;moving?:number;reading?:number;life?:number};
+export type AlienMotion={blink?:number;cursorHeadYaw?:number;telescope?:boolean;emote?:EmotePose;ritualHands?:(V|undefined)[];ritualReach?:number[];ritualAmount?:number;outfit?:Outfit;ambient?:AmbientPose;stand?:number;gait?:number;moving?:number;reading?:number;life?:number};
 export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMotion={}){
  const stand=motion.stand??(standing?1:0),walk=motion.moving??0,phase=motion.gait??0,reading=motion.reading??0;
  const wave=motion.emote;
@@ -305,6 +305,26 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
   const centre=face.points.reduce((v,p)=>({x:v.x+p.x/face.points.length,y:0,z:v.z+p.z/face.points.length}),{x:0,y:0,z:0});
   return centre.z/43**2*Math.cos(angle+headTurn)-centre.x/56**2*Math.sin(angle+headTurn)>0;
  }).map(face=>{
+  if(!face.eye||face.mouth||!motion.blink||wave?.eyes)return face;
+  // Eyelids cover the original surface patches: no scaling of the eye itself.
+  // Clip from above and below to leave a fine, sloping closed-lid seam.
+  const closure=Math.max(0,Math.min(1,motion.blink));
+  let points=face.points;
+  for(const [boundary,sign] of [[-24*(1-closure),1],[24*(1-closure)+.7*closure,-1]]){
+   const distance=(p:V)=>(p.y-94+(Math.abs(p.x)-26)*Math.tan(Math.PI/6)-boundary)*sign;
+   const clipped:V[]=[];
+   for(let i=0;i<points.length;i++){
+    const a=points[i],b=points[(i+1)%points.length],da=distance(a),db=distance(b);
+    if(da>=0)clipped.push(a);
+    if((da>=0)!==(db>=0)){
+     const t=da/(da-db),x=a.x+(b.x-a.x)*t,y=a.y+(b.y-a.y)*t;
+     clipped.push({x,y,z:-43*Math.sqrt(Math.max(0,1-(x/56)**2-((y-85)/56)**2))-2});
+    }
+   }
+   points=clipped;
+  }
+  return {...face,points};
+ }).filter(face=>face.points.length>=3).map(face=>{
   const p=face.points.map(p=>face.eye&&!face.mouth&&wave?.eyes?{...p,y:94+(p.y-94)*(1-wave.eyes*.9)}:p).map(p=>rotate(posedLimbs.has(face)?p:pose(p,face),face.head,posedLegs.has(face))).map(v=>({x:+v.x.toFixed(6),y:+v.y.toFixed(6),z:+v.z.toFixed(6)})),a=p[0],b=p[1],d=p[2];
   const nx=(b.y-a.y)*(d.z-a.z)-(b.z-a.z)*(d.y-a.y),ny=(b.z-a.z)*(d.x-a.x)-(b.x-a.x)*(d.z-a.z),nz=(b.x-a.x)*(d.y-a.y)-(b.y-a.y)*(d.x-a.x);
   const length=Math.hypot(nx,ny,nz)||1;

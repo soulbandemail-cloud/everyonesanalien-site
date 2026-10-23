@@ -161,3 +161,14 @@ test('outer seated swivel turns towards camera without changing side anchor cali
  }
  assert.equal(seatedGaze(1160,300,landmarks).swivel,0);
 });
+
+test('blinks preserve resting geometry and remain finite through seated and moving poses',()=>{
+ for(const stand of [0,1])for(const yaw of [0,90,180,270]){
+  const motion={stand,moving:stand,gait:1.3};
+  assert.deepEqual(alienVolume(yaw,0,false,motion),alienVolume(yaw,0,false,{...motion,blink:0}));
+  for(const blink of [.3,.8,1])assert.ok(alienVolume(yaw,.2,false,{...motion,blink}).every(f=>!/NaN|Infinity/.test(f.d)));
+ }
+ const open=alienVolume(180,0),closed=alienVolume(180,0,false,{blink:1});
+ assert.ok(closed.length<open.length); // covered eye cells disappear, head surface stays intact
+ assert.deepEqual(open.filter(f=>f.fill!=='#000000'),closed.filter(f=>f.fill!=='#000000'));
+});

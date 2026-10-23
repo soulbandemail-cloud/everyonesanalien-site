@@ -1,3 +1,4 @@
+import {createBlink} from '@/lib/ship/charlieBlink';
 import {paintEmoteEffects} from '@/lib/ship/emoteEffects';
 import {emotePose,type EmoteControl} from '@/lib/ship/charlieEmotes';
 import type {RefObject} from 'react';
@@ -20,6 +21,7 @@ export function Alien({ attention, chair=true, occupant=true, facing, standing=f
   const spinCanvas=document.createElement('canvas');spinCanvas.width=360;spinCanvas.height=800;
   const spinContext=spinCanvas.getContext('2d')!;
   const personality=createAmbient();
+  const blinking=createBlink();
   let inputUntil=0;
   const interrupt=()=>{inputUntil=performance.now()+1000;};
   window.addEventListener('pointermove',interrupt,{passive:true});
@@ -51,7 +53,7 @@ export function Alien({ attention, chair=true, occupant=true, facing, standing=f
   // A small neck turn leads the existing chair swivel, then settles as it catches up.
   const yawError=((target.current.yaw-currentYaw+540)%360+360)%360-180;
   const cursorHeadYaw=!target.current.controlled&&target.current.ambient==='pilot'?Math.max(-8,Math.min(8,yawError*.3))*Math.PI/180:0;
-  const motion={...target.current.motion,cursorHeadYaw,...(target.current.motion.telescope?{ritualAmount:telescopeBlend}:{}),moving:reduced.matches?0:walkBlend,life,ambient:ambientPose,emote:gesture,outfit:change.outfit};
+  const motion={...target.current.motion,blink:blinking.tick(document.hidden?0:dt),cursorHeadYaw,...(target.current.motion.telescope?{ritualAmount:telescopeBlend}:{}),moving:reduced.matches?0:walkBlend,life,ambient:ambientPose,emote:gesture,outfit:change.outfit};
   // Keep simulation on its existing clock; only expensive mesh painting is capped.
   // A small tolerance avoids dropping to 20fps on slightly uneven 60Hz frames.
   if(mobile()&&time-lastPaint<1000/30-1){frame=requestAnimationFrame(draw);return;}
