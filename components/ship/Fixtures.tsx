@@ -238,20 +238,27 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
       {/* Supported by the left seat, clear of Charlie's central seat and mug reach.
           Both planes inherit the sofa's world projection; no hit target or animation. */}
       <g pointerEvents="none" aria-label="Small green alien soft toy">
-        {flatArt(sofa,-.87,.594,-.32,.585,<ellipse rx="27" ry="16" fill="#412d20" opacity=".22"/>,'horizontal')}
-        {flatArt(sofa,-.87,.6305,-.32,.585,<g stroke="#64745a" strokeWidth="1.1" strokeLinejoin="round">
+        {flatArt(sofa,-.96,.594,-.32,.585,<ellipse rx="27" ry="16" fill="#412d20" opacity=".22"/>,'horizontal')}
+        {flatArt(sofa,-.96,.6305,-.32,.585,<g transform="skewX(-5) scale(.94 1)" stroke="#64745a" strokeWidth="1.1" strokeLinejoin="round">
           <defs>
             <radialGradient id={`${outlineId}-plush`} cx=".3" cy=".22" r=".85"><stop stopColor="#bec99a"/><stop offset=".55" stopColor="#a2b383"/><stop offset="1" stopColor="#7f946c"/></radialGradient>
           </defs>
-          {/* Floppy arms and small padded body, slouched into the back cushion. */}
-          <path d="M-10 -28Q-25 -29 -28 -12Q-27 -6 -22 -10L-13 -19M9 -27Q22 -23 25 -10Q23 -5 18 -9L10 -17" fill={`url(#${outlineId}-plush)`}/>
-          <path d="M-12 -31Q-1 -37 11 -29L15 -9Q7 2 -9 -3Q-19 -9 -12 -31Z" fill={`url(#${outlineId}-plush)`}/>
-          <path d="M-9 -11Q-18 -16 -20 -7Q-27 3 -16 5Q-5 5 -3 -5M6 -9Q15 -13 18 -5Q28 2 18 6Q9 8 4 -2" fill={`url(#${outlineId}-plush)`}/>
-          <path d="M-6 -24Q-9 -13 -3 -8M-17 0l5 1M15 2l5 -1" fill="none" stroke="#72835e" strokeWidth=".65" strokeDasharray="1.3 1.6" opacity=".65"/>
+          {/* Three-quarter body: far limbs behind the belly, both soft feet pointing right. */}
+          <path d="M10 -27Q21 -25 23 -14Q23 -8 19 -10L12 -18Z" fill={`url(#${outlineId}-plush)`}/>
+          <path d="M8 -11Q16 -14 19 -7L27 -3Q31 3 24 4L12 2Q7 -3 8 -11Z" fill={`url(#${outlineId}-plush)`}/>
+          <path d="M-10 -31Q1 -35 12 -28Q21 -16 14 -6Q8 2 -5 -3Q-17 -10 -10 -31Z" fill={`url(#${outlineId}-plush)`}/>
+          <path d="M-9 -12Q-15 -10 -12 -3L-2 4Q9 10 13 4Q15 0 8 -3L0 -9Q-3 -14 -9 -12Z" fill={`url(#${outlineId}-plush)`}/>
+          <path d="M-9 -28Q-18 -27 -16 -17L-12 -8Q-7 -3 -4 -8L-7 -19Q-3 -25 -9 -28Z" fill={`url(#${outlineId}-plush)`}/>
+          <path d="M7 -24Q14 -14 9 -8M4 3l5 1M23 0l4 1" fill="none" stroke="#72835e" strokeWidth=".65" strokeDasharray="1.3 1.6" opacity=".65"/>
           <g transform="rotate(-13 -4 -47)">
+            <g stroke="#82966c" strokeWidth="2.4" strokeLinecap="round">
+              <path d="M-18 -70Q-23 -79 -23 -85M12 -72Q17 -81 19 -86" fill="none"/>
+              <ellipse cx="-23" cy="-86" rx="3" ry="3.7" fill="#afc18e" strokeWidth=".8"/>
+              <ellipse cx="19" cy="-87" rx="3" ry="3.7" fill="#afc18e" strokeWidth=".8"/>
+            </g>
             <path d="M-30 -50C-31 -70 -13 -79 4 -75C25 -72 31 -57 24 -41C19 -30 8 -25 -3 -28C-18 -31 -29 -39 -30 -50Z" fill={`url(#${outlineId}-plush)`}/>
-            <ellipse cx="-16" cy="-48" rx="7.3" ry="10.5" transform="rotate(-15 -16 -48)" fill="#17251e" stroke="none"/>
-            <ellipse cx="12" cy="-46" rx="7.6" ry="10" transform="rotate(19 12 -46)" fill="#17251e" stroke="none"/>
+            <ellipse cx="-9" cy="-48" rx="7.3" ry="10.5" transform="rotate(-10 -9 -48)" fill="#17251e" stroke="none"/>
+            <ellipse cx="19" cy="-46" rx="5.4" ry="9.5" transform="rotate(16 19 -46)" fill="#17251e" stroke="none"/>
             <path d="M-22 -65Q-9 -75 4 -70" fill="none" stroke="#d2dab2" strokeOpacity=".35"/>
             <path d="M21 -62Q29 -47 16 -35" fill="none" stroke="#6e805c" strokeWidth=".65" strokeDasharray="1.4 2" opacity=".5"/>
           </g>
