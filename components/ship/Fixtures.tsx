@@ -61,12 +61,12 @@ export const Fixtures = memo(function Fixtures({ onPlant,plantWiggle=0,config, v
     }
     const cabinet=f===music,gameCabinet=f===arcade;
     const lounge=f===sofa,wood=f===table && colour!=='#eee5cd';
-    return <g stroke={gameCabinet?'#b67fb7':cabinet?'#4b3020':lounge?'#393d2b':wood?'#503923':'#849396'} strokeWidth="1" strokeLinejoin="round">{faces.map((face,i) => {
+    return <g stroke={gameCabinet?'#b67fb7':cabinet?'#4b3020':lounge?'#39281f':wood?'#503923':'#849396'} strokeWidth="1" strokeLinejoin="round">{faces.map((face,i) => {
       const d=lounge?paddedPath(face.points):path(face.points);
       return <g key={i}><path d={d} fill={gameCabinet?`url(#${outlineId}-arcade-paint)`:cabinet?`url(#${outlineId}-veneer)`:lounge?`url(#${outlineId}-cloth)`:wood?`url(#${outlineId}-wood)`:face.fill}/>{f !== FIXTURES.radio && <path d={d} fill={`url(#${outlineId}-surface)`} stroke="none" pointerEvents="none"/>}{(cabinet||lounge||gameCabinet) && face.points.every(point=>{
         const dx=point.x-f.x,dz=point.z-f.z;
         return dx*Math.sin(f.yaw)+dz*Math.cos(f.yaw)>0;
-      }) && <path d={d} fill="#e4b874" opacity=".045" stroke="none" pointerEvents="none"/>}{lounge && <path d={d} fill="none" stroke="#b2a37a" strokeOpacity=".32" strokeWidth=".55"/>}</g>;
+      }) && <path d={d} fill="#e4b874" opacity=".045" stroke="none" pointerEvents="none"/>}{lounge && <path d={d} fill="none" stroke="#987659" strokeOpacity=".32" strokeWidth=".55"/>}</g>;
     })}</g>;
   }
 
@@ -95,7 +95,7 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
       <linearGradient id={`${outlineId}-veneer`} x2=".25" y2="1"><stop stopColor="#956c43"/><stop offset=".2" stopColor="#704829"/><stop offset=".75" stopColor="#4c301f"/><stop offset="1" stopColor="#795034"/></linearGradient>
       <linearGradient id={`${outlineId}-brass`} x2=".8" y2="1"><stop stopColor="#ba9862"/><stop offset=".32" stopColor="#94713f"/><stop offset=".65" stopColor="#65502f"/><stop offset="1" stopColor="#a48651"/></linearGradient>
       <radialGradient id={`${outlineId}-bell`} cx=".92" cy=".72" r=".95"><stop stopColor="#332b1e"/><stop offset=".55" stopColor="#705231"/><stop offset="1" stopColor="#af8952"/></radialGradient>
-      <linearGradient id={`${outlineId}-cloth`} x2=".3" y2="1"><stop stopColor="#858463"/><stop offset=".35" stopColor="#686e4f"/><stop offset="1" stopColor="#414735"/></linearGradient>
+      <linearGradient id={`${outlineId}-cloth`} x2=".3" y2="1"><stop stopColor="#805c43"/><stop offset=".35" stopColor="#674631"/><stop offset="1" stopColor="#432e23"/></linearGradient>
       <linearGradient id={`${outlineId}-wood`} x2=".2" y2="1"><stop stopColor="#af8050"/><stop offset=".4" stopColor="#926139"/><stop offset="1" stopColor="#634329"/></linearGradient>
       <linearGradient id={`${outlineId}-surface`} x1="1" y1="0" x2="0" y2="1"><stop stopColor="#c4d0df" stopOpacity=".07"/><stop offset=".3" stopColor="#111b24" stopOpacity="0"/><stop offset=".62" stopColor="#111b24" stopOpacity=".12"/><stop offset="1" stopColor="#060e17" stopOpacity=".36"/></linearGradient>
       <filter id={outlineId} x="-100%" y="-100%" width="300%" height="300%" colorInterpolationFilters="sRGB">
@@ -231,11 +231,34 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
           {name:'backrest',x:-.43,y:.32,z:.32,w:1.66,h:.78,d:.39},
           {name:'arm-right',x:.4,y:.32,z:-.03,w:.34,h:.44,d:1.09},
           ...[-.095,-.765].map((x,i)=>({name:`seat-${i+1}`,x,y:.32,z:-.22,w:.65,h:.27,d:.68})),
-          {name:'arm-left',x:-1.26,y:.32,z:-.03,w:.34,h:.44,d:1.09},
         ];
 
-        return parts.map(p=><g key={p.name} data-sofa-part={p.name}>{box(sofa,p.x,p.y,p.z,p.w,p.h,p.d)}{p.name.startsWith('seat-') && <path d={paddedPath([local(sofa,p.x-p.w/2,p.y+p.h,p.z-p.d/2),local(sofa,p.x+p.w/2,p.y+p.h,p.z-p.d/2),local(sofa,p.x+p.w/2,p.y+p.h,p.z+p.d/2),local(sofa,p.x-p.w/2,p.y+p.h,p.z+p.d/2)])} fill={`url(#${outlineId}-cloth)`} stroke="#4e563d" strokeWidth=".45"/>}</g>);
+        return parts.map(p=><g key={p.name} data-sofa-part={p.name}>{box(sofa,p.x,p.y,p.z,p.w,p.h,p.d)}{p.name.startsWith('seat-') && <path d={paddedPath([local(sofa,p.x-p.w/2,p.y+p.h,p.z-p.d/2),local(sofa,p.x+p.w/2,p.y+p.h,p.z-p.d/2),local(sofa,p.x+p.w/2,p.y+p.h,p.z+p.d/2),local(sofa,p.x-p.w/2,p.y+p.h,p.z+p.d/2)])} fill={`url(#${outlineId}-cloth)`} stroke="#483125" strokeWidth=".45"/>}</g>);
       })()}
+      {/* Supported by the left seat, clear of Charlie's central seat and mug reach.
+          Both planes inherit the sofa's world projection; no hit target or animation. */}
+      <g pointerEvents="none" aria-label="Small green alien soft toy">
+        {flatArt(sofa,-.87,.594,-.32,.585,<ellipse rx="27" ry="16" fill="#412d20" opacity=".22"/>,'horizontal')}
+        {flatArt(sofa,-.87,.6305,-.32,.585,<g stroke="#64745a" strokeWidth="1.1" strokeLinejoin="round">
+          <defs>
+            <radialGradient id={`${outlineId}-plush`} cx=".3" cy=".22" r=".85"><stop stopColor="#bec99a"/><stop offset=".55" stopColor="#a2b383"/><stop offset="1" stopColor="#7f946c"/></radialGradient>
+          </defs>
+          {/* Floppy arms and small padded body, slouched into the back cushion. */}
+          <path d="M-10 -28Q-25 -29 -28 -12Q-27 -6 -22 -10L-13 -19M9 -27Q22 -23 25 -10Q23 -5 18 -9L10 -17" fill={`url(#${outlineId}-plush)`}/>
+          <path d="M-12 -31Q-1 -37 11 -29L15 -9Q7 2 -9 -3Q-19 -9 -12 -31Z" fill={`url(#${outlineId}-plush)`}/>
+          <path d="M-9 -11Q-18 -16 -20 -7Q-27 3 -16 5Q-5 5 -3 -5M6 -9Q15 -13 18 -5Q28 2 18 6Q9 8 4 -2" fill={`url(#${outlineId}-plush)`}/>
+          <path d="M-6 -24Q-9 -13 -3 -8M-17 0l5 1M15 2l5 -1" fill="none" stroke="#72835e" strokeWidth=".65" strokeDasharray="1.3 1.6" opacity=".65"/>
+          <g transform="rotate(-13 -4 -47)">
+            <path d="M-30 -50C-31 -70 -13 -79 4 -75C25 -72 31 -57 24 -41C19 -30 8 -25 -3 -28C-18 -31 -29 -39 -30 -50Z" fill={`url(#${outlineId}-plush)`}/>
+            <ellipse cx="-16" cy="-48" rx="7.3" ry="10.5" transform="rotate(-15 -16 -48)" fill="#17251e" stroke="none"/>
+            <ellipse cx="12" cy="-46" rx="7.6" ry="10" transform="rotate(19 12 -46)" fill="#17251e" stroke="none"/>
+            <path d="M-22 -65Q-9 -75 4 -70" fill="none" stroke="#d2dab2" strokeOpacity=".35"/>
+            <path d="M21 -62Q29 -47 16 -35" fill="none" stroke="#6e805c" strokeWidth=".65" strokeDasharray="1.4 2" opacity=".5"/>
+          </g>
+        </g>)}
+      </g>
+      {/* The near armrest occludes the toy naturally where their projected silhouettes meet. */}
+      <g data-sofa-part="arm-left">{box(sofa,-1.26,.32,-.03,.34,.44,1.09)}</g>
     </g>
     <PlantInteraction label="Water floor plant" onClick={onPlant}>
      {flatArt(sofa,-1.62,0,-.12,.8,<g transform="scale(1 1.45)">

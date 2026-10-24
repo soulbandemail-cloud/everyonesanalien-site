@@ -2,9 +2,9 @@ import {useEffect,useId,useRef} from 'react';
 import {project,type DomeConfig,type Viewport} from '@/lib/ship/domeGeometry';
 import {platformY,polygonPath} from '@/lib/ship/roomGeometry';
 
-/** Small opening one panel beyond the command bank's flanking lamp. */
+/** Permanent opening at the outer end of the right-hand stage parapet. */
 export function mouseholeGeometry(config:DomeConfig,view:Viewport){
- const theta=Math.asin(3.25/config.radius)+Math.PI*2/40,width=.28,height=.34;
+ const theta=3.6*Math.PI*2/40,width=.28,height=.34;
  const point=(x:number,y:number,depth=0)=>{const a=theta+x/config.radius;return {x:config.centre.x+(config.radius+depth)*Math.sin(a),y:platformY+y,z:config.centre.z+(config.radius+depth)*Math.cos(a)};};
  const arch=(inset=0,depth=0)=>{
   const r=width/2-inset,h=height-inset;

@@ -1,4 +1,5 @@
 'use client';
+import {SeasonalPumpkin} from './SeasonalPumpkin';
 import {CoffeeBreak} from './CoffeeBreak';
 import type {CoffeePose} from '@/lib/ship/coffee';
 import {Telescope} from './Telescope';
@@ -107,7 +108,7 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
   // Match the centre of the rendered pedestal (99% of occupant height plus seat lift).
   const chairBaseY=floorAnchor.y-alienHeight*.01;
   const leftAnchorX=project(telescopeStation(config).base,config,view).x;
-  // The mousehole's existing parapet sector; only project it, never move it.
+  // Preserve the established right-side gaze calibration independently of decoration placement.
   const mouseTheta=Math.asin(3.25/config.radius)+Math.PI*2/40;
   const rightAnchorX=project({x:config.centre.x+config.radius*Math.sin(mouseTheta),y:pilotPosition.y,z:config.centre.z+config.radius*Math.cos(mouseTheta)},config,view).x;
   // Observe movement without making the click-through room overlay a hit target.
@@ -170,6 +171,7 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
   <svg width={view.width} height={view.height} style={{position:'absolute',inset:0,zIndex:9,pointerEvents:'none'}} aria-label="Charlie’s handled records and sleeves">
    <RecordProps scene={gramophone} fixture={orientedFixtures(config.centre,config.radius).musicStation} config={config} view={view} layer="carried"/>
   </svg>
+  <SeasonalPumpkin config={config} view={view} active={reveal===1&&!arcadeOpen&&!telescopeOpen&&!busy}/>
   <CoffeeBreak state={movement.state} config={config} view={view} pose={coffee}/>
   <WateringProps scene={watering.scene} config={config} view={view} position={movement.state.position}/>
   <ManifestationPort config={config} view={view} covered={reward.aperture===0} aperture={reward.aperture}/>
