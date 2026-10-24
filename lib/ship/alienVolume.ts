@@ -1,3 +1,4 @@
+import type {CoffeePose} from './coffee';
 import {guitarPoint} from './charlieEmotes';
 import type {EmotePose} from './charlieEmotes';
 import type {Outfit} from './clothing';
@@ -93,7 +94,7 @@ for(let i=0;i<=16;i++){
 tube(smile,.9,'#000000');
 for(let i=smileStart;i<faces.length;i++){faces[i].head=true;faces[i].mouth=true;}
 
-export type AlienMotion={blink?:number;cursorHeadYaw?:number;telescope?:boolean;emote?:EmotePose;ritualHands?:(V|undefined)[];ritualReach?:number[];ritualAmount?:number;outfit?:Outfit;ambient?:AmbientPose;stand?:number;gait?:number;moving?:number;reading?:number;life?:number};
+export type AlienMotion={coffee?:CoffeePose;blink?:number;cursorHeadYaw?:number;telescope?:boolean;emote?:EmotePose;ritualHands?:(V|undefined)[];ritualReach?:number[];ritualAmount?:number;outfit?:Outfit;ambient?:AmbientPose;stand?:number;gait?:number;moving?:number;reading?:number;life?:number};
 export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMotion={}){
  const stand=motion.stand??(standing?1:0),walk=motion.moving??0,phase=motion.gait??0,reading=motion.reading??0;
  const wave=motion.emote;
@@ -136,7 +137,7 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
  const arms:Face[]=[];
  for(const side of [-1,1]){
   const handY=side<0?198:196,handZ=side<0?-22:-25,step=Math.sin(phase+(side===-1?Math.PI:0)),bounce=(1-Math.cos(phase*2))*1.1*walk;
-  const armPose=(p:V)=>{const weight=Math.max(0,Math.min(1,(p.y-138)/62));return {x:p.x+side*42*reading*weight,y:p.y-38*stand-bounce-reading*65*weight,z:p.z-step*9*weight*walk-reading*38*weight};};
+  const armPose=(p:V)=>{const weight=Math.max(0,Math.min(1,(p.y-138)/62));return {x:p.x+side*42*reading*weight,y:p.y-38*stand-bounce-reading*65*weight+(motion.coffee?.lower??0)*53*weight,z:p.z-step*9*weight*walk-reading*38*weight};};
   const points=[{x:side*12,y:138,z:0},{x:side*19,y:154,z:1},{x:side*25,y:181,z:-3},{x:side*22,y:191,z:-12},{x:side*13,y:handY,z:handZ}].map(armPose);
   const scratching=side===(ambient?.side??1)?scratch:0;
   // Lift through the elbow, then make three small fingertip strokes at the temple.
@@ -154,7 +155,7 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
    const target=[shoulder,{x:(shoulder.x+e.x)/2,y:(shoulder.y+e.y)/2,z:(shoulder.z+e.z)/2},e,{x:e.x+(h.x-e.x)*.72,y:e.y+(h.y-e.y)*.72,z:e.z+(h.z-e.z)*.72},h];
    for(let i=1;i<posed.length;i++)posed[i]={x:posed[i].x+(target[i].x-posed[i].x)*gesture.weight,y:posed[i].y+(target[i].y-posed[i].y)*gesture.weight,z:posed[i].z+(target[i].z-posed[i].z)*gesture.weight};
   }
-  const hand=motion.ritualHands?.[side<0?0:1],reachAmount=(motion.ritualAmount??0)*(motion.ritualReach?.[side<0?0:1]??1);
+  const hand=side===-1&&motion.coffee?motion.coffee.hand:motion.ritualHands?.[side<0?0:1],reachAmount=side===-1&&motion.coffee?motion.coffee.reach:(motion.ritualAmount??0)*(motion.ritualReach?.[side<0?0:1]??1);
   if(hand&&reachAmount>0){
    const shoulder=posed[0],elbow={x:shoulder.x+(hand.x-shoulder.x)*.48+side*5,y:shoulder.y+(hand.y-shoulder.y)*.60+9,z:shoulder.z+(hand.z-shoulder.z)*.45};
    // Keep telescope elbows outside the torso instead of taking a diagonal
@@ -252,7 +253,14 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
  const posedLimbs=new Set([...legs,...arms,...prop]),posedLegs=new Set(legs);
  const paper:Face[]=[];
  if(reading>0){
-  const paperPoint=(x:number,y:number):V=>({x,y:90+(y-90)*reading+100*(1-reading),z:-67+(y-90)*.16+Math.abs(x)*.06});
+  const paperPoint=(x:number,y:number):V=>{
+   const lower=motion.coffee?.lower??0,tilt=lower*75*Math.PI/180;
+   const py=90+(y-90)*reading+100*(1-reading),pz=-67+(y-90)*.16+Math.abs(x)*.06;
+   // Hinge at the near/lap edge: the upper edge tips forward towards the table.
+   // Apply this to the ink and paper together so the whole sheet stays rigid.
+   const dy=py-155,dz=pz-(-56.6+Math.abs(x)*.06);
+   return {x,y:155+dy*Math.cos(tilt)-dz*Math.sin(tilt)+35*lower,z:-56.6+Math.abs(x)*.06+dy*Math.sin(tilt)+dz*Math.cos(tilt)};
+  };
   const panel=(x:number,y:number,w:number,h:number,colour:string)=>paper.push({colour,points:[paperPoint(x,y),paperPoint(x+w,y),paperPoint(x+w,y+h),paperPoint(x,y+h)]});
   panel(-60,45,60,110,'#d9d3b9');panel(0,45,60,110,'#eee7d3');
   const glyphs=['101101111101101','101101010010010','110101110100100','111100110100111','110101110101101','000000000000000','111100110100100','111010010010111','101101010101101'];
@@ -273,6 +281,7 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
  const upper=Math.max(0,Math.min(1,(202-38*stand-y)/75));
  // Rigid upper-body rotations share a hip pivot; seated hips never slide.
  const hipY=202-38*stand;
+ if(motion.coffee&&!leg){const weight=Math.max(0,Math.min(1,(202-y)/64));z-=motion.coffee.lean*3*weight;}
  const jointWeight=leg?Math.max(0,Math.min(1,(222-y)/20)):1;
  const originalIdle={x,y,z};
  const twist=idle.torsoYaw,oldIdleX=x;x=x*Math.cos(twist)+z*Math.sin(twist);z=z*Math.cos(twist)-oldIdleX*Math.sin(twist);

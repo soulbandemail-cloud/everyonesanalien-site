@@ -1,3 +1,4 @@
+import type {CoffeePose} from '@/lib/ship/coffee';
 import {createBlink} from '@/lib/ship/charlieBlink';
 import {paintEmoteEffects} from '@/lib/ship/emoteEffects';
 import {emotePose,type EmoteControl} from '@/lib/ship/charlieEmotes';
@@ -10,11 +11,11 @@ import { pilotChairVolume } from '@/lib/ship/pilotChairVolume';
 import { alienVolume, alienLookYaw, advanceAlienYaw, type AlienMotion } from '@/lib/ship/alienVolume';
 import styles from './ship.module.css';
 export type Attention = { x: number; back: number; down: number; swivel?:number };
-export function Alien({ attention, chair=true, occupant=true, facing, standing=false, motion={}, ambient, outfit=null, spin, emote }: { emote?:RefObject<EmoteControl>;attention: Attention; outfit?:Outfit;spin?:ClothesSpin;chair?:boolean; occupant?:boolean; facing?:number; standing?:boolean; motion?:AlienMotion; ambient?:'pilot'|'standing' }) {
+export function Alien({ coffee,attention, chair=true, occupant=true, facing, standing=false, motion={}, ambient, outfit=null, spin, emote }: { coffee?:RefObject<CoffeePose|undefined>;emote?:RefObject<EmoteControl>;attention: Attention; outfit?:Outfit;spin?:ClothesSpin;chair?:boolean; occupant?:boolean; facing?:number; standing?:boolean; motion?:AlienMotion; ambient?:'pilot'|'standing' }) {
  const canvas=useRef<HTMLCanvasElement>(null);
  const yaw = facing ?? alienLookYaw(attention.x,attention.back,attention.swivel);
- const target=useRef({yaw,controlled:facing!==undefined,down:attention.down,chair,occupant,standing,motion,ambient,outfit,spin,emote});
- useLayoutEffect(()=>{target.current={yaw,controlled:facing!==undefined,down:attention.down,chair,occupant,standing,motion,ambient,outfit,spin,emote};},[yaw,facing,attention.down,chair,occupant,standing,motion,ambient,outfit,spin,emote]);
+ const target=useRef({yaw,controlled:facing!==undefined,down:attention.down,chair,occupant,standing,motion,ambient,outfit,spin,emote,coffee});
+ useLayoutEffect(()=>{target.current={yaw,controlled:facing!==undefined,down:attention.down,chair,occupant,standing,motion,ambient,outfit,spin,emote,coffee};},[yaw,facing,attention.down,chair,occupant,standing,motion,ambient,outfit,spin,emote,coffee]);
  useLayoutEffect(()=>{
   const screen=canvas.current?.getContext('2d');
   if(!screen)return;
@@ -41,7 +42,8 @@ export function Alien({ attention, chair=true, occupant=true, facing, standing=f
   currentYaw=target.current.controlled?target.current.yaw:advanceAlienYaw(currentYaw,target.current.yaw,dt);
   if(document.hidden){frame=requestAnimationFrame(draw);return;}
   telescopeBlend+=((target.current.motion.telescope?1:0)-telescopeBlend)*(1-Math.exp(-dt*7));
-  const down=target.current.down;
+  const coffeePose=target.current.coffee?.current;
+  const down=coffeePose?target.current.down*(1-coffeePose.lower)+.05*coffeePose.lower:target.current.down;
   // Polish only the pose envelope: route speed, arrivals and interactions stay untouched.
   walkBlend+=( (target.current.motion.moving??0)-walkBlend)*(1-Math.exp(-dt*12));
   if(Math.abs(walkBlend-(target.current.motion.moving??0))<.001)walkBlend=target.current.motion.moving??0;
@@ -53,7 +55,7 @@ export function Alien({ attention, chair=true, occupant=true, facing, standing=f
   // A small neck turn leads the existing chair swivel, then settles as it catches up.
   const yawError=((target.current.yaw-currentYaw+540)%360+360)%360-180;
   const cursorHeadYaw=!target.current.controlled&&target.current.ambient==='pilot'?Math.max(-8,Math.min(8,yawError*.3))*Math.PI/180:0;
-  const motion={...target.current.motion,blink:blinking.tick(document.hidden?0:dt),cursorHeadYaw,...(target.current.motion.telescope?{ritualAmount:telescopeBlend}:{}),moving:reduced.matches?0:walkBlend,life,ambient:ambientPose,emote:gesture,outfit:change.outfit};
+  const motion={...target.current.motion,coffee:coffeePose,blink:blinking.tick(document.hidden?0:dt),cursorHeadYaw,...(target.current.motion.telescope?{ritualAmount:telescopeBlend}:{}),moving:reduced.matches?0:walkBlend,life,ambient:ambientPose,emote:gesture,outfit:change.outfit};
   // Keep simulation on its existing clock; only expensive mesh painting is capped.
   // A small tolerance avoids dropping to 20fps on slightly uneven 60Hz frames.
   if(mobile()&&time-lastPaint<1000/30-1){frame=requestAnimationFrame(draw);return;}
@@ -65,7 +67,7 @@ export function Alien({ attention, chair=true, occupant=true, facing, standing=f
   // Draw the same depth-sorted surfaces without reconciling thousands of SVG
   // elements on every pointer frame. Extra space above accommodates the neck.
   // Reaching across the cabinet needs canvas room beyond Charlie's normal silhouette.
-  const reaching=(target.current.motion.ritualAmount??0)>0||gesturing||ambientPose?.kind==='fullStretch';
+  const reaching=(target.current.motion.ritualAmount??0)>0||gesturing||!!coffeePose||ambientPose?.kind==='fullStretch';
   screen.canvas.style.left=reaching?'-50%':'0';screen.canvas.style.width=reaching?'200%':'100%';
   const canvasWidth=reaching?720:360;
   if(screen.canvas.width!==canvasWidth)screen.canvas.width=canvasWidth;

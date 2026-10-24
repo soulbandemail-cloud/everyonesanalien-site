@@ -1,3 +1,5 @@
+import type {RefObject} from 'react';
+import type {CoffeePose} from '@/lib/ship/coffee';
 import {telescopeStation} from '@/lib/ship/telescope';
 import {wateringFrame,type WateringScene} from '@/lib/ship/watering';
 import {useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react';
@@ -12,7 +14,7 @@ import {project,type DomeConfig,type Viewport,type Vec3} from '@/lib/ship/domeGe
 import {ROOM} from '@/lib/ship/roomGeometry';
 import {orientedFixtures} from '@/lib/ship/fixtureLayout';
 import {localPoint} from '@/lib/ship/charlieNavigation';
-export function WalkingCharlie({state,config,view,outfit=null,spin,gramophone,watering,trophyHands,telescope=false,scripted=false}:{trophyHands?:(Vec3|undefined)[];telescope?:boolean;watering?:WateringScene|null;scripted?:boolean;gramophone?:GramophoneScene;outfit?:Outfit;spin?:ClothesSpin;state:CharlieState;config:DomeConfig;view:Viewport}){
+export function WalkingCharlie({coffee,state,config,view,outfit=null,spin,gramophone,watering,trophyHands,telescope=false,scripted=false}:{coffee?:RefObject<CoffeePose|undefined>;trophyHands?:(Vec3|undefined)[];telescope?:boolean;watering?:WateringScene|null;scripted?:boolean;gramophone?:GramophoneScene;outfit?:Outfit;spin?:ClothesSpin;state:CharlieState;config:DomeConfig;view:Viewport}){
  const [peaceHeld,setPeaceHeld]=useState(false);
  const [wheel,setWheel]=useState(false),[screenScale,setScreenScale]=useState(1);
  const emote=useRef<EmoteControl>({command:null}),element=useRef<HTMLDivElement>(null);
@@ -68,7 +70,7 @@ export function WalkingCharlie({state,config,view,outfit=null,spin,gramophone,wa
  <svg width={view.width} height={view.height} style={{position:'absolute',inset:0}}><ellipse cx={p.x} cy={p.y} rx={w*.2} ry={h*.025} fill="#000" opacity=".2"/></svg>
  <div style={{position:'absolute',left:p.x-w/2,top:p.y-h*1.32,width:w,height:h*1.4}}>
  <div className="charlie-emote-character" style={{position:'relative',marginTop:h*.32,width:w,height:h}}>
- <Alien emote={emote} outfit={outfit} spin={spin} ambient={clickable?'standing':undefined} chair={false} attention={{x:0,back:0,down:telescope?-.13:wateringPose?.tilt?wateringPose.tilt*.12:gramophone&&gramophone.amount>0?.2*gramophone.amount:state.paper>0?.16:state.lookUp?-.3:0}} facing={state.yaw} standing={state.stand>0} motion={{telescope,stand:state.stand,gait:state.gait,moving:state.moving,reading:state.paper,ritualHands:hands,ritualReach:trophyHands?[0,1]:telescope?[1,1]:wateringPose?[1,1]:gramophone?.reach,ritualAmount:trophyHands?1:telescope?1:wateringPose?.amount??gramophone?.amount}}/>
+ <Alien coffee={coffee} emote={emote} outfit={outfit} spin={spin} ambient={clickable?'standing':undefined} chair={false} attention={{x:0,back:0,down:telescope?-.13:wateringPose?.tilt?wateringPose.tilt*.12:gramophone&&gramophone.amount>0?.2*gramophone.amount:state.paper>0?.16:state.lookUp?-.3:0}} facing={state.yaw} standing={state.stand>0} motion={{telescope,stand:state.stand,gait:state.gait,moving:state.moving,reading:state.paper,ritualHands:hands,ritualReach:trophyHands?[0,1]:telescope?[1,1]:wateringPose?[1,1]:gramophone?.reach,ritualAmount:trophyHands?1:telescope?1:wateringPose?.amount??gramophone?.amount}}/>
  {(clickable||(peaceHeld&&!state.engagement&&state.mode==='walking'))&&<button type="button" className="charlie-emote-target" data-charlie-emote-ui aria-label="Charlie's emotes" aria-expanded={wheel} onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();recover();setScreenScale(Number(element.current?.closest<HTMLElement>('[data-cockpit-presentation]')?.dataset.presentationScale??1));setWheel(clickable&&!wheel);}}/>}
  </div>
  </div>

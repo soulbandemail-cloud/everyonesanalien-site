@@ -1,4 +1,6 @@
 'use client';
+import {CoffeeBreak} from './CoffeeBreak';
+import type {CoffeePose} from '@/lib/ship/coffee';
 import {Telescope} from './Telescope';
 import {telescopeStation} from '@/lib/ship/telescope';
 import {PolemanReward,usePolemanReward} from './PolemanReward';
@@ -94,6 +96,7 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
   chair:chairAvailable?()=>{onLeaveContext?.();interact('chair');}:undefined,
  }),[deskPlantAvailable,floorPlantAvailable,interact,onLeaveContext,onRecords,recordsAvailable,onShows,onMerch,onArcade,onTV,onNewsletter,showsAvailable,merchAvailable,arcadeAvailable,newsletterAvailable,chairAvailable]);
  const root = useRef<HTMLDivElement>(null);
+ const coffee=useRef<CoffeePose|undefined>(undefined);
  const pointer = useRef({ x: 0, y: .25 });
  useEffect(() => {
   const pilot=project({...pilotPosition,y:pilotPosition.y+ROOM.pilotSeatLift},config,view);
@@ -163,10 +166,11 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
   <MemoizedPilotMezzanine onPlant={actions.deskPlant} plantWiggle={watering.scene?.plant==='desk-plant'?wateringFrame(watering.scene,config,movement.state.position).wiggle:0} outfit={appearance.outfit} attention={attention} config={config} view={view} seated={movement.state.mode==='pilot-seated'&&!movement.state.phase} onChair={reveal===1?actions.chair:undefined} />
   <div className="cockpit-tv-layer" ref={onTvLayer} style={{position:'absolute',inset:0,zIndex:7,pointerEvents:'none','--tv-frame-width':view.width+'px','--tv-frame-height':view.height+'px'} as React.CSSProperties}/>
   <Telescope config={config} view={view} engaged={atTelescope} onClick={available('telescope')?()=>{onLeaveContext?.();interact('telescope');}:undefined}/>
-  <WalkingCharlie trophyHands={reward.hands} telescope={atTelescope} watering={watering.scene} scripted={reward.busy||records.busy||!!watering.scene||atTelescope} gramophone={gramophone} outfit={appearance.outfit} spin={appearance.spin} state={movement.state} config={config} view={view}/>
+  <WalkingCharlie coffee={coffee} trophyHands={reward.hands} telescope={atTelescope} watering={watering.scene} scripted={reward.busy||records.busy||!!watering.scene||atTelescope} gramophone={gramophone} outfit={appearance.outfit} spin={appearance.spin} state={movement.state} config={config} view={view}/>
   <svg width={view.width} height={view.height} style={{position:'absolute',inset:0,zIndex:9,pointerEvents:'none'}} aria-label="Charlie’s handled records and sleeves">
    <RecordProps scene={gramophone} fixture={orientedFixtures(config.centre,config.radius).musicStation} config={config} view={view} layer="carried"/>
   </svg>
+  <CoffeeBreak state={movement.state} config={config} view={view} pose={coffee}/>
   <WateringProps scene={watering.scene} config={config} view={view} position={movement.state.position}/>
   <ManifestationPort config={config} view={view} covered={reward.aperture===0} aperture={reward.aperture}/>
   <PolemanReward reward={{...reward,claim:()=>{if(!records.busy){cancelWater();onLeaveContext?.();reward.claim();}}}} config={config} view={view}/>
