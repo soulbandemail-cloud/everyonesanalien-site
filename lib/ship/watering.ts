@@ -5,13 +5,16 @@ export type Plant='desk-plant'|'floor-plant';
 export type WateringScene={plant:Plant;elapsed:number};
 export const WATERING_DURATION=3.8;
 export function plantSoil(plant:Plant,c:DomeConfig):Vec3{
- if(plant==='desk-plant'){const p=commandWall(-2.82,COMMAND_DECK.panelTop+.57*(1-34/50),c);return {...p,x:p.x+.19,z:p.z-.26};}
+ // The desk pot artwork is scaled 1.5 about its base at y=49; its rim was y=34.
+ if(plant==='desk-plant'){const rimY=49+(34-49)*1.5;const p=commandWall(-2.82,COMMAND_DECK.panelTop+.57*(1-rimY/50),c);return {...p,x:p.x+.19,z:p.z-.26};}
  const f=orientedFixtures(c.centre,c.radius).sofa,x=-1.62,z=-.12;
  return {x:f.x+f.scale*(x*Math.cos(f.yaw)+z*Math.sin(f.yaw)),y:f.y+.8*.42*1.45*f.scale,z:f.z+f.scale*(z*Math.cos(f.yaw)-x*Math.sin(f.yaw))};
 }
 const ease=(n:number)=>{n=Math.max(0,Math.min(1,n));return n*n*(3-2*n);};
 export function wateringFrame(scene:WateringScene,c:DomeConfig,position:Vec3){
- const t=scene.elapsed,soil=plantSoil(scene.plant,c),side=scene.plant==='desk-plant'?1:-1;
+ const t=scene.elapsed,centre=plantSoil(scene.plant,c),side=scene.plant==='desk-plant'?1:-1;
+ // Aim beside the stem within the soil; leave navigation anchored to the plant.
+ const soil={...centre,x:centre.x+(scene.plant==='desk-plant'?-.025:.07)};
  const raise=ease((t-.12)/.7)*(1-ease((t-3.05)/.6)),tilt=ease((t-.8)/.35)*(1-ease((t-2.75)/.3));
  const amount=ease(t/.16)*(1-ease((t-3.55)/.25));
  const pouring=t>=1.15&&t<2.75;
