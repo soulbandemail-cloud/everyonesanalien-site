@@ -312,3 +312,8 @@ button.object-back:focus-visible { text-decoration:none; }
 
 .collection-subheading { margin:0 0 6px; font-size:1em; font-weight:normal; text-align:center; }
 .clothing-collection { overflow-y:auto; max-height:100%; }
+
+/* Commercial headings retain their type/glow, with a stronger hierarchy. */
+.canonical-home .dome-information [data-dome-slot] > h2 { font-size:clamp(22px,2.2vw,32px); }
+.on-glass .dome-information [data-dome-slot] > h2 { font-size:clamp(16px,1.85vw,28px); }
+.on-glass[data-mobile-third] .dome-information [data-dome-slot] > h2 { font-size:clamp(15px,2.05vh,22px); }

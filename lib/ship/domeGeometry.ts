@@ -1,6 +1,8 @@
 /** World axes: +Y up, +Z forward. World distances in units, latitudes in radians. */
 export type Vec3 = { x: number; y: number; z: number };
 export type DomeConfig = {
+  /** Normalised vertical lens shift, shared by rendering and pointer unprojection. */
+  framingShift?: number;
   radius: number;
   centre: Vec3;
   camera: Vec3;
@@ -23,7 +25,7 @@ const stable = (n: number) => Number(n.toFixed(6));
 /** Explicit lens shift preserves the previous framing; also shown by the debug cone. */
 export function lens(c: DomeConfig, v: Viewport) {
   const focal = Math.min(v.height, v.width * 1.15) / (2 * Math.tan(radians(c.fov) / 2));
-  const horizon = v.height * .52;
+  const horizon = v.height * (.52 + (c.framingShift ?? 0));
   return { focal, horizon, upperAngle: Math.atan(horizon / focal), lowerAngle: Math.atan((v.height - horizon) / focal) };
 }
 export function spherePoint(theta: number, phi: number, c: DomeConfig): Vec3 {

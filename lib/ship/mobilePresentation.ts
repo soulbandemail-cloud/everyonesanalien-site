@@ -86,3 +86,14 @@ export function mobileThirdCamera(config: DomeConfig, view: Viewport) {
 export function mobileSideContent(name: string) {
   return {theta:name==='live' ? -.98 : .98,scale:.6};
 }
+
+/** Reframe the entire room without moving any world objects or the exterior dome. */
+export function commercialRoomCamera(config:DomeConfig,view:Viewport) {
+ const f=orientedFixtures(config.centre,config.radius).sofa;
+ const local=(x:number,y:number,z:number)=>({x:f.x+f.scale*(x*Math.cos(f.yaw)+z*Math.sin(f.yaw)),y:f.y+y*f.scale,z:f.z+f.scale*(z*Math.cos(f.yaw)-x*Math.sin(f.yaw))});
+ // Same affine basis as the plant artwork; the ceramic base ends at drawing y=2.
+ const p=project(local(-1.62,0,-.12),config,view);
+ const down=project(local(-1.62,-.008,-.12),config,view);
+ const bottom=p.y+(down.y-p.y)*1.45*2;
+ return {...config,framingShift:(config.framingShift??0)+(view.height-1-bottom)/view.height};
+}
