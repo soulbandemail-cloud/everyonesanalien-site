@@ -28,5 +28,11 @@ export function SofaSmoothSurface({triangles}:{triangles:SofaTriangle[]}){
   ctx.putImageData(pixels,0,0);
   for(const [key,value] of Object.entries({href:canvas.toDataURL(),x,y,width,height}))image.current?.setAttribute(key,String(value));
  },[triangles]);
- return <image ref={image} pointerEvents="none"/>;
+ // Upholstery solids are convex: use their projected boundary as the pointer mask,
+ // rather than the raster rectangle (which also contains transparent floor pixels).
+ const points=triangles.flat().slice().sort((a,b)=>a.x-b.x||a.y-b.y);
+ const cross=(a:SofaVertex,b:SofaVertex,c:SofaVertex)=>(b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);
+ const half=(list:SofaVertex[])=>{const hull:SofaVertex[]=[];for(const p of list){while(hull.length>1&&cross(hull[hull.length-2],hull[hull.length-1],p)<=0)hull.pop();hull.push(p);}return hull.slice(0,-1);};
+ const outline=[...half(points),...half(points.slice().reverse())].map(p=>`${p.x},${p.y}`).join(' ');
+ return <g><image ref={image} pointerEvents="none"/><polygon data-sofa-floor-blocker points={outline} fill="transparent" pointerEvents="all" onClick={event=>event.stopPropagation()} style={{cursor:'default'}}/></g>;
 }

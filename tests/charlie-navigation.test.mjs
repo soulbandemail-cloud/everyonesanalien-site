@@ -175,3 +175,13 @@ test('trophy ceremony routes through the existing navigation to hatch and arcade
  assert.equal(h.api.performTrophy(n.approaches(g.DEFAULT_DOME).trophy,()=>arrived++),true);h.advance();assert.equal(arrived,1);assert.equal(h.state().engagement,'trophy');assert.equal(h.state().yaw,180);
  assert.equal(h.api.performTrophy(n.approaches(g.DEFAULT_DOME).arcade,()=>arrived++),true);h.advance();assert.equal(arrived,2);
 });
+
+test('the complete sofa footprint remains non-walkable while its reading approach remains available',()=>{
+ const f=load(path.resolve('lib/ship/fixtureLayout.ts')).orientedFixtures(g.DEFAULT_DOME.centre,g.DEFAULT_DOME.radius).sofa;
+ for(const x of [-1.4,-1,-.43,0,.55])for(const z of [-.55,-.03,.48]){
+  const p=n.localPoint(f,x,z);
+  assert.equal(n.walkable(p,g.DEFAULT_DOME),false);
+  assert.equal(n.findPath(n.approaches(g.DEFAULT_DOME).chair.point,p,g.DEFAULT_DOME),null);
+ }
+ assert.equal(n.walkable(n.approaches(g.DEFAULT_DOME).newsletter.point,g.DEFAULT_DOME),true);
+});
