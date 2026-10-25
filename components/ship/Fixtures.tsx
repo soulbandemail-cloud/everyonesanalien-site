@@ -1,3 +1,4 @@
+import {SofaUpholstery} from './SofaUpholstery';
 import {PlantInteraction} from './PlantInteraction';
 import { memo, useEffect, useId, useState } from 'react';
 import { project, type DomeConfig, type Vec3, type Viewport } from '@/lib/ship/domeGeometry';
@@ -61,12 +62,12 @@ export const Fixtures = memo(function Fixtures({ onPlant,plantWiggle=0,config, v
     }
     const cabinet=f===music,gameCabinet=f===arcade;
     const lounge=f===sofa,wood=f===table && colour!=='#eee5cd';
-    return <g stroke={gameCabinet?'#b67fb7':cabinet?'#4b3020':lounge?'#39281f':wood?'#503923':'#849396'} strokeWidth="1" strokeLinejoin="round">{faces.map((face,i) => {
+    return <g stroke={gameCabinet?'#b67fb7':cabinet?'#4b3020':lounge?'#252c20':wood?'#503923':'#849396'} strokeWidth="1" strokeLinejoin="round">{faces.map((face,i) => {
       const d=lounge?paddedPath(face.points):path(face.points);
       return <g key={i}><path d={d} fill={gameCabinet?`url(#${outlineId}-arcade-paint)`:cabinet?`url(#${outlineId}-veneer)`:lounge?`url(#${outlineId}-cloth)`:wood?`url(#${outlineId}-wood)`:face.fill}/>{f !== FIXTURES.radio && <path d={d} fill={`url(#${outlineId}-surface)`} stroke="none" pointerEvents="none"/>}{(cabinet||lounge||gameCabinet) && face.points.every(point=>{
         const dx=point.x-f.x,dz=point.z-f.z;
         return dx*Math.sin(f.yaw)+dz*Math.cos(f.yaw)>0;
-      }) && <path d={d} fill="#e4b874" opacity=".045" stroke="none" pointerEvents="none"/>}{lounge && <path d={d} fill="none" stroke="#987659" strokeOpacity=".32" strokeWidth=".55"/>}</g>;
+      }) && <path d={d} fill="#e4b874" opacity=".045" stroke="none" pointerEvents="none"/>}{lounge && <path d={d} fill="none" stroke="#7c8058" strokeOpacity=".32" strokeWidth=".55"/>}</g>;
     })}</g>;
   }
 
@@ -95,7 +96,7 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
       <linearGradient id={`${outlineId}-veneer`} x2=".25" y2="1"><stop stopColor="#956c43"/><stop offset=".2" stopColor="#704829"/><stop offset=".75" stopColor="#4c301f"/><stop offset="1" stopColor="#795034"/></linearGradient>
       <linearGradient id={`${outlineId}-brass`} x2=".8" y2="1"><stop stopColor="#ba9862"/><stop offset=".32" stopColor="#94713f"/><stop offset=".65" stopColor="#65502f"/><stop offset="1" stopColor="#a48651"/></linearGradient>
       <radialGradient id={`${outlineId}-bell`} cx=".92" cy=".72" r=".95"><stop stopColor="#332b1e"/><stop offset=".55" stopColor="#705231"/><stop offset="1" stopColor="#af8952"/></radialGradient>
-      <linearGradient id={`${outlineId}-cloth`} x2=".3" y2="1"><stop stopColor="#805c43"/><stop offset=".35" stopColor="#674631"/><stop offset="1" stopColor="#432e23"/></linearGradient>
+      <linearGradient id={`${outlineId}-cloth`} x2=".3" y2="1"><stop stopColor="#626b45"/><stop offset=".35" stopColor="#485337"/><stop offset="1" stopColor="#2d3828"/></linearGradient>
       <linearGradient id={`${outlineId}-wood`} x2=".2" y2="1"><stop stopColor="#af8050"/><stop offset=".4" stopColor="#926139"/><stop offset="1" stopColor="#634329"/></linearGradient>
       <linearGradient id={`${outlineId}-surface`} x1="1" y1="0" x2="0" y2="1"><stop stopColor="#c4d0df" stopOpacity=".07"/><stop offset=".3" stopColor="#111b24" stopOpacity="0"/><stop offset=".62" stopColor="#111b24" stopOpacity=".12"/><stop offset="1" stopColor="#060e17" stopOpacity=".36"/></linearGradient>
       <filter id={outlineId} x="-100%" y="-100%" width="300%" height="300%" colorInterpolationFilters="sRGB">
@@ -222,18 +223,24 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
       {[.58,1.02].map(x=><g key={x}>{line(music,[x-.08,1.3,-.24],[x+.08,1.3,-.24],'#b58a53',2.5)}</g>)}
     </g>
     <g aria-label="Compact two-seat sofa on left main floor">
+      <path d={path(Array.from({length:49},(_,i)=>{const a=i/48*Math.PI*2;return local(sofa,-.43+1.02*Math.cos(a),.005,-.03+.53*Math.sin(a));}))} fill="#101b18" opacity=".18" pointerEvents="none"/>
       {(() => {
         // Paint the continuous frame before the cushions; centre-depth sorting
         // incorrectly lets the base/back cover the right cushion and far arm.
         const parts = [
           ...[-1.22,.36].flatMap(x=>[-.4,.36].map(z=>({name:`leg-${x}-${z}`,x,y:0,z,w:.13,h:.12,d:.13}))),
           {name:'base',x:-.43,y:.12,z:-.03,w:2,h:.2,d:1.09},
-          {name:'backrest',x:-.43,y:.32,z:.32,w:1.66,h:.78,d:.39},
+          // Back assembly shifted left by .12 local units in total as one aligned group.
+          {name:'backrest',x:-.55,y:.32,z:.39,w:1.28,h:.78,d:.25},
+          // Two identical .66 pads retain their shared seam, now at -.55.
+          // Both share y/z and the same shape; fixture yaw/scale apply to the whole assembly.
+          {name:'back-pad-right',x:-.22,y:.48,z:.18,w:.66,h:.62,d:.30},
+          {name:'back-pad-left',x:-.88,y:.48,z:.18,w:.66,h:.62,d:.30},
           {name:'arm-right',x:.4,y:.32,z:-.03,w:.34,h:.44,d:1.09},
-          ...[-.095,-.765].map((x,i)=>({name:`seat-${i+1}`,x,y:.32,z:-.22,w:.65,h:.27,d:.68})),
+          ...[-.095,-.765].map((x,i)=>({name:`seat-${i+1}`,x,y:.32,z:-.15,w:.65,h:.27,d:.82})),
         ];
 
-        return parts.map(p=><g key={p.name} data-sofa-part={p.name}>{box(sofa,p.x,p.y,p.z,p.w,p.h,p.d)}{p.name.startsWith('seat-') && <path d={paddedPath([local(sofa,p.x-p.w/2,p.y+p.h,p.z-p.d/2),local(sofa,p.x+p.w/2,p.y+p.h,p.z-p.d/2),local(sofa,p.x+p.w/2,p.y+p.h,p.z+p.d/2),local(sofa,p.x-p.w/2,p.y+p.h,p.z+p.d/2)])} fill={`url(#${outlineId}-cloth)`} stroke="#483125" strokeWidth=".45"/>}</g>);
+        return parts.map(p=><g key={p.name} data-sofa-part={p.name}><SofaUpholstery fixture={sofa} config={config} view={view} {...p} kind={p.name.startsWith('leg-')?'leg':p.name.startsWith('seat-')?'seat':p.name.startsWith('back-pad')?'back':p.name.startsWith('arm-')?'arm':'base'}/></g>);
       })()}
       {/* Supported by the left seat, clear of Charlie's central seat and mug reach.
           Both planes inherit the sofa's world projection; no hit target or animation. */}
@@ -265,7 +272,7 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
         </g>)}
       </g>
       {/* The near armrest occludes the toy naturally where their projected silhouettes meet. */}
-      <g data-sofa-part="arm-left">{box(sofa,-1.26,.32,-.03,.34,.44,1.09)}</g>
+      <g data-sofa-part="arm-left"><SofaUpholstery fixture={sofa} config={config} view={view} x={-1.26} y={.32} z={-.03} w={.34} h={.44} d={1.09} kind="arm"/></g>
     </g>
     <PlantInteraction label="Water floor plant" onClick={onPlant}>
      {flatArt(sofa,-1.62,0,-.12,.8,<g transform="scale(1 1.45)">
