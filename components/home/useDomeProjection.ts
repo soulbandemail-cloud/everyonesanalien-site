@@ -171,7 +171,10 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
     }
     // Straight shopfront header. Keep the established artwork scales, but remove
     // the dome projection's rotation/shear and align visible ink on one axis.
-    const rowY=view.height*.17,edgeRowY=38,margin=view.width*.045;
+    // Mobile's shallow landscape canvas needs extra space on both sides of SOUL.
+    // The column centre below uses 2*rowY, so it moves by twice this offset.
+    const mobileHeaderSpacing=mobileThird ? view.height*.055 : 0;
+    const rowY=view.height*.17+mobileHeaderSpacing,edgeRowY=38,margin=view.width*.045;
     const matrixOf=(el:HTMLElement)=>new DOMMatrix(el.style.transform||'none');
     const letters=glyphs.map(el=>{
       const matrix=matrixOf(el),transform=el.style.transform;
