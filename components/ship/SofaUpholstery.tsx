@@ -33,9 +33,10 @@ export const SofaUpholstery=memo(function SofaUpholstery({fixture:f,config,view,
  };
  const triangles:SofaTriangle[]=[];
  const rows=32,columns=64;
+ // Project each shared grid vertex once, rather than four times per cell.
+ const grid=Array.from({length:rows+1},(_,row)=>Array.from({length:columns+1},(_,col)=>vertex(-Math.PI/2+row*Math.PI/rows,col*Math.PI*2/columns)));
  for(let row=0;row<rows;row++)for(let col=0;col<columns;col++){
-  const a=-Math.PI/2+row*Math.PI/rows,b=col*Math.PI*2/columns,c=a+Math.PI/rows,e=b+Math.PI*2/columns;
-  const p=vertex(a,b),q=vertex(a,e),r=vertex(c,e),t=vertex(c,b);
+  const p=grid[row][col],q=grid[row][col+1],r=grid[row+1][col+1],t=grid[row+1][col];
   triangles.push([p,q,r],[p,r,t]);
  }
  // A restrained dark crease follows the rounded surface; no contrasting piping.

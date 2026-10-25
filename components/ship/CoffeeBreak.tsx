@@ -1,3 +1,4 @@
+import {useCockpitActivity} from './CockpitActivity';
 import {useEffect,useId,useLayoutEffect,useRef,type RefObject} from 'react';
 import {project,type DomeConfig,type Viewport} from '@/lib/ship/domeGeometry';
 import {orientedFixtures} from '@/lib/ship/fixtureLayout';
@@ -6,6 +7,7 @@ import {ROOM} from '@/lib/ship/roomGeometry';
 import {coffeeEase,coffeePhase,type CoffeePose} from '@/lib/ship/coffee';
 import type {CharlieState} from './useCharlieMovement';
 export function CoffeeBreak({state,config,view,pose}:{state:CharlieState;config:DomeConfig;view:Viewport;pose:RefObject<CoffeePose|undefined>}){
+ const cockpitActive=useCockpitActivity();
  const layer=useRef<SVGSVGElement>(null);
  const id=useId(),mug=useRef<SVGGElement>(null),steam=useRef<SVGGElement>(null);
  const target=useRef({state,config,view});
@@ -19,7 +21,7 @@ export function CoffeeBreak({state,config,view,pose}:{state:CharlieState;config:
   window.addEventListener('keydown',interrupt,true);
   const draw=(now:number)=>{
    frame=requestAnimationFrame(draw);const dt=last?Math.min(.05,(now-last)/1000):0;last=now;
-   if(document.hidden)return;time+=dt;
+   if(document.hidden||!cockpitActive.current)return;time+=dt;
    const {state:s,config:c,view:v}=target.current;
    const table=orientedFixtures(c.centre,c.radius).coffeeTable;
    const rest=project({...localPoint(table,.56,.12),y:table.y+.56*table.scale},c,v);
@@ -57,7 +59,7 @@ export function CoffeeBreak({state,config,view,pose}:{state:CharlieState;config:
   };
   frame=requestAnimationFrame(draw);
   return()=>{cancelAnimationFrame(frame);pose.current=undefined;window.removeEventListener('pointerdown',interrupt,true);window.removeEventListener('keydown',interrupt,true);};
- },[pose]);
+ },[pose,cockpitActive]);
  return <svg ref={layer} width={view.width} height={view.height} style={{position:'absolute',inset:0,zIndex:9,pointerEvents:'none'}} aria-label="A steaming cream coffee mug">
  <defs><linearGradient id={id}><stop stopColor="#bfae91"/><stop offset=".35" stopColor="#f1e4c8"/><stop offset="1" stopColor="#d2bea0"/></linearGradient></defs>
  <g ref={mug} transform="scale(0)"><path d="M-12-19C-29-24-29-2-12-5" fill="none" stroke="#cbb899" strokeWidth="2.8"/><path d="M-12-19C-26-22-26-4-12-6" fill="none" stroke="#f0e1c2" strokeWidth="1.1"/><path d="M-14-23Q-15-9-11-2Q0 4 11-2Q15-9 14-23Z" fill={`url(#${id})`} stroke="#ab987d" strokeWidth="1"/><ellipse cy="-23" rx="14" ry="5" fill="#eee0c4"/><ellipse cy="-23" rx="11" ry="3.3" fill="#c8b79b"/><path d="M-8-17Q-9-9-6-5" fill="none" stroke="#fff5df" strokeWidth="1.5" opacity=".7"/></g>

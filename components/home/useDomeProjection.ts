@@ -4,7 +4,7 @@ import { domePoint, type DomeConfig, type Viewport } from '@/lib/ship/domeGeomet
 import {domeHeaderPresentation} from '@/lib/ship/domeNavigation';
 import { domePageLayout, domeSurfaceFrame, wordmarkRulePath } from '@/lib/ship/domePageLayout';
 import { mobileSideContent } from '@/lib/ship/mobilePresentation';
-import { wordmarkFrames, PLANET_INK } from '@/lib/ship/wordmarkGeometry';
+import { wordmarkFrames, transformedBounds, ringBounds, PLANET_INK } from '@/lib/ship/wordmarkGeometry';
 import { measureWordmarkInk, clearWordmarkInkCache } from './measureWordmarkInk';
 import { socialProjection, socialIconSize, type SocialRect } from '@/lib/ship/socialProjection';
 import { cameraDuration } from '@/lib/ship/cameraTransition';
@@ -80,6 +80,7 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
     // A second CSS transform transition would corrupt the natural-layout measurement.
     headerParts.forEach(el=>{el.removeAttribute('style');el.style.transitionProperty='color, background-color, border-color';});
     slots.forEach(el=>el.removeAttribute('style'));
+    node.querySelector<HTMLElement>('[data-dome-slot="brand"] p')?.removeAttribute('style');
     const socialParts=headerParts.filter(el=>el.tagName==='A');
     const icons=socialParts.map(el=>el.querySelector('svg'));
     icons.forEach(svg=>{svg?.style.removeProperty('width');svg?.style.removeProperty('height');});
@@ -167,6 +168,67 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
         const ax=startX+(sx-startX)*t, ay=sy*t, bx=tx*t, by=startY+(ty-startY)*t;
         Object.assign(el.style,{position:'fixed',left:'0',top:'0',width:`${rect.width}px`,height:`${rect.height}px`,margin:'0',transformOrigin:'0 0',transform:`matrix(${ax},${ay},${bx},${by},${x},${y})`});
       });
+    }
+    // Straight shopfront header. Keep the established artwork scales, but remove
+    // the dome projection's rotation/shear and align visible ink on one axis.
+    const rowY=view.height*.17,edgeRowY=38,margin=view.width*.045;
+    const matrixOf=(el:HTMLElement)=>new DOMMatrix(el.style.transform||'none');
+    const letters=glyphs.map(el=>{
+      const matrix=matrixOf(el),transform=el.style.transform;
+      // Baseline measurements must be in local pixels, before the display scale.
+      el.style.transform='none';
+      const ink=measureWordmarkInk(el);
+      el.style.transform=transform;
+      return {el,ink,matrix};
+    });
+    if(wordmark&&planet&&letters.length===3){
+      const pm=matrixOf(planet), enlargement=1.5;
+      let px=Math.hypot(pm.a,pm.b)*enlargement,py=Math.hypot(pm.c,pm.d)*enlargement;
+      const boxes=letters.map(({ink})=>transformedBounds(ink.points,[1,0,0,1,0,0]));
+      const sizes=letters.map(({matrix},i)=>({x:Math.hypot(matrix.a,matrix.b)*enlargement,y:Math.hypot(matrix.c,matrix.d)*enlargement,box:boxes[i]}));
+      // Align the painted ring, not the SVG box (the heart extends below it).
+      const planetScale=parseFloat(planet.style.width)/(PLANET_INK.right-PLANET_INK.left);
+      const ring=ringBounds([px,0,0,py,0,0],planetScale);
+      const letterHeight=Math.max(...sizes.map(q=>(q.box.bottom-q.box.top)*q.y));
+      const ringFit=letterHeight/(ring.bottom-ring.top);
+      px*=ringFit;py*=ringFit;
+      const alignedRing=ringBounds([px,0,0,py,0,0],planetScale);
+      const pw=parseFloat(planet.style.width)*px;
+      const gap=parseFloat(getComputedStyle(wordmark).fontSize)*.26*Math.hypot(pm.a,pm.b)*enlargement;
+      const widths=sizes.map(v=>(v.box.right-v.box.left)*v.x);
+      const total=widths.reduce((a,b)=>a+b,0)+pw+gap*3;
+      let left=(view.width-total)/2;
+      const place=(el:HTMLElement,x:number,y:number,w:number,h:number)=>Object.assign(el.style,{position:'fixed',left:'0',top:'0',margin:'0',transformOrigin:'0 0',transform:`matrix(${w},0,0,${h},${x},${y})`});
+      for(let i=0;i<3;i++){
+        if(i===1){place(planet,left,rowY-(alignedRing.top+alignedRing.bottom)/2,px,py);left+=pw+gap;}
+        const q=sizes[i];place(letters[i].el,left-q.box.left*q.x,rowY-(q.box.top+q.box.bottom)*q.y/2,q.x,q.y);
+        left+=widths[i]+gap;
+      }
+    }
+    const caption=node.querySelector<HTMLElement>('[data-dome-slot="brand"] p');
+    if(caption){
+      caption.querySelectorAll<HTMLElement>('[data-dome-caption]').forEach(el=>el.removeAttribute('style'));
+      Object.assign(caption.style,{position:'fixed',left:`${margin}px`,top:`${edgeRowY}px`,margin:'0',whiteSpace:'nowrap',transform:'translateY(-50%)',width:'auto'});
+    }
+    const iconSizes=socialParts.map((el,i)=>{const m=matrixOf(el),svg=icons[i];return {x:Math.hypot(m.a,m.b),y:Math.hypot(m.c,m.d),w:parseFloat(svg?.style.width||'48'),h:parseFloat(svg?.style.height||'48')};});
+    const baseIconGap=Math.max(6,Math.min(22,view.width*.014));
+    const iconGap=baseIconGap*1.25;
+    // Fit the right-hand group within its third on narrow landscape screens.
+    const iconWidth=iconSizes.reduce((sum,v)=>sum+v.w*v.x,0);
+    const iconFit=Math.min(1,(view.width*.29-baseIconGap*(socialParts.length-1))/iconWidth);
+    iconSizes.forEach(q=>{q.x*=iconFit;q.y*=iconFit;});
+    let iconLeft=view.width-margin-iconSizes.reduce((sum,v)=>sum+v.w*v.x,0)-iconGap*(socialParts.length-1);
+    socialParts.forEach((el,i)=>{const q=iconSizes[i];Object.assign(el.style,{position:'fixed',left:'0',top:'0',margin:'0',transformOrigin:'0 0',transform:`matrix(${q.x},0,0,${q.y},${iconLeft},${edgeRowY-q.h*q.y/2})`});iconLeft+=q.w*q.x+iconGap;});
+    if(rules)rules.style.display='none';
+    // Move the complete column group using its rendered heading centre, including
+    // the responsive grid offset, so the two vertical header gaps stay equal.
+    const information=node.querySelector<HTMLElement>('[data-dome-slot="information"]');
+    const columnHeading=information?.querySelector<HTMLElement>('h2');
+    if(cockpit&&information&&columnHeading){
+      const headingRect=columnHeading.getBoundingClientRect();
+      const targetHeadingY=2*rowY-edgeRowY;
+      const shift=targetHeadingY-(headingRect.top+headingRect.height/2);
+      information.style.top=`${parseFloat(information.style.top)+shift}px`;
     }
     if(!cockpit && progress===0) sides.forEach(el=>el.querySelector('h2')?.removeAttribute('style'));
     } finally {

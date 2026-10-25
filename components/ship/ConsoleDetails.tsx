@@ -1,6 +1,6 @@
 import {useConsoleActivity} from './useConsoleActivity';
 import {PlantInteraction} from './PlantInteraction';
-import { useId, useState, type ReactNode } from 'react';
+import { memo, useId, useState, type ReactNode } from 'react';
 import { project, type DomeConfig, type Viewport, type Vec3 } from '@/lib/ship/domeGeometry';
 import { COMMAND_DECK, commandWall } from '@/lib/ship/commandDeck';
 
@@ -23,7 +23,7 @@ function Module({kind,label}:{kind:Instrument;label:string}) {return <g>
  </g>;}
 const sixty=60;
 
-export function ConsoleDetails({config,view,onPlant,plantWiggle=0}:{config:DomeConfig;view:Viewport;onPlant?:()=>void;plantWiggle?:number}) {
+export const ConsoleDetails=memo(function ConsoleDetails({config,view,onPlant,plantWiggle=0}:{config:DomeConfig;view:Viewport;onPlant?:()=>void;plantWiggle?:number}) {
  const lightId=useId();
  const activity=useConsoleActivity();
  const [lampOn,setLampOn]=useState(true);
@@ -69,4 +69,4 @@ export function ConsoleDetails({config,view,onPlant,plantWiggle=0}:{config:DomeC
   </PlantInteraction>
   <PlantInteraction label="Water desk plant" onClick={onPlant}>{[-2.82].map((x,i)=>prop(`plant-${i}`,x,.38,.57,<g transform="translate(50 49) scale(1.5) translate(-50 -49)"><path d="M20 34H81L71 49H30Z" fill={i?'#85704c':'#9b7750'} stroke="#c0a071"/><g transform={`rotate(${plantWiggle} 50 34)`}><path d="M50 35V12M50 28L23 14M50 23L78 9" fill="none" stroke="#75834b" strokeWidth="3"/>{[[24,17,-35],[74,13,40],[46,10,-10],[69,26,60],[29,28,-55]].map(([cx,cy,a],j)=><ellipse key={j} cx={cx} cy={cy} rx="9" ry="4" transform={`rotate(${a} ${cx} ${cy})`} fill={j%2?'#7d8951':'#4d693e'} stroke="#a0a064" strokeWidth=".6"/>)}</g></g>))}</PlantInteraction>
  </g>;
-}
+});

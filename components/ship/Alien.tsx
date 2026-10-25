@@ -1,3 +1,4 @@
+import {useCockpitActivity} from './CockpitActivity';
 import type {CoffeePose} from '@/lib/ship/coffee';
 import {createBlink} from '@/lib/ship/charlieBlink';
 import {paintEmoteEffects} from '@/lib/ship/emoteEffects';
@@ -12,6 +13,7 @@ import { alienVolume, alienLookYaw, advanceAlienYaw, type AlienMotion } from '@/
 import styles from './ship.module.css';
 export type Attention = { x: number; back: number; down: number; swivel?:number };
 export function Alien({ coffee,attention, chair=true, occupant=true, facing, standing=false, motion={}, ambient, outfit=null, spin, emote }: { coffee?:RefObject<CoffeePose|undefined>;emote?:RefObject<EmoteControl>;attention: Attention; outfit?:Outfit;spin?:ClothesSpin;chair?:boolean; occupant?:boolean; facing?:number; standing?:boolean; motion?:AlienMotion; ambient?:'pilot'|'standing' }) {
+ const cockpitActive=useCockpitActivity();
  const canvas=useRef<HTMLCanvasElement>(null);
  const yaw = facing ?? alienLookYaw(attention.x,attention.back,attention.swivel);
  const target=useRef({yaw,controlled:facing!==undefined,down:attention.down,chair,occupant,standing,motion,ambient,outfit,spin,emote,coffee});
@@ -40,7 +42,7 @@ export function Alien({ coffee,attention, chair=true, occupant=true, facing, sta
   const dt=Math.min((time-previous)/1000,.05);previous=time;
   // Walking yaw is already eased by the navigation loop; do not smooth it twice.
   currentYaw=target.current.controlled?target.current.yaw:advanceAlienYaw(currentYaw,target.current.yaw,dt);
-  if(document.hidden){frame=requestAnimationFrame(draw);return;}
+  if(document.hidden||!cockpitActive.current){frame=requestAnimationFrame(draw);return;}
   telescopeBlend+=((target.current.motion.telescope?1:0)-telescopeBlend)*(1-Math.exp(-dt*7));
   const coffeePose=target.current.coffee?.current;
   const down=coffeePose?target.current.down*(1-coffeePose.lower)+.05*coffeePose.lower:target.current.down;
@@ -100,7 +102,7 @@ export function Alien({ coffee,attention, chair=true, occupant=true, facing, sta
   };
   frame=requestAnimationFrame(draw);
   return ()=>{ink.dispose();cancelAnimationFrame(frame);window.removeEventListener('pointermove',interrupt);window.removeEventListener('pointerdown',interrupt);window.removeEventListener('keydown',interrupt);};
- },[]);
+ },[cockpitActive]);
  return <div className={styles.alien} data-outfit={outfit??"none"} data-changing={!!spin||undefined} aria-label="Seated alien sharing your attention">
  {chair && <div className={styles.chairStem} aria-hidden="true"/>}
  <canvas ref={canvas} width={360} height={800} style={{position:'absolute',top:'-60%',maxWidth:'none',left:(motion.ritualAmount??0)>0?'-50%':0,width:(motion.ritualAmount??0)>0?'200%':'100%',height:'160%'}} aria-hidden="true"/>

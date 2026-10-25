@@ -124,9 +124,9 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
   }
 
   const [tvDockHost,setTvDockHost]=useState<HTMLDivElement|null>(null);
-  const camera=transitionCamera(config,progress);
-  const framedRoom=commercialRoomCamera(mobileThird ? mobileThirdCamera(config,view) : config,view);
-  const roomCamera=transitionCamera({...framedRoom,framingShift:(framedRoom.framingShift??0)*progress},progress);
+  const camera=useMemo(()=>transitionCamera(config,progress),[config,progress]);
+  const framedRoom=useMemo(()=>commercialRoomCamera(mobileThird ? mobileThirdCamera(config,view) : config,view),[mobileThird,config,view]);
+  const roomCamera=useMemo(()=>transitionCamera({...framedRoom,framingShift:(framedRoom.framingShift??0)*progress},progress),[framedRoom,progress]);
   const tvDock=thirdActive ? consoleTvScreen(roomCamera,view) : undefined;
   const tvVisible=(!cockpit && progress===0) || (cockpit && progress===1 && tvDock?.visible);
   return <div className={`mate-experience ${cockpit ? 'mate-cockpit' : ''}`} ref={focusTarget} tabIndex={-1} style={universal && !viewport.ready ? {visibility:'hidden'} : undefined} data-mobile={mobile || undefined} data-cockpit-active={thirdActive && !arcadeOpen || undefined}>

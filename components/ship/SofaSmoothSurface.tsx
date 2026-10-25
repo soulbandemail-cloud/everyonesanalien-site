@@ -30,7 +30,7 @@ export function SofaSmoothSurface({triangles}:{triangles:SofaTriangle[]}){
  },[triangles]);
  // Upholstery solids are convex: use their projected boundary as the pointer mask,
  // rather than the raster rectangle (which also contains transparent floor pixels).
- const points=triangles.flat().slice().sort((a,b)=>a.x-b.x||a.y-b.y);
+ const points=[...new Set(triangles.flat())].sort((a,b)=>a.x-b.x||a.y-b.y);
  const cross=(a:SofaVertex,b:SofaVertex,c:SofaVertex)=>(b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);
  const half=(list:SofaVertex[])=>{const hull:SofaVertex[]=[];for(const p of list){while(hull.length>1&&cross(hull[hull.length-2],hull[hull.length-1],p)<=0)hull.pop();hull.push(p);}return hull.slice(0,-1);};
  const outline=[...half(points),...half(points.slice().reverse())].map(p=>`${p.x},${p.y}`).join(' ');

@@ -1,4 +1,5 @@
 'use client';
+import {CockpitActiveContext} from './CockpitActivity';
 import {SeasonalPumpkin} from './SeasonalPumpkin';
 import {CoffeeBreak} from './CoffeeBreak';
 import type {CoffeePose} from '@/lib/ship/coffee';
@@ -100,6 +101,7 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
  const coffee=useRef<CoffeePose|undefined>(undefined);
  const pointer = useRef({ x: 0, y: .25 });
  useEffect(() => {
+  if(arcadeOpen||telescopeOpen)return;
   const pilot=project({...pilotPosition,y:pilotPosition.y+ROOM.pilotSeatLift},config,view);
   const alienHeight=ROOM.alienHeight*pilot.scale;
   // Neutral antenna tips are at drawing y=-15.5 in the 250-unit occupant.
@@ -148,10 +150,10 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
    window.removeEventListener('pointerout', leave);
    window.removeEventListener('blur', reset);
   };
- }, [config,view]);
+ }, [config,view,arcadeOpen,telescopeOpen]);
  const [debug,setDebug]=useState(false);
  const [grid,setGrid]=useState(true);
- return <div ref={root} className={styles.ship} style={{...(sharedSeam ? {width:view.width,height:view.height} : {}),opacity:Math.max(0,Math.min(1,(reveal-.12)/.6))}} aria-label="Mate cockpit">
+ return <CockpitActiveContext.Provider value={!arcadeOpen&&!telescopeOpen}><div ref={root} className={styles.ship} style={{...(sharedSeam ? {width:view.width,height:view.height} : {}),opacity:Math.max(0,Math.min(1,(reveal-.12)/.6))}} aria-label="Mate cockpit">
   <Dome config={domeConfig} view={view} debug={development && debug && grid} />
   <ExteriorHull ambientActive={reveal===1&&!arcadeOpen&&!telescopeOpen&&!busy} config={config} hull={hull} view={view} sharedSeam={sharedSeam} />
   <CockpitFloor config={config} view={view} sharedSeam={sharedSeam} />
@@ -177,11 +179,11 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
   <ManifestationPort config={config} view={view} covered={reward.aperture===0} aperture={reward.aperture}/>
   <PolemanReward reward={{...reward,claim:()=>{if(!records.busy){cancelWater();onLeaveContext?.();reward.claim();}}}} config={config} view={view}/>
   <header className={styles.toolbar}>
-    <span className={styles.alpha}>alpha{preview && <small className={styles.previewLabel}>DEVELOPMENT PREVIEW · NO MATE SESSION</small>}</span>
+    <span>{preview && <small className={styles.previewLabel}>DEVELOPMENT PREVIEW · NO MATE SESSION</small>}</span>
     {logout && <button className="cockpit-logout" onClick={logout} disabled={busy}>{busy ? 'LOGGING OUT…' : 'LOG OUT'}</button>}
     {development && <button aria-pressed={debug} onClick={()=>setDebug(!debug)}>Geometry {debug ? 'on' : 'off'}</button>}
   </header>
   {telescopeOpen&&<TelescopeView directionRef={telescopeDirection} onClose={closeTelescope}/>}
   {development && debug && <GeometryCalibration hull={hull} onHullChange={onHullChange} config={baseline} view={view} onChange={onConfigChange} grid={grid} onGridChange={setGrid} />}
- </div>;
+ </div></CockpitActiveContext.Provider>;
 }

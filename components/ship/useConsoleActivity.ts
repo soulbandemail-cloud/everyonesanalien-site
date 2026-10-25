@@ -1,7 +1,9 @@
+import {useCockpitActivity} from './CockpitActivity';
 import {useEffect,useRef} from 'react';
 
 /** One modest-rate clock updates existing SVG elements, never React state. */
 export function useConsoleActivity(){
+ const cockpitActive=useCockpitActivity();
  const root=useRef<SVGGElement>(null);
  useEffect(()=>{
   const node=root.current;if(!node)return;
@@ -19,7 +21,7 @@ export function useConsoleActivity(){
   function draw(now:number){
    frame=requestAnimationFrame(draw);
    const dt=previous?(now-previous)/1000:0;previous=now;
-   if(document.hidden||reduced.matches)return;
+   if(document.hidden||!cockpitActive.current||reduced.matches)return;
    clock+=Math.min(dt,.1);if(now-last<50)return;last=now;
    if(clock>eventAt){eventStart=clock;eventGroup=Math.floor(Math.random()*4);eventAt=clock+45+Math.random()*45;}
    const event=clock-eventStart,system=event<4.5;
@@ -50,6 +52,6 @@ export function useConsoleActivity(){
   }
   frame=requestAnimationFrame(draw);
   return()=>cancelAnimationFrame(frame);
- },[]);
+ },[cockpitActive]);
  return root;
 }
