@@ -94,6 +94,9 @@ export function commercialRoomCamera(config:DomeConfig,view:Viewport) {
  // Same affine basis as the plant artwork; the ceramic base ends at drawing y=2.
  const p=project(local(-1.62,0,-.12),config,view);
  const down=project(local(-1.62,-.008,-.12),config,view);
- const bottom=p.y+(down.y-p.y)*1.45*2;
+ const plantBottom=p.y+(down.y-p.y)*1.45*2;
+ // Include the central medallion's outer border (.92 radius), not the whole rug.
+ const medallionBottom=Math.max(...deckOutline(1.84,1.84,ROOM.floorY+.002,ROOM.port.z).map(point=>project({...point,x:point.x+ROOM.port.x},config,view).y));
+ const bottom=Math.max(plantBottom,medallionBottom+5);
  return {...config,framingShift:(config.framingShift??0)+(view.height-1-bottom)/view.height};
 }

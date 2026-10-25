@@ -22,7 +22,7 @@ export default function MatePanel({mobile=false}:{mobile?:boolean}){
   </form>
  </>;
  return <section data-dome-slot="mate">
-  <h2 className="text-2xl mb-4">THE HYPER-FIX</h2>
+  <h2 className="text-2xl mb-4">MATES</h2>
   <p className="mb-4">Get the official SOUL newsletter for MATES RATE discounts!</p>
   {mobile ? <><button type="button" className="mobile-email-entry pink-border-glow border border-white bg-[#00082d] p-2" aria-haspopup="dialog" onClick={()=>setOpen(true)}>EMAIL</button>
    {open&&<MobileEmailOverlay onClose={()=>setOpen(false)}>{form}</MobileEmailOverlay>}

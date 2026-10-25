@@ -35,8 +35,6 @@ export const Dome = memo(function Dome({ config, view, debug }: { config: DomeCo
   <path d={reflection(config,view,-1.20,.48,1.38,.014)} />
   <path d={reflection(config,view,1.42,.12,1.21,.035)} />
  </g>
- <path d={curvePath(config,view,.025)} fill="none" stroke="#cce6d9" strokeOpacity=".14" strokeWidth="2" />
- <path d={curvePath(config,view,.035)} fill="none" stroke="#678f96" strokeOpacity=".12" strokeWidth="1" />
  {debug && <g stroke="#a9dace" strokeOpacity=".18" strokeWidth="1" fill="none" strokeDasharray="3 7">{[.15, .3, .45, .6, .8, 1, 1.2, 1.4].map(phi => <path key={phi} d={curvePath(config, view, phi)} />)}{Array.from({ length: 24 }, (_, i) => <path key={i} d={curvePath(config, view, undefined, i * Math.PI / 12)} />)}</g>}
  </svg>;
 });

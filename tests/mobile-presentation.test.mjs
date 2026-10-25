@@ -237,7 +237,7 @@ test('phone third person stays sideways with the intact landscape scene in eithe
  assert.equal(m.isPhoneScreen(portrait,false,0),false);
 });
 
-test('commercial room framing anchors the plant base on desktop and mobile without moving the scene',()=>{
+test('commercial room framing preserves the full central medallion on desktop and mobile without moving the scene',()=>{
  const fixtures=load('fixtureLayout');
  for(const [view,mobile] of [[{width:1280,height:720},false],[{width:1920,height:1080},false],[{width:844,height:390},true],[{width:667,height:300},true]]){
   const source=mobile?m.mobileThirdCamera(g.DEFAULT_DOME,view):g.DEFAULT_DOME;
@@ -245,7 +245,10 @@ test('commercial room framing anchors the plant base on desktop and mobile witho
   const f=fixtures.orientedFixtures(source.centre,source.radius).sofa;
   const local=(y)=>({x:f.x+f.scale*(-1.62*Math.cos(f.yaw)-.12*Math.sin(f.yaw)),y:f.y+y*f.scale,z:f.z+f.scale*(-.12*Math.cos(f.yaw)+1.62*Math.sin(f.yaw))});
   const p=g.project(local(0),framed,view),down=g.project(local(-.008),framed,view);
-  assert.ok(Math.abs(p.y+(down.y-p.y)*2.9-(view.height-1))<.00001);
+  assert.ok(p.y+(down.y-p.y)*2.9<=view.height-1+.00001);
+  const bottom=Math.max(...room.deckOutline(1.84,1.84,room.ROOM.floorY+.002,room.ROOM.port.z).map(point=>g.project({...point,x:point.x+room.ROOM.port.x},framed,view).y));
+  assert.ok(bottom<=view.height-6+.00001);
+  assert.ok(Math.abs(Math.max(p.y+(down.y-p.y)*2.9,bottom+5)-(view.height-1))<.00001);
   assert.deepEqual(framed.camera,source.camera);
   assert.equal(framed.pitch,source.pitch);assert.equal(framed.fov,source.fov);
   assert.equal(g.project(local(0),source,view).x,p.x);

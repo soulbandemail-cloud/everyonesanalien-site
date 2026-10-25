@@ -114,7 +114,7 @@ export default function CanonicalHomepage({ cockpit, config, view, animateEntry 
           <div className="dome-columns">
           {cockpit && <MatePanel mobile={mobileThird} />}
           <section data-dome-slot="live" className="md:col-start-1 mt-4 md:mt-0 md:max-w-sm md:mx-auto">
-            <h2 className="text-2xl mb-4">THE SHOWS</h2>
+            <h2 className="text-2xl mb-4">SHOWS</h2>
 
 
            <ul className="space-y-2">
@@ -135,12 +135,12 @@ export default function CanonicalHomepage({ cockpit, config, view, animateEntry 
             <RecordCollection record={records} onChoose={onChooseRecord}/>
           </section>}
           <section data-dome-slot="records">
-            <h2 className="text-2xl mb-4">THE RECORDS</h2>
+            <h2 className="text-2xl mb-4">RECORDS</h2>
             <p>coming soon<span className="animate-pulse">_</span></p>
           </section>
 
           <section data-dome-slot="merch" className="md:col-start-3 md:max-w-sm md:mx-auto">
-            <h2 className="text-2xl mb-4">THE MERCH</h2>
+            <h2 className="text-2xl mb-4">MERCH</h2>
 
             <a href="https://square.link/u/lXbPiLpe" target="_blank" rel="noopener noreferrer" aria-label="Shop the SOUL Ringer Tee (opens in a new tab)" className="inline-block ringer-tee-display cockpit-interactive-fixture" aria-disabled="false" style={{"--fixture-hover-filter":"none","--tee-outline":`url(#${teeOutlineId})`} as CSSProperties}
               onClick={event=>{event.currentTarget.dataset.resting='true';}}
