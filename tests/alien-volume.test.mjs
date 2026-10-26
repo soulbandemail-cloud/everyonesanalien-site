@@ -172,3 +172,16 @@ test('blinks preserve resting geometry and remain finite through seated and movi
  assert.ok(closed.length<open.length); // covered eye cells disappear, head surface stays intact
  assert.deepEqual(open.filter(f=>f.fill!=='#000000'),closed.filter(f=>f.fill!=='#000000'));
 });
+
+test('direct canvas surfaces preserve SVG geometry, colour and depth',()=>{
+ for(const yaw of [0,90,180]){
+  const motion={moving:.8,gait:1.4,life:2};
+  const svg=alienVolume(yaw,.2,true,motion),canvas=alienVolume(yaw,.2,true,motion,true);
+  assert.equal(canvas.length,svg.length);
+  canvas.forEach((face,i)=>{
+   assert.equal(face.d,'');assert.equal(face.fill,svg[i].fill);assert.equal(face.depth,svg[i].depth);
+   const points=[...svg[i].d.matchAll(/(-?\d+\.\d+),(-?\d+\.\d+)/g)].map(m=>({x:+m[1],y:+m[2]}));
+   assert.deepEqual(face.points.map(p=>({x:p.x||0,y:p.y||0})),points.map(p=>({x:p.x||0,y:p.y||0})));
+  });
+ }
+});

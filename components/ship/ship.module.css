@@ -33,7 +33,7 @@
 .alienFront { transform: rotateY(180deg) translateZ(1px); }
 .alienBack { transform: translateZ(1px); }
 .chairBase { position: absolute; width: 40%; height: 8%; border-radius: 50%; background: linear-gradient(165deg,#b69a69 0%,#6b5438 35%,#322c22 58%,#8c714b 82%,#c0a675 100%); border: 2px solid #5e4a32; left: 30%; top: calc(95% + var(--seat-lift, 0px)); box-shadow: 0 3px 4px #0005; }
-.toolbar { pointer-events: auto; position: absolute; z-index: 8; top: 64px; left: 28px; right: 28px; display: flex; align-items: center; gap: 18px; font-size: 10px; letter-spacing: .12em; color: #afc4cd; }
+.toolbar { pointer-events: none; position: absolute; z-index: 8; top: 64px; left: 28px; right: 28px; display: flex; align-items: center; gap: 18px; font-size: 10px; letter-spacing: .12em; color: #afc4cd; }
 .toolbar span { margin-right: auto; }
 .ship button { cursor: pointer; border: 1px solid #718b8955; background: #081327cc; color: #cce1dc; padding: 8px 10px; font: inherit; }
 .settings { pointer-events: auto; position: absolute; z-index: 9; top: 65px; right: 20px; width: 390px; max-height: calc(100% - 135px); overflow: auto; overscroll-behavior: contain; background: #071121f5; border: 1px solid #7fffd455; padding: 14px; font-size: 11px; }
@@ -82,3 +82,6 @@
 :global(.mate-cockpit[data-mobile]) .chairInteractable[aria-disabled="false"][data-pressed] .chairOutline {
   opacity:1 !important;
 }
+
+/* Empty toolbar space must not mask projected dome links. */
+.toolbar button { pointer-events:auto; }

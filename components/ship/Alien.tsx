@@ -81,15 +81,18 @@ export function Alien({ coffee,attention, chair=true, occupant=true, facing, sta
   if(target.current.chair&&(chairYaw!==currentYaw||chairTilt!==recline)){
    chairYaw=currentYaw;chairTilt=recline;chairMesh=pilotChairVolume(currentYaw,recline).map(face=>({...face,path:new Path2D(face.d)}));
   }
-  const mesh:Array<{d:string;fill:string;depth:number;path?:Path2D;texture?:Parameters<typeof paintWearableInk>[2]}>=[...(target.current.occupant?alienVolume(currentYaw+change.yaw,down,target.current.standing,motion):[]),...(target.current.chair?chairMesh:[])].sort((a,b)=>a.depth-b.depth);
+  const mesh:Array<{d:string;fill:string;depth:number;path?:Path2D;points?:{x:number;y:number}[];texture?:Parameters<typeof paintWearableInk>[2]}>=[...(target.current.occupant?alienVolume(currentYaw+change.yaw,down,target.current.standing,motion,true):[]),...(target.current.chair?chairMesh:[])].sort((a,b)=>a.depth-b.depth);
   // Local canvas blur only; furniture and chair stay sharp.
   context.filter='none';
   context.lineWidth=.3;context.lineJoin='round';
   for(const face of mesh){
-   const path=face.path??new Path2D(face.d);
    context.fillStyle=face.fill;context.strokeStyle=face.fill;
    if('texture' in face && face.texture){if(ink.ready)paintWearableInk(context,ink.canvas,face.texture);}
-   else {context.fill(path);context.stroke(path);}
+   else if(face.points){
+    context.beginPath();
+    face.points.forEach((p,i)=>{if(i===0)context.moveTo(p.x,p.y);else context.lineTo(p.x,p.y);});
+    context.closePath();context.fill();context.stroke();
+   }else {const path=face.path??new Path2D(face.d);context.fill(path);context.stroke(path);}
   }
   paintEmoteEffects(context,gesture,currentYaw);
   if(change.haze>0){

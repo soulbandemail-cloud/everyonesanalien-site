@@ -95,7 +95,7 @@ tube(smile,.9,'#000000');
 for(let i=smileStart;i<faces.length;i++){faces[i].head=true;faces[i].mouth=true;}
 
 export type AlienMotion={coffee?:CoffeePose;blink?:number;cursorHeadYaw?:number;telescope?:boolean;emote?:EmotePose;ritualHands?:(V|undefined)[];ritualReach?:number[];ritualAmount?:number;outfit?:Outfit;ambient?:AmbientPose;stand?:number;gait?:number;moving?:number;reading?:number;life?:number};
-export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMotion={}){
+export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMotion={},canvasOnly=false){
  const stand=motion.stand??(standing?1:0),walk=motion.moving??0,phase=motion.gait??0,reading=motion.reading??0;
  const wave=motion.emote;
  const ambient=motion.ambient;
@@ -341,7 +341,7 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
   let rgb=colours.get(face.colour);
   if(!rgb){rgb=face.colour.slice(1).match(/../g)!.map(v=>parseInt(v,16));colours.set(face.colour,rgb);}
   const printed=paperOrder.get(face),page=face.points[0].x<0?0:1;
-  return {texture:face.uv?{points:p,uv:face.uv}:undefined,d:`M${p.map(v=>`${v.x.toFixed(2)},${v.y.toFixed(2)}`).join('L')}Z`,depth:propOrder.has(face)?propDepth+propOrder.get(face)!*.00001:printed!==undefined?1000+pageDepth[page]+(printed>1?.001:0):(face.eye?100:0)+(+(p.reduce((sum,v)=>sum+v.z,0)/p.length).toFixed(5)),fill:face.colour==='#000000'?'#000000':`rgb(${rgb.map((v,i)=>Math.round(v*light+(i===0?5:0))).join(',')})`};
+  return {points:canvasOnly?p.map(v=>({x:Math.round(v.x*100)/100,y:Math.round(v.y*100)/100})):undefined,texture:face.uv?{points:p,uv:face.uv}:undefined,d:canvasOnly?'':`M${p.map(v=>`${v.x.toFixed(2)},${v.y.toFixed(2)}`).join('L')}Z`,depth:propOrder.has(face)?propDepth+propOrder.get(face)!*.00001:printed!==undefined?1000+pageDepth[page]+(printed>1?.001:0):(face.eye?100:0)+(+(p.reduce((sum,v)=>sum+v.z,0)/p.length).toFixed(5)),fill:face.colour==='#000000'?'#000000':`rgb(${rgb.map((v,i)=>Math.round(v*light+(i===0?5:0))).join(',')})`};
  }).sort((a,b)=>a.depth-b.depth);
 }
 

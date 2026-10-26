@@ -7,7 +7,9 @@ import type {Outfit,ClothingId} from '@/lib/ship/clothing';
 import ringerTee from '@/public/soul-ringer-tee.png';
 import { useId, useRef, type CSSProperties } from 'react';
 import MatePanel from '@/components/mate/MatePanel';
+import {useGlassContent} from './useGlassContent';
 import { useDomeProjection } from './useDomeProjection';
+import GlassText from './GlassText';
 import RealPlanetHeart from './RealPlanetHeart';
 import ExteriorSpace from './ExteriorSpace';
 import { exteriorPlane } from '@/lib/ship/exteriorSpace';
@@ -29,6 +31,7 @@ export default function CanonicalHomepage({ cockpit, config, view, animateEntry 
  // Blend the live header toward the final dome frame. The travelling eye crosses
  // that surface near its start; projecting through it would fling the header offscreen.
  useDomeProjection(homeRoot, cockpit, config, view, animateEntry, config, progress, mobileThird);
+ useGlassContent(homeRoot,config,view,cockpit&&progress===1);
  return <div ref={homeRoot} className="canonical-home" data-dome-menu={domeMenu ?? "none"} data-mobile-third={mobileThird || undefined} data-dome-narrow={view.width<760 || undefined} data-returning={!cockpit && progress>0 ? "true" : undefined}>
  <ExteriorSpace config={config} camera={camera} view={view} />
  <main className="pink-text-glow min-h-screen text-white p-8 md:p-12 max-w-12xl mx-auto">
@@ -114,33 +117,33 @@ export default function CanonicalHomepage({ cockpit, config, view, animateEntry 
           <div className="dome-columns">
           {cockpit && <MatePanel mobile={mobileThird} />}
           <section data-dome-slot="live" className="md:col-start-1 mt-4 md:mt-0 md:max-w-sm md:mx-auto">
-            <h2 className="text-2xl mb-4">SHOWS</h2>
+            <h2 className="text-2xl mb-4"><GlassText>SHOWS</GlassText></h2>
 
 
            <ul className="space-y-2">
-                <p>
+                <p><GlassText>
               TBA
               <span className="animate-pulse">_</span>
-            </p>
+            </GlassText></p>
             </ul>
 
           </section>
 
           {cockpit && <section className="dome-wardrobe">
-            <h2 className="text-2xl mb-4">CHARLIE&apos;S COLLECTION</h2>
+            <h2 className="text-2xl mb-4"><GlassText>CHARLIE&apos;S COLLECTION</GlassText></h2>
             <ClothingCollection outfit={outfit} onChoose={onChooseClothing}/>
           </section>}
           {cockpit && <section className="dome-records">
-            <h2 className="text-2xl mb-4">CHARLIE&apos;S COLLECTION</h2>
+            <h2 className="text-2xl mb-4"><GlassText>CHARLIE&apos;S COLLECTION</GlassText></h2>
             <RecordCollection record={records} onChoose={onChooseRecord}/>
           </section>}
           <section data-dome-slot="records">
-            <h2 className="text-2xl mb-4">RECORDS</h2>
-            <p>coming soon<span className="animate-pulse">_</span></p>
+            <h2 className="text-2xl mb-4"><GlassText>RECORDS</GlassText></h2>
+            <p><GlassText>coming soon<span className="animate-pulse">_</span></GlassText></p>
           </section>
 
           <section data-dome-slot="merch" className="md:col-start-3 md:max-w-sm md:mx-auto">
-            <h2 className="text-2xl mb-4">MERCH</h2>
+            <h2 className="text-2xl mb-4"><GlassText>MERCH</GlassText></h2>
 
             <a href="https://square.link/u/lXbPiLpe" target="_blank" rel="noopener noreferrer" aria-label="Shop the SOUL Ringer Tee (opens in a new tab)" className="inline-block ringer-tee-display cockpit-interactive-fixture" aria-disabled="false" style={{"--fixture-hover-filter":"none","--tee-outline":`url(#${teeOutlineId})`} as CSSProperties}
               onClick={event=>{event.currentTarget.dataset.resting='true';}}

@@ -175,6 +175,8 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
     // The column centre below uses 2*rowY, so it moves by twice this offset.
     const mobileHeaderSpacing=mobileThird ? view.height*.055 : 0;
     const rowY=view.height*.17+mobileHeaderSpacing,edgeRowY=38,margin=view.width*.045;
+    // Lift only the artwork; retain rowY as the existing column-layout anchor.
+    const wordmarkY=rowY-Math.min(14,view.height*.02);
     const matrixOf=(el:HTMLElement)=>new DOMMatrix(el.style.transform||'none');
     const letters=glyphs.map(el=>{
       const matrix=matrixOf(el),transform=el.style.transform;
@@ -203,8 +205,8 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
       let left=(view.width-total)/2;
       const place=(el:HTMLElement,x:number,y:number,w:number,h:number)=>Object.assign(el.style,{position:'fixed',left:'0',top:'0',margin:'0',transformOrigin:'0 0',transform:`matrix(${w},0,0,${h},${x},${y})`});
       for(let i=0;i<3;i++){
-        if(i===1){place(planet,left,rowY-(alignedRing.top+alignedRing.bottom)/2,px,py);left+=pw+gap;}
-        const q=sizes[i];place(letters[i].el,left-q.box.left*q.x,rowY-(q.box.top+q.box.bottom)*q.y/2,q.x,q.y);
+        if(i===1){place(planet,left,wordmarkY-(alignedRing.top+alignedRing.bottom)/2,px,py);left+=pw+gap;}
+        const q=sizes[i];place(letters[i].el,left-q.box.left*q.x,wordmarkY-(q.box.top+q.box.bottom)*q.y/2,q.x,q.y);
         left+=widths[i]+gap;
       }
     }

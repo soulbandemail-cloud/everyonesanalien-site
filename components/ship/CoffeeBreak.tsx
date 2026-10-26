@@ -15,6 +15,8 @@ export function CoffeeBreak({state,config,view,pose}:{state:CharlieState;config:
  useEffect(()=>{
   let frame=0,last=0,time=0,wait=10+Math.random()*10,elapsed=-1,cancel=0;
   let current:{x:number;y:number;s:number;angle:number}|undefined,returnFrom:typeof current;
+  let paintedTransform='',paintedLayer='',lastSteam=0;
+  const steamPaths=Array.from(steam.current?.querySelectorAll('path')??[]);
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   const interrupt=()=>{if(elapsed>=0){cancel=.001;returnFrom=current;elapsed=-1;pose.current=undefined;}wait=10+Math.random()*10;};
   window.addEventListener('pointerdown',interrupt,true);
@@ -47,11 +49,18 @@ export function CoffeeBreak({state,config,view,pose}:{state:CharlieState;config:
     if(elapsed>=8){elapsed=-1;pose.current=undefined;wait=10+Math.random()*10;point=home;}
    }
    if(cancel&&returnFrom){cancel+=dt;const t=coffeeEase(cancel/.55);point={x:returnFrom.x+(home.x-returnFrom.x)*t,y:returnFrom.y+(home.y-returnFrom.y)*t,s:scale,angle:returnFrom.angle*(1-t)};if(t===1){cancel=0;returnFrom=undefined;}}
-   if(layer.current)layer.current.style.zIndex=behindPaper?'7':'9';
+   const zIndex=behindPaper?'7':'9';
+   if(layer.current&&paintedLayer!==zIndex){layer.current.style.zIndex=zIndex;paintedLayer=zIndex;}
    current=point;
-   mug.current?.setAttribute('transform',`translate(${point.x} ${point.y}) scale(${point.s}) rotate(${point.angle})`);
-   steam.current?.setAttribute('transform',`translate(${point.x} ${point.y-23*point.s}) scale(${point.s})`);
-   steam.current?.querySelectorAll('path').forEach((el,i)=>{
+   const transform=`translate(${point.x} ${point.y}) scale(${point.s}) rotate(${point.angle})`;
+   if(transform!==paintedTransform){
+    mug.current?.setAttribute('transform',transform);
+    steam.current?.setAttribute('transform',`translate(${point.x} ${point.y-23*point.s}) scale(${point.s})`);
+    paintedTransform=transform;
+   }
+   // Steam is slow ambient motion; keep the drinking simulation at full rate.
+   if(now-lastSteam<50)return;lastSteam=now;
+   steamPaths.forEach((el,i)=>{
     const t=reduced.matches?.4:(time*(.19+i*.017)+i*.31)%1;
     el.setAttribute('d',`M${-6+i*6} ${-t*22}q${Math.sin(time*.6+i)*5} -9 1 -17t-2 -14`);
     el.setAttribute('opacity',String((1-t)*.45));

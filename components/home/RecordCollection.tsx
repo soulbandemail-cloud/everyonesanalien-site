@@ -12,16 +12,14 @@ export default function RecordCollection({record=INITIAL_RECORD_STATE,onChoose}:
   let raf=0;
   const measure=()=>{
    if(!element.getClientRects().length)return;
-   const horizon=frame.querySelector<HTMLElement>('[data-records-horizon]');
-   if(!horizon)return;
    const bounds=frame.getBoundingClientRect(),rect=element.getBoundingClientRect();
    const angle=Number(frame.dataset.presentationAngle??0)*Math.PI/180,scale=Number(frame.dataset.presentationScale??1);
-   // Undo the phone's rotated presentation before comparing with the parapet.
+   // Undo the phone's rotated presentation before measuring available viewport space.
    const ys=[rect.left,rect.right].flatMap(x=>[rect.top,rect.bottom].map(y=>{
     const dx=x-bounds.left-bounds.width/2,dy=y-bounds.top-bounds.height/2;
     return (-dx*Math.sin(angle)+dy*Math.cos(angle))/scale+frame.clientHeight/2;
    }));
-   const height=Math.max(40,Number(horizon.dataset.recordsHorizon)-Math.min(...ys)+8);
+   const height=Math.max(40,frame.clientHeight-16-Math.min(...ys));
    const value=`${height.toFixed(2)}px`;
    if(element.style.maxHeight!==value)element.style.maxHeight=value;
    const rows=Array.from(element.querySelectorAll<HTMLElement>('.record-row,.record-song')).filter(row=>row.getClientRects().length);
@@ -34,8 +32,6 @@ export default function RecordCollection({record=INITIAL_RECORD_STATE,onChoose}:
   const resize=new ResizeObserver(schedule);resize.observe(frame);resize.observe(element);
   const changes=new MutationObserver(schedule);
   if(page)changes.observe(page,{attributes:true,attributeFilter:['data-dome-menu','class','style']});
-  const horizon=frame.querySelector('[data-records-horizon]');
-  if(horizon)changes.observe(horizon,{attributes:true,attributeFilter:['data-records-horizon']});
   schedule();window.addEventListener('resize',schedule);
   return()=>{cancelAnimationFrame(raf);resize.disconnect();changes.disconnect();window.removeEventListener('resize',schedule);};
  },[expanded]);
