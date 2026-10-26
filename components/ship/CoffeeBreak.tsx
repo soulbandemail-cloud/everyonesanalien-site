@@ -21,14 +21,20 @@ export function CoffeeBreak({state,config,view,pose}:{state:CharlieState;config:
   const interrupt=()=>{if(elapsed>=0){cancel=.001;returnFrom=current;elapsed=-1;pose.current=undefined;}wait=10+Math.random()*10;};
   window.addEventListener('pointerdown',interrupt,true);
   window.addEventListener('keydown',interrupt,true);
+  let homeConfig:DomeConfig|undefined,homeView:Viewport|undefined;
+  let resting:{x:number;y:number;s:number;angle:number}|undefined;
   const draw=(now:number)=>{
    frame=requestAnimationFrame(draw);const dt=last?Math.min(.05,(now-last)/1000):0;last=now;
    if(document.hidden||!cockpitActive.current)return;time+=dt;
    const {state:s,config:c,view:v}=target.current;
+   // The table is stationary; only recompute its projection when the camera changes.
+   if(!resting||homeConfig!==c||homeView!==v){
    const table=orientedFixtures(c.centre,c.radius).coffeeTable;
    const rest=project({...localPoint(table,.56,.12),y:table.y+.56*table.scale},c,v);
    const scale=rest.scale*.008;
-   const home={x:rest.x,y:rest.y,s:scale,angle:0};
+   resting={x:rest.x,y:rest.y,s:scale,angle:0};homeConfig=c;homeView=v;
+   }
+   const home=resting,scale=home.s;
    const eligible=s.mode==='sofa-seated'&&!s.phase&&s.paper>.99&&s.engagement==='newsletter'&&!s.moving;
    if(!eligible||reduced.matches){if(elapsed>=0)interrupt();else wait=10+Math.random()*10;}
    else if(elapsed<0&&!cancel){wait-=dt;if(wait<=0)elapsed=0;}

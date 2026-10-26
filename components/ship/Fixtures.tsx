@@ -99,7 +99,7 @@ const rail = fixtures.clothesRail, table = fixtures.coffeeTable, arcade = fixtur
       <linearGradient id={`${outlineId}-cloth`} x2=".3" y2="1"><stop stopColor="#626b45"/><stop offset=".35" stopColor="#485337"/><stop offset="1" stopColor="#2d3828"/></linearGradient>
       <linearGradient id={`${outlineId}-wood`} x2=".2" y2="1"><stop stopColor="#af8050"/><stop offset=".4" stopColor="#926139"/><stop offset="1" stopColor="#634329"/></linearGradient>
       <linearGradient id={`${outlineId}-surface`} x1="1" y1="0" x2="0" y2="1"><stop stopColor="#c4d0df" stopOpacity=".07"/><stop offset=".3" stopColor="#111b24" stopOpacity="0"/><stop offset=".62" stopColor="#111b24" stopOpacity=".12"/><stop offset="1" stopColor="#060e17" stopOpacity=".36"/></linearGradient>
-      <filter id={outlineId} x="-100%" y="-100%" width="300%" height="300%" colorInterpolationFilters="sRGB">
+      <filter id={outlineId} x="-15%" y="-15%" width="130%" height="130%" colorInterpolationFilters="sRGB">
         {/* A softened alpha contour expands equally in every direction, rounding
             corners without morphology's square dilation kernel. */}
         <feGaussianBlur in="SourceAlpha" stdDeviation="2.5" result="softSilhouette" />

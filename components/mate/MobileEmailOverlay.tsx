@@ -30,7 +30,7 @@ export default function MobileEmailOverlay({children,onClose}:{children:ReactNod
   <div className="mobile-email-card">
    <button type="button" className="mobile-email-close" aria-label="Back to cockpit" autoFocus onClick={onClose}>Back</button>
    <h2 id="mobile-email-heading">MATES</h2>
-   <p>Sign up to SOUL's mating list for MATES RATE discount links!</p>
+   <p>Sign up to SOUL's mating list for MATES RATE discounts!</p>
    {children}
   </div>
  </dialog>,document.body);

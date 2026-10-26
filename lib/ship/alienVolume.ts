@@ -334,14 +334,14 @@ export function alienVolume(yaw:number,down:number,standing=false,motion:AlienMo
   }
   return {...face,points};
  }).filter(face=>face.points.length>=3).map(face=>{
-  const p=face.points.map(p=>face.eye&&!face.mouth&&wave?.eyes?{...p,y:94+(p.y-94)*(1-wave.eyes*.9)}:p).map(p=>rotate(posedLimbs.has(face)?p:pose(p,face),face.head,posedLegs.has(face))).map(v=>({x:+v.x.toFixed(6),y:+v.y.toFixed(6),z:+v.z.toFixed(6)})),a=p[0],b=p[1],d=p[2];
+  const p=face.points.map(p=>face.eye&&!face.mouth&&wave?.eyes?{...p,y:94+(p.y-94)*(1-wave.eyes*.9)}:p).map(p=>rotate(posedLimbs.has(face)?p:pose(p,face),face.head,posedLegs.has(face))).map(v=>({x:Math.round(v.x*1e6)/1e6,y:Math.round(v.y*1e6)/1e6,z:Math.round(v.z*1e6)/1e6})),a=p[0],b=p[1],d=p[2];
   const nx=(b.y-a.y)*(d.z-a.z)-(b.z-a.z)*(d.y-a.y),ny=(b.z-a.z)*(d.x-a.x)-(b.x-a.x)*(d.z-a.z),nz=(b.x-a.x)*(d.y-a.y)-(b.y-a.y)*(d.x-a.x);
   const length=Math.hypot(nx,ny,nz)||1;
   const light=.83+.17*Math.max(0,(-nx*.3-ny*.5+nz*.8)/length);
   let rgb=colours.get(face.colour);
   if(!rgb){rgb=face.colour.slice(1).match(/../g)!.map(v=>parseInt(v,16));colours.set(face.colour,rgb);}
   const printed=paperOrder.get(face),page=face.points[0].x<0?0:1;
-  return {points:canvasOnly?p.map(v=>({x:Math.round(v.x*100)/100,y:Math.round(v.y*100)/100})):undefined,texture:face.uv?{points:p,uv:face.uv}:undefined,d:canvasOnly?'':`M${p.map(v=>`${v.x.toFixed(2)},${v.y.toFixed(2)}`).join('L')}Z`,depth:propOrder.has(face)?propDepth+propOrder.get(face)!*.00001:printed!==undefined?1000+pageDepth[page]+(printed>1?.001:0):(face.eye?100:0)+(+(p.reduce((sum,v)=>sum+v.z,0)/p.length).toFixed(5)),fill:face.colour==='#000000'?'#000000':`rgb(${rgb.map((v,i)=>Math.round(v*light+(i===0?5:0))).join(',')})`};
+  return {points:canvasOnly?p.map(v=>({x:Math.round(v.x*100)/100,y:Math.round(v.y*100)/100})):undefined,texture:face.uv?{points:p,uv:face.uv}:undefined,d:canvasOnly?'':`M${p.map(v=>`${v.x.toFixed(2)},${v.y.toFixed(2)}`).join('L')}Z`,depth:propOrder.has(face)?propDepth+propOrder.get(face)!*.00001:printed!==undefined?1000+pageDepth[page]+(printed>1?.001:0):(face.eye?100:0)+(Math.round(p.reduce((sum,v)=>sum+v.z,0)/p.length*1e5)/1e5),fill:face.colour==='#000000'?'#000000':`rgb(${rgb.map((v,i)=>Math.round(v*light+(i===0?5:0))).join(',')})`};
  }).sort((a,b)=>a.depth-b.depth);
 }
 
