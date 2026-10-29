@@ -10,8 +10,8 @@ import { ROOM, pilotPosition, platformY, polygonPath } from '@/lib/ship/roomGeom
 import {hullFloorSeamPoint} from '@/lib/ship/hullFloorSeam';
 import {COMMAND_DECK,commandWall,commandDeck,commandFront,commandStairs} from '@/lib/ship/commandDeck';
 
-type PilotMezzanineProps = {hintFacing?:boolean;hint?:string;onPlant?:()=>void;plantWiggle?:number;outfit?:Outfit;attention:Attention;config:DomeConfig;view:Viewport; seated?:boolean;onChair?:()=>void};
-export function PilotMezzanine({ hintFacing=false,hint,attention, config, view, seated=true,onChair,outfit=null,onPlant,plantWiggle=0 }: PilotMezzanineProps) {
+type PilotMezzanineProps = {hintFacing?:boolean;hintMobile?:boolean;hint?:string;onPlant?:()=>void;plantWiggle?:number;outfit?:Outfit;attention:Attention;config:DomeConfig;view:Viewport; seated?:boolean;onChair?:()=>void};
+export function PilotMezzanine({ hintFacing=false,hintMobile=false,hint,attention, config, view, seated=true,onChair,outfit=null,onPlant,plantWiggle=0 }: PilotMezzanineProps) {
  const id=useId();
  const parapetSeam=hullFloorSeamPoint(0,config);
  const [pressed,setPressed]=useState(false);
@@ -91,7 +91,7 @@ export function PilotMezzanine({ hintFacing=false,hint,attention, config, view, 
    <ellipse cx={chairWidth*.5} cy={chairHeight*.99+seatLift} rx={chairWidth*.2} ry={chairHeight*.04}/>
   </g>
  </svg>
- <Alien outfit={outfit} ambient={seated&&!hintFacing?'pilot':undefined} attention={attention} occupant={seated} facing={seated?undefined:180}/></div>{hint&&<svg role="status" aria-label={hint} viewBox="0 0 260 88" style={{position:'absolute',bottom:'108%',left:'50%',transform:'translateX(-50%) rotate(-3deg)',width:'225%',maxWidth:'none',height:'auto',overflow:'visible',pointerEvents:'none',zIndex:10}}>
+ <Alien outfit={outfit} ambient={seated&&!hintFacing?'pilot':undefined} attention={attention} occupant={seated} facing={seated?undefined:180}/></div>{hint&&<svg role="status" aria-label={hint} viewBox="0 0 260 88" style={{position:'absolute',bottom:'108%',left:'50%',transform:'translateX(-50%) rotate(-3deg)',width:hintMobile?'281.25%':'225%',maxWidth:'none',height:'auto',overflow:'visible',pointerEvents:'none',zIndex:10}}>
   <path d="M130 3C61 0 5 13 4 33C2 53 52 66 120 65L128 83L140 65C206 65 256 52 256 32C255 12 200 1 130 3Z" fill="#fffdf3" stroke="#29372d" strokeWidth="2"/>
   {/* Fixed lettering outlines keep Comic Sans identical on devices without the font. */}
   <image href={hint.includes('tapping')?'/hints/try-tapping.svg':'/hints/try-clicking.svg'} x="0" y="0" width="260" height="88" aria-hidden="true"/>
