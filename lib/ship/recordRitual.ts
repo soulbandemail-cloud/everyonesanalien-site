@@ -28,7 +28,7 @@ export function recordRitual(initial:GramophoneScene,album:AlbumId,index:number)
  const steps:RitualStep[]=[];let scene=structuredClone(initial);
  const add=(name:string,duration:number,patch:Partial<GramophoneScene>,wind=false)=>{const to={...scene,...patch,phase:name,amount:1};steps.push({name,duration,from:scene,to,wind});scene=to;};
  const sleeve=(id:AlbumId,pose:Sleeve)=>({...scene.sleeves,[id]:pose});
- const old=scene.loadedAlbum,side=recordSide(index);
+ const old=scene.loadedAlbum,side=recordSide(index,album);
  const flipping=old===album&&(scene.loadedSide??'A')!==side;
  if(old){
   add('reach-tonearm',.7,{hands:[home[0],needle(scene.tone,scene.lift)]});

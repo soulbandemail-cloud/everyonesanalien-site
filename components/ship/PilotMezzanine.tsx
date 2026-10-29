@@ -93,7 +93,8 @@ export function PilotMezzanine({ hintFacing=false,hint,attention, config, view, 
  </svg>
  <Alien outfit={outfit} ambient={seated&&!hintFacing?'pilot':undefined} attention={attention} occupant={seated} facing={seated?undefined:180}/></div>{hint&&<svg role="status" aria-label={hint} viewBox="0 0 260 88" style={{position:'absolute',bottom:'108%',left:'50%',transform:'translateX(-50%) rotate(-3deg)',width:'225%',maxWidth:'none',height:'auto',overflow:'visible',pointerEvents:'none',zIndex:10}}>
   <path d="M130 3C61 0 5 13 4 33C2 53 52 66 120 65L128 83L140 65C206 65 256 52 256 32C255 12 200 1 130 3Z" fill="#fffdf3" stroke="#29372d" strokeWidth="2"/>
-  <text x="130" y="37" textAnchor="middle" dominantBaseline="middle" fill="#26372e" style={{fontFamily:'"Comic Sans MS", "Comic Sans", cursive',fontSize:17,letterSpacing:0,textShadow:'none'}}>{hint}</text>
+  {/* Fixed lettering outlines keep Comic Sans identical on devices without the font. */}
+  <image href={hint.includes('tapping')?'/hints/try-tapping.svg':'/hints/try-clicking.svg'} x="0" y="0" width="260" height="88" aria-hidden="true"/>
  </svg>}</div>
  </div>;
 }

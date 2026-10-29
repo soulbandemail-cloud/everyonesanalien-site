@@ -117,7 +117,7 @@
 .cockpit-interactive-fixture { cursor:pointer; transform-box:fill-box; transform-origin:center; transition:transform 120ms ease; }
 .cockpit-interactive-fixture[aria-disabled="true"] { cursor:default; outline:none; transform:none; filter:none; transition:none; }
 .cockpit-interactive-fixture[aria-disabled="false"]:is(:hover,:focus-visible) { transform:scale(1.25); filter:var(--fixture-hover-filter); outline:none; }
-.cockpit-interactive-fixture[data-pressed], .ringer-tee-display:active { transform:scale(.9) !important; filter:none !important; outline:none; }
+.cockpit-interactive-fixture[data-pressed] { transform:scale(.9) !important; filter:none !important; outline:none; }
 /* The live screen follows the TV's SVG body, using the same screen-centre pivot. */
 .space-tv[data-console]:not(.space-tv-expanded) { pointer-events:none; }
 .space-tv[data-console]:not(.space-tv-expanded) .space-tv-body { transition:transform 120ms ease; }
@@ -336,3 +336,17 @@ button.object-back:focus-visible { text-decoration:none; }
 }
 
 .ringer-tee-art { transform-origin:center; }
+
+.record-side-label { margin:12px 0 7px; text-align:center; font-size:.85em; }
+.record-song[data-coming-soon],.record-song[data-coming-soon]:hover { color:#92979c; border-color:#666c74; background:transparent; box-shadow:none; text-shadow:none; opacity:.7; cursor:default; }
+
+/* The link owns the dome projection; only its artwork changes size on interaction. */
+.ringer-tee-display { cursor:pointer; }
+.ringer-tee-art { transform-origin:center; transition:transform 120ms ease; }
+@media (hover:hover) {
+ .ringer-tee-display:not([data-resting]):is(:hover,:focus-visible) .ringer-tee-art { transform:scale(1.25); }
+}
+.ringer-tee-display:active .ringer-tee-art { transform:scale(.9); animation:none; }
+@media (prefers-reduced-motion:reduce) {
+ .ringer-tee-art { transition:none; }
+}

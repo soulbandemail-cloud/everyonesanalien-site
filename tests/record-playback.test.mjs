@@ -13,7 +13,7 @@ function setup(t,fail=false){
  t.after(()=>engine.dispose());
  return{engine,context,nodes,requests,updates,get state(){return updates.at(-1);},end(){const node=nodes.find(n=>n.onended&&!n.ended);assert.ok(node);node.ended=true;context.currentTime=node.at+node.buffer.duration;node.onended();}};
 }
-for(const [album,index,expected] of [['experiencing-the-role',0,[0,1,2]],['experiencing-the-role',1,[1,2]],['the-magic-if',1,[1,2]],['the-magic-if',4,[4]],['the-magic-if',3,[3,4]]])test(`side playback ${album} ${index} stops at boundary`,async t=>{
+for(const [album,index,expected] of [['experiencing-the-role',0,[0,1,2]],['experiencing-the-role',1,[1,2]],['the-magic-if',1,[1,2]],['the-magic-if',8,[8]],['the-magic-if',5,[5,6,7,8]]])test(`side playback ${album} ${index} stops at boundary`,async t=>{
  const h=setup(t);assert.equal(h.requests.length,0);h.engine.prepare({album,index});assert.equal(h.context.state,'running');await flush();assert.equal(h.nodes.length,0);
  await h.engine.start();await flush();
  const heard=[];
@@ -24,16 +24,16 @@ for(const [album,index,expected] of [['experiencing-the-role',0,[0,1,2]],['exper
 });
 test('a replacement cancels both current and scheduled audio, with no late duplicate start',async t=>{
  const h=setup(t);h.engine.prepare({album:'experiencing-the-role',index:0});await h.engine.start();await flush();assert.equal(h.nodes.length,2);
- h.engine.prepare({album:'the-magic-if',index:4});assert.ok(h.nodes.every(n=>n.stopped));assert.equal(h.state.playing,false);
- await h.engine.start();await h.engine.start();assert.equal(h.nodes.length,3);assert.equal(h.state.currentSong.index,4);
+ h.engine.prepare({album:'the-magic-if',index:8});assert.ok(h.nodes.every(n=>n.stopped));assert.equal(h.state.playing,false);
+ await h.engine.start();await h.engine.start();assert.equal(h.nodes.length,3);assert.equal(h.state.currentSong.index,8);
 });
 test('missing file clears the spinner and exposes a retry without another ritual',async t=>{
- const h=setup(t,true);h.engine.prepare({album:'the-magic-if',index:4});await h.engine.start();assert.ok(h.state.error);assert.equal(h.state.loading,false);assert.equal(h.nodes.length,0);
+ const h=setup(t,true);h.engine.prepare({album:'the-magic-if',index:8});await h.engine.start();assert.ok(h.state.error);assert.equal(h.state.loading,false);assert.equal(h.nodes.length,0);
 });
 test('blocked audio can be retried from a gesture without repeating physical preparation',async t=>{
- const h=setup(t);h.engine.prepare({album:'the-magic-if',index:4});await flush();h.context.state='suspended';await h.engine.start();assert.match(h.state.error,/enable audio/);
+ const h=setup(t);h.engine.prepare({album:'the-magic-if',index:8});await flush();h.context.state='suspended';await h.engine.start();assert.match(h.state.error,/enable audio/);
  h.engine.retry();await flush();assert.equal(h.state.playing,true);assert.equal(h.nodes.length,1);
 });
-test('all eleven supplied files map to an existing full recording',()=>{
- for(const album of records.RECORDS)for(let index=0;index<album.tracks.length;index++)assert.ok(fs.statSync('public'+records.songFile({album:album.id,index})).size>1000000);
+test('all playable supplied files map to an existing full recording',()=>{
+ for(const album of records.RECORDS)for(let index=0;index<album.tracks.length;index++)if(records.songAvailable({album:album.id,index}))assert.ok(fs.statSync('public'+records.songFile({album:album.id,index})).size>1000000);
 });

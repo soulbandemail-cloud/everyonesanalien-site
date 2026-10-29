@@ -145,7 +145,7 @@ export default function CanonicalHomepage({ cockpit, config, view, animateEntry 
           <section data-dome-slot="merch" className="md:col-start-3 md:max-w-sm md:mx-auto">
             <h2 className="text-2xl mb-4"><GlassText>MERCH</GlassText></h2>
 
-            <a href="https://square.link/u/lXbPiLpe" target="_blank" rel="noopener noreferrer" aria-label="Shop the SOUL Ringer Tee (opens in a new tab)" className="inline-block ringer-tee-display cockpit-interactive-fixture" aria-disabled="false" style={{"--fixture-hover-filter":"none","--tee-outline":`url(#${teeOutlineId})`} as CSSProperties}
+            <a href="https://square.link/u/lXbPiLpe" target="_blank" rel="noopener noreferrer" aria-label="Shop the SOUL Ringer Tee (opens in a new tab)" className="inline-block ringer-tee-display" aria-disabled="false" style={{"--fixture-hover-filter":"none","--tee-outline":`url(#${teeOutlineId})`} as CSSProperties}
               onClick={event=>{event.currentTarget.dataset.resting='true';}}
               onPointerMove={event=>{if(event.pointerType==='mouse')delete event.currentTarget.dataset.resting;}}
               onPointerEnter={event=>{if(event.pointerType==='mouse')delete event.currentTarget.dataset.resting;}}
