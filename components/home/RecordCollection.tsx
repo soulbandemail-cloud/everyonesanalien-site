@@ -1,7 +1,7 @@
 'use client';
 /* eslint-disable @next/next/no-img-element -- Exact local album covers, contained without cropping. */
 import {useId,useLayoutEffect,useRef,useState} from 'react';
-import {RECORDS,recordSide,sideSplit,songAvailable,INITIAL_RECORD_STATE,type AlbumId,type RecordState} from '@/lib/ship/records';
+import {RECORDS,songAvailable,INITIAL_RECORD_STATE,type AlbumId,type RecordState} from '@/lib/ship/records';
 export default function RecordCollection({record=INITIAL_RECORD_STATE,onChoose}:{record?:RecordState&{busy?:boolean;loading?:boolean;error?:string|null;currentSong?:{album:AlbumId;index:number}|null};onChoose?:(album:AlbumId,index:number)=>void}={}){
  const [expanded,setExpanded]=useState<AlbumId|null>(null);
  const id=useId(),list=useRef<HTMLDivElement>(null);
@@ -40,7 +40,6 @@ export default function RecordCollection({record=INITIAL_RECORD_STATE,onChoose}:
    <img src={album.artwork} alt={`${album.name} cover`} width="40" height="40"/><span>{album.name}</span><span aria-hidden="true">{expanded===album.id?'−':'+'}</span>
   </button>
   <ol id={`${id}-${album.id}`} hidden={expanded!==album.id} className="record-tracks">{album.tracks.map((song,index)=><li key={song}>
-   {(index===0||index===sideSplit(album.id))&&<div className="record-side-label">Side {recordSide(index,album.id)}</div>}
    <button type="button" className="record-song pink-border-glow" aria-label={`Select ${song} preview`} aria-pressed={record.selectedSong?.album===album.id&&record.selectedSong.index===index} data-coming-soon={!songAvailable({album:album.id,index})||undefined} disabled={record.busy||!songAvailable({album:album.id,index})} onClick={()=>onChoose?.(album.id,index)}><span>{index+1}.</span><span>{song}{!songAvailable({album:album.id,index})?" (coming soon)":""}</span>{(record.busy||record.loading)&&record.selectedSong?.album===album.id&&record.selectedSong.index===index&&<span className="record-loading" role="status" aria-label="Preparing record"/>}</button>
   </li>)}</ol>
  </div>)}</div>;
