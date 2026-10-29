@@ -4,16 +4,17 @@ import {portraitFrame} from '@/components/arcade/presentation';
 import {restoreObjectFocus} from './objectInteraction';
 
 const issues=[2,1] as const;
+type PosterDocument={src:string;title:string;aspect:number};
 
 /** Vector PDF pages share bounded, focal-point zoom and pan in landscape-local coordinates. */
-function Newspaper({issue,rotated}:{issue:number;rotated:boolean}) {
+function Newspaper({issue,rotated,poster}:{issue:number;rotated:boolean;poster?:PosterDocument}) {
  const surface=useRef<HTMLDivElement>(null),page=useRef<HTMLImageElement>(null);
  useEffect(()=>{
   const el=surface.current,img=page.current;
   if(!el || !img)return;
   let scale=1,x=0,y=0;
   const pointers=new Map<number,{x:number;y:number}>();
-  const size=()=>{const w=el.clientWidth,h=el.clientHeight;const fit=Math.min(w/419,h/595);return {w,h,pw:419*fit,ph:595*fit};};
+  const size=()=>{const w=el.clientWidth,h=el.clientHeight;const dw=poster?595:419,dh=poster?595*poster.aspect:595;const fit=Math.min(w/dw,h/dh);return {w,h,pw:dw*fit,ph:dh*fit};};
   const draw=()=>{const {w,h,pw,ph}=size();x=Math.max(-Math.max(0,(pw*scale-w)/2),Math.min(Math.max(0,(pw*scale-w)/2),x));y=Math.max(-Math.max(0,(ph*scale-h)/2),Math.min(Math.max(0,(ph*scale-h)/2),y));img.style.width=`${pw*scale}px`;img.style.height=`${ph*scale}px`;img.style.left=`${w/2+x}px`;img.style.top=`${h/2+y}px`;};
   const point=(e:{clientX:number;clientY:number})=>{const r=el.getBoundingClientRect();return rotated?{x:e.clientY-r.top,y:r.right-e.clientX}:{x:e.clientX-r.left,y:e.clientY-r.top};};
   const zoom=(next:number,p:{x:number;y:number})=>{const {w,h}=size();next=Math.max(1,Math.min(6,next));const ratio=next/scale;x=p.x-w/2-(p.x-w/2-x)*ratio;y=p.y-h/2-(p.y-h/2-y)*ratio;scale=next;};
@@ -25,15 +26,15 @@ function Newspaper({issue,rotated}:{issue:number;rotated:boolean}) {
   const observer=new ResizeObserver(draw);observer.observe(el);draw();
   el.addEventListener('wheel',wheel,{passive:false});el.addEventListener('pointerdown',down);el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);el.addEventListener('lostpointercapture',up);el.addEventListener('keydown',key);
   return ()=>{observer.disconnect();el.removeEventListener('wheel',wheel);el.removeEventListener('pointerdown',down);el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',up);el.removeEventListener('lostpointercapture',up);el.removeEventListener('keydown',key);};
- },[rotated]);
- return <div ref={surface} className="newsletter-viewport" tabIndex={0} aria-label={`The Hyper-Fix No.${issue}. Pinch or scroll to zoom, drag to pan. Keyboard: plus, minus, arrows, zero to reset.`}>
+ },[rotated,poster]);
+ return <div ref={surface} className="newsletter-viewport" tabIndex={0} aria-label={`${poster?.title ?? `The Hyper-Fix No.${issue}`}. Pinch or scroll to zoom, drag to pan. Keyboard: plus, minus, arrows, zero to reset.`}>
   {/* Original PDF paths, not a low-resolution screenshot. SVG image embedding disables document links. */}
   {/* eslint-disable-next-line @next/next/no-img-element */}
-  <img ref={page} className="newsletter-document" src={`/hyper-fix-no${issue}.svg`} alt={`The Hyper-Fix No.${issue}`} draggable={false}/>
+  <img ref={page} className="newsletter-document" src={poster?.src ?? `/hyper-fix-no${issue}.svg`} alt={poster?.title ?? `The Hyper-Fix No.${issue}`} draggable={false}/>
  </div>;
 }
 
-export default function NewsletterDialog({onClose,viewport}:{onClose:()=>void;viewport:{view:{width:number;height:number};mobile:boolean;left:number;top:number}}) {
+export default function NewsletterDialog({onClose,viewport,poster}:{poster?:PosterDocument;onClose:()=>void;viewport:{view:{width:number;height:number};mobile:boolean;left:number;top:number}}) {
  const frame=portraitFrame(viewport.view.width,viewport.view.height,viewport.mobile);
  const dialog=useRef<HTMLDialogElement>(null);
  const [issue,setIssue]=useState<number>(2),[archive,setArchive]=useState(false);
@@ -42,11 +43,11 @@ export default function NewsletterDialog({onClose,viewport}:{onClose:()=>void;vi
   element?.showModal();
   return ()=>{element?.close();restoreObjectFocus(previousFocus);};
  },[]);
- return <dialog ref={dialog} className="newsletter-dialog" aria-label="The Hyper-Fix newsletter" onCancel={event=>{event.preventDefault();onClose();}}>
+ return <dialog ref={dialog} className="newsletter-dialog" aria-label={poster?.title ?? "The Hyper-Fix newsletter"} onCancel={event=>{event.preventDefault();onClose();}}>
   <div className="newsletter-frame" data-mobile={viewport.mobile || undefined} style={viewport.mobile ? {position:'absolute',left:viewport.left,top:viewport.top,width:frame.width,height:frame.height,transformOrigin:'0 0',transform:frame.rotated?`translateX(${frame.height}px) rotate(90deg)`:'none'} as CSSProperties : undefined}>
-   <button className="newsletter-archive object-back" type="button" onClick={()=>setArchive(true)}>ARCHIVE</button>
+   {!poster&&<button className="newsletter-archive object-back" type="button" onClick={()=>setArchive(true)}>ARCHIVE</button>}
    <button className="newsletter-close object-back" type="button" onClick={onClose} autoFocus>BACK</button>
-   {archive?<section className="newsletter-issues" aria-label="Hyper-Fix archive"><h2>THE HYPER-FIX ARCHIVE</h2>{issues.map(number=><button className="pink-border-glow" key={number} onClick={()=>{setIssue(number);setArchive(false);}}>THE HYPER-FIX NO.{number}</button>)}</section>:<Newspaper key={issue} issue={issue} rotated={viewport.mobile && frame.rotated}/>}
+   {archive?<section className="newsletter-issues" aria-label="Hyper-Fix archive"><h2>THE HYPER-FIX ARCHIVE</h2>{issues.map(number=><button className="pink-border-glow" key={number} onClick={()=>{setIssue(number);setArchive(false);}}>THE HYPER-FIX NO.{number}</button>)}</section>:<Newspaper poster={poster} key={issue} issue={issue} rotated={viewport.mobile && frame.rotated}/>}
   </div>
  </dialog>;
 }

@@ -2,9 +2,9 @@
 import {useEffect,useState} from 'react';
 
 /** A brief, non-blocking reminder; it never changes the device orientation. */
-export default function RotationReminder({hidden=false}:{hidden?:boolean}){
+export default function RotationReminder({hidden=false,onFinished}:{hidden?:boolean;onFinished?:()=>void}){
  const [visible,setVisible]=useState(true);
- useEffect(()=>{const timer=window.setTimeout(()=>setVisible(false),5000);return()=>window.clearTimeout(timer);},[]);
+ useEffect(()=>{const timer=window.setTimeout(()=>{setVisible(false);onFinished?.();},7000);return()=>window.clearTimeout(timer);},[onFinished]);
  if(hidden&&visible)setVisible(false);
  if(!visible||hidden)return null;
  return <div className="rotation-reminder" role="status" aria-label="Lock rotation">

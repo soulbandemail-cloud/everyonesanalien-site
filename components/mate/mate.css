@@ -322,3 +322,17 @@ button.object-back:focus-visible { text-decoration:none; }
 
 /* Give the merchandise artwork twice the heading clearance. */
 .on-glass .dome-information [data-dome-slot="merch"] > h2 { margin-bottom:20px; }
+
+/* Individual scale composes with furniture hover transforms. Pulse the shirt
+   artwork inside its projected link so the dome mapping stays untouched. */
+@keyframes cockpit-discovery-pulse {
+  0%,100% { scale:1; }
+  50% { scale:1.10; }
+}
+@media (prefers-reduced-motion:no-preference) {
+ .mate-experience[data-discovery-pending] .ringer-tee-display .ringer-tee-art {
+  animation:cockpit-discovery-pulse 1000ms ease-in-out infinite;
+ }
+}
+
+.ringer-tee-art { transform-origin:center; }

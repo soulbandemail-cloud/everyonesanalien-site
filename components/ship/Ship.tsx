@@ -36,7 +36,8 @@ import type {Outfit} from '@/lib/ship/clothing';
 
 const MemoizedPilotMezzanine=memo(PilotMezzanine);
 
-export default function Ship({ config, baseline, onConfigChange, hull, onHullChange, view, domeConfig=config, sharedSeam=false, reveal=1, development=false, preview=false, logout, busy, onArcade, onTV, onNewsletter, onShows, onMerch, onRecords, onLeaveContext, domeMenu=null, arcadeOpen=false, liveTv=false, onTvLayer, clothing={outfit:null,revision:0},records=INITIAL_RECORD_SELECTION,onRecordPhysical=()=>{} }: {
+export default function Ship({ hintReady=false,hintMobile=false,config, baseline, onConfigChange, hull, onHullChange, view, domeConfig=config, sharedSeam=false, reveal=1, development=false, preview=false, logout, busy, onArcade, onTV, onNewsletter, onShows, onMerch, onRecords, onLeaveContext, domeMenu=null, arcadeOpen=false, liveTv=false, onTvLayer, clothing={outfit:null,revision:0},records=INITIAL_RECORD_SELECTION,onRecordPhysical=()=>{} }: {
+ hintReady?:boolean;hintMobile?:boolean;
  records?:RecordSelection;onRecordPhysical?:(album:AlbumId|null,done?:boolean,side?:RecordSide|null,needleReady?:boolean,needleLifted?:boolean)=>void;
  clothing?:{outfit:Outfit;revision:number};
  config:DomeConfig; baseline:DomeConfig; onConfigChange:(config:DomeConfig)=>void;
@@ -46,6 +47,35 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
  const [attention, setAttention] = useState({ x: 0, back: 0, down: 0, swivel:0 });
  const movement=useCharlieMovement(config,alienLookYaw(attention.x,attention.back,attention.swivel));
  const [telescopeOpen,setTelescopeOpen]=useState(false);
+ const [idleHint,setIdleHint]=useState(false);
+ const [hintSpeaking,setHintSpeaking]=useState(false);
+ const hintEligible=hintReady && !arcadeOpen && !telescopeOpen && !domeMenu && movement.state.mode==='pilot-seated' && !movement.state.phase;
+ useEffect(()=>{
+  let timer=0, speechTimer=0, latched=false;
+  const schedule=()=>{
+   window.clearTimeout(timer);
+   if(hintEligible&&!document.hidden)timer=window.setTimeout(()=>{
+    latched=true;setIdleHint(true);
+    // Let the existing smooth chair turn settle before Charlie speaks.
+    speechTimer=window.setTimeout(()=>setHintSpeaking(true),1400);
+   },5000);
+  };
+  const dismiss=()=>{
+   latched=false;window.clearTimeout(speechTimer);
+   setIdleHint(false);setHintSpeaking(false);schedule();
+  };
+  const visibility=()=>{if(document.hidden){window.clearTimeout(timer);}else if(!latched)schedule();};
+  schedule();
+  window.addEventListener('click',dismiss,true);
+  document.addEventListener('visibilitychange',visibility);
+  return()=>{
+   window.clearTimeout(timer);window.clearTimeout(speechTimer);
+   window.removeEventListener('click',dismiss,true);
+   document.removeEventListener('visibilitychange',visibility);
+  };
+ },[hintEligible]);
+ if(!hintEligible&&idleHint){setIdleHint(false);setHintSpeaking(false);}
+ const showHint=idleHint&&hintEligible;
  const telescopeDirection=useRef({x:0,y:0});
  const releaseTelescope=movement.closeTelescope;
  const closeTelescope=useCallback(()=>{setTelescopeOpen(false);releaseTelescope();},[releaseTelescope]);
@@ -90,7 +120,7 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
   deskPlant:deskPlantAvailable?()=>interact('desk-plant',onLeaveContext):undefined,
   floorPlant:floorPlantAvailable?()=>interact('floor-plant',onLeaveContext):undefined,
   records:onRecords&&recordsAvailable?()=>interact('records',onRecords):undefined,
-  shows:onShows&&showsAvailable?()=>interact('shows',onShows):undefined,
+  shows:onShows?()=>{onShows();if(showsAvailable)interact('shows');}:undefined,
   merch:onMerch&&merchAvailable?()=>interact('merch',onMerch):undefined,
   arcade:onArcade&&arcadeAvailable?()=>{onLeaveContext?.();interact('arcade',onArcade);}:undefined,
   tv:onTV?()=>interact('tv',onTV):undefined,
@@ -166,7 +196,7 @@ export default function Ship({ config, baseline, onConfigChange, hull, onHullCha
    }}/>
   </svg>
   <Fixtures onPlant={actions.floorPlant} plantWiggle={watering.scene?.plant==='floor-plant'?wateringFrame(watering.scene,config,movement.state.position).wiggle:0} gramophone={gramophone} outfit={appearance.spin?.to ?? appearance.outfit} onRecords={actions.records} reading={movement.state.paper>0} onShows={actions.shows} onMerch={actions.merch} domeMenu={domeMenu} config={config} view={view} onArcade={actions.arcade} onTV={actions.tv} onNewsletter={actions.newsletter} liveTv={liveTv} />
-  <MemoizedPilotMezzanine onPlant={actions.deskPlant} plantWiggle={watering.scene?.plant==='desk-plant'?wateringFrame(watering.scene,config,movement.state.position).wiggle:0} outfit={appearance.outfit} attention={attention} config={config} view={view} seated={movement.state.mode==='pilot-seated'&&!movement.state.phase} onChair={reveal===1?actions.chair:undefined} />
+  <MemoizedPilotMezzanine hintFacing={showHint} hint={showHint && hintSpeaking ? `Psst... try ${hintMobile ? "tapping" : "clicking"} stuff !` : undefined} onPlant={actions.deskPlant} plantWiggle={watering.scene?.plant==='desk-plant'?wateringFrame(watering.scene,config,movement.state.position).wiggle:0} outfit={appearance.outfit} attention={showHint ? {x:0,back:1,down:0,swivel:0} : attention} config={config} view={view} seated={movement.state.mode==='pilot-seated'&&!movement.state.phase} onChair={reveal===1?actions.chair:undefined} />
   <div className="cockpit-tv-layer" ref={onTvLayer} style={{position:'absolute',inset:0,zIndex:7,pointerEvents:'none','--tv-frame-width':view.width+'px','--tv-frame-height':view.height+'px'} as React.CSSProperties}/>
   <Telescope config={config} view={view} engaged={atTelescope} onClick={available('telescope')?()=>{onLeaveContext?.();interact('telescope');}:undefined}/>
   <WalkingCharlie coffee={coffee} trophyHands={reward.hands} telescope={atTelescope} watering={watering.scene} scripted={reward.busy||records.busy||!!watering.scene||atTelescope} gramophone={gramophone} outfit={appearance.outfit} spin={appearance.spin} state={movement.state} config={config} view={view}/>

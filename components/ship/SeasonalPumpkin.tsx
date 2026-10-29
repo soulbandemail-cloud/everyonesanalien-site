@@ -22,7 +22,7 @@ function Pumpkin({config,view,active,lit,toggle}:{config:DomeConfig;view:Viewpor
  },[lit,active]);
  // A stationary prop on the existing platform, just inward of the old mousehole.
  const p=project({x:config.centre.x+4.1,y:platformY,z:config.centre.z+7.65},config,view),scale=p.scale*.009;
- const face='M-31 -48L-19 -72L-7 -50Z M9 -50L23 -71L35 -46Z M-7 -33L3 -48L12 -31Z M-38 -38Q-33 -17 -19 -12L-17 -21L-8 -19L-8 -11Q2 -7 10 -11L10 -20L20 -22L22 -15Q38 -24 40 -40Q34 -6 9 -3L8 -11L-3 -11L-4 -3Q-34 -6 -38 -38Z';
+ const face='M-31 -48L-19 -72L-7 -50Z M9 -50L23 -71L35 -46Z M-7 -33L3 -48L12 -31Z M-38 -38Q-30 -29 -20 -25L-20 -18L-12 -15L-12 -22Q1 -18 13 -22L14 -15L22 -18L22 -25Q33 -30 40 -40Q34 -6 9 -3L8 -11L-3 -11L-4 -3Q-34 -6 -38 -38Z';
  return <svg width={view.width} height={view.height} style={{position:'absolute',inset:0,zIndex:7,pointerEvents:'none'}} aria-label="Seasonal Halloween pumpkin">
   <defs>
    <radialGradient id={`${id}-skin`} cx=".35" cy=".23" r=".8"><stop stopColor="#c88135"/><stop offset=".48" stopColor="#ab5925"/><stop offset="1" stopColor="#63371e"/></radialGradient>

@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './mate.css';
+import {useDiscoveryPulse} from './useDiscoveryPulse';
 import RotationReminder from './RotationReminder';
 import {useRecords} from '@/components/ship/useRecords';
 import {useClothing} from '@/components/ship/useClothing';
@@ -9,7 +10,7 @@ import { consoleTvScreen } from '@/lib/ship/fixtureLayout';
 import NewsletterDialog from './NewsletterDialog';
 import PortableTV, { type TvController } from '@/components/home/PortableTV';
 import CanonicalHomepage from '@/components/home/CanonicalHomepage';
-import {type DomeMenu} from '@/lib/ship/domeNavigation';
+import {UPCOMING_POSTERS,type DomeMenu} from '@/lib/ship/domeNavigation';
 import { useCockpitViewportFit, usePresentationViewport } from './usePresentationViewport';
 import { commercialRoomCamera, mobileThirdCamera, phoneCockpitPresentation, cockpitViewport } from '@/lib/ship/mobilePresentation';
 import Ship from '@/components/ship/Ship';
@@ -28,6 +29,7 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
   const tvController=useRef<TvController>(null);
   const [domeMenu,setDomeMenu]=useState<DomeMenu>(null);
   const [newsletterOpen,setNewsletterOpen]=useState(false);
+  const [posterOpen,setPosterOpen]=useState(false);
   const [arcadeOpen,setArcadeOpen] = useState(false);
   const [authenticated,setAuthenticated] = useState(initialAuthenticated);
   const [entryReady,setEntryReady] = useState(!entry);
@@ -41,6 +43,8 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
   const progressRef = useRef(progress);
   const viewport=usePresentationViewport(setEntryReady,mobilePreview);
   const {mobile}=viewport;
+  const [rotationFinished,setRotationFinished]=useState(false);
+  const finishRotation=useCallback(()=>setRotationFinished(true),[]);
   const thirdActive=cockpit || progress>0;
   useCockpitZoomGuard(thirdActive && !arcadeOpen);
   const sceneViewport=useMemo(()=>cockpitViewport(viewport.view,viewport.scale,thirdActive),[viewport.view,viewport.scale,thirdActive]);
@@ -57,6 +61,7 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
   const requestVersion = useRef(0);
   const logoutBusy = useRef(false);
   const focusTarget = useRef<HTMLDivElement>(null);
+  useDiscoveryPulse(focusTarget);
 
   useEffect(()=>{
     if (entry || error) window.history.replaceState(window.history.state,'','/');
@@ -136,8 +141,9 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
       transform:`translate(${viewport.left+viewport.view.width/2}px,${viewport.top+viewport.view.height/2}px) scale(${presentationScale}) rotate(${presentation.angle}deg) translate(${-view.width/2}px,${-view.height/2}px)`,
     } as React.CSSProperties : undefined}>
     <CanonicalHomepage records={records.state} onChooseRecord={records.choose} outfit={clothing.selection.outfit} onChooseClothing={clothing.choose} domeMenu={domeMenu} animateEntry={!universal && entry} cockpit={cockpit} loginEnabled={loginEnabled && !preview} config={config} camera={camera} progress={progress} view={view} mobileThird={mobileThird} publicFrame={mobile ? presentation : undefined} />
-    {(cockpit || progress>0) && <Ship records={records.state} onRecordPhysical={records.physical} clothing={clothing.selection} onLeaveContext={()=>setDomeMenu(null)} onRecords={cockpit && progress===1 ? ()=>setDomeMenu('records') : undefined} arcadeOpen={arcadeOpen} onTvLayer={setTvDockHost} domeMenu={domeMenu} onShows={cockpit && progress===1 ? ()=>setDomeMenu(null) : undefined} onMerch={cockpit && progress===1 ? ()=>setDomeMenu("merch") : undefined} onNewsletter={cockpit && progress===1 ? ()=>{setDomeMenu(null);setNewsletterOpen(true);} : undefined} onTV={cockpit && progress===1 ? ()=>{setDomeMenu(null);tvController.current?.open();} : undefined} liveTv={!!tvVisible} config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={!universal && authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
-    {mobile && viewport.ready && <RotationReminder hidden={domeMenu==='merch'||domeMenu==='records'} />}
+    {(cockpit || progress>0) && <Ship hintReady={viewport.ready && (!mobile || rotationFinished) && !newsletterOpen && !posterOpen} hintMobile={mobile} records={records.state} onRecordPhysical={records.physical} clothing={clothing.selection} onLeaveContext={()=>setDomeMenu(null)} onRecords={cockpit && progress===1 ? ()=>setDomeMenu('records') : undefined} arcadeOpen={arcadeOpen} onTvLayer={setTvDockHost} domeMenu={domeMenu} onShows={cockpit && progress===1 ? ()=>{setDomeMenu(null);setPosterOpen(true);} : undefined} onMerch={cockpit && progress===1 ? ()=>setDomeMenu("merch") : undefined} onNewsletter={cockpit && progress===1 ? ()=>{setDomeMenu(null);setNewsletterOpen(true);} : undefined} onTV={cockpit && progress===1 ? ()=>{setDomeMenu(null);tvController.current?.open();} : undefined} liveTv={!!tvVisible} config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={!universal && authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
+    {mobile && viewport.ready && <RotationReminder onFinished={finishRotation} hidden={domeMenu==='merch'||domeMenu==='records'} />}
+    {cockpit && posterOpen && <NewsletterDialog poster={UPCOMING_POSTERS[0]} viewport={viewport} onClose={()=>setPosterOpen(false)} />}
     {cockpit && newsletterOpen && <NewsletterDialog viewport={viewport} onClose={()=>setNewsletterOpen(false)} />}
     {cockpit && arcadeOpen && <ArcadeDialog viewport={viewport} onExit={() => setArcadeOpen(false)} />}
     </div>

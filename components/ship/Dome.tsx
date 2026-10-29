@@ -19,9 +19,9 @@ function reflection(config:DomeConfig,view:Viewport,theta:number,low:number,high
 // screen blur, their width and curvature follow the camera projection. No timers,
 // blur filters, duplicate glass surfaces or extra rendering passes are needed.
 const reflections=[
- {theta:-1.34,low:.18,high:1.35,width:.055,halo:.17,strength:1},
- {theta:-1.20,low:.48,high:1.38,width:.014,halo:.07,strength:.55},
- {theta:1.42,low:.12,high:1.21,width:.035,halo:.15,strength:.9},
+ {theta:-1.48,low:.52,high:1.48,width:.055,halo:.17,strength:1},
+ {theta:-1.34,low:.72,high:1.50,width:.014,halo:.07,strength:.55},
+ {theta:1.56,low:.48,high:1.44,width:.035,halo:.15,strength:.9},
 ];
 const feather=Array.from({length:16},(_,i)=>{
  const t=(i+.5)/16;
