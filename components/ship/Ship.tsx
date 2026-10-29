@@ -48,8 +48,9 @@ export default function Ship({ hintReady=false,hintMobile=false,config, baseline
  const movement=useCharlieMovement(config,alienLookYaw(attention.x,attention.back,attention.swivel));
  const [telescopeOpen,setTelescopeOpen]=useState(false);
  const [idleHint,setIdleHint]=useState(false);
+ const [hintDiscovered,setHintDiscovered]=useState(false);
  const [hintSpeaking,setHintSpeaking]=useState(false);
- const hintEligible=hintReady && !arcadeOpen && !telescopeOpen && !domeMenu && movement.state.mode==='pilot-seated' && !movement.state.phase;
+ const hintEligible=!hintDiscovered && hintReady && !arcadeOpen && !telescopeOpen && !domeMenu && movement.state.mode==='pilot-seated' && !movement.state.phase;
  useEffect(()=>{
   let timer=0, speechTimer=0, latched=false;
   const schedule=()=>{
@@ -60,17 +61,23 @@ export default function Ship({ hintReady=false,hintMobile=false,config, baseline
     speechTimer=window.setTimeout(()=>setHintSpeaking(true),1400);
    },5000);
   };
-  const dismiss=()=>{
+  const dismiss=(event:Event)=>{
+   const fixture=event.target instanceof Element?event.target.closest('.cockpit-interactive-fixture'):null;
+   const furniture=fixture && root.current?.contains(fixture) && fixture.getAttribute('aria-label')!=='Sit in pilot chair' && !fixture.matches('[aria-disabled="true"],:disabled');
+   if(event instanceof KeyboardEvent && (!furniture || !['Enter',' '].includes(event.key) || !fixture?.hasAttribute('data-pressed')))return;
+   if(furniture)setHintDiscovered(true);
    latched=false;window.clearTimeout(speechTimer);
    setIdleHint(false);setHintSpeaking(false);schedule();
   };
   const visibility=()=>{if(document.hidden){window.clearTimeout(timer);}else if(!latched)schedule();};
   schedule();
   window.addEventListener('click',dismiss,true);
+  window.addEventListener('keyup',dismiss,true);
   document.addEventListener('visibilitychange',visibility);
   return()=>{
    window.clearTimeout(timer);window.clearTimeout(speechTimer);
    window.removeEventListener('click',dismiss,true);
+   window.removeEventListener('keyup',dismiss,true);
    document.removeEventListener('visibilitychange',visibility);
   };
  },[hintEligible]);
