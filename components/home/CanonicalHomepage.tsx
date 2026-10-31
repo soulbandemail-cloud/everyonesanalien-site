@@ -31,9 +31,9 @@ export default function CanonicalHomepage({ cockpit, config, view, animateEntry 
  // Blend the live header toward the final dome frame. The travelling eye crosses
  // that surface near its start; projecting through it would fling the header offscreen.
  useDomeProjection(homeRoot, cockpit, config, view, animateEntry, config, progress, mobileThird);
- useGlassContent(homeRoot,config,view,cockpit&&progress===1);
+ useGlassContent(homeRoot,camera,view,cockpit&&progress===1);
  return <div ref={homeRoot} className="canonical-home" data-dome-menu={domeMenu ?? "none"} data-mobile-third={mobileThird || undefined} data-dome-narrow={view.width<760 || undefined} data-returning={!cockpit && progress>0 ? "true" : undefined}>
- <ExteriorSpace config={config} camera={camera} view={view} />
+ <ExteriorSpace config={config} camera={progress===1?config:camera} view={view} />
  <main className="pink-text-glow min-h-screen text-white p-8 md:p-12 max-w-12xl mx-auto">
         <div data-dome-slot="socials" className="flex flex-nowrap justify-center gap-10 sm:gap-10 mb-0 md:mb-4">
           <a

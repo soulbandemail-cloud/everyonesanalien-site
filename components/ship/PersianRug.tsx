@@ -1,11 +1,17 @@
-import { memo } from 'react';
+import { memo,useRef } from 'react';
+import {WorldPlane} from './WorldPlane';
+import {project} from '@/lib/ship/domeGeometry';
 import type { DomeConfig, Viewport } from '@/lib/ship/domeGeometry';
-import { ROOM, polygonPath } from '@/lib/ship/roomGeometry';
+import { ROOM } from '@/lib/ship/roomGeometry';
 
 /** All ornament is on the floor plane, including the individual fringe threads. */
-export const PersianRug=memo(function PersianRug({config,view}:{config:DomeConfig;view:Viewport}) {
- const point=(x:number,z:number)=>({x:ROOM.port.x+x,y:ROOM.floorY+.002,z:ROOM.port.z+z});
- const path=(xy:number[][])=>polygonPath(xy.map(([x,z])=>point(x,z)),config,view);
+export const PersianRug=memo(function PersianRug({config,view}:{config:DomeConfig;view:Viewport}){
+ const scale=useRef(project({x:ROOM.port.x,y:ROOM.floorY+.002,z:ROOM.port.z},config,view).scale).current;
+ const size=5*scale;
+ return <g aria-label="Complete circular Persian rug with woven floral centre medallion" pointerEvents="none"><WorldPlane origin={{x:ROOM.port.x-2.5,y:ROOM.floorY+.002,z:ROOM.port.z-2.5}} u={{x:1/(scale*2),y:0,z:0}} v={{x:0,y:0,z:1/(scale*2)}} width={size*2} height={size*2} config={config} view={view}><svg width={size*2} height={size*2} viewBox={`0 0 ${size} ${size}`} overflow="visible"><RugArtwork scale={scale}/></svg></WorldPlane></g>;
+});
+const RugArtwork=memo(function RugArtwork({scale}:{scale:number}){
+ const path=(xy:number[][])=>xy.map(([x,z],i)=>`${i?'L':'M'}${(x+2.5)*scale},${(z+2.5)*scale}`).join(' ')+' Z';
  const ring=(r:number)=>path(Array.from({length:145},(_,i)=>{const a=i/144*Math.PI*2;return [r*Math.cos(a),r*Math.sin(a)];}));
 
  const flower=(r:number,a:number,size:number,index:number)=>{

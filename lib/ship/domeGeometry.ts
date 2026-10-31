@@ -20,13 +20,18 @@ export const DEFAULT_DOME: DomeConfig = {
   topLatitude: .76, lowerLatitude: .085,
 };
 export const radians = (degrees: number) => degrees * Math.PI / 180;
-const stable = (n: number) => Number(n.toFixed(6));
+const stable = (n: number) => Math.round(n * 1e6) / 1e6;
 
+let cachedLens:{fov:number;shift:number;width:number;height:number;value:{focal:number;horizon:number;upperAngle:number;lowerAngle:number}}|undefined;
 /** Explicit lens shift preserves the previous framing; also shown by the debug cone. */
 export function lens(c: DomeConfig, v: Viewport) {
+  const shift=c.framingShift??0;
+  if(cachedLens&&cachedLens.fov===c.fov&&cachedLens.shift===shift&&cachedLens.width===v.width&&cachedLens.height===v.height)return cachedLens.value;
   const focal = Math.min(v.height, v.width * 1.15) / (2 * Math.tan(radians(c.fov) / 2));
   const horizon = v.height * (.52 + (c.framingShift ?? 0));
-  return { focal, horizon, upperAngle: Math.atan(horizon / focal), lowerAngle: Math.atan((v.height - horizon) / focal) };
+  const value={ focal, horizon, upperAngle: Math.atan(horizon / focal), lowerAngle: Math.atan((v.height - horizon) / focal) };
+  cachedLens={fov:c.fov,shift,width:v.width,height:v.height,value};
+  return value;
 }
 export function spherePoint(theta: number, phi: number, c: DomeConfig): Vec3 {
   return {

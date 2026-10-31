@@ -239,6 +239,7 @@ export function useDomeProjection(root: RefObject<HTMLDivElement | null>, cockpi
     } finally {
       if(presentationTransform) presentation!.style.transform=presentationTransform;
     }
+    node.dispatchEvent(new Event('dome-header-layout'));
     };
     paint();
     let cancelled=false,frame=0;

@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { memo, useId } from 'react';
 import { PLANET_INK, REAL_HEART_PATH } from '@/lib/ship/wordmarkGeometry';
 
 // Keep the old outer ellipse; broaden inward toward the viewer, taper on the far side.
@@ -43,7 +43,7 @@ const continents=[
 ].map((path,i)=>coastline(path,i*2.1));
 
 /** The existing exterior planet, now the single O in the live projected wordmark. */
-export default function RealPlanetHeart({svgOnly=false,width,height}:{svgOnly?:boolean;width?:number;height?:number}={}) {
+const RealPlanetHeart=memo(function RealPlanetHeart({svgOnly=false,width,height}:{svgOnly?:boolean;width?:number;height?:number}={}) {
  const id=useId();
  const surfaceId=`${id}-surface`,shadeId=`${id}-shade`;
  const ringGlowId=`${id}-ring-glow`;
@@ -135,4 +135,5 @@ export default function RealPlanetHeart({svgOnly=false,width,height}:{svgOnly?:b
    <g transform="rotate(-18)"><path data-ring="front" d={ringRibbon(true)} fill="white" className="planet-letter-ring" filter={`url(#${ringGlowId})`} /></g>
   </svg>;
  return svgOnly?artwork:<span className="soul-planet" data-world-object="planet-heart" aria-hidden="true">{artwork}</span>;
-}
+});
+export default RealPlanetHeart;

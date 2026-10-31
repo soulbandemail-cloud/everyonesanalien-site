@@ -47,18 +47,18 @@ export function pilotDeck(step: number, y: number): Vec3[] {
 
 export function polygonPath(points: Vec3[], config: DomeConfig, view: Viewport) {
   // Sutherland–Hodgman clipping against the camera near plane before projection.
-  const clipped: Vec3[] = [];
-  for (let i = 0; i < points.length; i++) {
-    const a = points[i], b = points[(i + 1) % points.length];
-    const da = project(a, config, view).depth, db = project(b, config, view).depth;
-    if (da >= .11) clipped.push(a);
-    if ((da >= .11) !== (db >= .11)) {
-      const t = (.11 - da) / (db - da);
-      clipped.push({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t, z: a.z + (b.z - a.z) * t });
+  // Reuse each projection for clipping and output; the former loop projected
+  // every vertex three times (including lens/rounding work) on every camera frame.
+  const projected=points.map(point=>project(point,config,view));
+  const clipped:ReturnType<typeof project>[]=[];
+  for(let i=0;i<points.length;i++){
+    const next=(i+1)%points.length,a=points[i],b=points[next];
+    const da=projected[i].depth,db=projected[next].depth;
+    if(da>=.11)clipped.push(projected[i]);
+    if((da>=.11)!==(db>=.11)){
+      const t=(.11-da)/(db-da);
+      clipped.push(project({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t,z:a.z+(b.z-a.z)*t},config,view));
     }
   }
-  return clipped.map((point, i) => {
-    const p = project(point, config, view);
-    return `${i ? 'L' : 'M'}${p.x},${p.y}`;
-  }).join(' ') + (clipped.length ? ' Z' : '');
+  return clipped.map((p,i)=>`${i?'L':'M'}${p.x},${p.y}`).join(' ')+(clipped.length?' Z':'');
 }

@@ -8,7 +8,7 @@ type Instrument = 'vu'|'gauge'|'patch'|'navigation'|'switches'|'compressor';
 const brass='#b49a70', ink='#172823', cream='#e6cc91';
 function Knob({x,y,r=4}:{x:number;y:number;r?:number}) {return <g><circle cx={x} cy={y+1} r={r+1} fill="#101c19"/><circle cx={x} cy={y} r={r} fill="#565d4d" stroke={brass} strokeWidth=".8"/><path d={`M${x} ${y}v${-r+1}`} stroke={cream} strokeWidth="1"/></g>;}
 function Meter({x=9,y=7}:{x?:number;y?:number}) {return <g transform={`translate(${x} ${y})`}><rect width="32" height="18" rx="2" fill="#342e22" stroke={brass}/><rect x="3" y="3" width="26" height="12" rx="1" fill={cream}/><path d="M6 12Q16 0 26 12" fill="none" stroke="#675a42"/><path data-needle="16 14" d="M16 14L23 5" stroke="#8e422d"/><path d="M8 8v3m5-5v3m6-3v3m5-1v3" stroke="#6d6547" strokeWidth=".7"/></g>;}
-function Module({kind,label}:{kind:Instrument;label:string}) {return <g>
+const Module=memo(function Module({kind,label}:{kind:Instrument;label:string}) {return <g>
  <rect x="1" y="2" width="98" height="47" rx="2" fill="#111e1c"/>
  <rect x="1" width="98" height="46" rx="1" fill={kind==='vu'||kind==='gauge'?'#726550':'#35483e'} stroke="#b09873" strokeWidth="1.6"/>
  <path d="M3 44V2H97" fill="none" stroke="#d4bd90" strokeOpacity=".35"/>
@@ -20,7 +20,7 @@ function Module({kind,label}:{kind:Instrument;label:string}) {return <g>
  {kind==='navigation' && <><rect x="8" y="6" width="49" height="28" rx="3" fill="#0e2723" stroke="#75876c"/>{label==='ORBIT'?<g data-original><path d="M13 20h39M32 9v22M16 28l10-14 10 10 12-9" fill="none" stroke="#70a891" strokeWidth=".9"/><ellipse cx="32" cy="20" rx="14" ry="9" fill="none" stroke="#507968"/><circle cx="37" cy="17" r="2" fill="#b1ddad"/></g>:label==='NAV VECTOR'?<><path d="M12 13h41m-41 7h41m-41 7h41M20 9v22m10-22v22m10-22v22m10-22v22" stroke="#507968" strokeWidth=".4" opacity=".4"/><path data-scope d="M12 20L20 14 30 26 40 14 53 20" fill="none" stroke="#b1ddad" strokeWidth="1.3"/></>:<>{['M13 13H25V20H39V28H52','M13 28H23V20H39V12H52'].map((d,i)=><g data-signal key={d}><path d={d} fill="none" stroke="#8dc5a7" strokeWidth="1"/>{(i?[[13,28],[23,20],[39,12],[52,12]]:[[13,13],[25,20],[39,28],[52,28]]).map(([x,y])=><circle data-node key={`${x}-${y}`} cx={x} cy={y} r="1.4" fill="#b1ddad"/>)}<circle data-pulse r="1.7" fill="#d2e9bc" opacity="0"/></g>)}</>}<Knob x={72} y={16} r={7}/>{[0,1,2].map(i=><rect data-indicator key={i} x={64+i*9} y="29" width="5" height="3" fill={i===2?'#bd6942':'#d8b970'}/>)}</>}
  {kind==='switches' && <>{[0,1,2,3,4].map(i=><g key={i}><circle data-indicator cx={14+i*17} cy="11" r="2" fill={i===3?'#a15d41':'#dfb66a'}/><rect x={11+i*17} y="17" width="6" height="14" rx="2" fill={ink}/><path d={`M${14+i*17} 26l${i%2?2:-2} -8`} stroke="#d3c9aa" strokeWidth="2.3"/></g>)}</>}
  {kind==='compressor' && <><Meter/><Knob x={56} y={18} r={8}/><Knob x={79} y={18} r={8}/><path d="M47 31h41m-41 3h41" stroke="#101f1d" strokeWidth="1.5"/></>}
- </g>;}
+ </g>;});
 const sixty=60;
 
 export const ConsoleDetails=memo(function ConsoleDetails({config,view,onPlant,plantWiggle=0}:{config:DomeConfig;view:Viewport;onPlant?:()=>void;plantWiggle?:number}) {

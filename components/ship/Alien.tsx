@@ -101,6 +101,7 @@ export function Alien({ coffee,attention, chair=true, occupant=true, facing, sta
    screen.globalAlpha=1;screen.filter=`blur(${change.haze*2.5}px)`;screen.drawImage(spinCanvas,0,0);screen.restore();
   }
   }
+  screen.canvas.dataset.sceneReady='true';
   frame=requestAnimationFrame(draw);
   };
   frame=requestAnimationFrame(draw);
@@ -108,6 +109,6 @@ export function Alien({ coffee,attention, chair=true, occupant=true, facing, sta
  },[cockpitActive]);
  return <div className={styles.alien} data-outfit={outfit??"none"} data-changing={!!spin||undefined} aria-label="Seated alien sharing your attention">
  {chair && <div className={styles.chairStem} aria-hidden="true"/>}
- <canvas ref={canvas} width={360} height={800} style={{position:'absolute',top:'-60%',maxWidth:'none',left:(motion.ritualAmount??0)>0?'-50%':0,width:(motion.ritualAmount??0)>0?'200%':'100%',height:'160%'}} aria-hidden="true"/>
+ <canvas ref={canvas} data-scene-ready="false" width={360} height={800} style={{position:'absolute',top:'-60%',maxWidth:'none',left:(motion.ritualAmount??0)>0?'-50%':0,width:(motion.ritualAmount??0)>0?'200%':'100%',height:'160%'}} aria-hidden="true"/>
  {chair && <div className={styles.chairBase}/>}</div>;
 }

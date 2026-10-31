@@ -1,7 +1,9 @@
 'use client';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Profiler, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './mate.css';
 import {useDiscoveryPulse} from './useDiscoveryPulse';
+import {useCockpitReady} from './useCockpitReady';
+import UfoArrival from './UfoArrival';
 import RotationReminder from './RotationReminder';
 import {useRecords} from '@/components/ship/useRecords';
 import {useClothing} from '@/components/ship/useClothing';
@@ -13,12 +15,13 @@ import CanonicalHomepage from '@/components/home/CanonicalHomepage';
 import {UPCOMING_POSTERS,type DomeMenu} from '@/lib/ship/domeNavigation';
 import { useCockpitViewportFit, usePresentationViewport } from './usePresentationViewport';
 import { commercialRoomCamera, mobileThirdCamera, phoneCockpitPresentation, cockpitViewport } from '@/lib/ship/mobilePresentation';
-import Ship from '@/components/ship/Ship';
+import {useCameraTest} from './useCameraTest';
 import dynamic from 'next/dynamic';
 import { DEFAULT_DOME } from '@/lib/ship/domeGeometry';
 import { DEFAULT_HULL } from '@/lib/ship/hullGeometry';
 import { cameraDuration, transitionCamera } from '@/lib/ship/cameraTransition';
 
+const Ship = dynamic(() => import('@/components/ship/Ship'), { ssr: false });
 const ArcadeDialog = dynamic(() => import('@/components/arcade/ArcadeDialog'), { ssr: false });
 
 export default function MateExperience({ initialAuthenticated = false, loginEnabled = false, entry = false, error = false, development = false, preview = false, mobilePreview = false, universal = true }: {
@@ -62,6 +65,15 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
   const logoutBusy = useRef(false);
   const focusTarget = useRef<HTMLDivElement>(null);
   useDiscoveryPulse(focusTarget);
+  const [mountCockpit,setMountCockpit]=useState(false);
+  useEffect(()=>{let frame=requestAnimationFrame(()=>{frame=requestAnimationFrame(()=>setMountCockpit(true));});return()=>cancelAnimationFrame(frame);},[]);
+  const cockpitReady=useCockpitReady(focusTarget,viewport.ready && mountCockpit && cockpit && progress===1);
+  const cameraTest=useCameraTest(cockpitReady);
+  const [arrivalRevealed,setArrivalRevealed]=useState(false),[arrivalFinished,setArrivalFinished]=useState(false);
+  const revealArrival=useCallback(()=>setArrivalRevealed(true),[]);
+  const finishArrival=useCallback(()=>setArrivalFinished(true),[]);
+  const interiorReady=cockpitReady&&arrivalRevealed;
+
 
   useEffect(()=>{
     if (entry || error) window.history.replaceState(window.history.state,'','/');
@@ -129,20 +141,22 @@ export default function MateExperience({ initialAuthenticated = false, loginEnab
   }
 
   const [tvDockHost,setTvDockHost]=useState<HTMLDivElement|null>(null);
-  const camera=useMemo(()=>transitionCamera(config,progress),[config,progress]);
+  const camera=useMemo(()=>transitionCamera({...config,camera:{...config.camera,x:config.camera.x+cameraTest.offset*.6,z:config.camera.z+cameraTest.offset*1.2}},progress),[config,progress,cameraTest.offset]);
   const framedRoom=useMemo(()=>commercialRoomCamera(mobileThird ? mobileThirdCamera(config,view) : config,view),[mobileThird,config,view]);
-  const roomCamera=useMemo(()=>transitionCamera({...framedRoom,framingShift:(framedRoom.framingShift??0)*progress},progress),[framedRoom,progress]);
+  const roomCamera=useMemo(()=>transitionCamera({...framedRoom,camera:{...framedRoom.camera,x:framedRoom.camera.x+cameraTest.offset*.6,z:framedRoom.camera.z+cameraTest.offset*1.2},framingShift:(framedRoom.framingShift??0)*progress},progress),[framedRoom,progress,cameraTest.offset]);
   const tvDock=thirdActive ? consoleTvScreen(roomCamera,view) : undefined;
   const tvVisible=(!cockpit && progress===0) || (cockpit && progress===1 && tvDock?.visible);
-  return <div className={`mate-experience ${cockpit ? 'mate-cockpit' : ''}`} ref={focusTarget} tabIndex={-1} style={universal && !viewport.ready ? {visibility:'hidden'} : undefined} data-mobile={mobile || undefined} data-cockpit-active={thirdActive && !arcadeOpen || undefined}>
+  return <div className={`mate-experience ${cockpit ? 'mate-cockpit' : ''}`} ref={focusTarget} tabIndex={-1} style={universal && !viewport.ready ? {visibility:'hidden'} : undefined} data-cockpit-loading={cockpit&&!interiorReady || undefined} data-mobile={mobile || undefined} data-cockpit-active={thirdActive && !arcadeOpen || undefined}>
     <div data-cockpit-presentation data-presentation-angle={presentation.angle} data-presentation-scale={presentationScale} data-portrait-first={portraitFirst || undefined} data-portrait-settled={portraitFirst && progress===0 || undefined} style={mobileThird || (mobile && viewport.screenAngle!==0) || sceneViewport.scale!==1 ? {
       '--portrait-width':`${view.width}px`,'--portrait-height':`${view.height}px`,
       position:'fixed',left:0,top:0,width:view.width,height:view.height,transformOrigin:'0 0',
       transform:`translate(${viewport.left+viewport.view.width/2}px,${viewport.top+viewport.view.height/2}px) scale(${presentationScale}) rotate(${presentation.angle}deg) translate(${-view.width/2}px,${-view.height/2}px)`,
     } as React.CSSProperties : undefined}>
-    <CanonicalHomepage records={records.state} onChooseRecord={records.choose} outfit={clothing.selection.outfit} onChooseClothing={clothing.choose} domeMenu={domeMenu} animateEntry={!universal && entry} cockpit={cockpit} loginEnabled={loginEnabled && !preview} config={config} camera={camera} progress={progress} view={view} mobileThird={mobileThird} publicFrame={mobile ? presentation : undefined} />
-    {(cockpit || progress>0) && <Ship hintReady={viewport.ready && (!mobile || rotationFinished) && !newsletterOpen && !posterOpen} hintMobile={mobile} records={records.state} onRecordPhysical={records.physical} clothing={clothing.selection} onLeaveContext={()=>setDomeMenu(null)} onRecords={cockpit && progress===1 ? ()=>setDomeMenu('records') : undefined} arcadeOpen={arcadeOpen} onTvLayer={setTvDockHost} domeMenu={domeMenu} onShows={cockpit && progress===1 ? ()=>{setDomeMenu(null);setPosterOpen(true);} : undefined} onMerch={cockpit && progress===1 ? ()=>setDomeMenu("merch") : undefined} onNewsletter={cockpit && progress===1 ? ()=>{setDomeMenu(null);setNewsletterOpen(true);} : undefined} onTV={cockpit && progress===1 ? ()=>{setDomeMenu(null);tvController.current?.open();} : undefined} liveTv={!!tvVisible} config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={!universal && authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
-    {mobile && viewport.ready && <RotationReminder onFinished={finishRotation} hidden={domeMenu==='merch'||domeMenu==='records'} />}
+    {!arrivalFinished&&<UfoArrival ready={viewport.ready&&cockpitReady} enabled={cockpit&&!cameraTest.enabled} portrait={mobile&&!viewport.landscape} onReveal={revealArrival} onFinished={finishArrival}/>}
+    {cameraTest.enabled&&<div style={{position:"fixed",zIndex:99999,left:12,bottom:12,background:"#10202a",color:"white",padding:8,fontSize:12,maxWidth:"calc(100vw - 24px)",display:"flex",gap:12,flexWrap:"wrap"}}><button disabled={!cockpitReady||cameraTest.running} onClick={cameraTest.run}>Run camera sweep</button><output data-camera-test>{cameraTest.report}</output></div>}
+    <Profiler id="homepage" onRender={(_id,_phase,duration)=>document.querySelector('[data-camera-test]')?.setAttribute("data-homepage-ms",duration.toFixed(1))}><CanonicalHomepage records={records.state} onChooseRecord={records.choose} outfit={clothing.selection.outfit} onChooseClothing={clothing.choose} domeMenu={domeMenu} animateEntry={!universal && entry} cockpit={cockpit} loginEnabled={loginEnabled && !preview} config={config} camera={camera} progress={progress} view={view} mobileThird={mobileThird} publicFrame={mobile ? presentation : undefined} /></Profiler>
+    {mountCockpit && (cockpit || progress>0) && <Ship hintReady={interiorReady && viewport.ready && (!mobile || rotationFinished) && !newsletterOpen && !posterOpen} hintMobile={mobile} records={records.state} onRecordPhysical={records.physical} clothing={clothing.selection} onLeaveContext={()=>setDomeMenu(null)} onRecords={cockpit && progress===1 ? ()=>setDomeMenu('records') : undefined} arcadeOpen={arcadeOpen} onTvLayer={setTvDockHost} domeMenu={domeMenu} onShows={cockpit && progress===1 ? ()=>{setDomeMenu(null);setPosterOpen(true);} : undefined} onMerch={cockpit && progress===1 ? ()=>setDomeMenu("merch") : undefined} onNewsletter={cockpit && progress===1 ? ()=>{setDomeMenu(null);setNewsletterOpen(true);} : undefined} onTV={cockpit && progress===1 ? ()=>{setDomeMenu(null);tvController.current?.open();} : undefined} liveTv={!!tvVisible} config={roomCamera} domeConfig={camera} sharedSeam={mobileThird} baseline={config} navigationConfig={framedRoom} onConfigChange={setConfig} hull={hull} onHullChange={setHull} view={view} reveal={progress} development={development} preview={preview} logout={!universal && authenticated ? logout : undefined} busy={busy} onArcade={cockpit && progress===1 ? () => setArcadeOpen(true) : undefined} />}
+    {mobile && viewport.ready && interiorReady && arrivalFinished && <RotationReminder onFinished={finishRotation} hidden={domeMenu==='merch'||domeMenu==='records'} />}
     {cockpit && posterOpen && <NewsletterDialog poster={UPCOMING_POSTERS[0]} viewport={viewport} onClose={()=>setPosterOpen(false)} />}
     {cockpit && newsletterOpen && <NewsletterDialog viewport={viewport} onClose={()=>setNewsletterOpen(false)} />}
     {cockpit && arcadeOpen && <ArcadeDialog viewport={viewport} onExit={() => setArcadeOpen(false)} />}

@@ -10,7 +10,7 @@ import {TelescopeView} from './TelescopeView';
 import {useWatering} from './useWatering';
 import {WateringProps} from './WateringProps';
 import {wateringFrame} from '@/lib/ship/watering';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Profiler, memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { project, type DomeConfig, type Viewport } from '@/lib/ship/domeGeometry';
 import type { HullConfig } from '@/lib/ship/hullGeometry';
 import { seatedGaze, alienLookYaw } from '@/lib/ship/alienVolume';
@@ -36,16 +36,17 @@ import type {Outfit} from '@/lib/ship/clothing';
 
 const MemoizedPilotMezzanine=memo(PilotMezzanine);
 
-export default function Ship({ hintReady=false,hintMobile=false,config, baseline, onConfigChange, hull, onHullChange, view, domeConfig=config, sharedSeam=false, reveal=1, development=false, preview=false, logout, busy, onArcade, onTV, onNewsletter, onShows, onMerch, onRecords, onLeaveContext, domeMenu=null, arcadeOpen=false, liveTv=false, onTvLayer, clothing={outfit:null,revision:0},records=INITIAL_RECORD_SELECTION,onRecordPhysical=()=>{} }: {
+const profile=(id:string,phase:string,duration:number)=>{if(typeof document!=='undefined')document.querySelector('[data-camera-test]')?.setAttribute('data-profile-'+id,duration.toFixed(1));};
+export default function Ship({ hintReady=false,hintMobile=false,config, baseline,navigationConfig=baseline, onConfigChange, hull, onHullChange, view, domeConfig=config, sharedSeam=false, reveal=1, development=false, preview=false, logout, busy, onArcade, onTV, onNewsletter, onShows, onMerch, onRecords, onLeaveContext, domeMenu=null, arcadeOpen=false, liveTv=false, onTvLayer, clothing={outfit:null,revision:0},records=INITIAL_RECORD_SELECTION,onRecordPhysical=()=>{} }: {
  hintReady?:boolean;hintMobile?:boolean;
  records?:RecordSelection;onRecordPhysical?:(album:AlbumId|null,done?:boolean,side?:RecordSide|null,needleReady?:boolean,needleLifted?:boolean)=>void;
  clothing?:{outfit:Outfit;revision:number};
- config:DomeConfig; baseline:DomeConfig; onConfigChange:(config:DomeConfig)=>void;
+ config:DomeConfig; baseline:DomeConfig;navigationConfig?:DomeConfig; onConfigChange:(config:DomeConfig)=>void;
  hull:HullConfig; onHullChange:(hull:HullConfig)=>void; view:Viewport;
  domeConfig?:DomeConfig; sharedSeam?:boolean; reveal?:number; development?:boolean; preview?:boolean; logout?:()=>void; busy?:boolean; onArcade?:()=>void; onTV?:()=>void; onNewsletter?:()=>void; onShows?:()=>void; onMerch?:()=>void; onRecords?:()=>void; onLeaveContext?:()=>void; domeMenu?:DomeMenu; arcadeOpen?:boolean; liveTv?:boolean; onTvLayer?:(node:HTMLDivElement|null)=>void;
 }) {
  const [attention, setAttention] = useState({ x: 0, back: 0, down: 0, swivel:0 });
- const movement=useCharlieMovement(config,alienLookYaw(attention.x,attention.back,attention.swivel));
+ const movement=useCharlieMovement(navigationConfig,alienLookYaw(attention.x,attention.back,attention.swivel));
  const [telescopeOpen,setTelescopeOpen]=useState(false);
  const [idleHint,setIdleHint]=useState(false);
  const [hintDiscovered,setHintDiscovered]=useState(false);
@@ -88,7 +89,7 @@ export default function Ship({ hintReady=false,hintMobile=false,config, baseline
  const closeTelescope=useCallback(()=>{setTelescopeOpen(false);releaseTelescope();},[releaseTelescope]);
  const atTelescope=movement.state.engagement==='telescope'&&movement.state.mode==='standing'&&!movement.state.phase;
  useEffect(()=>{if(!atTelescope)return;const timer=window.setTimeout(()=>setTelescopeOpen(true),1350);return()=>window.clearTimeout(timer);},[atTelescope]);
- const reward=usePolemanReward(config,movement.state,movement.performTrophy);
+ const reward=usePolemanReward(navigationConfig,movement.state,movement.performTrophy);
  const watering=useWatering(movement.performPlant,movement.finishPlant);
  const {water,cancel:cancelWater}=watering;
  const gramophone=useRecordRitual(records,movement.performRecords,onRecordPhysical);
@@ -137,19 +138,10 @@ export default function Ship({ hintReady=false,hintMobile=false,config, baseline
  const root = useRef<HTMLDivElement>(null);
  const coffee=useRef<CoffeePose|undefined>(undefined);
  const pointer = useRef({ x: 0, y: .25 });
+ const gazeProjection=useRef({config,view});
+ useLayoutEffect(()=>{gazeProjection.current={config,view};},[config,view]);
  useEffect(() => {
   if(arcadeOpen||telescopeOpen)return;
-  const pilot=project({...pilotPosition,y:pilotPosition.y+ROOM.pilotSeatLift},config,view);
-  const alienHeight=ROOM.alienHeight*pilot.scale;
-  // Neutral antenna tips are at drawing y=-15.5 in the 250-unit occupant.
-  const antennaY=pilot.y-alienHeight*1.062;
-  const floorAnchor=project(pilotPosition,config,view);
-  // Match the centre of the rendered pedestal (99% of occupant height plus seat lift).
-  const chairBaseY=floorAnchor.y-alienHeight*.01;
-  const leftAnchorX=project(telescopeStation(config).base,config,view).x;
-  // Preserve the established right-side gaze calibration independently of decoration placement.
-  const mouseTheta=Math.asin(3.25/config.radius)+Math.PI*2/40;
-  const rightAnchorX=project({x:config.centre.x+config.radius*Math.sin(mouseTheta),y:pilotPosition.y,z:config.centre.z+config.radius*Math.cos(mouseTheta)},config,view).x;
   // Observe movement without making the click-through room overlay a hit target.
   const reset = () => { pointer.current = { x: 0, y: .25 }; };
   const move = (event: PointerEvent) => {
@@ -172,6 +164,18 @@ export default function Ship({ hintReady=false,hintMobile=false,config, baseline
   function tick(time: number) {
    const dt = previous ? Math.min((time - previous) / 1000, .05) : 0; previous = time;
    const ease = reduced.matches ? 1 : 1 - Math.exp(-dt * 5);
+   const {config,view}=gazeProjection.current;
+  const pilot=project({...pilotPosition,y:pilotPosition.y+ROOM.pilotSeatLift},config,view);
+  const alienHeight=ROOM.alienHeight*pilot.scale;
+  // Neutral antenna tips are at drawing y=-15.5 in the 250-unit occupant.
+  const antennaY=pilot.y-alienHeight*1.062;
+  const floorAnchor=project(pilotPosition,config,view);
+  // Match the centre of the rendered pedestal (99% of occupant height plus seat lift).
+  const chairBaseY=floorAnchor.y-alienHeight*.01;
+  const leftAnchorX=project(telescopeStation(config).base,config,view).x;
+  // Preserve the established right-side gaze calibration independently of decoration placement.
+  const mouseTheta=Math.asin(3.25/config.radius)+Math.PI*2/40;
+  const rightAnchorX=project({x:config.centre.x+config.radius*Math.sin(mouseTheta),y:pilotPosition.y,z:config.centre.z+config.radius*Math.cos(mouseTheta)},config,view).x;
    const target=seatedGaze((pointer.current.x+1)*view.width/2,pointer.current.y*view.height,{pilotX:pilot.x,antennaY,chairBaseY,alienHeight,viewportHeight:view.height,leftAnchorX,rightAnchorX});
    setAttention(old => {
     // A settled pointer must not reconcile the room every frame.
@@ -187,13 +191,13 @@ export default function Ship({ hintReady=false,hintMobile=false,config, baseline
    window.removeEventListener('pointerout', leave);
    window.removeEventListener('blur', reset);
   };
- }, [config,view,arcadeOpen,telescopeOpen]);
+ }, [arcadeOpen,telescopeOpen]);
  const [debug,setDebug]=useState(false);
  const [grid,setGrid]=useState(true);
  return <CockpitActiveContext.Provider value={!arcadeOpen&&!telescopeOpen}><div ref={root} className={styles.ship} style={{...(sharedSeam ? {width:view.width,height:view.height} : {}),opacity:Math.max(0,Math.min(1,(reveal-.12)/.6))}} aria-label="Mate cockpit">
-  <Dome config={domeConfig} view={view} debug={development && debug && grid} />
-  <ExteriorHull ambientActive={reveal===1&&!arcadeOpen&&!telescopeOpen&&!busy} config={config} hull={hull} view={view} sharedSeam={sharedSeam} />
-  <CockpitFloor config={config} view={view} sharedSeam={sharedSeam} />
+  <Profiler id="dome" onRender={profile}><Dome config={domeConfig} view={view} debug={development && debug && grid} /></Profiler>
+  <Profiler id="exteriorhull" onRender={profile}><ExteriorHull ambientActive={reveal===1&&!arcadeOpen&&!telescopeOpen&&!busy} config={config} hull={hull} view={view} sharedSeam={sharedSeam} /></Profiler>
+  <Profiler id="cockpitfloor" onRender={profile}><CockpitFloor config={config} view={view} sharedSeam={sharedSeam} /></Profiler>
   <svg width={view.width} height={view.height} style={{position:'absolute',inset:0,zIndex:5,pointerEvents:'none'}} aria-label="Walkable cockpit floor">
    <path data-charlie-floor-destination d={polygonPath(Array.from({length:97},(_,i)=>({x:config.centre.x+(config.radius-.65)*Math.sin(i/96*Math.PI*2),y:ROOM.floorY,z:config.centre.z+(config.radius-.65)*Math.cos(i/96*Math.PI*2)})),config,view)} fill="transparent" style={{pointerEvents:reveal===1?'all':'none',cursor:'crosshair'}} onClick={event=>{
     const bounds=root.current!.getBoundingClientRect(),scene=root.current?.closest<HTMLElement>('[data-cockpit-presentation]'),angle=Number(scene?.dataset.presentationAngle??0)*Math.PI/180,scale=Number(scene?.dataset.presentationScale??1);
@@ -202,15 +206,15 @@ export default function Ship({ hintReady=false,hintMobile=false,config, baseline
     const point=floorPoint(x,y,config,view);if(point){if(ritualBusy.current){queuedTargetRef.current=null;setQueuedTarget(null);deferred.current=()=>{movement.walk(point);};onLeaveContext?.();}else if(movement.walk(point)){cancelWater();onLeaveContext?.();}}
    }}/>
   </svg>
-  <Fixtures onPlant={actions.floorPlant} plantWiggle={watering.scene?.plant==='floor-plant'?wateringFrame(watering.scene,config,movement.state.position).wiggle:0} gramophone={gramophone} outfit={appearance.spin?.to ?? appearance.outfit} onRecords={actions.records} reading={movement.state.paper>0} onShows={actions.shows} onMerch={actions.merch} domeMenu={domeMenu} config={config} view={view} onArcade={actions.arcade} onTV={actions.tv} onNewsletter={actions.newsletter} liveTv={liveTv} />
-  <MemoizedPilotMezzanine hintMobile={hintMobile} hintFacing={showHint} hint={showHint && hintSpeaking ? `Psst... try ${hintMobile ? "tapping" : "clicking"} stuff` : undefined} onPlant={actions.deskPlant} plantWiggle={watering.scene?.plant==='desk-plant'?wateringFrame(watering.scene,config,movement.state.position).wiggle:0} outfit={appearance.outfit} attention={showHint ? {x:0,back:1,down:0,swivel:0} : attention} config={config} view={view} seated={movement.state.mode==='pilot-seated'&&!movement.state.phase} onChair={reveal===1?actions.chair:undefined} />
+  <Profiler id="fixtures" onRender={profile}><Fixtures onPlant={actions.floorPlant} plantWiggle={watering.scene?.plant==='floor-plant'?wateringFrame(watering.scene,config,movement.state.position).wiggle:0} gramophone={gramophone} outfit={appearance.spin?.to ?? appearance.outfit} onRecords={actions.records} reading={movement.state.paper>0} onShows={actions.shows} onMerch={actions.merch} domeMenu={domeMenu} config={config} view={view} onArcade={actions.arcade} onTV={actions.tv} onNewsletter={actions.newsletter} liveTv={liveTv} /></Profiler>
+  <Profiler id="memoizedpilotmezzanine" onRender={profile}><MemoizedPilotMezzanine hintMobile={hintMobile} hintFacing={showHint} hint={showHint && hintSpeaking ? `Psst... try ${hintMobile ? "tapping" : "clicking"} stuff` : undefined} onPlant={actions.deskPlant} plantWiggle={watering.scene?.plant==='desk-plant'?wateringFrame(watering.scene,config,movement.state.position).wiggle:0} outfit={appearance.outfit} attention={showHint ? {x:0,back:1,down:0,swivel:0} : attention} config={config} view={view} seated={movement.state.mode==='pilot-seated'&&!movement.state.phase} onChair={reveal===1?actions.chair:undefined} /></Profiler>
   <div className="cockpit-tv-layer" ref={onTvLayer} style={{position:'absolute',inset:0,zIndex:7,pointerEvents:'none','--tv-frame-width':view.width+'px','--tv-frame-height':view.height+'px'} as React.CSSProperties}/>
-  <Telescope config={config} view={view} engaged={atTelescope} onClick={available('telescope')?()=>{onLeaveContext?.();interact('telescope');}:undefined}/>
-  <WalkingCharlie coffee={coffee} trophyHands={reward.hands} telescope={atTelescope} watering={watering.scene} scripted={reward.busy||records.busy||!!watering.scene||atTelescope} gramophone={gramophone} outfit={appearance.outfit} spin={appearance.spin} state={movement.state} config={config} view={view}/>
+  <Profiler id="telescope" onRender={profile}><Telescope config={config} view={view} engaged={atTelescope} onClick={available('telescope')?()=>{onLeaveContext?.();interact('telescope');}:undefined}/></Profiler>
+  <Profiler id="walkingcharlie" onRender={profile}><WalkingCharlie coffee={coffee} trophyHands={reward.hands} telescope={atTelescope} watering={watering.scene} scripted={reward.busy||records.busy||!!watering.scene||atTelescope} gramophone={gramophone} outfit={appearance.outfit} spin={appearance.spin} state={movement.state} config={config} view={view}/></Profiler>
   <svg width={view.width} height={view.height} style={{position:'absolute',inset:0,zIndex:9,pointerEvents:'none'}} aria-label="Charlie’s handled records and sleeves">
    <RecordProps scene={gramophone} fixture={orientedFixtures(config.centre,config.radius).musicStation} config={config} view={view} layer="carried"/>
   </svg>
-  <SeasonalPumpkin config={config} view={view} active={reveal===1&&!arcadeOpen&&!telescopeOpen&&!busy}/>
+  <Profiler id="seasonalpumpkin" onRender={profile}><SeasonalPumpkin config={config} view={view} active={reveal===1&&!arcadeOpen&&!telescopeOpen&&!busy}/></Profiler>
   <CoffeeBreak state={movement.state} config={config} view={view} pose={coffee}/>
   <WateringProps scene={watering.scene} config={config} view={view} position={movement.state.position}/>
   <ManifestationPort config={config} view={view} covered={reward.aperture===0} aperture={reward.aperture}/>

@@ -1,5 +1,5 @@
-import { memo, useId } from 'react';
-import { project, type DomeConfig, type Viewport } from '@/lib/ship/domeGeometry';
+import { memo, useId, useMemo } from 'react';
+import { DEFAULT_DOME, project, type DomeConfig, type Viewport } from '@/lib/ship/domeGeometry';
 import { hullMesh, type HullConfig } from '@/lib/ship/hullGeometry';
 import { hullFloorSeamPoint } from '@/lib/ship/hullFloorSeam';
 import { polygonPath, ROOM, platformY } from '@/lib/ship/roomGeometry';
@@ -12,7 +12,10 @@ const PARAPET_TRIM_OPACITY = .35;
 export const ExteriorHull = memo(function ExteriorHull({config,hull,view,sharedSeam=false,ambientActive=true}:{config:DomeConfig;hull:HullConfig;view:Viewport;sharedSeam?:boolean;ambientActive?:boolean}) {
  const id=useId();
  const mousehole=mouseholeGeometry(config,view);
- const patches=hullMesh(config,hull,sharedSeam).map(p=>({...p,depth:p.points.reduce((sum,q)=>sum+project(q,config,view).depth,0)/4})).sort((a,b)=>b.depth-a.depth);
+ const {radius,centre}=config;
+ const geometry=useMemo(()=>hullMesh({...DEFAULT_DOME,radius,centre},hull,sharedSeam),[radius,centre,hull,sharedSeam]);
+ // Keep the rim in the SVG painter stack, behind its inset panels and lights.
+ const patches=geometry.map(p=>({...p,depth:p.points.reduce((sum,q)=>sum+project(q,config,view).depth,0)/4})).sort((a,b)=>b.depth-a.depth);
  const point=(theta:number,height:number)=>{const p=hullFloorSeamPoint(theta,config);return {...p,y:p.y+height};};
  const band=(a:number,b:number,bottom:number,top:number)=>{
   const points=[];

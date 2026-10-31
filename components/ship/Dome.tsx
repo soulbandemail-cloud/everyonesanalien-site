@@ -28,14 +28,16 @@ const feather=Array.from({length:16},(_,i)=>{
  return {t,weight:6*t*(1-t)/16};
 });
 export const Dome = memo(function Dome({ config, view, debug }: { config: DomeConfig; view: Viewport; debug: boolean }) {
- const id=useId(),glass=useRef<HTMLCanvasElement>(null);
+ const id=useId(),glass=useRef<HTMLCanvasElement>(null),pixels=useRef<ImageData|null>(null);
  useLayoutEffect(()=>{
+  const started=performance.now();
   const canvas=glass.current,context=canvas?.getContext('2d');if(!canvas||!context)return;
   // Only a smooth optical field is sampled here, never the sharp stars/content.
   // Repaint on camera/viewport changes, not on an animation clock.
   const width=Math.max(1,Math.ceil(view.width/4)),height=Math.max(1,Math.ceil(view.height/4));
-  canvas.width=width;canvas.height=height;
-  const image=context.createImageData(width,height),incidence=domeIncidence(config,view);
+  if(canvas.width!==width)canvas.width=width;if(canvas.height!==height)canvas.height=height;
+  if(!pixels.current||pixels.current.width!==width||pixels.current.height!==height)pixels.current=context.createImageData(width,height);
+  const image=pixels.current,incidence=domeIncidence(config,view);
   for(let y=0;y<height;y++)for(let x=0;x<width;x++){
    const cosine=incidence((x+.5)*view.width/width,(y+.5)*view.height/height);
    const i=(y*width+x)*4;
@@ -45,6 +47,7 @@ export const Dome = memo(function Dome({ config, view, debug }: { config: DomeCo
    image.data[i]=140;image.data[i+1]=186;image.data[i+2]=181;image.data[i+3]=Math.round(alpha*255);
   }
   context.putImageData(image,0,0);
+  if(process.env.NODE_ENV==='development')canvas.dataset.paintMs=(performance.now()-started).toFixed(1);
  },[config,view]);
  return <svg className={styles.dome} width={view.width} height={view.height} aria-hidden="true">
  <defs>

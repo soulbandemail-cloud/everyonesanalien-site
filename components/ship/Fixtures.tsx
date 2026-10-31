@@ -1,7 +1,7 @@
 import {SofaUpholstery} from './SofaUpholstery';
 import {PlantInteraction} from './PlantInteraction';
-import { memo, useEffect, useId, useState } from 'react';
-import { project, type DomeConfig, type Vec3, type Viewport } from '@/lib/ship/domeGeometry';
+import { memo, useEffect, useId, useState, useMemo } from 'react';
+import { spherePoint, project, type DomeConfig, type Vec3, type Viewport } from '@/lib/ship/domeGeometry';
 import { polygonPath } from '@/lib/ship/roomGeometry';
 import { FIXTURES, orientedFixtures, consoleTvScreen, type FixturePlacement } from '@/lib/ship/fixtureLayout';
 import {UPCOMING_POSTERS,type DomeMenu} from '@/lib/ship/domeNavigation';
@@ -12,9 +12,12 @@ import {RecordProps} from './RecordProps';
 import {GramophoneNotes} from './GramophoneNotes';
 import {restingGramophone,tonearmPoint,type GramophoneScene} from '@/lib/ship/recordRitual';
 import {crankPoint,CRANK_PIVOT} from '@/lib/ship/records';
-import {rasterPoster} from '@/lib/ship/posterRaster';
+import {worldMesh} from '@/lib/ship/worldSurface';
+import {WorldSurface} from './WorldSurface';
 import {posterSurfacePoint} from '@/lib/ship/posterProjection';
 
+// The drawing inside each local artwork plane does not depend on the camera.
+const FixtureArtwork=memo(function FixtureArtwork({children}:{children:React.ReactNode;revision:unknown}){return <>{children}</>;},(a,b)=>a.revision===b.revision);
 type Props = { onPlant?:()=>void;plantWiggle?:number; gramophone?:GramophoneScene; outfit?:Outfit; config: DomeConfig; view: Viewport; onArcade?: () => void; onTV?:()=>void; onNewsletter?:()=>void; onShows?:()=>void; onMerch?:()=>void; onRecords?:()=>void; domeMenu?:DomeMenu; liveTv?:boolean; reading?:boolean };
 
 /** Crude world-space solids: no owned items, controls, playback or inventory state. */
@@ -74,17 +77,18 @@ export const Fixtures = memo(function Fixtures({ onPlant,plantWiggle=0,config, v
   function line(f: FixturePlacement, a: number[], b: number[], colour = '#a1aeac', width = 3) {
     return <path d={path([local(f,a[0],a[1],a[2]),local(f,b[0],b[1],b[2])])} fill="none" stroke={colour} strokeWidth={width} strokeLinecap="round" />;
   }
+  const artRevision=useMemo(()=>({outfit,shirtInk,plantWiggle,gramophone,liveTv,reading}),[outfit,shirtInk,plantWiggle,gramophone,liveTv,reading]);
   function flatArt(f: FixturePlacement, x: number, y: number, z: number, width: number, children: React.ReactNode, plane: 'vertical' | 'horizontal' | 'side' = 'vertical') {
     const p = project(local(f,x,y,z), config, view);
     if (!p.visible) return null;
-    if (f === FIXTURES.radio) return <g transform={`translate(${p.x} ${p.y}) scale(${(p.scale * f.scale * width / 100).toFixed(6)})`}>{children}</g>;
+    if (f === FIXTURES.radio) return <g transform={`translate(${p.x} ${p.y}) scale(${(p.scale * f.scale * width / 100).toFixed(6)})`}><FixtureArtwork revision={artRevision}>{children}</FixtureArtwork></g>;
     // Small illustrated details inherit the local surface's perspective basis,
     // rather than remaining camera-facing billboards or being spun in screen space.
     const unit = width / 100;
     const right = project(local(f,plane === 'side' ? x : x+unit,y,plane === 'side' ? z+unit : z), config, view);
     const down = project(local(f,x,plane !== 'horizontal' ? y-unit : y,plane === 'horizontal' ? z-unit : z), config, view);
     const matrix = [right.x-p.x,right.y-p.y,down.x-p.x,down.y-p.y,p.x,p.y].map(n=>n.toFixed(6)).join(' ');
-    return <g transform={`matrix(${matrix})`}>{children}</g>;
+    return <g transform={`matrix(${matrix})`}><FixtureArtwork revision={artRevision}>{children}</FixtureArtwork></g>;
   }
   const fixtures = orientedFixtures(config.centre, config.radius);
 const radio = fixtures.radio, music = fixtures.musicStation, sofa = fixtures.sofa;
@@ -400,18 +404,25 @@ const PosterArtwork=memo(function PosterArtwork({config,view}:{config:DomeConfig
  return <g>{UPCOMING_POSTERS.map(poster=><CurvedPoster key={poster.id} poster={poster} config={config} view={view} />)}</g>;
 });
 function CurvedPoster({poster,config,view}:{poster:typeof UPCOMING_POSTERS[number];config:DomeConfig;view:Viewport}) {
- const [image,setImage]=useState<Awaited<ReturnType<typeof rasterPoster>>|null>(null);
- const geometry=JSON.stringify({poster,config,view});
- useEffect(()=>{
-  let active=true;
-  const {poster,config,view}=JSON.parse(geometry);
-  void rasterPoster(poster,config,view).then(result=>{if(active)setImage(result);});
-  return ()=>{active=false;};
- },[geometry]);
+ const {radius,centre}=config;
+ const mesh=useMemo(()=>{
+  const r=radius-.08,vertices:number[]=[],rows=24,cols=16;
+  const vertex=(u:number,v:number)=>{const p=spherePoint(poster.theta+(u-.5)*poster.width/(r*Math.cos(poster.latitude)),poster.latitude+(.5-v)*poster.width*poster.aspect/r,{radius:r,centre} as DomeConfig);return [p.x,p.y,p.z,1,u,v];};
+  for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
+   const a=vertex(x/cols,y/rows),b=vertex((x+1)/cols,y/rows),c=vertex((x+1)/cols,(y+1)/rows),d=vertex(x/cols,(y+1)/rows);
+   vertices.push(...a,...b,...c,...a,...c,...d);
+  }
+  return worldMesh(vertices);
+ },[poster,radius,centre]);
  // Tape shares the poster's curved glass projection and its existing interaction group.
  const tape = [[.025,.025,-.48],[.975,.025,.42],[.025,.975,.38],[.975,.975,-.44]];
- return image ? <g>
-  <image aria-label={poster.title} {...image} preserveAspectRatio="none" />
+ const boundary=Array.from({length:4},(_,side)=>Array.from({length:17},(_,i)=>{
+  const t=i/16,[u,v]=side===0?[t,0]:side===1?[1,t]:side===2?[1-t,1]:[0,1-t];
+  const p=posterSurfacePoint(poster,u,v,config,view);return `${p.x},${p.y}`;
+ })).flat().join(' ');
+ return <g>
+  <WorldSurface label={poster.title} src={poster.src} mesh={mesh} config={config} view={view}/>
+  <polygon points={boundary} fill="transparent" pointerEvents="all"/>
   <g aria-hidden="true" pointerEvents="none" fill="#947048" fillOpacity=".9" stroke="#b08a5b" strokeWidth=".35" strokeLinejoin="round">
    {tape.map(([u,v,angle],index)=>{
     const points=[[-.15,-.025],[.15,-.025],[.15,.025],[-.15,.025]].map(([x,y])=>{
@@ -421,5 +432,5 @@ function CurvedPoster({poster,config,view}:{poster:typeof UPCOMING_POSTERS[numbe
     return <polygon key={index} points={points} />;
    })}
   </g>
- </g> : null;
+ </g>;
 }

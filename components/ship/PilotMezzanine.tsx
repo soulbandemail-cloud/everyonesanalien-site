@@ -1,8 +1,9 @@
 import type {Outfit} from '@/lib/ship/clothing';
-import {useId,useState,type CSSProperties} from 'react';
+import {memo,useId,useState,type CSSProperties} from 'react';
 import { Alien, type Attention } from './Alien';
 import { pilotChairVolume } from '@/lib/ship/pilotChairVolume';
 const emptyChairFaces=pilotChairVolume(180);
+const ChairSilhouette=memo(function ChairSilhouette(){return <>{emptyChairFaces.map((face,i)=><path key={i} d={face.d}/>)}</>;});
 import { ConsoleDetails } from './ConsoleDetails';
 import styles from './ship.module.css';
 import { project, type DomeConfig, type Viewport, type Vec3 } from '@/lib/ship/domeGeometry';
@@ -86,7 +87,7 @@ export function PilotMezzanine({ hintFacing=false,hintMobile=false,hint,attentio
      Browsers can omit accelerated canvas pixels from ancestor SVG filters. */}
  <svg className={styles.chairOutline} width={chairWidth} height={chairHeight} aria-hidden="true">
   <g fill="#6ee7b7" pointerEvents={!seated&&onChair?"visiblePainted":"none"} filter={`url(#${id}-chair-outline)`}>
-   <g transform={`scale(${chairWidth/180} ${chairHeight/250})`}>{emptyChairFaces.map((face,i)=><path key={i} d={face.d}/>)}</g>
+   <g transform={`scale(${chairWidth/180} ${chairHeight/250})`}><ChairSilhouette/></g>
    <rect x={chairWidth*.468} y={chairHeight*.88} width={chairWidth*.064} height={chairHeight*.10+seatLift}/>
    <ellipse cx={chairWidth*.5} cy={chairHeight*.99+seatLift} rx={chairWidth*.2} ry={chairHeight*.04}/>
   </g>

@@ -349,3 +349,18 @@ button.object-back:focus-visible { text-decoration:none; }
 @media (prefers-reduced-motion:reduce) {
  .ringer-tee-art { transition:none; }
 }
+
+/* Keep the real background visible while camera-dependent cockpit artwork finishes. */
+.mate-experience[data-cockpit-loading] [aria-label="Mate cockpit"],
+.mate-experience[data-cockpit-loading] [aria-label="Mate cockpit"] *,
+.mate-experience[data-cockpit-loading] .public-tv-frame { visibility:hidden !important; }
+
+/* Keep the exact planet and space visible while the deferred interior prepares. */
+.mate-experience[data-cockpit-loading] [data-dome-slot="socials"],
+.mate-experience[data-cockpit-loading] [data-dome-slot="information"],
+.mate-experience[data-cockpit-loading] [aria-label="a band called..."],
+.mate-experience[data-cockpit-loading] [data-soul-letter] { visibility: hidden !important; }
+
+/* Exterior-only arrival; no scene camera or furniture transforms. */
+.ufo-arrival { position:absolute; inset:0; z-index:20000; pointer-events:none; overflow:hidden; display:grid; place-items:center; }
+.ufo-arrival-model { width:90%; aspect-ratio:5/3; visibility:hidden; transform-origin:50% 36%; will-change:transform; }
